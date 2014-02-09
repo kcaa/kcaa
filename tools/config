@@ -1,0 +1,25 @@
+# This file contains a list of configurations.
+# You'll probably need to edit them so that it fits to your environment.
+# This file is parsed by shells, so beware the syntax if you something fancy.
+
+# ============================================================================
+# Proxy
+# ============================================================================
+
+CONTROLLER_BIN=${HOME}/opt/browsermob-proxy/bin/browsermob-proxy
+CONTROLLER_PORT=9090
+PROXY_PORT=9091
+
+# ============================================================================
+# Browser
+# ============================================================================
+
+BROWSER=chrome
+
+# ============================================================================
+# Chrome-specific
+# ============================================================================
+
+CHROME_BIN=${HOME}/opt/dart/chromium/chrome
+CHROMEDRIVER_BIN=${HOME}/opt/chromedriver
+

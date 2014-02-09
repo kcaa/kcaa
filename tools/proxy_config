@@ -1,3 +1,0 @@
-CONTROLLER_BIN=${HOME}/opt/browsermob-proxy/bin/browsermob-proxy
-CONTROLLER_PORT=9090
-PROXY_PORT=9091
