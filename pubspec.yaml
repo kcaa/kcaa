@@ -1,0 +1,7 @@
+name: kaac
+description: Kancolle Automated Assistant Client
+dependencies:
+    polymer: any
+transformers:
+- polymer:
+    entry_points: web/index.html

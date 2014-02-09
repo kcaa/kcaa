@@ -1,0 +1,37 @@
+body {
+  font-family: sans-serif;
+  margin: 1em;
+}
+h1 {
+  color: hsl(45, 80%, 60%);
+  font-family: sans-serif;
+  font-size: 4em;
+  margin: 0 0 0.5em;
+  text-shadow:
+    0 0 5px hsl(45, 85%, 20%),
+    5px 5px 5px hsla(45, 10%, 10%, 0.5);
+}
+h1 .kancolle-logo {
+  color: hsl(60, 80%, 60%);
+  text-shadow:
+    0 0 5px hsl(60, 85%, 20%),
+    5px 5px 5px hsla(60, 10%, 10%, 0.5);
+}
+h1 .rotate {
+  display: inline-block;
+  -webkit-transform: rotateZ(-10deg);
+}
+.container {
+  text-align: center;
+}
+footer {
+  font-family: sans-serif;
+  font-style: normal;
+  margin-top: 1em;
+  text-align: right;
+  -webkit-box-reflect:
+    below 3px linear-gradient(
+      hsla(0, 0%, 0%, 0.0),
+      hsla(0, 0%, 0%, 0.0) 30%,
+      hsla(0, 0%, 0%, 0.2));
+}

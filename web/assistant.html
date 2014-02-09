@@ -1,0 +1,94 @@
+<meta charset="utf-8">
+<polymer-element name="eplusx-kancolle-assistant">
+  <template>
+    <style>
+      #assistant {
+        display: inline-block;
+        text-align: center;
+      }
+      .horizontal {
+        padding: 10px;
+      }
+      .board {
+        background: linear-gradient(
+          170deg,
+          hsl(210, 20%, 100%),
+          hsl(210, 20%, 90%));
+        border-color: hsl(0, 5%, 80%);
+        border-radius: 10px;
+        border-style: solid;
+        border-width: 1px;
+        display: inline-block;
+        margin: 10px;
+        padding: 20px;
+        position: relative;
+        text-align: left;
+        transition: all 1000ms ease-out;
+      }
+      .horizontal .board {
+        box-sizing: border-box;
+        margin: 0;
+        width: 100%;
+      }
+      #statsBoard {
+        font-size: 0.9em;
+        vertical-align: top;
+        width: 300px;
+      }
+      button {
+        background-color: hsl(210, 90%, 20%);
+        border-color: hsl(210, 30%, 90%);
+        border-radius: 10px;
+        border-style: solid;
+        border-width: 1px;
+        box-shadow:
+          0 0 3px hsl(210, 30%, 60%),
+          3px 3px 5px hsl(210, 30%, 40%);
+        color: white;
+        font-family: "Roboto Slab", sans-serif;
+        font-size: 1em;
+        margin-top: 10px;
+        padding: 5px;
+        text-align: center;
+        transition: all 300ms ease-out;
+        width: 100%;
+      }
+      button:hover {
+        background-color: hsl(210, 90%, 40%);
+      }
+      button:active {
+        background-color: hsl(90, 90%, 40%);
+        box-shadow:
+          0 0 3px hsl(210, 30%, 60%),
+          3px 3px 5px hsl(210, 30%, 40%),
+          inset 0 0 10px hsl(90, 30%, 10%);
+      }
+      button[disabled], button[disabled]:hover, button[disabled]:active {
+        background-color: hsl(0, 0%, 60%);
+        box-shadow:
+          0 0 3px hsl(210, 30%, 60%),
+          3px 3px 5px hsl(210, 30%, 40%);
+      }
+    </style>
+    <div id="assistant">
+      <div class="row">
+        <div id="playAreaContainer" class="board">
+          <iframe src="https://www.dmm.com/my/-/login/=/path=Sg9VTQFXDFcXFl5bWlcKGAAVRlpZWgVNCw1ZSR9KU1URAFlVSQtOU0gVblFXC14CVV0DAh9XC00LBF4FUxFeXwtcH1QfVxFCBUpQW0cLD1kSEVdaXBY_/"
+                  width="1000" height="700">
+          </iframe>
+        </div>
+        <div id="statsBoard" class="board">
+          <div>ステータス</div>
+          <button id="peekButton" on-click="{{peek}}">
+            Peek!
+          </button>
+        </div>
+      </div>
+      <div class="row horizontal">
+        <pre class="board">{{peekResult}}</pre>
+      </div>
+    </div>
+  </template>
+  <script type="application/dart" src="assistant.dart"></script>
+</polymer-element>
+
