@@ -28,7 +28,7 @@ def parse_args(argv):
     return parser.parse_args(argv)
 
 
-def setup(args):
+def setup_browser(args):
     desired_capabilities = get_desired_capabilities(args)
     browser = None
     if args.browser == 'chrome':
@@ -39,6 +39,7 @@ def setup(args):
         raise ValueError('Unrecognized browser: {browser}'.format(
             browser=args.browser))
     browser.get(args.url)
+    return browser
 
 
 def get_desired_capabilities(args):
@@ -67,7 +68,7 @@ def setup_firefox(args, desired_capabilities):
 
 def main(argv):
     args = parse_args(argv[1:])
-    setup(args)
+    setup_browser(args)
 
 
 if __name__ == '__main__':
