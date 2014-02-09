@@ -13,6 +13,8 @@ def parse_args(argv):
     parser = argparse.ArgumentParser(description='KCAA server.')
     parser.add_argument('--url', default=url_default,
                         help='Url to open.')
+    parser.add_argument('--proxy_controller', default='http://localhost:9090',
+                        help='Proxy controller address.')
     parser.add_argument('--browser', default='chrome', choices=['chrome'],
                         help='Browser to use.')
     parser.add_argument('--chrome_binary', default='/usr/bin/google-chrome',
