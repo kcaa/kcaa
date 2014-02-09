@@ -2,4 +2,4 @@
 
 source $(dirname $0)/config
 
-${CONTROLLER_BIN} --port=${CONTROLLER_PORT}
+${PROXY_CONTROLLER_BIN} --port=${PROXY_CONTROLLER_PORT}

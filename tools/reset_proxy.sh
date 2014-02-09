@@ -2,13 +2,10 @@
 
 source $(dirname $0)/config
 
-CONTROLLER_ADDRESS=http://localhost:${CONTROLLER_PORT}
-PROXY_ROOT=${CONTROLLER_ADDRESS}/proxy
-PROXY=${PROXY_ROOT}/${PROXY_PORT}
+PROXY_CONTROLLER_ADDRESS=http://${PROXY_CONTROLLER_HOST}:${PROXY_CONTROLLER_PORT}
+PROXY_ROOT=${PROXY_CONTROLLER_ADDRESS}/proxy
 
-set -e -x
-
-curl -X DELETE ${PROXY}
+curl -X DELETE ${PROXY_ROOT}/${PROXY_PORT}
 curl -X POST -d "port=${PROXY_PORT}" ${PROXY_ROOT}
-curl -X PUT -d "captureContent=true" ${PROXY}/har
+curl -X PUT -d "captureContent=true" ${PROXY_ROOT}/${PROXY_PORT}/har
 
