@@ -3,4 +3,5 @@ build/
 packages/
 pubspec.lock
 web/packages
+*.pyc
 
