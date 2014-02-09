@@ -16,7 +16,7 @@ class Assistant extends PolymerElement {
   }
 
   void peek() {
-    var path = "http://localhost:8080/proxy/9091/har";
+    var path = "http://localhost:9090/proxy/9091/har";
     HttpRequest.getString(path)
         .then((String content) {
           var json = JSON.decode(content);
