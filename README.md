@@ -1,0 +1,1 @@
+# Kancolle Automated Assistant Client
