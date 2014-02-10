@@ -43,11 +43,13 @@ def setup_firefox(args, desired_capabilities):
     return webdriver.Firefox(capabilities=desired_capabilities)
 
 
-def monitor_browser(args, root_url, server_ready, to_exit):
-    if not server_ready.wait(3.0):
+def monitor_browser(args, server_conn, to_exit):
+    if not server_conn.poll(3.0):
         print 'Server is not responding. Shutting down.'
         to_exit.set()
         return
+    root_url = server_conn.recv()
+    time.sleep(1.0)
     br = setup(args, root_url)
     credit = 5
     while credit > 0:

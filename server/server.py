@@ -1,7 +1,12 @@
 import SimpleHTTPServer
 import SocketServer
+import os
 import urllib2
 import urlparse
+
+
+DEPLOYED_PACKAGE = 'build'
+DEVELOPMENT_PACKAGE = 'web'
 
 
 class KcaaHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
@@ -53,7 +58,26 @@ class KcaaHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             self.send_error(501, 'Unknown method: {}'.format(self.command))
 
 
+def move_to_client_dir():
+    # Change directory to client directory so that SimpleHTTPServer can serve
+    # client resources.
+    client_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..',
+                                              'client'))
+    if not os.path.isdir(client_dir):
+        raise IOError('No client directory found: {}'.format(client_dir))
+    os.chdir(client_dir)
+    # Use 'build' subdirectory when deployed, or 'web' when being developed.
+    if os.path.isdir(DEPLOYED_PACKAGE):
+        os.chdir(DEPLOYED_PACKAGE)
+    elif os.path.isdir(DEVELOPMENT_PACKAGE):
+        os.chdir(DEVELOPMENT_PACKAGE)
+    else:
+        raise IOError('No client package directories found under {}.'.format(
+            client_dir))
+
+
 def setup(args):
+    move_to_client_dir()
     httpd = SocketServer.TCPServer(('', args.server_port),
                                    KcaaHTTPRequestHandler)
     httpd.proxy_controller = args.proxy_controller
@@ -64,3 +88,14 @@ def setup(args):
     root_url = 'http://localhost:{}/client/'.format(port)
     print 'KCAA server ready at {}'.format(root_url)
     return httpd, root_url
+
+
+def handle_server(args, browser_conn, to_exit):
+    httpd, root_url = setup(args)
+    browser_conn.send(root_url)
+    httpd.timeout = 1.0
+    while True:
+        httpd.handle_request()
+        if to_exit.wait(0.0):
+            break
+    to_exit.set()
