@@ -1,28 +1,41 @@
 import SimpleHTTPServer
 import SocketServer
+import urlparse
 
 
 class KcaaHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
+    GETSTATE = '/getstate'
     CLIENT_PREFIX = '/client/'
 
     def do_HEAD(self):
-        # Note: HTTP request handlers are not new-style classes.
-        # super() cannot be used.
-        if self.rewrite_to_client_path():
-            SimpleHTTPServer.SimpleHTTPRequestHandler.do_HEAD(self)
+        self.dispatch()
 
     def do_GET(self):
-        if self.rewrite_to_client_path():
-            SimpleHTTPServer.SimpleHTTPRequestHandler.do_GET(self)
+        self.dispatch()
 
-    def rewrite_to_client_path(self):
-        if self.path.startswith(KcaaHTTPRequestHandler.CLIENT_PREFIX):
-            self.path = '/' + self.path[len(
-                KcaaHTTPRequestHandler.CLIENT_PREFIX):]
-            return True
+    def dispatch(self):
+        o = urlparse.urlparse(self.path)
+        if o.path == KcaaHTTPRequestHandler.GETSTATE:
+            self.handle_getstate(o)
+        elif o.path.startswith(KcaaHTTPRequestHandler.CLIENT_PREFIX):
+            self.handle_client(o)
         else:
-            return False
+            self.send_error(404, 'File not found: {}'.format(self.path))
+
+    def handle_getstate(self, o):
+        self.send_error(403)
+
+    def handle_client(self, o):
+        self.path = '/' + o.path[len(KcaaHTTPRequestHandler.CLIENT_PREFIX):]
+        # Note: HTTP request handlers are not new-style classes.
+        # super() cannot be used.
+        if self.command == 'HEAD':
+            SimpleHTTPServer.SimpleHTTPRequestHandler.do_HEAD(self)
+        elif self.command == 'GET':
+            SimpleHTTPServer.SimpleHTTPRequestHandler.do_GET(self)
+        else:
+            self.send_error(501, 'Unknown method: {}'.format(self.command))
 
 
 def setup(args):
