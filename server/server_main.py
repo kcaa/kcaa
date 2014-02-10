@@ -61,6 +61,7 @@ def main(argv):
         httpd.handle_request()
         if to_exit.wait(0.0):
             break
+    to_exit.set()
     p.join()
 
 
