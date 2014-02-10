@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+import time
+
 from selenium import webdriver
 
 
@@ -39,3 +41,35 @@ def setup_chrome(args, desired_capabilities):
 
 def setup_firefox(args, desired_capabilities):
     return webdriver.Firefox(capabilities=desired_capabilities)
+
+
+def monitor_browser(args, root_url, server_ready, to_exit):
+    if not server_ready.wait(3.0):
+        print 'Server is not responding. Shutting down.'
+        to_exit.set()
+        return
+    br = setup(args, root_url)
+    credit = 5
+    while credit > 0:
+        try:
+            time.sleep(1.0)
+            if to_exit.wait(0.0):
+                break
+            # Check window_handles as a heartbeat.
+            # This seems better than current_url or title because they
+            # interfere with Chrome developer tools.
+            if br.window_handles is None:
+                # This actually never happens, but kept to ensure
+                # br.window_handles is evaluated.
+                credit -= 1
+            else:
+                if credit < 5:
+                    print 'Browser recovered.'
+                credit = 5
+        except Exception:
+            # Browser exited, or didn't respond.
+            print 'Browser didn\'t responded. Retrying...'
+            credit -= 1
+    if credit == 0:
+        print 'Browser exited. Shutting down server...'
+    to_exit.set()

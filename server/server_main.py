@@ -3,7 +3,6 @@
 import multiprocessing
 import os
 import sys
-import time
 
 import browser
 import flags
@@ -32,45 +31,13 @@ def move_to_client_dir():
             client_dir))
 
 
-def monitor_browser(args, root_url, server_ready, to_exit):
-    if not server_ready.wait(3.0):
-        print 'Server is not responding. Shutting down.'
-        to_exit.set()
-        return
-    br = browser.setup(args, root_url)
-    credit = 5
-    while credit > 0:
-        try:
-            time.sleep(1.0)
-            if to_exit.wait(0.0):
-                break
-            # Check window_handles as a heartbeat.
-            # This seems better than current_url or title because they
-            # interfere with Chrome developer tools.
-            if br.window_handles is None:
-                # This actually never happens, but kept to ensure
-                # br.window_handles is evaluated.
-                credit -= 1
-            else:
-                if credit < 5:
-                    print 'Browser recovered.'
-                credit = 5
-        except Exception:
-            # Browser exited, or didn't respond.
-            print 'Browser didn\'t responded. Retrying...'
-            credit -= 1
-    if credit == 0:
-        print 'Browser exited. Shutting down server...'
-    to_exit.set()
-
-
 def main(argv):
     args = flags.parse_args(argv[1:])
     move_to_client_dir()
     to_exit = multiprocessing.Event()
     server_ready = multiprocessing.Event()
     httpd, root_url = server.setup(args)
-    p = multiprocessing.Process(target=monitor_browser,
+    p = multiprocessing.Process(target=browser.monitor_browser,
                                 args=(args, root_url, server_ready, to_exit))
     p.start()
     httpd.timeout = 1.0
