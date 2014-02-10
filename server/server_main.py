@@ -32,9 +32,11 @@ def move_to_client_dir():
             client_dir))
 
 
-def monitor_browser(args, root_url, to_exit):
-    # To be on the safe side, wait 1 second before creating the first request.
-    time.sleep(1.0)
+def monitor_browser(args, root_url, server_ready, to_exit):
+    if not server_ready.wait(3.0):
+        print 'Server is not responding. Shutting down.'
+        to_exit.set()
+        return
     br = browser.setup(args, root_url)
     credit = 5
     while credit > 0:
@@ -66,13 +68,15 @@ def main(argv):
     args = flags.parse_args(argv[1:])
     move_to_client_dir()
     to_exit = multiprocessing.Event()
+    server_ready = multiprocessing.Event()
     httpd, root_url = server.setup(args)
     p = multiprocessing.Process(target=monitor_browser,
-                                args=(args, root_url, to_exit))
+                                args=(args, root_url, server_ready, to_exit))
     p.start()
     httpd.timeout = 1.0
     while True:
         httpd.handle_request()
+        server_ready.set()
         if to_exit.wait(0.0):
             break
     to_exit.set()
