@@ -36,16 +36,28 @@ def monitor_browser(args, root_url, to_exit):
     # To be on the safe side, wait 1 second before creating the first request.
     time.sleep(1.0)
     br = browser.setup(args, root_url)
-    try:
-        running = True
-        while running:
+    credit = 5
+    while credit > 0:
+        try:
             time.sleep(1.0)
-            running = br.current_url is not None
             if to_exit.wait(0.0):
-                running = False
-    except Exception:
+                break
+            if br.current_url is None:
+                # This actually never happens, but kept to ensure
+                # br.current_url is evaluated.
+                print 'Hmm?'
+                credit -= 1
+            else:
+                if credit < 5:
+                    print 'Browser recovered.'
+                credit = 5
+        except Exception:
+            # Browser exited, or didn't respond.
+            print 'Browser didn\'t responded. Retrying...'
+            credit -= 1
+    if credit == 0:
         print 'Browser exited. Shutting down server...'
-        to_exit.set()
+    to_exit.set()
 
 
 def main(argv):
