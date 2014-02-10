@@ -9,15 +9,19 @@ import 'package:polymer/polymer.dart';
 class Assistant extends PolymerElement {
   @observable String peekResult;
 
+  Uri serverGetstate;
+
   Assistant.created() : super.created();
 
   @override
   void enteredView() {
+    var clientRoot = Uri.parse(window.location.href);
+    serverGetstate = clientRoot.resolve("/getstate");
+    peekResult = serverGetstate.toString();
   }
 
   void peek() {
-    var path = "http://localhost:9090/proxy/9091/har";
-    HttpRequest.getString(path)
+    HttpRequest.getString(serverGetstate.toString())
         .then((String content) {
           var json = JSON.decode(content);
           peekResult = formatJson(json);
