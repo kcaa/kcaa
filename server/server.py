@@ -42,6 +42,8 @@ def setup(args):
     httpd = SocketServer.TCPServer(('', args.server_port),
                                    KcaaHTTPRequestHandler)
     _, port = httpd.server_address
+    # Don't use query (something like ?key=value). Kancolle widget detects it
+    # from referer and rejects to respond.
     root_url = 'http://127.0.0.1:{}/client/'.format(port)
     print 'KCAA server ready at {}'.format(root_url)
     return httpd, root_url
