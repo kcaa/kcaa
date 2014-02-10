@@ -42,10 +42,12 @@ def monitor_browser(args, root_url, to_exit):
             time.sleep(1.0)
             if to_exit.wait(0.0):
                 break
-            if br.current_url is None:
+            # Check window_handles as a heartbeat.
+            # This seems better than current_url or title because they
+            # interfere with Chrome developer tools.
+            if br.window_handles is None:
                 # This actually never happens, but kept to ensure
-                # br.current_url is evaluated.
-                print 'Hmm?'
+                # br.window_handles is evaluated.
                 credit -= 1
             else:
                 if credit < 5:
