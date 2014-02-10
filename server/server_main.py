@@ -32,20 +32,36 @@ def move_to_client_dir():
             client_dir))
 
 
-def monitor_browser(httpd, args, root_url):
+def monitor_browser(args, root_url, to_exit):
     # To be on the safe side, wait 1 second before creating the first request.
     time.sleep(1.0)
-    browser.setup(args, root_url)
+    br = browser.setup(args, root_url)
+    try:
+        running = True
+        while running:
+            time.sleep(1.0)
+            running = br.current_url is not None
+            if to_exit.wait(0.0):
+                running = False
+    except Exception:
+        print 'Browser exited. Shutting down server...'
+        to_exit.set()
 
 
 def main(argv):
     args = flags.parse_args(argv[1:])
     move_to_client_dir()
+    to_exit = multiprocessing.Event()
     httpd, root_url = server.setup(args)
     p = multiprocessing.Process(target=monitor_browser,
-                                args=(httpd, args, root_url))
+                                args=(args, root_url, to_exit))
     p.start()
-    httpd.serve_forever()
+    httpd.timeout = 1.0
+    while True:
+        httpd.handle_request()
+        if to_exit.wait(0.0):
+            break
+    p.join()
 
 
 if __name__ == '__main__':
