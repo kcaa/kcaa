@@ -3,7 +3,7 @@
 import multiprocessing
 import sys
 
-import browser
+import controller
 import flags
 import server
 
@@ -11,15 +11,15 @@ import server
 def main(argv):
     args = flags.parse_args(argv[1:])
     to_exit = multiprocessing.Event()
-    browser_conn, server_conn = multiprocessing.Pipe()
-    ps = multiprocessing.Process(target=server.handle_server,
-                                 args=(args, browser_conn, to_exit))
-    pb = multiprocessing.Process(target=browser.monitor_browser,
+    controller_conn, server_conn = multiprocessing.Pipe()
+    pc = multiprocessing.Process(target=controller.controll,
                                  args=(args, server_conn, to_exit))
+    ps = multiprocessing.Process(target=server.handle_server,
+                                 args=(args, controller_conn, to_exit))
+    pc.start()
     ps.start()
-    pb.start()
+    pc.join()
     ps.join()
-    pb.join()
 
 
 if __name__ == '__main__':

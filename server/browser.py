@@ -1,22 +1,6 @@
 #!/usr/bin/env python
 
-import time
-
 from selenium import webdriver
-
-
-def setup(args, url):
-    desired_capabilities = get_desired_capabilities(args)
-    browser = None
-    if args.browser == 'chrome':
-        browser = setup_chrome(args, desired_capabilities)
-    elif args.browser == 'firefox':
-        browser = setup_firefox(args, desired_capabilities)
-    else:
-        raise ValueError('Unrecognized browser: {browser}'.format(
-            browser=args.browser))
-    browser.get(url)
-    return browser
 
 
 def get_desired_capabilities(args):
@@ -43,35 +27,43 @@ def setup_firefox(args, desired_capabilities):
     return webdriver.Firefox(capabilities=desired_capabilities)
 
 
-def monitor_browser(args, server_conn, to_exit):
-    if not server_conn.poll(3.0):
-        print 'Server is not responding. Shutting down.'
-        to_exit.set()
-        return
-    root_url = server_conn.recv()
-    time.sleep(1.0)
-    br = setup(args, root_url)
-    credit = 5
-    while credit > 0:
+def setup(args, url):
+    desired_capabilities = get_desired_capabilities(args)
+    browser = None
+    if args.browser == 'chrome':
+        browser = setup_chrome(args, desired_capabilities)
+    elif args.browser == 'firefox':
+        browser = setup_firefox(args, desired_capabilities)
+    else:
+        raise ValueError('Unrecognized browser: {browser}'.format(
+            browser=args.browser))
+    browser.get(url)
+    return BrowserMonitor(browser, 5)
+
+
+class BrowserMonitor(object):
+
+    def __init__(self, browser, max_credit):
+        self.browser = browser
+        self.max_credit = max_credit
+        self.credit = max_credit
+
+    def is_alive(self):
         try:
-            time.sleep(1.0)
-            if to_exit.wait(0.0):
-                break
             # Check window_handles as a heartbeat.
             # This seems better than current_url or title because they
             # interfere with Chrome developer tools.
-            if br.window_handles is None:
-                # This actually never happens, but kept to ensure
-                # br.window_handles is evaluated.
-                credit -= 1
+            if self.browser.window_handles is None:
+                # This won't occur (as an exception will be thrown instead)
+                # but to make sure the above condition is evaluated.
+                self.credit -= 1
+                print 'What happened?'
             else:
-                if credit < 5:
+                if self.credit < self.max_credit:
                     print 'Browser recovered.'
-                credit = 5
+                self.credit = self.max_credit
         except Exception:
             # Browser exited, or didn't respond.
-            print 'Browser didn\'t responded. Retrying...'
-            credit -= 1
-    if credit == 0:
-        print 'Browser exited. Shutting down server...'
-    to_exit.set()
+            print 'Browser not responding.'
+            self.credit -= 1
+        return self.credit > 0
