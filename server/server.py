@@ -1,7 +1,7 @@
 import SimpleHTTPServer
 import SocketServer
+import json
 import os
-import urllib2
 import urlparse
 
 
@@ -33,18 +33,10 @@ class KcaaHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         if self.command != 'GET':
             self.send_error(501, 'Unknown method: {}'.format(self.command))
             return
-        proxy_controller = self.server.proxy_controller
-        proxy_port = self.server.proxy_port
-        get_har = 'http://{}/proxy/{}/har'.format(proxy_controller, proxy_port)
-        try:
-            data = urllib2.urlopen(get_har)
-        except urllib2.URLError as e:
-            self.send_error(501, e)
-            return
-        self.send_response(data.getcode())
+        self.send_response(200)
         self.send_header('Content-Type', 'text/json')
         self.end_headers()
-        self.wfile.write(data.read())
+        self.wfile.write(json.dumps(self.server.state))
 
     def handle_client(self, o):
         self.path = '/' + o.path[len(KcaaHTTPRequestHandler.CLIENT_PREFIX):]
@@ -80,8 +72,6 @@ def setup(args):
     move_to_client_dir()
     httpd = SocketServer.TCPServer(('', args.server_port),
                                    KcaaHTTPRequestHandler)
-    httpd.proxy_controller = args.proxy_controller
-    httpd.proxy_port = args.proxy.partition(':')[2]
     _, port = httpd.server_address
     # Don't use query (something like ?key=value). Kancolle widget detects it
     # from referer and rejects to respond.
@@ -90,12 +80,15 @@ def setup(args):
     return httpd, root_url
 
 
-def handle_server(args, browser_conn, to_exit):
+def handle_server(args, controller_conn, to_exit):
     httpd, root_url = setup(args)
-    browser_conn.send(root_url)
+    httpd.state = []
+    controller_conn.send(root_url)
     httpd.timeout = 1.0
     while True:
         httpd.handle_request()
         if to_exit.wait(0.0):
             break
+        while controller_conn.poll():
+            httpd.state.append(controller_conn.recv())
     to_exit.set()
