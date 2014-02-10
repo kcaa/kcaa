@@ -3,7 +3,7 @@
 from selenium import webdriver
 
 
-def setup(args):
+def setup(args, url):
     desired_capabilities = get_desired_capabilities(args)
     browser = None
     if args.browser == 'chrome':
@@ -13,7 +13,7 @@ def setup(args):
     else:
         raise ValueError('Unrecognized browser: {browser}'.format(
             browser=args.browser))
-    browser.get(args.url)
+    browser.get(url)
     return browser
 
 
