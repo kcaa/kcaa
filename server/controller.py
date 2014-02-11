@@ -33,6 +33,6 @@ def controll(args, server_conn, to_exit):
         if har:
             for api_name, entry in kcsapi_util.get_kcsapi_entries(har):
                 logger.debug('KCSAPI URL: {}'.format(entry['request']['url']))
-                kcsapi_util.dispath(api_name, entry)
+                kcsapi_util.dispatch(api_name, entry)
                 server_conn.send(entry)
     to_exit.set()
