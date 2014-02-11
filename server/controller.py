@@ -4,6 +4,7 @@ import logging
 import time
 
 import browser
+import kcsapi_util
 import proxy_util
 
 
@@ -26,7 +27,9 @@ def controll(args, server_conn, to_exit):
         if not browser_monitor.is_alive():
             logger.info('Browser dead. Shutting down the server.')
             break
-        d = har_manager.get_next_page()
-        if d:
-            server_conn.send(d)
+        har = har_manager.get_next_page()
+        if har:
+            for entry in kcsapi_util.get_kcsapi_entries(har):
+                logger.debug('KCSAPI URL: {}'.format(entry['request']['url']))
+                server_conn.send(entry)
     to_exit.set()
