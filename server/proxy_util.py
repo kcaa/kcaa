@@ -2,6 +2,7 @@
 
 import datetime
 import logging
+import time
 
 import requests
 
@@ -19,8 +20,18 @@ class HarManager(object):
 
     def reset_proxy(self):
         self.pageref = 1
-        r = requests.delete(self.proxy_port_root)
-        # If there is no proxy on this port, that's OK.
+        # At the initial trial, the proxy controller may not be ready.
+        last_error = None
+        for _ in xrange(10):
+            try:
+                r = requests.delete(self.proxy_port_root)
+                break
+            except requests.ConnectionError as e:
+                self._logger.info('Proxy contoller looks not ready. Retrying.')
+                last_error = e
+                time.sleep(1.0)
+        else:
+            raise last_error
         if r.status_code != requests.codes.not_found:
             r.raise_for_status()
         r = requests.post(self.proxy_root, data={'port': self.proxy_port})

@@ -84,7 +84,7 @@ def setup(args, logger):
 def handle_server(args, controller_conn, to_exit):
     logger = logging.getLogger('kcaa.server')
     # Wait until the controller reset the proxy.
-    if not controller_conn.poll(3.0):
+    if not controller_conn.poll(12.0):
         logger.error('Controller couldn\'t reset the proxy. Shutting down.')
         to_exit.set()
         return
