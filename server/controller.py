@@ -10,6 +10,9 @@ import proxy_util
 
 def controll(args, server_conn, to_exit):
     logger = logging.getLogger('kcaa.controller')
+    har_manager = proxy_util.HarManager(args)
+    # HarManager first resets the proxy. Notify the server that it's done.
+    server_conn.send(True)
     if not server_conn.poll(3.0):
         logger.error('Server is not responding. Shutting down.')
         to_exit.set()
@@ -17,7 +20,6 @@ def controll(args, server_conn, to_exit):
     root_url = server_conn.recv()
     time.sleep(1.0)
     browser_monitor = browser.setup(args, root_url)
-    har_manager = proxy_util.HarManager(args)
     while True:
         time.sleep(1.0)
         if to_exit.wait(0.0):
