@@ -34,4 +34,5 @@ class HarManager(object):
         content_size = len(content)
         self._logger.debug('Poke HAR ({:.1f} KiB) in {:.2f} seconds.'.format(
             (1.0 / 1024) * content_size, (end - start).total_seconds()))
-        return json.loads(content)
+        # HAR content should always be encoded in UTF-8, according to the spec.
+        return json.loads(content, encoding='utf8')
