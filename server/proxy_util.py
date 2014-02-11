@@ -24,8 +24,11 @@ class HarManager(object):
             return None
 
     def get_next_page(self):
+        # TODO: Create the next page
         start = datetime.datetime.now()
+        # TODO: Retrieve only the current page
         data = self._get(self.har)
+        # TODO: Delete the current page and move to the next one
         if not data:
             return None
         end = datetime.datetime.now()
