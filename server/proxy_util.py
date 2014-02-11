@@ -41,6 +41,10 @@ class HarManager(object):
         r.raise_for_status()
 
     def get_next_page(self):
+        # TODO: BrowserMob Proxy seems a single threaded; if a proxy request
+        # from the browser takes time. I.e. this method could take a long time
+        # if it encounter such a situation. Use timeout and pageRefs wisely to
+        # avoid that, if it's really required.
         start = datetime.datetime.now()
         next_pageref = self.pageref + 1
         rp = requests.put(self.proxy_har_pageref,
