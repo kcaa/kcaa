@@ -64,4 +64,9 @@ class HarManager(object):
         self._logger.debug('Poke HAR ({:.1f} KiB) in {:.2f} seconds.'.format(
             (1.0 / 1024) * content_size, (end - start).total_seconds()))
         # HAR content should always be encoded in UTF-8, according to the spec.
-        return rg.json(encoding='utf8')
+        start = datetime.datetime.now()
+        har = rg.json(encoding='utf8')
+        end = datetime.datetime.now()
+        self._logger.debug('Parsed HAR JSON in {:.2f} seconds.'.format(
+            (end - start).total_seconds()))
+        return har
