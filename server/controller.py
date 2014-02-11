@@ -31,8 +31,8 @@ def controll(args, server_conn, to_exit):
             break
         har = har_manager.get_next_page()
         if har:
-            for api_name, entry in kcsapi_util.get_kcsapi_entries(har):
-                logger.debug('KCSAPI URL: {}'.format(entry['request']['url']))
-                kcsapi_util.dispatch(api_name, entry)
-                server_conn.send(entry)
+            for api_name, response in kcsapi_util.get_kcsapi_responses(har):
+                logger.debug('Accessed KCSAPI: {}'.format(api_name))
+                kcsapi_util.dispatch(api_name, response)
+                server_conn.send(response)
     to_exit.set()
