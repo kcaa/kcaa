@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import logging
 import time
 
 import browser
@@ -7,8 +8,9 @@ import proxy_util
 
 
 def controll(args, server_conn, to_exit):
+    logger = logging.getLogger('kcaa.controller')
     if not server_conn.poll(3.0):
-        print 'Server is not responding. Shutting down.'
+        logger.error('Server is not responding. Shutting down.')
         to_exit.set()
         return
     root_url = server_conn.recv()
@@ -18,11 +20,11 @@ def controll(args, server_conn, to_exit):
     while True:
         time.sleep(1.0)
         if to_exit.wait(0.0):
-            print 'Server dead. Shutting down the browser.'
+            logger.error('Server dead. Shutting down the browser.')
             browser_monitor.browser.close()
             break
         if not browser_monitor.is_alive():
-            print 'Browser dead. Shutting down the server.'
+            logger.info('Browser dead. Shutting down the server.')
             break
         d = har_manager.get_next_page()
         if d:

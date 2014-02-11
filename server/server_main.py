@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import logging
 import multiprocessing
 import sys
 
@@ -10,6 +11,14 @@ import server
 
 def main(argv):
     args = flags.parse_args(argv[1:])
+
+    # Log to stdout.
+    logger = logging.getLogger('kcaa')
+    logger.setLevel(logging.DEBUG)
+    handler = logging.StreamHandler(sys.stderr)
+    handler.setLevel(logging.DEBUG)
+    logger.addHandler(handler)
+
     to_exit = multiprocessing.Event()
     controller_conn, server_conn = multiprocessing.Pipe()
     pc = multiprocessing.Process(target=controller.controll,

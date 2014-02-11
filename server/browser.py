@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+import logging
+
 from selenium import webdriver
 
 
@@ -44,6 +46,7 @@ def setup(args, url):
 class BrowserMonitor(object):
 
     def __init__(self, browser, max_credit):
+        self._logger = logging.getLogger('kcaa.browser')
         self.browser = browser
         self.max_credit = max_credit
         self.credit = max_credit
@@ -57,13 +60,14 @@ class BrowserMonitor(object):
                 # This won't occur (as an exception will be thrown instead)
                 # but to make sure the above condition is evaluated.
                 self.credit -= 1
-                print 'What happened?'
+                self._logger.debug(
+                    'Browser is alive, but no window available?')
             else:
                 if self.credit < self.max_credit:
-                    print 'Browser recovered.'
+                    self._logger.info('Browser recovered.')
                 self.credit = self.max_credit
         except Exception:
             # Browser exited, or didn't respond.
-            print 'Browser not responding.'
+            self._logger.debug('Browser not responding.')
             self.credit -= 1
         return self.credit > 0

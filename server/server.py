@@ -1,6 +1,7 @@
 import SimpleHTTPServer
 import SocketServer
 import json
+import logging
 import os
 import urlparse
 
@@ -68,7 +69,7 @@ def move_to_client_dir():
             client_dir))
 
 
-def setup(args):
+def setup(args, logger):
     move_to_client_dir()
     httpd = SocketServer.TCPServer(('', args.server_port),
                                    KcaaHTTPRequestHandler)
@@ -76,18 +77,20 @@ def setup(args):
     # Don't use query (something like ?key=value). Kancolle widget detects it
     # from referer and rejects to respond.
     root_url = 'http://localhost:{}/client/'.format(port)
-    print 'KCAA server ready at {}'.format(root_url)
+    logger.info('KCAA server ready at {}'.format(root_url))
     return httpd, root_url
 
 
 def handle_server(args, controller_conn, to_exit):
-    httpd, root_url = setup(args)
+    logger = logging.getLogger('kcaa.server')
+    httpd, root_url = setup(args, logger)
     httpd.state = []
     controller_conn.send(root_url)
     httpd.timeout = 1.0
     while True:
         httpd.handle_request()
         if to_exit.wait(0.0):
+            logger.info('Server got an exit signal. Shutting down.')
             break
         while controller_conn.poll():
             httpd.state.append(controller_conn.recv())
