@@ -65,9 +65,12 @@ class HarManager(object):
         start = datetime.datetime.now()
         har = rg.json(encoding='utf8')
         parse_span = datetime.datetime.now() - start
-        self._logger.debug('HAR page {} ({:.1f} KiB), fetched in {:.2f} '
-                           'sec, parsed in {:.2f} sec.'.format(
-                               (self.pageref - 1), (1.0 / 1024) * content_size,
-                               fetch_span.total_seconds(),
-                               parse_span.total_seconds()))
+        if (content_size >= 102400 or fetch_span.total_seconds() > 0.5 or
+                parse_span.total_seconds() > 0.5):
+            self._logger.debug('HAR page {} ({:.1f} KiB), fetched in {:.2f} '
+                               'sec, parsed in {:.2f} sec.'.format(
+                                   (self.pageref - 1),
+                                   (1.0 / 1024) * content_size,
+                                   fetch_span.total_seconds(),
+                                   parse_span.total_seconds()))
         return har
