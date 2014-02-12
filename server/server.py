@@ -22,9 +22,12 @@ class KcaaHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
     def do_GET(self):
         self.dispatch()
 
+    def log_message(self, format, *args):
+        # Kill verbose HTTP logging.
+        return
+
     def dispatch(self):
         o = urlparse.urlparse(self.path)
-        print o.path
         if o.path == KcaaHTTPRequestHandler.GET_NEW_OBJECTS:
             self.handle_get_new_objects(o)
         elif o.path == KcaaHTTPRequestHandler.GET_OBJECT:
