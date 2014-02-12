@@ -108,14 +108,10 @@
               <li>{{quest}}</li>
             </template>
           </ul>
-          <h4>デバッグ情報 (新規データ)</h4>
-          <ul>
-            <template repeat="{{newObject in newObjects}}">
-              <li>{{newObject}}</li>
-            </template>
-          </ul>
           <div class="controls">
-            <button on-click="{{getQuestList}}">QuestList</button>
+            <template repeat="{{newObject in newObjects}}">
+              <button on-click="{{getObjectFromName}}">{{newObject}}</button>
+            </template>
           </div>
         </div>
       </div>

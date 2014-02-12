@@ -54,8 +54,8 @@ class Assistant extends PolymerElement {
         });
   }
 
-  void getQuestList() {
-    getObject("QuestList");
+  void getObjectFromName(Event e, var detail, Node target) {
+    getObject(target.text);
   }
 
   static void appendIndentedText(String text, int level, StringBuffer buffer) {
