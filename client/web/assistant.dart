@@ -5,13 +5,22 @@ import 'dart:convert';
 import 'dart:html';
 import 'package:polymer/polymer.dart';
 
+const MILLISECOND = const Duration(milliseconds: 1);
+
+Timer runLater(int milliseconds, void callback()) {
+  return new Timer(MILLISECOND * milliseconds, callback);
+}
+
 @CustomTag('eplusx-kancolle-assistant')
 class Assistant extends PolymerElement {
   @observable String debugInfo;
+  final List<String> newObjects = new ObservableList<String>();
   final List<String> activeQuests = new ObservableList<String>();
 
   Uri serverGetNewObjects;
   Uri serverGetObject;
+
+  Timer newObjectsChecker;
 
   Assistant.created() : super.created();
 
@@ -20,13 +29,17 @@ class Assistant extends PolymerElement {
     var clientRoot = Uri.parse(window.location.href);
     serverGetNewObjects = clientRoot.resolve("/get_new_objects");
     serverGetObject = clientRoot.resolve("/get_object");
+    newObjectsChecker = new Timer.periodic(MILLISECOND * 1000, (Timer timer) {
+      getNewObjects();
+    });
   }
 
   void getNewObjects() {
     HttpRequest.getString(serverGetNewObjects.toString())
         .then((String content) {
-          var json = JSON.decode(content);
-          debugInfo = formatJson(json);
+          List<String> objectTypes = JSON.decode(content);
+          newObjects.clear();
+          newObjects.addAll(objectTypes);
         });
   }
 
