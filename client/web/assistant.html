@@ -101,10 +101,16 @@
           </iframe>
         </div>
         <div id="statsBoard" class="board">
-          <div>ステータス</div>
-          <button id="peekButton" on-click="{{peek}}">
-            Peek!
-          </button>
+          <h3>ステータス</h3>
+          <h4>遂行中の任務</h4>
+          <ul>
+            <template repeat="{{mission in activeMissions}}">
+              <li>{{mission}}</li>
+            </template>
+          </ul>
+          <div class="controls">
+            <button id="peekButton" on-click="{{peek}}">Peek!</button>
+          </div>
         </div>
       </div>
       <div class="row horizontal">

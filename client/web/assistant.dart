@@ -8,6 +8,7 @@ import 'package:polymer/polymer.dart';
 @CustomTag('eplusx-kancolle-assistant')
 class Assistant extends PolymerElement {
   @observable String debugInfo;
+  final List<String> activeMissions = new ObservableList<String>();
 
   Uri serverGetstate;
 
@@ -20,6 +21,7 @@ class Assistant extends PolymerElement {
   }
 
   void peek() {
+    activeMissions.add("Hello");
     HttpRequest.getString(serverGetstate.toString())
         .then((String content) {
           var json = JSON.decode(content);
