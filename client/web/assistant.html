@@ -104,12 +104,13 @@
           <h3>ステータス</h3>
           <h4>遂行中の任務</h4>
           <ul>
-            <template repeat="{{mission in activeMissions}}">
-              <li>{{mission}}</li>
+            <template repeat="{{quest in activeQuests}}">
+              <li>{{quest}}</li>
             </template>
           </ul>
           <div class="controls">
-            <button id="peekButton" on-click="{{peek}}">Peek!</button>
+            <button on-click="{{getNewObjects}}">getNewObjects</button>
+            <button on-click="{{getQuestList}}">getQuestList</button>
           </div>
         </div>
       </div>

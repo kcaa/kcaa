@@ -8,28 +8,41 @@ import 'package:polymer/polymer.dart';
 @CustomTag('eplusx-kancolle-assistant')
 class Assistant extends PolymerElement {
   @observable String debugInfo;
-  final List<String> activeMissions = new ObservableList<String>();
+  final List<String> activeQuests = new ObservableList<String>();
 
-  Uri serverGetstate;
+  Uri serverGetNewObjects;
+  Uri serverGetObject;
 
   Assistant.created() : super.created();
 
   @override
   void enteredView() {
     var clientRoot = Uri.parse(window.location.href);
-    serverGetstate = clientRoot.resolve("/getstate");
+    serverGetNewObjects = clientRoot.resolve("/get_new_objects");
+    serverGetObject = clientRoot.resolve("/get_object");
   }
 
-  void peek() {
-    activeMissions.add("Hello");
-    HttpRequest.getString(serverGetstate.toString())
+  void getNewObjects() {
+    HttpRequest.getString(serverGetNewObjects.toString())
         .then((String content) {
           var json = JSON.decode(content);
           debugInfo = formatJson(json);
-        })
-        .catchError((error) {
-          debugInfo = error.toString();
         });
+  }
+
+  void getObject(String type) {
+    Uri request = serverGetObject.resolveUri(new Uri(queryParameters: {
+      "type": type,
+    }));
+    HttpRequest.getString(request.toString())
+        .then((String content) {
+          var json = JSON.decode(content);
+          debugInfo = formatJson(json);
+        });
+  }
+
+  void getQuestList() {
+    getObject("QuestList");
   }
 
   static void appendIndentedText(String text, int level, StringBuffer buffer) {
