@@ -57,16 +57,17 @@ class HarManager(object):
                                             self.pageref))
         rd.raise_for_status()
         self.pageref = next_pageref
-        end = datetime.datetime.now()
+        fetch_span = datetime.datetime.now() - start
 
         # No Content-Length header?
         content_size = len(rg.text)
-        self._logger.debug('Poke HAR ({:.1f} KiB) in {:.2f} seconds.'.format(
-            (1.0 / 1024) * content_size, (end - start).total_seconds()))
         # HAR content should always be encoded in UTF-8, according to the spec.
         start = datetime.datetime.now()
         har = rg.json(encoding='utf8')
-        end = datetime.datetime.now()
-        self._logger.debug('Parsed HAR JSON in {:.2f} seconds.'.format(
-            (end - start).total_seconds()))
+        parse_span = datetime.datetime.now() - start
+        self._logger.debug('HAR page {} ({:.1f} KiB), fetched in {:.2f} '
+                           'sec, parsed in {:.2f} sec.'.format(
+                               (self.pageref - 1), (1.0 / 1024) * content_size,
+                               fetch_span.total_seconds(),
+                               parse_span.total_seconds()))
         return har
