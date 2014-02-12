@@ -12,7 +12,8 @@ DEVELOPMENT_PACKAGE = 'web'
 
 class KcaaHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
-    GETSTATE = '/getstate'
+    GET_NEW_OBJECTS = '/get_new_objects'
+    GET_OBJECT = '/get_object'
     CLIENT_PREFIX = '/client/'
 
     def do_HEAD(self):
@@ -23,21 +24,48 @@ class KcaaHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
     def dispatch(self):
         o = urlparse.urlparse(self.path)
-        if o.path == KcaaHTTPRequestHandler.GETSTATE:
-            self.handle_getstate(o)
+        print o.path
+        if o.path == KcaaHTTPRequestHandler.GET_NEW_OBJECTS:
+            self.handle_get_new_objects(o)
+        elif o.path == KcaaHTTPRequestHandler.GET_OBJECT:
+            self.handle_get_object(o)
         elif o.path.startswith(KcaaHTTPRequestHandler.CLIENT_PREFIX):
             self.handle_client(o)
         else:
             self.send_error(404, 'File not found: {}'.format(self.path))
 
-    def handle_getstate(self, o):
+    def handle_get_new_objects(self, o):
         if self.command != 'GET':
             self.send_error(501, 'Unknown method: {}'.format(self.command))
             return
         self.send_response(200)
-        self.send_header('Content-Type', 'text/json')
+        self.send_header('Content-Type', 'text/json; charset=UTF-8')
         self.end_headers()
-        self.wfile.write(json.dumps(self.server.state))
+        self.wfile.write(json.dumps(list(self.server.new_objects)))
+
+    def handle_get_object(self, o):
+        if self.command != 'GET':
+            self.send_error(501, 'Unknown method: {}'.format(self.command))
+            return
+        queries = urlparse.parse_qs(o.query)
+        try:
+            object_type = queries['type']
+            if len(object_type) > 1:
+                self.send_error(400, 'Parameter type should have only 1 value')
+                return
+            object_type = object_type[0]
+        except KeyError:
+            self.send_error(400, 'Missing parameter: type')
+            return
+        try:
+            data = self.server.objects[object_type]
+            self.server.new_objects.remove(object_type)
+            self.send_response(200)
+            self.send_header('Content-Type', 'text/json; charset=UTF-8')
+            self.end_headers()
+            self.wfile.write(data)
+        except KeyError:
+            self.send_error(404)
 
     def handle_client(self, o):
         self.path = '/' + o.path[len(KcaaHTTPRequestHandler.CLIENT_PREFIX):]
@@ -90,7 +118,8 @@ def handle_server(args, controller_conn, to_exit):
         return
     assert controller_conn.recv()
     httpd, root_url = setup(args, logger)
-    httpd.state = []
+    httpd.new_objects = set()
+    httpd.objects = {}
     controller_conn.send(root_url)
     httpd.timeout = 1.0
     while True:
@@ -99,5 +128,7 @@ def handle_server(args, controller_conn, to_exit):
             logger.info('Server got an exit signal. Shutting down.')
             break
         while controller_conn.poll():
-            httpd.state.append(controller_conn.recv())
+            object_type, data = controller_conn.recv()
+            httpd.new_objects.add(object_type)
+            httpd.objects[object_type] = data
     to_exit.set()

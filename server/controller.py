@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import json
 import logging
 import time
 
@@ -33,6 +34,10 @@ def controll(args, server_conn, to_exit):
         if har:
             for api_name, response in kcsapi_util.get_kcsapi_responses(har):
                 logger.debug('Accessed KCSAPI: {}'.format(api_name))
-                kcsapi_util.dispatch(api_name, response)
-                server_conn.send(response)
+                try:
+                    result = kcsapi_util.dispatch(api_name, response)
+                    server_conn.send((result.__class__.__name__,
+                                      json.dumps(result.data)))
+                except ValueError as e:
+                    logger.debug(e)
     to_exit.set()

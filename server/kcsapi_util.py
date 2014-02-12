@@ -5,9 +5,15 @@ import json
 import re
 import urlparse
 
+import kcsapi
+
 
 KCSAPI_PATH_REGEX = re.compile(r'/kcsapi(?P<api_name>/.*)')
 KCSAPI_PREFIX = 'svdata='
+
+KCSAPI_HANDLERS = {
+    '/api_get_member/questlist': kcsapi.QuestList,
+}
 
 
 def get_kcsapi_responses(har):
@@ -35,4 +41,7 @@ def get_kcsapi_responses(har):
 
 
 def dispatch(api_name, response):
-    pass
+    try:
+        return KCSAPI_HANDLERS[api_name](response)
+    except KeyError:
+        raise ValueError('Unknown KCSAPI: {}'.format(api_name))
