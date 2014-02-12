@@ -67,6 +67,31 @@
           0 0 3px hsl(210, 30%, 60%),
           3px 3px 5px hsl(210, 30%, 40%);
       }
+      h3 {
+        color: hsl(210, 30%, 30%);
+        font-size: 1.2em;
+        font-weight: bold;
+        margin: 0 0 0.5em 0;
+        text-shadow: 2px 2px 2px hsla(210, 20%, 20%, 0.5);
+      }
+      h4 {
+        color: hsl(150, 30%, 40%);
+        font-size: 1em;
+        font-weight: bold;
+        margin: 0.5em 0 0;
+        text-shadow: 2px 2px 2px hsla(150, 20%, 20%, 0.5);
+      }
+      ul {
+        margin: 0.5em 0 0;
+      }
+      ul {
+        line-height: 1.2em;;
+      }
+      ul ul {
+        color: hsl(0, 0%, 20%);
+        font-size: 0.9em;
+        margin: 0;
+      }
     </style>
     <div id="assistant">
       <div class="row">
@@ -83,7 +108,10 @@
         </div>
       </div>
       <div class="row horizontal">
-        <pre class="board">{{peekResult}}</pre>
+        <div class="board">
+          <h3>デバッグ情報</h3>
+          <pre>{{debugInfo}}</pre>
+        </div>
       </div>
     </div>
   </template>

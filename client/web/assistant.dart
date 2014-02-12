@@ -7,7 +7,7 @@ import 'package:polymer/polymer.dart';
 
 @CustomTag('eplusx-kancolle-assistant')
 class Assistant extends PolymerElement {
-  @observable String peekResult;
+  @observable String debugInfo;
 
   Uri serverGetstate;
 
@@ -17,14 +17,16 @@ class Assistant extends PolymerElement {
   void enteredView() {
     var clientRoot = Uri.parse(window.location.href);
     serverGetstate = clientRoot.resolve("/getstate");
-    peekResult = serverGetstate.toString();
   }
 
   void peek() {
     HttpRequest.getString(serverGetstate.toString())
         .then((String content) {
           var json = JSON.decode(content);
-          peekResult = formatJson(json);
+          debugInfo = formatJson(json);
+        })
+        .catchError((error) {
+          debugInfo = error.toString();
         });
   }
 
