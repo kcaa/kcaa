@@ -24,8 +24,11 @@ def get_kcsapi_responses(har):
             if encoding == 'base64':
                 text = base64.b64decode(text)
             # Skip response prefix which makes JSON parsing fail.
-            assert text.startswith(KCSAPI_PREFIX)
-            text = text[len(KCSAPI_PREFIX):]
+            if text.startswith(KCSAPI_PREFIX):
+                text = text[len(KCSAPI_PREFIX):]
+            else:
+                # TODO: Use logger or simply remove this.
+                print 'Unexpected KCSAPI response: {}'.format(text)
             # KCSAPI response should be in UTF-8.
             response = json.loads(text, encoding='utf8')
             yield api_name, response
