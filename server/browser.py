@@ -39,6 +39,7 @@ def setup(args, url):
     else:
         raise ValueError('Unrecognized browser: {browser}'.format(
             browser=args.browser))
+    browser.set_window_size(1600, 1000)
     browser.get(url)
     return BrowserMonitor(browser, 5)
 
