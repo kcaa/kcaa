@@ -12,7 +12,7 @@ KCSAPI_PATH_REGEX = re.compile(r'/kcsapi(?P<api_name>/.*)')
 KCSAPI_PREFIX = 'svdata='
 
 KCSAPI_HANDLERS = {
-    '/api_get_member/questlist': kcsapi.QuestList,
+    '/api_get_member/questlist': [kcsapi.QuestList],
 }
 
 
@@ -40,8 +40,9 @@ def get_kcsapi_responses(har):
             yield api_name, response
 
 
-def dispatch(api_name, response):
+def dispatch(api_name, response, debug):
     try:
-        return KCSAPI_HANDLERS[api_name](response)
+        for handler in KCSAPI_HANDLERS[api_name]:
+            yield handler(response, debug)
     except KeyError:
         raise ValueError('Unknown KCSAPI: {}'.format(api_name))

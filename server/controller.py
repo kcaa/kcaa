@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-import json
 import logging
 import time
 
@@ -21,6 +20,8 @@ def controll(args, server_conn, to_exit):
     root_url = server_conn.recv()
     time.sleep(1.0)
     browser_monitor = browser.setup(args, root_url)
+    debug = True
+    objects = {}
     while True:
         time.sleep(1.0)
         if to_exit.wait(0.0):
@@ -35,9 +36,14 @@ def controll(args, server_conn, to_exit):
             for api_name, response in kcsapi_util.get_kcsapi_responses(har):
                 logger.debug('Accessed KCSAPI: {}'.format(api_name))
                 try:
-                    result = kcsapi_util.dispatch(api_name, response)
-                    server_conn.send((result.__class__.__name__,
-                                      json.dumps(result.data)))
+                    for obj in kcsapi_util.dispatch(api_name, response, debug):
+                        old_obj = objects.get(obj.object_type)
+                        if old_obj is not None:
+                            old_obj.update(obj)
+                            obj = old_obj
+                        else:
+                            objects[obj.object_type] = obj
+                        server_conn.send((obj.object_type, obj.data))
                 except ValueError as e:
                     logger.debug(e)
     to_exit.set()
