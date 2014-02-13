@@ -14,10 +14,10 @@ class KcaaObject(object):
     def object_type(self):
         return self.__class__.__name__
 
-    def update(self, api_name, result):
+    def update(self, api_name, response):
         self.api_names.add(api_name)
         if self.debug:
-            self.response = result.response
+            self.response = response
 
     def format_data(self, data):
         data['_api_names'] = sorted(list(self.api_names))
