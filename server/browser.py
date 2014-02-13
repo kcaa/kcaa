@@ -47,7 +47,7 @@ def open_browser(args):
 
 def open_kancolle_browser(args):
     browser = open_browser(args)
-    browser.set_window_size(1000, 800)
+    browser.set_window_size(980, 800)
     browser.set_window_position(0, 0)
     browser.get(KANCOLLE_URL)
     if args.credentials:
@@ -65,8 +65,8 @@ def open_kancolle_browser(args):
 
 def open_kcaa_browser(args, url):
     browser = open_browser(args)
-    browser.set_window_size(400, 800)
-    browser.set_window_position(1000, 0)
+    browser.set_window_size(700, 800)
+    browser.set_window_position(980, 0)
     browser.get(url)
     return browser
 
@@ -83,6 +83,13 @@ class BrowserMonitor(object):
         self.browsers = browsers
         self.max_credit = max_credit
         self.credit = max_credit
+
+    def close(self):
+        for browser in self.browsers:
+            try:
+                browser.close()
+            except Exception:
+                pass
 
     def is_alive(self):
         alive = True

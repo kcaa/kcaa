@@ -26,7 +26,6 @@ def controll(args, server_conn, to_exit):
         time.sleep(1.0)
         if to_exit.wait(0.0):
             logger.error('Server dead. Shutting down the browser.')
-            browser_monitor.browser.close()
             break
         if not browser_monitor.is_alive():
             logger.info('Browser dead. Shutting down the server.')
@@ -46,4 +45,5 @@ def controll(args, server_conn, to_exit):
                         server_conn.send((obj.object_type, obj.data))
                 except ValueError as e:
                     logger.debug(e)
+    browser_monitor.close()
     to_exit.set()
