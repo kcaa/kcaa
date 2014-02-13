@@ -35,7 +35,7 @@ class KcaaHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         elif o.path.startswith(KcaaHTTPRequestHandler.CLIENT_PREFIX):
             self.handle_client(o)
         else:
-            self.send_error(404, 'File not found: {}'.format(self.path))
+            self.send_error(404, 'Unknown handler: {}'.format(self.path))
 
     def handle_get_new_objects(self, o):
         if self.command != 'GET':
