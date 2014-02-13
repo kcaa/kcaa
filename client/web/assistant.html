@@ -18,21 +18,18 @@
         border-radius: 10px;
         border-style: solid;
         border-width: 1px;
+        box-sizing: border-box;
         display: inline-block;
         margin: 10px;
-        padding: 20px;
+        min-width: 310px;
+        padding: 15px;
         position: relative;
         text-align: left;
+        vertical-align: top;
       }
       .horizontal .board {
-        box-sizing: border-box;
         margin: 0;
         width: 100%;
-      }
-      #statsBoard {
-        font-size: 0.9em;
-        vertical-align: top;
-        width: 300px;
       }
       button {
         background-color: hsl(210, 90%, 20%);
@@ -71,7 +68,7 @@
         color: hsl(210, 30%, 30%);
         font-size: 1.2em;
         font-weight: bold;
-        margin: 0 0 0.5em 0;
+        margin: 0;
         text-shadow: 2px 2px 2px hsla(210, 20%, 20%, 0.5);
       }
       h4 {
@@ -82,7 +79,7 @@
         text-shadow: 2px 2px 2px hsla(150, 20%, 20%, 0.5);
       }
       ul {
-        margin: 0.5em 0 0;
+        margin: 10px 0 0;
       }
       ul {
         line-height: 1.2em;;
@@ -95,8 +92,6 @@
     </style>
     <div id="assistant">
       <div class="row">
-        <div id="playAreaContainer" class="board">
-        </div>
         <div id="statsBoard" class="board">
           <h3>ステータス</h3>
           <h4>遂行中の任務</h4>
@@ -105,11 +100,13 @@
               <li>{{quest}}</li>
             </template>
           </ul>
-          <div class="controls">
-            <template repeat="{{newObject in newObjects}}">
-              <button on-click="{{getObjectFromName}}">{{newObject}}</button>
-            </template>
-          </div>
+        </div>
+        <div id="statsBoard" class="board">
+          <h3>コントロール</h3>
+          <h4>API制御</h4>
+          <template repeat="{{newObject in newObjects}}">
+            <button on-click="{{getObjectFromName}}">{{newObject}}</button>
+          </template>
         </div>
       </div>
       <div class="row horizontal">
