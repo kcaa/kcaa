@@ -17,6 +17,8 @@ class Assistant extends PolymerElement {
   final List<String> newObjects = new ObservableList<String>();
   final List<String> activeQuests = new ObservableList<String>();
 
+  Uri clientRoot;
+  Uri serverRoot;
   Uri serverGetNewObjects;
   Uri serverGetObject;
 
@@ -26,9 +28,10 @@ class Assistant extends PolymerElement {
 
   @override
   void enteredView() {
-    var clientRoot = Uri.parse(window.location.href);
-    serverGetNewObjects = clientRoot.resolve("/get_new_objects");
-    serverGetObject = clientRoot.resolve("/get_object");
+    clientRoot = Uri.parse(window.location.href);
+    serverRoot = clientRoot.resolve("/");
+    serverGetNewObjects = serverRoot.resolve("/get_new_objects");
+    serverGetObject = serverRoot.resolve("/get_object");
     newObjectsChecker = new Timer.periodic(MILLISECOND * 1000, (Timer timer) {
       getNewObjects();
     });
