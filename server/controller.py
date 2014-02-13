@@ -39,7 +39,7 @@ def controll(args, server_conn, to_exit):
                     for obj in kcsapi_util.dispatch(api_name, response, debug):
                         old_obj = objects.get(obj.object_type)
                         if old_obj is not None:
-                            old_obj.update(obj)
+                            old_obj.update(api_name, obj)
                             obj = old_obj
                         else:
                             objects[obj.object_type] = obj

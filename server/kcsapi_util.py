@@ -43,6 +43,6 @@ def get_kcsapi_responses(har):
 def dispatch(api_name, response, debug):
     try:
         for handler in KCSAPI_HANDLERS[api_name]:
-            yield handler(response, debug)
+            yield handler(api_name, response, debug)
     except KeyError:
         raise ValueError('Unknown KCSAPI: {}'.format(api_name))
