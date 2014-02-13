@@ -1,6 +1,7 @@
 # This file contains a list of configurations.
 # You'll probably need to edit them so that it fits to your environment.
-# This file is parsed by shells, so beware the syntax if you something fancy.
+# This file is parsed by shells, so beware the syntax if you are doing
+# something fancy.
 
 # ============================================================================
 # Proxy
@@ -10,6 +11,7 @@ PROXY_CONTROLLER_BIN=${HOME}/opt/browsermob-proxy/bin/browsermob-proxy
 PROXY_CONTROLLER_HOST=localhost
 PROXY_CONTROLLER_PORT=9090
 PROXY_PORT=9091
+PROXY_CONTROLLER_DAEMON=1
 
 # ============================================================================
 # Server

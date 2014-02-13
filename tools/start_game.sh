@@ -2,7 +2,6 @@
 
 source $(dirname $0)/config
 
-START_PROXY_CONTROLLER=1
 SERVER_BIN=$(dirname $0)/../server/server_main.py
 RUN_PROXY_BIN=$(dirname $0)/run_proxy.sh
 
@@ -14,7 +13,7 @@ function on_exit() {
 }
 trap on_exit EXIT
 
-if ((START_PROXY_CONTROLLER)); then
+if ((!PROXY_CONTROLLER_DAEMON)); then
   ${RUN_PROXY_BIN} &
   PROXY_CONTROLLER_PID=$!
   echo "Proxy controller running at pid ${PROXY_CONTROLLER_PID}"
