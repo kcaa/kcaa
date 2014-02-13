@@ -8,7 +8,7 @@ import kcsapi_util
 import proxy_util
 
 
-def controll(args, server_conn, to_exit):
+def control(args, server_conn, to_exit):
     logger = logging.getLogger('kcaa.controller')
     har_manager = proxy_util.HarManager(args)
     # HarManager first resets the proxy. Notify the server that it's done.
