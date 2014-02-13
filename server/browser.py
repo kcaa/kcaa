@@ -5,6 +5,9 @@ import logging
 from selenium import webdriver
 
 
+KANCOLLE_URL = 'http://www.dmm.com/netgame/social/-/gadgets/=/app_id=854854/'
+
+
 def get_desired_capabilities(args):
     capabilities = {}
     capabilities['proxy'] = {'httpProxy': args.proxy,
@@ -39,8 +42,8 @@ def setup(args, url):
     else:
         raise ValueError('Unrecognized browser: {browser}'.format(
             browser=args.browser))
-    browser.set_window_size(1600, 1000)
-    browser.get(url)
+    browser.set_window_size(1000, 800)
+    browser.get(KANCOLLE_URL)
     return BrowserMonitor(browser, 5)
 
 
