@@ -25,4 +25,5 @@ ${SERVER_BIN} \
   --server_port=${SERVER_PORT} \
   --browser=${BROWSER} \
   --chrome_binary=${CHROME_BIN} \
-  --chromedriver_binary=${CHROMEDRIVER_BIN}
+  --chromedriver_binary=${CHROMEDRIVER_BIN} \
+  --credentials=${CREDENTIALS}

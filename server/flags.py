@@ -19,4 +19,8 @@ def parse_args(argv):
                         'you want to use Chromium or Dartium.')
     parser.add_argument('--chromedriver_binary', default='chromedriver',
                         help='Chromedriver binary to use.')
+    parser.add_argument('--credentials', default='',
+                        help='Credentials file to auto-login. The file should '
+                        'contain the login ID and password separated by '
+                        'colon, in one line. Only DMM account is supported.')
     return parser.parse_args(argv)

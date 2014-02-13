@@ -32,3 +32,8 @@ BROWSER=chrome
 CHROME_BIN=${HOME}/opt/dart/chromium/chrome
 CHROMEDRIVER_BIN=${HOME}/opt/chromedriver
 
+# ============================================================================
+# Login
+# ============================================================================
+
+CREDENTIALS=${HOME}/.kancolle_credentials

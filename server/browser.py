@@ -44,6 +44,16 @@ def setup(args, url):
             browser=args.browser))
     browser.set_window_size(1000, 800)
     browser.get(KANCOLLE_URL)
+    if args.credentials:
+        with open(args.credentials, 'r') as credentials_file:
+            user, passwd = credentials_file.read().strip().split(':')
+            login_id = browser.find_element_by_id('login_id')
+            login_id.send_keys(user)
+            password = browser.find_element_by_id('password')
+            password.send_keys(passwd)
+            login_button = browser.find_element_by_xpath(
+                '//div[@class="box-btn-login"]//input[@type="submit"]')
+            login_button.click()
     return BrowserMonitor(browser, 5)
 
 
