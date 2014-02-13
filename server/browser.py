@@ -32,7 +32,7 @@ def setup_firefox(args, desired_capabilities):
     return webdriver.Firefox(capabilities=desired_capabilities)
 
 
-def setup(args, url):
+def open_browser(args):
     desired_capabilities = get_desired_capabilities(args)
     browser = None
     if args.browser == 'chrome':
@@ -42,7 +42,13 @@ def setup(args, url):
     else:
         raise ValueError('Unrecognized browser: {browser}'.format(
             browser=args.browser))
+    return browser
+
+
+def open_kancolle_browser(args):
+    browser = open_browser(args)
     browser.set_window_size(1000, 800)
+    browser.set_window_position(0, 0)
     browser.get(KANCOLLE_URL)
     if args.credentials:
         with open(args.credentials, 'r') as credentials_file:
@@ -54,34 +60,47 @@ def setup(args, url):
             login_button = browser.find_element_by_xpath(
                 '//div[@class="box-btn-login"]//input[@type="submit"]')
             login_button.click()
-    return BrowserMonitor(browser, 5)
+    return browser
+
+
+def open_kcaa_browser(args, url):
+    browser = open_browser(args)
+    browser.set_window_size(400, 800)
+    browser.set_window_position(1000, 0)
+    browser.get(url)
+    return browser
+
+
+def setup(args, url):
+    browsers = [open_kancolle_browser(args), open_kcaa_browser(args, url)]
+    return BrowserMonitor(browsers, 5)
 
 
 class BrowserMonitor(object):
 
-    def __init__(self, browser, max_credit):
+    def __init__(self, browsers, max_credit):
         self._logger = logging.getLogger('kcaa.browser')
-        self.browser = browser
+        self.browsers = browsers
         self.max_credit = max_credit
         self.credit = max_credit
 
     def is_alive(self):
+        alive = True
         try:
             # Check window_handles as a heartbeat.
             # This seems better than current_url or title because they
             # interfere with Chrome developer tools.
-            if self.browser.window_handles is None:
-                # This won't occur (as an exception will be thrown instead)
-                # but to make sure the above condition is evaluated.
-                self.credit -= 1
-                self._logger.debug(
-                    'Browser is alive, but no window available?')
-            else:
-                if self.credit < self.max_credit:
-                    self._logger.info('Browser recovered.')
-                self.credit = self.max_credit
+            for browser in self.browsers:
+                if browser.window_handles is None:
+                    # This won't occur (as an exception will be thrown instead)
+                    # but to make sure the above condition is evaluated.
+                    raise RuntimeError()
         except Exception:
             # Browser exited, or didn't respond.
             self._logger.debug('Browser not responding.')
             self.credit -= 1
+            alive = False
+        if alive and self.credit < self.max_credit:
+            self._logger.info('Browser recovered.')
+            self.credit = self.max_credit
         return self.credit > 0
