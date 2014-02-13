@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import logging
+import multiprocessing
 import time
 
 import browser
@@ -18,17 +19,18 @@ def control(args, server_conn, to_exit):
         to_exit.set()
         return
     root_url = server_conn.recv()
-    time.sleep(1.0)
-    browser_monitor = browser.setup(args, root_url)
+    p = multiprocessing.Process(target=browser.setup_kancolle_browser,
+                                args=(args, to_exit))
+    p.start()
+    p = multiprocessing.Process(target=browser.setup_kcaa_browser,
+                                args=(args, root_url, to_exit))
+    p.start()
     debug = True
     objects = {}
     while True:
         time.sleep(1.0)
         if to_exit.wait(0.0):
-            logger.error('Server dead. Shutting down the browser.')
-            break
-        if not browser_monitor.is_alive():
-            logger.info('Browser dead. Shutting down the server.')
+            logger.error('Server dead. Exiting.')
             break
         har = har_manager.get_next_page()
         if har:
@@ -45,5 +47,4 @@ def control(args, server_conn, to_exit):
                         server_conn.send((obj.object_type, obj.data))
                 except ValueError as e:
                     logger.debug(e)
-    browser_monitor.close()
     to_exit.set()

@@ -21,7 +21,7 @@ def main(argv):
 
     to_exit = multiprocessing.Event()
     controller_conn, server_conn = multiprocessing.Pipe()
-    pc = multiprocessing.Process(target=controller.controll,
+    pc = multiprocessing.Process(target=controller.control,
                                  args=(args, server_conn, to_exit))
     ps = multiprocessing.Process(target=server.handle_server,
                                  args=(args, controller_conn, to_exit))

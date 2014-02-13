@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import logging
+import time
 
 from selenium import webdriver
 
@@ -63,33 +64,57 @@ def open_kancolle_browser(args):
     return browser
 
 
-def open_kcaa_browser(args, url):
+def setup_kancolle_browser(args, to_exit):
+    monitor = BrowserMonitor('Kancolle', open_kancolle_browser(args), 5)
+    while True:
+        time.sleep(1.0)
+        if to_exit.wait(0.0):
+            break
+        if not monitor.is_alive():
+            # If a user closes the Kancolle browser, it should be a signal that
+            # the user wants to exit the game.
+            break
+    to_exit.set()
+
+
+def open_kcaa_browser(args, root_url):
     browser = open_browser(args)
     browser.set_window_size(700, 800)
     browser.set_window_position(980, 0)
-    browser.get(url)
+    browser.get(root_url)
     return browser
 
 
-def setup(args, url):
-    browsers = [open_kancolle_browser(args), open_kcaa_browser(args, url)]
-    return BrowserMonitor(browsers, 5)
+def setup_kcaa_browser(args, root_url, to_exit):
+    monitor = BrowserMonitor('KCAA', open_kcaa_browser(args, root_url), 5)
+    while True:
+        time.sleep(1.0)
+        if to_exit.wait(0.0):
+            break
+        if not monitor.is_alive():
+            # KCAA window is not vital for playing the game -- it is not
+            # necessarily a signal for exiting. Rather, I would restart it
+            # again, assuming that was an accident.
+            monitor = BrowserMonitor('KCAA', open_kcaa_browser(args, root_url),
+                                     5)
+    monitor.close()
+    to_exit.set()
 
 
 class BrowserMonitor(object):
 
-    def __init__(self, browsers, max_credit):
+    def __init__(self, name, browser, max_credit):
         self._logger = logging.getLogger('kcaa.browser')
-        self.browsers = browsers
+        self.name = name
+        self.browser = browser
         self.max_credit = max_credit
         self.credit = max_credit
 
     def close(self):
-        for browser in self.browsers:
-            try:
-                browser.close()
-            except Exception:
-                pass
+        try:
+            self.browser.close()
+        except Exception:
+            pass
 
     def is_alive(self):
         alive = True
@@ -97,14 +122,13 @@ class BrowserMonitor(object):
             # Check window_handles as a heartbeat.
             # This seems better than current_url or title because they
             # interfere with Chrome developer tools.
-            for browser in self.browsers:
-                if browser.window_handles is None:
-                    # This won't occur (as an exception will be thrown instead)
-                    # but to make sure the above condition is evaluated.
-                    raise RuntimeError()
+            if self.browser.window_handles is None:
+                # This won't occur (as an exception will be thrown instead)
+                # but to make sure the above condition is evaluated.
+                raise RuntimeError()
         except Exception:
             # Browser exited, or didn't respond.
-            self._logger.debug('Browser not responding.')
+            self._logger.debug('Browser {} not responding.'.format(self.name))
             self.credit -= 1
             alive = False
         if alive and self.credit < self.max_credit:
