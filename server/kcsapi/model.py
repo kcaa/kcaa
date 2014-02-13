@@ -6,10 +6,9 @@ import json
 class KcaaObject(object):
 
     def __init__(self, api_name, response, debug):
-        self.api_names = set((api_name))
+        self.api_names = set()
         self.debug = debug
-        if debug:
-            self.response = response
+        self.update(api_name, response)
 
     @property
     def object_type(self):
