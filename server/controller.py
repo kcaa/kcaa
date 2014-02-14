@@ -10,9 +10,17 @@ import kcsapi_util
 import proxy_util
 
 
+class DummyProcess(object):
+
+    def join(self):
+        pass
+
+
 def control(args, server_conn, to_exit):
     # It seems that uncaught exceptions are silently buffered after creating
     # another multiprocessing.Process.
+    pk = DummyProcess()
+    pc = DummyProcess()
     try:
         logger = logging.getLogger('kcaa.controller')
         har_manager = proxy_util.HarManager(args, 3.0)
