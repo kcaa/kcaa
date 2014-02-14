@@ -25,8 +25,8 @@ class KcsapiHandler(object):
         self.debug = True
         self.objects = {}
 
-    def get_kcsapi_responses(self, har):
-        for entry in har['log']['entries']:
+    def get_kcsapi_responses(self, entries):
+        for entry in entries:
             o = urlparse.urlparse(entry['request']['url'])
             match = KCSAPI_PATH_REGEX.match(o.path)
             if match:
@@ -65,9 +65,9 @@ class KcsapiHandler(object):
             self._logger.debug('Unknown KCSAPI: {}'.format(api_name))
 
     def get_updated_objects(self):
-        har = self.har_manager.get_next_page()
-        if not har:
+        entries = self.har_manager.get_updated_entries()
+        if not entries:
             return
-        for api_name, response in self.get_kcsapi_responses(har):
+        for api_name, response in self.get_kcsapi_responses(entries):
             for obj in self.dispatch(api_name, response):
                 yield obj
