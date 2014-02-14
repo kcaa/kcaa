@@ -15,17 +15,25 @@ class TestJsonSerializableObject(object):
             def field_foo(self):
                 return 'foo'
 
-        assert DefaultGetter().json() == '{"field_foo": "foo"}'
+        g = DefaultGetter()
+        # field_foo can be used as a normal getter.
+        assert g.field_foo == 'foo'
+        # And is automatically exported.
+        assert g.json() == '{"field_foo": "foo"}'
 
     def test_named_getter(self):
         class NamedGetter(model.JsonSerializableObject):
 
-            # Parameters should be named.
+            # This field is exported as "FOO".
+            # Note that parameters should be named; you can't do this way:
+            # @model.json_serialized_property('FOO')
             @model.json_serialized_property(name='FOO')
             def field_foo(self):
                 return 'foo'
 
-        assert NamedGetter().json() == '{"FOO": "foo"}'
+        g = NamedGetter()
+        assert g.field_foo == 'foo'
+        assert g.json() == '{"FOO": "foo"}'
 
     def test_named_conservative_getter(self):
         class NamedConservativeGetter(model.JsonSerializableObject):
@@ -33,7 +41,8 @@ class TestJsonSerializableObject(object):
             def __init__(self, value):
                 self.value = value
 
-            # Parameters should be named.
+            # If you prefer, it's possible not to export if the value is null.
+            # (In python, if the value is None.)
             @model.json_serialized_property(store_if_null=False)
             def field_foo(self):
                 return self.value
