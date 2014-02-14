@@ -89,6 +89,10 @@
         font-size: 0.9em;
         margin: 0;
       }
+      .debugInfo {
+        font-family: monospace;
+        white-space: pre-wrap;
+      }
     </style>
     <div id="assistant">
       <div class="row">
@@ -112,7 +116,7 @@
       <div class="row horizontal">
         <div class="board">
           <h3>デバッグ情報</h3>
-          <pre>{{debugInfo}}</pre>
+          <div class="debugInfo">{{debugInfo}}</div>
         </div>
       </div>
     </div>
