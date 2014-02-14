@@ -3,6 +3,7 @@ import SocketServer
 import json
 import logging
 import os
+import traceback
 import urlparse
 
 
@@ -113,25 +114,29 @@ def setup(args, logger):
 
 
 def handle_server(args, controller_conn, to_exit):
-    logger = logging.getLogger('kcaa.server')
-    # Wait until the controller reset the proxy.
-    if not controller_conn.poll(12.0):
-        logger.error('Controller couldn\'t reset the proxy. Shutting down.')
-        to_exit.set()
-        return
-    assert controller_conn.recv()
-    httpd, root_url = setup(args, logger)
-    httpd.new_objects = set()
-    httpd.objects = {}
-    controller_conn.send(root_url)
-    httpd.timeout = 1.0
-    while True:
-        httpd.handle_request()
-        if to_exit.wait(0.0):
-            logger.info('Server got an exit signal. Shutting down.')
-            break
-        while controller_conn.poll():
-            object_type, data = controller_conn.recv()
-            httpd.new_objects.add(object_type)
-            httpd.objects[object_type] = data
+    try:
+        logger = logging.getLogger('kcaa.server')
+        # Wait until the controller reset the proxy.
+        if not controller_conn.poll(12.0):
+            logger.error('Controller couldn\'t reset the proxy. '
+                         'Shutting down.')
+            to_exit.set()
+            return
+        assert controller_conn.recv()
+        httpd, root_url = setup(args, logger)
+        httpd.new_objects = set()
+        httpd.objects = {}
+        controller_conn.send(root_url)
+        httpd.timeout = 1.0
+        while True:
+            httpd.handle_request()
+            if to_exit.wait(0.0):
+                logger.info('Server got an exit signal. Shutting down.')
+                break
+            while controller_conn.poll():
+                object_type, data = controller_conn.recv()
+                httpd.new_objects.add(object_type)
+                httpd.objects[object_type] = data
+    except:
+        traceback.print_exc()
     to_exit.set()

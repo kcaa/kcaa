@@ -2,6 +2,7 @@
 
 import logging
 import time
+import traceback
 
 from selenium import webdriver
 
@@ -65,16 +66,20 @@ def open_kancolle_browser(args):
 
 
 def setup_kancolle_browser(args, to_exit):
-    monitor = BrowserMonitor('Kancolle', open_kancolle_browser(args), 5)
-    while True:
-        time.sleep(1.0)
-        if to_exit.wait(0.0):
-            break
-        if not monitor.is_alive():
-            # If a user closes the Kancolle browser, it should be a signal that
-            # the user wants to exit the game.
-            break
+    try:
+        monitor = BrowserMonitor('Kancolle', open_kancolle_browser(args), 5)
+        while True:
+            time.sleep(1.0)
+            if to_exit.wait(0.0):
+                break
+            if not monitor.is_alive():
+                # If a user closes the Kancolle browser, it should be a signal
+                # that the user wants to exit the game.
+                break
+    except:
+        traceback.print_exc()
     to_exit.set()
+    monitor.close()
 
 
 def open_kcaa_browser(args, root_url):
@@ -86,19 +91,22 @@ def open_kcaa_browser(args, root_url):
 
 
 def setup_kcaa_browser(args, root_url, to_exit):
-    monitor = BrowserMonitor('KCAA', open_kcaa_browser(args, root_url), 5)
-    while True:
-        time.sleep(1.0)
-        if to_exit.wait(0.0):
-            break
-        if not monitor.is_alive():
-            # KCAA window is not vital for playing the game -- it is not
-            # necessarily a signal for exiting. Rather, I would restart it
-            # again, assuming that was an accident.
-            monitor = BrowserMonitor('KCAA', open_kcaa_browser(args, root_url),
-                                     5)
-    monitor.close()
+    try:
+        monitor = BrowserMonitor('KCAA', open_kcaa_browser(args, root_url), 5)
+        while True:
+            time.sleep(1.0)
+            if to_exit.wait(0.0):
+                break
+            if not monitor.is_alive():
+                # KCAA window is not vital for playing the game -- it is not
+                # necessarily a signal for exiting. Rather, I would restart it
+                # again, assuming that was an accident.
+                monitor = BrowserMonitor(
+                    'KCAA', open_kcaa_browser(args, root_url), 5)
+    except:
+        traceback.print_exc()
     to_exit.set()
+    monitor.close()
 
 
 class BrowserMonitor(object):
