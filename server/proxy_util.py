@@ -19,13 +19,14 @@ class HarManager(object):
 
     MAX_HAR_SIZE = 100 * 1024
 
-    def __init__(self, args):
+    def __init__(self, args, timeout):
         self._logger = logging.getLogger('kcaa.proxy_util')
         self.proxy_port = args.proxy.partition(':')[2]
         self.proxy_root = 'http://{}/proxy'.format(args.proxy_controller)
         self.proxy_port_root = '{}/{}'.format(self.proxy_root, self.proxy_port)
         self.proxy_har = '{}/har'.format(self.proxy_port_root)
         self.proxy_har_pageref = '{}/har/pageRef'.format(self.proxy_port_root)
+        self.timeout = timeout
         self.reset_proxy()
 
     def reset_proxy(self):
@@ -58,25 +59,27 @@ class HarManager(object):
         if not self.old_pagerefs:
             return
         old_pagerefs = ','.join(map(str, self.old_pagerefs))
-        r = requests.delete('{}/{}'.format(self.proxy_har_pageref,
-                                           old_pagerefs))
-        # We can safely ignore errors, because old pages don't affect the
-        # behavior of get_current_page(). Just expect this will succeed
-        # sometime in the future.
-        if r.status_code == requests.codes.OK:
+        try:
+            r = requests.delete('{}/{}'.format(self.proxy_har_pageref,
+                                               old_pagerefs),
+                                timeout=self.timeout)
+            r.raise_for_status()
             self.old_pagerefs.clear()
-        else:
+        except:
+            # We can safely ignore errors, because old pages don't affect the
+            # behavior of get_current_page(). Just expect this will succeed
+            # sometime in the future.
             self._logger.info('Failed to delete pages {}.'.format(
                 old_pagerefs))
 
     def get_current_page(self):
-        # TODO: BrowserMob Proxy seems a single threaded; if a proxy request
-        # from the browser takes time. I.e. this method could take a long time
-        # if it encounter such a situation. Use timeout and pageRefs wisely to
-        # avoid that, if it's really required.
         start = datetime.datetime.now()
-        r = requests.get('{}?pageRef={}'.format(self.proxy_har, self.pageref))
-        if r.status_code != requests.codes.OK:
+        try:
+            r = requests.get('{}?pageRef={}'.format(self.proxy_har,
+                                                    self.pageref),
+                             timeout=self.timeout)
+            r.raise_for_status()
+        except:
             self._logger.warn('Failed to get page {}.'.format(self.pageref))
             return None, self.last_page_size
         fetch_span = datetime.datetime.now() - start
@@ -104,9 +107,12 @@ class HarManager(object):
         # If there is no next page created yet, create it first.
         if self.next_pageref is None:
             next_pageref = self.pageref + 1
-            r = requests.put(self.proxy_har_pageref,
-                             data={'pageRef': next_pageref})
-            if r.status_code != requests.codes.OK:
+            try:
+                r = requests.put(self.proxy_har_pageref,
+                                 data={'pageRef': next_pageref},
+                                 timeout=self.timeout)
+                r.raise_for_status()
+            except:
                 self._logger.warn('Failed to create the next page {}.'.format(
                     next_pageref))
                 return None, self.last_page_size

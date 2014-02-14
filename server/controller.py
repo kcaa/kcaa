@@ -15,7 +15,7 @@ def control(args, server_conn, to_exit):
     # another multiprocessing.Process.
     try:
         logger = logging.getLogger('kcaa.controller')
-        har_manager = proxy_util.HarManager(args)
+        har_manager = proxy_util.HarManager(args, 3.0)
         # HarManager first resets the proxy. Notify the server that it's done.
         server_conn.send(True)
         if not server_conn.poll(3.0):
