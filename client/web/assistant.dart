@@ -27,11 +27,20 @@ bool iterableEquals(Iterable a, Iterable b) {
   }
 }
 
+class Quest {
+  int id;
+  String name;
+  String description;
+
+  Quest(this.id, this.name, this.description) {}
+}
+
 @CustomTag('eplusx-kancolle-assistant')
 class Assistant extends PolymerElement {
   @observable String debugInfo;
   final List<String> newObjects = new ObservableList<String>();
   final List<String> activeQuests = new ObservableList<String>();
+  final List<Quest> quests = new ObservableList<Quest>();
 
   Uri clientRoot;
   Uri serverRoot;
