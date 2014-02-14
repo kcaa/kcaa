@@ -66,11 +66,11 @@ class JsonSerializableObject(object):
         for attr in cls.__dict__.itervalues():
             if not isinstance(attr, JsonSerializedProperty):
                 continue
-            if attr.store_if_null:
-                data[attr.name] = attr.__get__(self)
+            if attr._store_if_null:
+                data[attr._name] = attr.__get__(self)
             value = attr.__get__(self)
             if value:
-                data[attr.name] = value
+                data[attr._name] = value
         return self._serialize_json_custom(data)
 
     def _serialize_json_custom(self, data):
@@ -89,10 +89,24 @@ class JsonSerializableObjectEncoder(json.JSONEncoder):
 
 class JsonSerializedProperty(object):
 
-    def __init__(self, name, store_if_null, func):
-        self.name = name
-        self.store_if_null = store_if_null
+    def __init__(self, func=None, name=None, store_if_null=None):
+        """Create JSON serialized property.
+
+        The first positional parameter will be used when decorated without
+        arguments.
+        """
         self._func = func
+        self._name = name
+        if not name and func:
+            self._name = func.__name__
+        self._store_if_null = store_if_null
+
+    def __call__(self, func):
+        """Handle parameterized JSON serialized property."""
+        self._func = func
+        if not self._name:
+            self._name = func.__name__
+        return self
 
     def __get__(self, obj, objtype=None):
         if obj is None:
@@ -100,13 +114,8 @@ class JsonSerializedProperty(object):
         return self._func(obj)
 
 
-def json_serialized_property(func, name=None, store_if_null=True):
-    if not name:
-        try:
-            name = func.__name__
-        except:
-            TypeError('Property name cannot be inferred for {}'.format(func))
-    return JsonSerializedProperty(name, store_if_null, func)
+# Provide lower-cased version that looks more natural.
+json_serialized_property = JsonSerializedProperty
 
 
 if __name__ == '__main__':
