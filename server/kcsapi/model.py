@@ -20,8 +20,8 @@ class KcaaObject(object):
             self.response = response
 
     def format_data(self, data):
-        data['_api_names'] = sorted(list(self.api_names))
         if self.debug:
+            data['_api_names'] = sorted(list(self.api_names))
             data['_raw_response'] = self.response
         return json.dumps(data, encoding='utf8')
 
