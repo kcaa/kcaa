@@ -32,6 +32,12 @@
         margin: 0;
         width: 100%;
       }
+      div.board > * {
+        margin-top: 10px;
+      }
+      div.board > *:first-child {
+        margin-top: 0;
+      }
       button {
         background-color: hsl(210, 90%, 20%);
         border-color: hsl(210, 30%, 90%);
@@ -44,13 +50,11 @@
         color: white;
         font-family: "Roboto Slab", sans-serif;
         font-size: 1em;
-        margin-right: 10px;
-        margin-top: 10px;
         padding: 5px;
         text-align: center;
       }
       button.horizontal {
-        margin-left: 0;
+        margin-top: 10px;
         width: 100%;
       }
       button:hover {
@@ -90,7 +94,7 @@
         color: hsl(150, 30%, 40%);
         font-size: 1em;
         font-weight: bold;
-        margin-top: 10px;
+        margin: 10px 0 0;
         text-shadow: 2px 2px 2px hsla(150, 20%, 20%, 0.5);
       }
       .hidden {
@@ -114,7 +118,7 @@
           hsl(180, 50%, 90%));
         border-collapse: collapse;
         box-shadow: 3px 3px 1px hsla(210, 20%, 70%, 0.2);
-        margin-top: 10px;
+        margin: 10px 0 0;
         width: 100%;
       }
       table, th, td {
@@ -148,9 +152,11 @@
         <div id="statsBoard" class="board">
           <h3>コントロール</h3>
           <h4>APIデバッグ</h4>
-          <template repeat="{{newObject in newObjects}}">
-            <button on-click="{{getObjectFromName}}">{{newObject}}</button>
-          </template>
+          <div>
+            <template repeat="{{newObject in newObjects}}">
+              <button on-click="{{getObjectFromName}}">{{newObject}}</button>
+            </template>
+          </div>
         </div>
       </div>
       <div class="row horizontal">
@@ -179,7 +185,7 @@
       <div class="row horizontal">
         <div class="board">
           <h3>デバッグ情報</h3>
-          <div class="debugInfo">Debug information {{debugInfo}}</div>
+          <div class="debugInfo">{{debugInfo}}</div>
         </div>
       </div>
     </div>
