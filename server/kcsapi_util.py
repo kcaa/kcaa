@@ -50,19 +50,21 @@ class KcsapiHandler(object):
 
     def dispatch(self, api_name, response):
         try:
+            handlers = KCSAPI_HANDLERS[api_name]
             self._logger.debug('Accessed KCSAPI: {}'.format(api_name))
-            for handler in KCSAPI_HANDLERS[api_name]:
-                object_type = handler.__name__
-                old_obj = self.objects.get(object_type)
-                if not old_obj:
-                    obj = handler(api_name, response, self.debug)
-                    self.objects[object_type] = obj
-                else:
-                    old_obj.update(api_name, response)
-                    obj = old_obj
-                yield obj
         except KeyError:
+            handlers = [kcsapi.DefaultHandler(api_name)]
             self._logger.debug('Unknown KCSAPI: {}'.format(api_name))
+        for handler in handlers:
+            object_type = handler.__name__
+            old_obj = self.objects.get(object_type)
+            if not old_obj:
+                obj = handler(api_name, response, self.debug)
+                self.objects[object_type] = obj
+            else:
+                old_obj.update(api_name, response)
+                obj = old_obj
+            yield obj
 
     def get_updated_objects(self):
         entries = self.har_manager.get_updated_entries()

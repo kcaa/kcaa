@@ -24,3 +24,31 @@ class KcaaObject(object):
         if self.debug:
             data['_raw_response'] = self.response
         return json.dumps(data, encoding='utf8')
+
+    @property
+    def data(self):
+        return self.format_data({})
+
+
+class DefaultObject(KcaaObject):
+
+    def update(self, api_name, response):
+        super(DefaultObject, self).update(api_name, response)
+        assert len(self.api_names) == 1
+
+    @property
+    def object_type(self):
+        return list(self.api_names)[0]
+
+
+class DefaultHandler(object):
+
+    def __init__(self, api_name):
+        self.api_name = api_name
+
+    @property
+    def __name__(self):
+        return self.api_name
+
+    def __call__(self, *args, **kwargs):
+        return DefaultObject(*args, **kwargs)
