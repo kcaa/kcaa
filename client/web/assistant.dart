@@ -51,6 +51,30 @@ class Assistant extends PolymerElement {
     newObjectsChecker = new Timer.periodic(MILLISECOND * 100, (Timer timer) {
       getNewObjects();
     });
+
+    addCollapseButtons();
+  }
+
+  void addCollapseButtons() {
+    // shadowRoot provides access to the root of this custom element.
+    for (Element header in shadowRoot.querySelectorAll("div.board > h3")) {
+      var collapseButton = new ButtonElement();
+      collapseButton.classes.add("collapse");
+      collapseButton.text = "▼";
+      collapseButton.dataset["collapsed"] = "false";
+      collapseButton.onClick.listen((MouseEvent e) {
+        var toCollapse = collapseButton.dataset["collapsed"] == "false";
+        for (var element in header.parent.children) {
+          if (element == header) {
+            continue;
+          }
+          element.classes.toggle("hidden", toCollapse);
+        }
+        collapseButton.text = toCollapse ? "►" : "▼";
+        collapseButton.dataset["collapsed"] = (toCollapse).toString();
+      });
+      header.children.add(collapseButton);
+    }
   }
 
   void getNewObjects() {
@@ -77,19 +101,6 @@ class Assistant extends PolymerElement {
 
   void getObjectFromName(Event e, var detail, Element target) {
     getObject(target.text);
-  }
-
-  void collapseSection(Event e, var detail, Element target) {
-    var toCollapse = target.dataset["collapsed"] != "true";
-    print(toCollapse);
-    for (var element in target.parent.parent.children) {
-      if (element == target.parent) {
-        continue;
-      }
-      element.classes.toggle("hidden", toCollapse);
-    }
-    target.text = toCollapse ? "▼" : "►";
-    target.dataset["collapsed"] = (toCollapse).toString();
   }
 
   static void appendIndentedText(String text, int level, StringBuffer buffer) {

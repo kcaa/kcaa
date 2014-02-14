@@ -115,10 +115,7 @@
     <div id="assistant">
       <div class="row">
         <div id="statsBoard" class="board">
-          <h3>
-            ステータス
-            <button class="collapse" on-click="{{collapseSection}}">►</button>
-          </h3>
+          <h3>ステータス</h3>
           <h4>遂行中の任務</h4>
           <ul>
             <template repeat="{{quest in activeQuests}}">
@@ -127,10 +124,7 @@
           </ul>
         </div>
         <div id="statsBoard" class="board">
-          <h3>
-            コントロール
-            <button class="collapse" on-click="{{collapseSection}}">►</button>
-          </h3>
+          <h3>コントロール</h3>
           <h4>APIデバッグ</h4>
           <template repeat="{{newObject in newObjects}}">
             <button on-click="{{getObjectFromName}}">{{newObject}}</button>
@@ -139,10 +133,7 @@
       </div>
       <div class="row horizontal">
         <div class="board">
-          <h3>
-            デバッグ情報
-            <button class="collapse" on-click="{{collapseSection}}">►</button>
-          </h3>
+          <h3>デバッグ情報</h3>
           <div class="debugInfo">Debug information {{debugInfo}}</div>
         </div>
       </div>
