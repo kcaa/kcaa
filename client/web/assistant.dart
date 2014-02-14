@@ -75,8 +75,21 @@ class Assistant extends PolymerElement {
         });
   }
 
-  void getObjectFromName(Event e, var detail, Node target) {
+  void getObjectFromName(Event e, var detail, Element target) {
     getObject(target.text);
+  }
+
+  void collapseSection(Event e, var detail, Element target) {
+    var toCollapse = target.dataset["collapsed"] != "true";
+    print(toCollapse);
+    for (var element in target.parent.parent.children) {
+      if (element == target.parent) {
+        continue;
+      }
+      element.classes.toggle("hidden", toCollapse);
+    }
+    target.text = toCollapse ? "▼" : "►";
+    target.dataset["collapsed"] = (toCollapse).toString();
   }
 
   static void appendIndentedText(String text, int level, StringBuffer buffer) {
