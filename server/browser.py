@@ -79,7 +79,10 @@ def setup_kancolle_browser(args, to_exit):
     except:
         traceback.print_exc()
     to_exit.set()
-    monitor.close()
+    try:
+        monitor.close()
+    except:
+        pass
 
 
 def open_kcaa_browser(args, root_url):
@@ -106,7 +109,10 @@ def setup_kcaa_browser(args, root_url, to_exit):
     except:
         traceback.print_exc()
     to_exit.set()
-    monitor.close()
+    try:
+        monitor.close()
+    except:
+        pass
 
 
 class BrowserMonitor(object):
