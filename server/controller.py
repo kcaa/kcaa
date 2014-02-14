@@ -25,23 +25,12 @@ def control(args, server_conn, to_exit):
     p = multiprocessing.Process(target=browser.setup_kcaa_browser,
                                 args=(args, root_url, to_exit))
     p.start()
-    debug = True
-    objects = {}
+    kcsapi_handler = kcsapi_util.KcsapiHandler(har_manager)
     while True:
         time.sleep(1.0)
         if to_exit.wait(0.0):
             logger.error('Controller got an exit signal. Shutting down.')
             break
-        har = har_manager.get_next_page()
-        if har:
-            for api_name, response in kcsapi_util.get_kcsapi_responses(har):
-                logger.debug('Accessed KCSAPI: {}'.format(api_name))
-                try:
-                    # TODO: Move to kcsapi_util.py.
-                    for obj in kcsapi_util.dispatch(api_name, response,
-                                                    objects, debug):
-                        objects[obj.object_type] = obj
-                        server_conn.send((obj.object_type, obj.data))
-                except ValueError as e:
-                    logger.debug(e)
+        for obj in kcsapi_handler.get_updated_objects():
+            server_conn.send((obj.object_type, obj.data))
     to_exit.set()
