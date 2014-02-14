@@ -6,10 +6,10 @@
         display: inline-block;
         text-align: center;
       }
-      .horizontal {
+      div.horizontal {
         padding: 10px;
       }
-      .board {
+      div.board {
         background: linear-gradient(
           170deg,
           hsl(210, 20%, 100%),
@@ -27,7 +27,7 @@
         text-align: left;
         vertical-align: top;
       }
-      .horizontal .board {
+      div.horizontal div.board {
         margin: 0;
         width: 100%;
       }
@@ -43,9 +43,13 @@
         color: white;
         font-family: "Roboto Slab", sans-serif;
         font-size: 1em;
+        margin-right: 10px;
         margin-top: 10px;
         padding: 5px;
         text-align: center;
+      }
+      button.horizontal {
+        margin-left: 0;
         width: 100%;
       }
       button:hover {
