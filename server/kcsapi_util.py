@@ -40,9 +40,17 @@ def get_kcsapi_responses(har):
             yield api_name, response
 
 
-def dispatch(api_name, response, debug):
+def dispatch(api_name, response, objects, debug):
     try:
         for handler in KCSAPI_HANDLERS[api_name]:
-            yield handler(api_name, response, debug)
+            object_type = handler.__name__
+            old_obj = objects.get(object_type)
+            if not old_obj:
+                obj = handler(api_name, response, debug)
+                objects[object_type] = obj
+            else:
+                old_obj.update(api_name, response)
+                obj = old_obj
+            yield obj
     except KeyError:
         raise ValueError('Unknown KCSAPI: {}'.format(api_name))

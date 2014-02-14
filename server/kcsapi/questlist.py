@@ -5,8 +5,8 @@ import model
 
 class QuestList(model.KcaaObject):
 
-    def update(self, api_name, result):
-        super(QuestList, self).update(api_name, result)
+    def update(self, api_name, response):
+        super(QuestList, self).update(api_name, response)
 
     @property
     def data(self):

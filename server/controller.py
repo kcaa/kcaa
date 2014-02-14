@@ -30,20 +30,17 @@ def control(args, server_conn, to_exit):
     while True:
         time.sleep(1.0)
         if to_exit.wait(0.0):
-            logger.error('Server dead. Exiting.')
+            logger.error('Controller got an exit signal. Shutting down.')
             break
         har = har_manager.get_next_page()
         if har:
             for api_name, response in kcsapi_util.get_kcsapi_responses(har):
                 logger.debug('Accessed KCSAPI: {}'.format(api_name))
                 try:
-                    for obj in kcsapi_util.dispatch(api_name, response, debug):
-                        old_obj = objects.get(obj.object_type)
-                        if old_obj is not None:
-                            old_obj.update(api_name, obj)
-                            obj = old_obj
-                        else:
-                            objects[obj.object_type] = obj
+                    # TODO: Move to kcsapi_util.py.
+                    for obj in kcsapi_util.dispatch(api_name, response,
+                                                    objects, debug):
+                        objects[obj.object_type] = obj
                         server_conn.send((obj.object_type, obj.data))
                 except ValueError as e:
                     logger.debug(e)
