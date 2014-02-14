@@ -32,7 +32,7 @@ class Assistant extends PolymerElement {
     serverRoot = clientRoot.resolve("/");
     serverGetNewObjects = serverRoot.resolve("/get_new_objects");
     serverGetObject = serverRoot.resolve("/get_object");
-    newObjectsChecker = new Timer.periodic(MILLISECOND * 1000, (Timer timer) {
+    newObjectsChecker = new Timer.periodic(MILLISECOND * 100, (Timer timer) {
       getNewObjects();
     });
   }

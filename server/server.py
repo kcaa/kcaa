@@ -127,7 +127,7 @@ def handle_server(args, controller_conn, to_exit):
         httpd.new_objects = set()
         httpd.objects = {}
         controller_conn.send(root_url)
-        httpd.timeout = 1.0
+        httpd.timeout = 0.1
         while True:
             httpd.handle_request()
             if to_exit.wait(0.0):

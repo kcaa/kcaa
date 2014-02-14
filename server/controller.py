@@ -31,7 +31,7 @@ def control(args, server_conn, to_exit):
         pc.start()
         kcsapi_handler = kcsapi_util.KcsapiHandler(har_manager)
         while True:
-            time.sleep(1.0)
+            time.sleep(0.1)
             if to_exit.wait(0.0):
                 logger.error('Controller got an exit signal. Shutting down.')
                 break
