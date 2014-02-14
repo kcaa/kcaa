@@ -11,6 +11,22 @@ Timer runLater(int milliseconds, void callback()) {
   return new Timer(MILLISECOND * milliseconds, callback);
 }
 
+bool iterableEquals(Iterable a, Iterable b) {
+  var ai = a.iterator;
+  var bi = b.iterator;
+  var different = false;
+  while (true) {
+    var aHasNext = ai.moveNext();
+    var bHasNext = bi.moveNext();
+    if (!aHasNext || !bHasNext) {
+      return aHasNext == bHasNext;
+    }
+    if (ai.current != bi.current) {
+      return false;
+    }
+  }
+}
+
 @CustomTag('eplusx-kancolle-assistant')
 class Assistant extends PolymerElement {
   @observable String debugInfo;
@@ -41,8 +57,10 @@ class Assistant extends PolymerElement {
     HttpRequest.getString(serverGetNewObjects.toString())
         .then((String content) {
           List<String> objectTypes = JSON.decode(content);
-          newObjects.clear();
-          newObjects.addAll(objectTypes);
+          if (!iterableEquals(newObjects, objectTypes)) {
+            newObjects.clear();
+            newObjects.addAll(objectTypes);
+          }
         });
   }
 
