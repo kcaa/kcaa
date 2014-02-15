@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import jsonobject
 import model
 
 
@@ -22,20 +23,20 @@ class QuestList(model.KcaaObject):
         self._quests.update({quest_data['api_no']: Quest(quest_data) for
                              quest_data in data['api_list']})
 
-    @model.jsonproperty
+    @jsonobject.jsonproperty
     def count(self):
         return self._count
 
-    @model.jsonproperty
+    @jsonobject.jsonproperty
     def count_undertaken(self):
         return self._count_undertaken
 
-    @model.jsonproperty
+    @jsonobject.jsonproperty
     def quests(self):
         return self._quests
 
 
-class Quest(model.JsonSerializableObject):
+class Quest(jsonobject.JsonSerializableObject):
 
     def __init__(self, data):
         # ID.
@@ -52,18 +53,18 @@ class Quest(model.JsonSerializableObject):
             'bauxite': data['api_get_material'][3],
         }
 
-    @model.jsonproperty
+    @jsonobject.jsonproperty
     def id(self):
         return self._id
 
-    @model.jsonproperty
+    @jsonobject.jsonproperty
     def name(self):
         return self._name
 
-    @model.jsonproperty
+    @jsonobject.jsonproperty
     def description(self):
         return self._description
 
-    @model.jsonproperty
+    @jsonobject.jsonproperty
     def rewards(self):
         return self._rewards
