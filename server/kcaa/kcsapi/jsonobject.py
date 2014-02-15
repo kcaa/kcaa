@@ -326,7 +326,8 @@ class ReadonlyJSONProperty(CustomizableJSONProperty):
     def __init__(self, name, wrapped_variable=None, omittable=True,
                  default=None):
         if not wrapped_variable:
-            wrapped_variable = '_' + name
+            wrapped_variable = ('__kcaa.kcsapi.jsonobject.'
+                                'ReadonlyJSONProperty_{:x}'.format(id(self)))
         self._wrapped_variable = wrapped_variable
         self._default = default
         super(ReadonlyJSONProperty, self).__init__(fget=self._get, name=name,

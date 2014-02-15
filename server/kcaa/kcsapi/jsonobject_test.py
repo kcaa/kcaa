@@ -206,42 +206,23 @@ class TestJSONSerializableObject(object):
     def test_readonly_json_property_init(self):
         class SomeObject(jsonobject.JSONSerializableObject):
             # If wrapped_variable is omitted, the property tries to wrap one
-            # with the name prepended by '_': foo wraps '_foo', and bar wraps
-            # '_bar'.
-            foo = jsonobject.ReadonlyJSONProperty('foo')
-            bar = jsonobject.ReadonlyJSONProperty('bar')
-            # This class member's name conflicts with the name of the wrapped
-            # variable of bar, which is '_bar'.
-            _bar = 'CLASS_BAR'
-            # bar wraps '_baz_unique'.
-            # Use this explicit declaration if you really want. However, you
-            # may want to avoid prepending an underscore (_) to class members.
-            baz = jsonobject.ReadonlyJSONProperty('baz', '_baz_unique')
-            # Anyways, this should not conflict.
-            _baz = 'CLASS_BAZ'
+            # with a random unique name.
+            foo = jsonobject.ReadonlyJSONProperty('foo', '_foo')
+            # This is a class variable whose name conflicts with the wrapped
+            # variable of foo.
+            _foo = 'CLASS_FOO'
 
         # JSONSerializableObject constructor accepts key-value specifications
         # for ReadonlyJSONProperty too. It creates a private variable with the
-        # name of wrapped_varaible.
+        # name passed as the second argument (wrapped_variable).
         s = SomeObject(foo='FOO')
         assert s.foo == 'FOO'
         assert s._foo == 'FOO'
-        # bar uses _bar as a wrapped variable, and the name conflicts with an
-        # existing class variable.
-        # Key-value specs in the constructor never overwrite class variables.
-        # It is tricky, however, so you might want to avoid this kind of
-        # conflicts.
-        s = SomeObject(bar='BAR')
-        assert s.bar == 'BAR'
-        assert s._bar == 'BAR'
-        assert SomeObject._bar == 'CLASS_BAR'
-        # baz doesn't conflict; though there is _baz in SomeObject, baz
-        # property wraps _baz_unique.
-        s = SomeObject(baz='BAZ')
-        assert s.baz == 'BAZ'
-        assert s._baz_unique == 'BAZ'
-        assert s._baz == 'CLASS_BAZ'
-        assert SomeObject._baz == 'CLASS_BAZ'
+        # There is a class variable whose name conflicts with that.
+        # JSONSerializableObject's constructor never overwrite the class
+        # variable, but you may want to avoid these situations, as it looks
+        # very weird. (Of course, that looks like a design flaw to begin with.)
+        assert SomeObject._foo == 'CLASS_FOO'
 
     def test_readonly_json_property_default(self):
         class SomeObject(jsonobject.JSONSerializableObject):
