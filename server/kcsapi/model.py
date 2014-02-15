@@ -83,7 +83,6 @@ class JsonSerializableObjectEncoder(json.JSONEncoder):
         try:
             return obj._serialize_json()
         except:
-            raise
             super(JsonSerializableObjectEncoder, self).default(obj)
 
 

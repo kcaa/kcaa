@@ -23,7 +23,6 @@ class TestJsonSerializableObject(object):
 
     def test_named_getter(self):
         class NamedGetter(model.JsonSerializableObject):
-
             # This field is exported as "FOO".
             # Note that parameters should be named; you can't do this way:
             # @model.json_serialized_property('FOO')
@@ -37,7 +36,6 @@ class TestJsonSerializableObject(object):
 
     def test_named_conservative_getter(self):
         class NamedConservativeGetter(model.JsonSerializableObject):
-
             def __init__(self, value):
                 self.value = value
 
@@ -49,6 +47,35 @@ class TestJsonSerializableObject(object):
 
         assert NamedConservativeGetter('foo').json() == '{"field_foo": "foo"}'
         assert NamedConservativeGetter(None).json() == '{}'
+
+    def test_non_primitive_value_getter(self):
+        class NonPrimitiveObject(object):
+            pass
+
+        class NonPrimitiveValueGetter(model.JsonSerializableObject):
+            # The getter cannot return a non primitive value.
+            @model.json_serialized_property
+            def field_foo(self):
+                return NonPrimitiveObject()
+
+        with pytest.raises(TypeError):
+            NonPrimitiveValueGetter().json()
+
+    def test_non_primitive_serializable_value_getter(self):
+        class NonPrimitiveSerializableObject(model.JsonSerializableObject):
+            @model.json_serialized_property
+            def field_child_foo(self):
+                return 'child_foo'
+
+        class NonPrimitiveSerializableValueGetter(
+                model.JsonSerializableObject):
+            # OK if the non primitive value is JSON serializable.
+            @model.json_serialized_property
+            def field_foo(self):
+                return NonPrimitiveSerializableObject()
+
+        assert (NonPrimitiveSerializableValueGetter().json() ==
+                '{"field_foo": {"field_child_foo": "child_foo"}}')
 
 
 def main():
