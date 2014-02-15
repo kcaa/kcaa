@@ -8,11 +8,11 @@ An example usage of :class:`JsonSerializableObject` would be:
 
 >>> class SampleObject(JsonSerializableObject):
 ...     @jsonproperty
-...     def field_foo(self):
-...         return 'foo'
+...     def foo(self):
+...         return 'FOO'
 >>> s = SampleObject()
 >>> s.json()
-'{"field_foo": "foo"}'
+'{"foo": "FOO"}'
 """
 
 import json
@@ -27,7 +27,6 @@ class JsonSerializableObject(object):
                           **kwargs)
 
     def _serialize_json(self):
-        """Automatically find properties to export."""
         cls = self.__class__
         data = {}
         for attr in cls.__dict__.itervalues():
@@ -64,6 +63,7 @@ class JsonCustomizableProperty(object):
     :param str name: name of this property used in JSON
     :param bool store_if_null: True if this property will be stored in JSON
                                even if None
+
     This is the real property object created when ``@jsonproperty`` decorator
     is used. Using this class directly is discouraged; use :data:`jsonproperty`
     for readability and consistency.
@@ -201,17 +201,17 @@ class JsonProperty(JsonCustomizableProperty):
     Example usage of this class:
 
     >>> class SomeObject(JsonSerializableObject):
-    ...     foo = JsonProperty('field_foo')
+    ...     foo = JsonProperty('foo')
 
     Just this, you're done. You don't need to write a getter, setter or
     deleter. Then you can set or read a value just like a usual property.
 
     >>> s = SomeObject()
-    >>> s.foo = 123
+    >>> s.foo = 'FOO'
     >>> s.foo
-    123
+    'FOO'
     >>> s.json()
-    '{"field_foo": 123}'
+    '{"foo": "FOO"}'
     """
 
     def __init__(self, name, store_if_null=False, default=None):
@@ -245,21 +245,21 @@ class ReadonlyJsonProperty(JsonCustomizableProperty):
     ...     def __init__(self, foo):
     ...         self._foo = foo
     ...
-    ...     foo = ReadonlyJsonProperty('field_foo', '_foo')
+    ...     foo = ReadonlyJsonProperty('foo', '_foo')
 
     Then, ``foo`` provides a transparent readonly access to a private instance
     variable ``SomeObject._foo``.
 
-    >>> s = SomeObject(123)
+    >>> s = SomeObject('FOO')
     >>> s.foo
-    123
+    'FOO'
     >>> s.json()
-    '{"field_foo": 123}'
-    >>> t = SomeObject(456)
+    '{"foo": "FOO"}'
+    >>> t = SomeObject('BAR')
     >>> t.foo
-    456
+    'BAR'
     >>> t.json()
-    '{"field_foo": 456}'
+    '{"foo": "BAR"}'
     """
 
     def __init__(self, name, wrapped_variable, store_if_null=False):

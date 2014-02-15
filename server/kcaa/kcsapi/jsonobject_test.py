@@ -110,12 +110,12 @@ class TestJsonSerializableObject(object):
             def foo(self):
                 del self._foo
 
-        s = SomeObject(123)
-        assert s.foo == 123
-        assert s.json() == '{"foo": 123}'
-        s.foo = 456
-        assert s.foo == 456
-        assert s.json() == '{"foo": 456}'
+        s = SomeObject('FOO')
+        assert s.foo == 'FOO'
+        assert s.json() == '{"foo": "FOO"}'
+        s.foo = 'BAR'
+        assert s.foo == 'BAR'
+        assert s.json() == '{"foo": "BAR"}'
         del s.foo
         # Accessing a deleted property will raise AttributeError.
         with pytest.raises(AttributeError):
@@ -125,8 +125,8 @@ class TestJsonSerializableObject(object):
         with pytest.raises(TypeError):
             s.json()
         # Resetting the property will make the conversion possible again.
-        s.foo = 789
-        assert s.json() == '{"foo": 789}'
+        s.foo = "BAZ"
+        assert s.json() == '{"foo": "BAZ"}'
 
     def test_json_property(self):
         class SomeObject(jsonobject.JsonSerializableObject):
