@@ -34,32 +34,32 @@ class TestJsonSerializableObject(object):
         assert g.field_foo == 'foo'
         assert g.json() == '{"FOO": "foo"}'
 
-    def test_named_conservative_getter(self):
-        class NamedConservativeGetter(jsonobject.JsonSerializableObject):
+    def test_not_exported_if_null(self):
+        class SomeObject(jsonobject.JsonSerializableObject):
             def __init__(self, value):
                 self.value = value
 
-            # If you prefer, it's possible not to export if the value is null.
-            # (In python, if the value is None.)
+            # If store_if_null is False, the property will not exported.
+            # This is the default behavior.
             @jsonobject.jsonproperty(store_if_null=False)
             def field_foo(self):
                 return self.value
 
-        assert NamedConservativeGetter('foo').json() == '{"field_foo": "foo"}'
-        assert NamedConservativeGetter(None).json() == '{}'
+        assert SomeObject('foo').json() == '{"field_foo": "foo"}'
+        assert SomeObject(None).json() == '{}'
 
-    def test_named_aggressive_getter(self):
-        class NamedAggressiveGetter(jsonobject.JsonSerializableObject):
+    def test_exported_if_null(self):
+        class SomeObject(jsonobject.JsonSerializableObject):
             def __init__(self, value):
                 self.value = value
 
-            # By default, a null value is exported.
-            @jsonobject.jsonproperty()
+            # If store_if_null is True, the property will always be exported.
+            @jsonobject.jsonproperty(store_if_null=True)
             def field_foo(self):
                 return self.value
 
-        assert NamedAggressiveGetter('foo').json() == '{"field_foo": "foo"}'
-        assert NamedAggressiveGetter(None).json() == '{"field_foo": null}'
+        assert SomeObject('foo').json() == '{"field_foo": "foo"}'
+        assert SomeObject(None).json() == '{"field_foo": null}'
 
     def test_non_primitive_value_getter(self):
         class NonPrimitiveObject(object):

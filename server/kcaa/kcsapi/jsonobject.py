@@ -23,7 +23,7 @@ class JsonSerializableObject(object):
 
     def json(self, *args, **kwargs):
         """Serialize this object to JSON."""
-        return json.dumps(self, *args, cls=JsonSerializableObjectEncoder,
+        return json.dumps(self, *args, cls=_JsonSerializableObjectEncoder,
                           **kwargs)
 
     def _serialize_json(self):
@@ -45,18 +45,17 @@ class JsonSerializableObject(object):
         return data
 
 
-class JsonSerializableObjectEncoder(json.JSONEncoder):
+class _JsonSerializableObjectEncoder(json.JSONEncoder):
 
     def default(self, obj):
         try:
             return obj._serialize_json()
         except:
-            super(JsonSerializableObjectEncoder, self).default(obj)
+            super(_JsonSerializableObjectEncoder, self).default(obj)
 
 
 class JsonCustomizableProperty(object):
     """Property which is serialized when the object is converted to JSON.
-
 
     :param function fget: getter function
     :param function fset: setter function
@@ -75,7 +74,7 @@ class JsonCustomizableProperty(object):
     """
 
     def __init__(self, fget=None, fset=None, fdel=None, doc=None, name=None,
-                 store_if_null=True):
+                 store_if_null=False):
         self.fget = fget
         self.fset = fset
         self.fdel = fdel
@@ -88,7 +87,6 @@ class JsonCustomizableProperty(object):
         self.store_if_null = store_if_null
 
     def __call__(self, fget):
-        """Handle parameterized JSON serialized property declaration."""
         self.fget = fget
         if self.__doc__ is None:
             self.__doc__ = fget.__doc__
@@ -140,50 +138,55 @@ For example, you can write a JSON serializable object like this:
 >>> class SampleObject(JsonSerializableObject):
 ...
 ...     def __init__(self):
-...         self._bar = 'bar'
+...         self._b = 'bar'
 ...
 ...     # Just like @property, this will create a gettable property named
-...     # "field_foo".
+...     # "a". Nore that you have to return a JSON primitives, or
+...     # JsonSerializableObject, as a value of this property.
 ...     @jsonproperty
-...     def field_foo(self):
+...     def a(self):
 ...         return 'foo'
 ...
-...     # You can change the name of field when exported to JSON.
-...     # Of course, from Python code, this is accessible as "field_bar".
-...     @jsonproperty(name='debug_bar')
-...     def field_bar(self):
-...         return self._bar
+...     # You can change the name of an exported JSON field. This property will
+...     # be accessible via "beta" field in JSON.
+...     @jsonproperty(name='beta')
+...     def b(self):
+...         return self._b
 ...
 ...     # You can define a setter and deleter too, if you'd like to.
-...     @field_bar.setter
-...     def field_bar(self, value):
-...         self._bar = value
+...     @b.setter
+...     def b(self, value):
+...         self._b = value
 ...
-...     # You can omit some field if the value is None (null in JSON) by
-...     # setting store_if_null=False.
-...     # By default, all ``@jsonproperty`` objects are always exported.
-...     @jsonproperty(store_if_null=False)
-...     def field_baz(self):
+...     # By default, a property will be omitted in JSON if the value is None.
+...     @jsonproperty
+...     def c(self):
+...         return None
+...
+...     # You can change this behavior by setting store_if_null=True.
+...     # Such a property will be exported with a value of null.
+...     @jsonproperty(store_if_null=True)
+...     def d(self):
 ...         return None
 
 This class would behave like this:
 
 >>> s = SampleObject()
->>> s.field_foo
+>>> s.a
 'foo'
->>> s.field_bar
+>>> s.b
 'bar'
->>> s.field_bar = 'BAR'
->>> s.field_bar
+>>> s.b = 'BAR'
+>>> s.b
 'BAR'
->>> s.field_baz
+>>> s.c
+>>> s.d
 >>> s.json(sort_keys=True)
-'{"debug_bar": "BAR", "field_foo": "foo"}'
+'{"a": "foo", "beta": "BAR", "d": null}'
 
-Note that ``field_bar`` is exported as ``debug_bar`` due to
-``@jsonproperty(name='debug_bar')``, and ``field_baz`` is *not* exported
-because it's annotated as ``@jsonproperty(store_if_null=False)`` and returns
-None.
+Note that ``b`` is exported as ``beta`` due to ``name='beta'``. Also note that
+``c`` is not exported because it returns None. ``d`` is still exported due to
+``store_if_null=True``.
 """
 
 
@@ -200,8 +203,8 @@ class JsonProperty(JsonCustomizableProperty):
     >>> class SomeObject(JsonSerializableObject):
     ...     foo = JsonProperty('field_foo')
 
-    Just this. You don't need to write a getter, setter or deleter. Then you
-    can set or read a value just like a usual property.
+    Just this, you're done. You don't need to write a getter, setter or
+    deleter. Then you can set or read a value just like a usual property.
 
     >>> s = SomeObject()
     >>> s.foo = 123
@@ -211,7 +214,7 @@ class JsonProperty(JsonCustomizableProperty):
     '{"field_foo": 123}'
     """
 
-    def __init__(self, name, store_if_null=True, default=None):
+    def __init__(self, name, store_if_null=False, default=None):
         self._value = default
         super(JsonProperty, self).__init__(fget=self._get, fset=self._set,
                                            fdel=self._delete, name=name,
@@ -259,7 +262,7 @@ class ReadonlyJsonProperty(JsonCustomizableProperty):
     '{"field_foo": 456}'
     """
 
-    def __init__(self, name, wrapped_variable, store_if_null=True):
+    def __init__(self, name, wrapped_variable, store_if_null=False):
         self._wrapped_variable = wrapped_variable
         super(ReadonlyJsonProperty, self).__init__(fget=self._get, name=name,
                                                    store_if_null=store_if_null)
