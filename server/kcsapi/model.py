@@ -66,11 +66,11 @@ class JsonSerializableObject(object):
         for attr in cls.__dict__.itervalues():
             if not isinstance(attr, JsonSerializedProperty):
                 continue
-            if attr._store_if_null:
-                data[attr._name] = attr.__get__(self)
+            if attr.store_if_null:
+                data[attr.name] = attr.__get__(self)
             value = attr.__get__(self)
             if value:
-                data[attr._name] = value
+                data[attr.name] = value
         return self._serialize_json_custom(data)
 
     def _serialize_json_custom(self, data):
@@ -88,29 +88,62 @@ class JsonSerializableObjectEncoder(json.JSONEncoder):
 
 class JsonSerializedProperty(object):
 
-    def __init__(self, func=None, name=None, store_if_null=None):
+    def __init__(self, fget=None, fset=None, fdel=None, doc=None, name=None,
+                 store_if_null=True):
         """Create JSON serialized property.
 
-        The first positional parameter will be used when decorated without
-        arguments.
+        This class or @jsonproperty decorator is compatible with the standard
+        @property decorator. However, by definition, the property should be at
+        least readable.
         """
-        self._func = func
-        self._name = name
-        if not name and func:
-            self._name = func.__name__
-        self._store_if_null = store_if_null
+        self.fget = fget
+        self.fset = fset
+        self.fdel = fdel
+        if doc is None and fget is not None:
+            doc = fget.__doc__
+        self.__doc__ = doc
+        self.name = name
+        if not name and fget:
+            self.name = fget.__name__
+        self.store_if_null = store_if_null
 
-    def __call__(self, func):
-        """Handle parameterized JSON serialized property."""
-        self._func = func
-        if not self._name:
-            self._name = func.__name__
+    def __call__(self, fget):
+        """Handle parameterized JSON serialized property declaration."""
+        self.fget = fget
+        if self.__doc__ is None:
+            self.__doc__ = fget.__doc__
+        if not self.name:
+            self.name = fget.__name__
         return self
 
     def __get__(self, obj, objtype=None):
         if obj is None:
             return self
-        return self._func(obj)
+        if self.fget is None:
+            raise AttributeError('Not readable')
+        return self.fget(obj)
+
+    def __set__(self, obj, value):
+        if self.fset is None:
+            raise AttributeError('Not settable')
+        self.fset(obj, value)
+
+    def __delete__(self, obj):
+        if self.fdel is None:
+            raise AttributeError('Not deletable')
+        self.fdel(obj)
+
+    def getter(self, fget):
+        return self.__class__(fget, self.fset, self.fdel, self.__doc__,
+                              self.name, self.store_if_null)
+
+    def setter(self, fset):
+        return self.__class__(self.fget, fset, self.fdel, self.__doc__,
+                              self.name, self.store_if_null)
+
+    def deleter(self, fdel):
+        return self.__class__(self.fget, self.fset, fdel, self.__doc__,
+                              self.name, self.store_if_null)
 
 
 # Provide lower-cased version that looks more natural.
