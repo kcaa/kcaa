@@ -18,4 +18,4 @@ All of the above can be installed via `pip`. For example,
 
 You may need a root priviledge if you don't run python in a virtual
 environment. If you want to create your own sandbox environment, see also
-http://www.virtualenv.org/.
+[http://www.virtualenv.org/].
