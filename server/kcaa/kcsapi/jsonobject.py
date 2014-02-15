@@ -1,18 +1,32 @@
 #!/usr/bin/env python
 """JSON serializable object and properties.
 
-This module contains some basic model of all KCAA objects, which are handled in
-the controller, or transmitted to the client.
+This module provides an interface of JSON serializable Python objects,
+:class:`JSONSerializableObject`, and concise but powerful ways to define
+exportable properties.
 
-An example usage of :class:`JSONSerializableObject` would be:
+A short example illustrating what this module does:
 
->>> class SampleObject(JSONSerializableObject):
+>>> class SomeObject(JSONSerializableObject):
+...     foo = JSONProperty('foo', default='FOO')
+...     bar = ReadonlyJSONProperty('bar', '_bar')
+...
 ...     @jsonproperty
-...     def foo(self):
-...         return 'FOO'
->>> s = SampleObject()
->>> s.json()
-'{"foo": "FOO"}'
+...     def baz(self):
+...         return ':'.join([self.foo, self.bar])
+...
+>>> s = SomeObject(bar='BAR')
+>>> s.foo
+'FOO'
+>>> s.foo = 'FOOFOO'
+>>> s.bar = 'BARBAR'
+Traceback (most recent call last):
+    ...
+AttributeError: Not settable
+>>> s.baz
+'FOOFOO:BAR'
+>>> s.json(sort_keys=True)
+'{"bar": "BAR", "baz": "FOOFOO:BAR", "foo": "FOOFOO"}'
 """
 
 import json
@@ -20,6 +34,23 @@ import json
 
 class JSONSerializableObject(object):
     """Object serializable to JSON."""
+
+    def __init__(self, **kwargs):
+        self_class = self.__class__
+        for key, value in kwargs.iteritems():
+            if not hasattr(self_class, key):
+                raise AttributeError('{}.{} not found'.format(
+                    self_class.__name__, key))
+            member = getattr(self_class, key)
+            member_class = member.__class__
+            if not issubclass(member_class, CustomizableJSONProperty):
+                raise AttributeError(
+                    '{}.{} is {}, not CustomizableJSONProperty'
+                    .format(self_class.__name__, key, member_class))
+            if issubclass(member_class, ReadonlyJSONProperty):
+                setattr(self, member._wrapped_variable, value)
+            else:
+                setattr(self, key, value)
 
     def json(self, *args, **kwargs):
         """Serialize this object to JSON."""
@@ -30,7 +61,7 @@ class JSONSerializableObject(object):
         cls = self.__class__
         data = {}
         for attr in cls.__dict__.itervalues():
-            if not isinstance(attr, CustomizableJSONProperty):
+            if not issubclass(attr.__class__, CustomizableJSONProperty):
                 continue
             if attr.store_if_null:
                 data[attr.name] = attr.__get__(self)
@@ -285,7 +316,9 @@ class ReadonlyJSONProperty(CustomizableJSONProperty):
     '{"foo": "BAR"}'
     """
 
-    def __init__(self, name, wrapped_variable, store_if_null=False):
+    def __init__(self, name, wrapped_variable=None, store_if_null=False):
+        if not wrapped_variable:
+            wrapped_variable = '_' + name
         self._wrapped_variable = wrapped_variable
         super(ReadonlyJSONProperty, self).__init__(fget=self._get, name=name,
                                                    store_if_null=store_if_null)

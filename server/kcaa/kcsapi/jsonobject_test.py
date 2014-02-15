@@ -11,7 +11,9 @@ class TestJSONSerializableObject(object):
     def test_default_getter(self):
 
         class SomeObject(jsonobject.JSONSerializableObject):
-            # Can decorate without any arguments.
+            # @jsonproperty creates a property which is exported to a
+            # serialized JSON of SomeObject.
+            # It can decorate without any arguments.
             @jsonproperty
             def foo(self):
                 return 'FOO'
@@ -25,7 +27,8 @@ class TestJSONSerializableObject(object):
     def test_named_getter(self):
         class SomeObject(jsonobject.JSONSerializableObject):
             # This field is exported as "field_foo".
-            # Note that parameters should be named; you can't do this way:
+            # Note that in @jsonproperty specs, parameters should be named; you
+            # can't do this way:
             # @jsonproperty('field_foo')
             @jsonproperty(name='field_foo')
             def foo(self):
@@ -160,6 +163,22 @@ class TestJSONSerializableObject(object):
         s.foo = 'BAR'
         assert s.foo == 'BAR'
 
+    def test_json_property_init(self):
+        class SomeObject(jsonobject.JSONSerializableObject):
+            foo = jsonobject.JSONProperty('foo')
+            bar = object()
+
+        # JSONSerializableObject constructor accepts key-value specifications
+        # for JSONProperty.
+        s = SomeObject(foo='FOO')
+        assert s.foo == 'FOO'
+        # It doesn't accept setting a value to non-JSONProperty objects.
+        with pytest.raises(AttributeError):
+            s = SomeObject(bar='BAR')
+        # It also rejects creating a new member.
+        with pytest.raises(AttributeError):
+            s = SomeObject(baz='BAZ')
+
     def test_json_readonly_property(self):
         class SomeObject(jsonobject.JSONSerializableObject):
             def __init__(self, foo):
@@ -174,6 +193,49 @@ class TestJSONSerializableObject(object):
         with pytest.raises(AttributeError):
             s.foo = 'BAR'
         assert s.json('{"foo": "FOO"}')
+
+    def test_readonly_json_property_init(self):
+        class SomeObject(jsonobject.JSONSerializableObject):
+            # If wrapped_variable is omitted, the property tries to wrap one
+            # with the name prepended by '_': foo wraps '_foo', and bar wraps
+            # '_bar'.
+            foo = jsonobject.ReadonlyJSONProperty('foo')
+            bar = jsonobject.ReadonlyJSONProperty('bar')
+            # This class member's name conflicts with the name of the wrapped
+            # variable of bar, which is '_bar'.
+            _bar = 'CLASS_BAR'
+            # bar wraps '_baz_unique'.
+            # Use this explicit declaration if you really want. However, you
+            # may want to avoid prepending an underscore (_) to class members.
+            baz = jsonobject.ReadonlyJSONProperty('baz', '_baz_unique')
+            # Anyways, this should not conflict.
+            _baz = 'CLASS_BAZ'
+
+        # JSONSerializableObject constructor accepts key-value specifications
+        # for ReadonlyJSONProperty too. It creates a private variable with the
+        # name of wrapped_varaible.
+        s = SomeObject(foo='FOO')
+        assert s.foo == 'FOO'
+        assert s._foo == 'FOO'
+        # bar uses _bar as a wrapped variable, and the name conflicts with an
+        # existing class variable.
+        # Key-value specs in the constructor never overwrite class variables.
+        # It is tricky, however, so you might want to avoid this kind of
+        # conflicts.
+        s = SomeObject(bar='BAR')
+        assert s.bar == 'BAR'
+        assert s._bar == 'BAR'
+        assert SomeObject._bar == 'CLASS_BAR'
+        # baz doesn't conflict; though there is _baz in SomeObject, baz
+        # property wraps _baz_unique.
+        s = SomeObject(baz='BAZ')
+        assert s.baz == 'BAZ'
+        assert s._baz_unique == 'BAZ'
+        assert s._baz == 'CLASS_BAZ'
+        assert SomeObject._baz == 'CLASS_BAZ'
+
+    def test_readonly_json_property_custom_init(self):
+        pass
 
 
 def main():
