@@ -47,6 +47,8 @@ class TestJSONSerializableObject(object):
                 return self.value
 
         assert SomeObject('FOO').json() == '{"foo": "FOO"}'
+        assert SomeObject('').json() == '{"foo": ""}'
+        assert SomeObject(0).json() == '{"foo": 0}'
         assert SomeObject(None).json() == '{}'
 
     def test_exported_if_null(self):
@@ -60,6 +62,8 @@ class TestJSONSerializableObject(object):
                 return self.value
 
         assert SomeObject('FOO').json() == '{"foo": "FOO"}'
+        assert SomeObject('').json() == '{"foo": ""}'
+        assert SomeObject(0).json() == '{"foo": 0}'
         assert SomeObject(None).json() == '{"foo": null}'
 
     def test_non_primitive_value(self):

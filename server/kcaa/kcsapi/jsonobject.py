@@ -35,7 +35,7 @@ class JSONSerializableObject(object):
             if attr.store_if_null:
                 data[attr.name] = attr.__get__(self)
             value = attr.__get__(self)
-            if value:
+            if value is not None:
                 data[attr.name] = value
         return self.json_custom(data)
 
