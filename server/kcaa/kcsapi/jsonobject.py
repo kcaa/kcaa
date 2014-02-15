@@ -63,10 +63,8 @@ class JSONSerializableObject(object):
         for attr in cls.__dict__.itervalues():
             if not issubclass(attr.__class__, CustomizableJSONProperty):
                 continue
-            if attr.store_if_null:
-                data[attr.name] = attr.__get__(self)
             value = attr.__get__(self)
-            if value is not None:
+            if not attr.omittable or value is not None:
                 data[attr.name] = value
         return self.json_custom(data)
 
@@ -94,8 +92,8 @@ class CustomizableJSONProperty(object):
     :param function fdel: deleter function
     :param str doc: docstring
     :param str name: name of this property used in JSON
-    :param bool store_if_null: True if this property will be stored in JSON
-                               even if None
+    :param bool omittable: True if this property can be omitted if the value is
+                           None
 
     This is the real property object created when ``@jsonproperty`` decorator
     is used. Using this class directly is discouraged; use :data:`jsonproperty`
@@ -107,7 +105,7 @@ class CustomizableJSONProperty(object):
     """
 
     def __init__(self, fget=None, fset=None, fdel=None, doc=None, name=None,
-                 store_if_null=False):
+                 omittable=True):
         self.fget = fget
         self.fset = fset
         self.fdel = fdel
@@ -117,7 +115,7 @@ class CustomizableJSONProperty(object):
         self.name = name
         if not name and fget:
             self.name = fget.__name__
-        self.store_if_null = store_if_null
+        self.omittable = omittable
 
     def __call__(self, fget):
         self.fget = fget
@@ -147,17 +145,17 @@ class CustomizableJSONProperty(object):
     def getter(self, fget):
         """Handle ``@jsonproperty.getter`` notation."""
         return self.__class__(fget, self.fset, self.fdel, self.__doc__,
-                              self.name, self.store_if_null)
+                              self.name, self.omittable)
 
     def setter(self, fset):
         """Handle ``@jsonproperty.setter`` notation."""
         return self.__class__(self.fget, fset, self.fdel, self.__doc__,
-                              self.name, self.store_if_null)
+                              self.name, self.omittable)
 
     def deleter(self, fdel):
         """Handle ``@jsonproperty.deleter`` notation."""
         return self.__class__(self.fget, self.fset, fdel, self.__doc__,
-                              self.name, self.store_if_null)
+                              self.name, self.omittable)
 
 
 jsonproperty = CustomizableJSONProperty
@@ -201,9 +199,9 @@ For example, you can write a JSON serializable object like this:
 ...     def c(self):
 ...         return None
 ...
-...     # You can change this behavior by setting store_if_null=True.
+...     # You can change this behavior by setting omittable=False.
 ...     # Such a property will be exported with a value of null.
-...     @jsonproperty(store_if_null=True)
+...     @jsonproperty(omittable=False)
 ...     def d(self):
 ...         return None
 
@@ -224,7 +222,7 @@ This class would behave like this:
 
 Note that ``b`` is exported as ``beta`` due to ``name='beta'``. Also note that
 ``c`` is not exported because it returns None. ``d`` is still exported due to
-``store_if_null=True``.
+``omittable=False``.
 """
 
 
@@ -260,11 +258,11 @@ class JSONProperty(CustomizableJSONProperty):
     'BAR'
     """
 
-    def __init__(self, name, store_if_null=False, default=None):
+    def __init__(self, name, omittable=True, default=None):
         self._value = default
         super(JSONProperty, self).__init__(fget=self._get, fset=self._set,
                                            fdel=self._delete, name=name,
-                                           store_if_null=store_if_null)
+                                           omittable=omittable)
 
     def _get(self, owner):
         return self._value
@@ -316,14 +314,14 @@ class ReadonlyJSONProperty(CustomizableJSONProperty):
     '{"foo": "BAR"}'
     """
 
-    def __init__(self, name, wrapped_variable=None, store_if_null=False,
+    def __init__(self, name, wrapped_variable=None, omittable=True,
                  default=None):
         if not wrapped_variable:
             wrapped_variable = '_' + name
         self._wrapped_variable = wrapped_variable
         self._default = default
         super(ReadonlyJSONProperty, self).__init__(fget=self._get, name=name,
-                                                   store_if_null=store_if_null)
+                                                   omittable=omittable)
 
     def _get(self, owner):
         if not hasattr(owner, self._wrapped_variable):

@@ -38,14 +38,14 @@ class TestJSONSerializableObject(object):
         assert s.foo == 'FOO'
         assert s.json() == '{"field_foo": "FOO"}'
 
-    def test_not_exported_if_null(self):
+    def test_not_exported_if_omittable(self):
         class SomeObject(jsonobject.JSONSerializableObject):
             def __init__(self, value):
                 self.value = value
 
-            # If store_if_null is False, the property will not exported.
+            # If omittable is True, the property will not exported.
             # This is the default behavior if omitted.
-            @jsonproperty(store_if_null=False)
+            @jsonproperty(omittable=True)
             def foo(self):
                 return self.value
 
@@ -54,13 +54,13 @@ class TestJSONSerializableObject(object):
         assert SomeObject(0).json() == '{"foo": 0}'
         assert SomeObject(None).json() == '{}'
 
-    def test_exported_if_null(self):
+    def test_exported_if_not_omittable(self):
         class SomeObject(jsonobject.JSONSerializableObject):
             def __init__(self, value):
                 self.value = value
 
-            # If store_if_null is True, the property will always be exported.
-            @jsonproperty(store_if_null=True)
+            # If omittable is False, the property will always be exported.
+            @jsonproperty(omittable=False)
             def foo(self):
                 return self.value
 
