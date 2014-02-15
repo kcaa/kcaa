@@ -149,9 +149,9 @@ class TestJSONSerializableObject(object):
         s.foo = 'FOO'
         assert s.foo == 'FOO'
         assert s.json() == '{"foo": "FOO"}'
-        del s.foo
+        # Deletion is not supported.
         with pytest.raises(AttributeError):
-            s.foo
+            del s.foo
 
     def test_json_property_default(self):
         class SomeObject(jsonobject.JSONSerializableObject):
@@ -178,6 +178,15 @@ class TestJSONSerializableObject(object):
         # It also rejects creating a new member.
         with pytest.raises(AttributeError):
             s = SomeObject(baz='BAZ')
+
+    def test_json_property_not_shared_between_instances(self):
+        class SomeObject(jsonobject.JSONSerializableObject):
+            foo = jsonobject.JSONProperty('foo')
+
+        s = SomeObject(foo='FOO')
+        t = SomeObject(foo='BAR')
+        assert s.foo == 'FOO'
+        assert t.foo == 'BAR'
 
     def test_json_readonly_property(self):
         class SomeObject(jsonobject.JSONSerializableObject):
@@ -240,6 +249,15 @@ class TestJSONSerializableObject(object):
 
         assert SomeObject().foo == 'FOO'
         assert SomeObject(foo='BAR').foo == 'BAR'
+
+    def test_readonly_json_property_not_shared_between_instances(self):
+        class SomeObject(jsonobject.JSONSerializableObject):
+            foo = jsonobject.ReadonlyJSONProperty('foo')
+
+        s = SomeObject(foo='FOO')
+        t = SomeObject(foo='BAR')
+        assert s.foo == 'FOO'
+        assert t.foo == 'BAR'
 
 
 def main():

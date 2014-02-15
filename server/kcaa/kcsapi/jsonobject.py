@@ -85,7 +85,7 @@ class _JSONSerializableObjectEncoder(json.JSONEncoder):
 
 
 class CustomizableJSONProperty(object):
-    """Property which is serialized when the object is converted to JSON.
+    """Property which is exported when the owner object is serialized to JSON.
 
     :param function fget: getter function
     :param function fset: setter function
@@ -169,7 +169,7 @@ decorator.
 
 For example, you can write a JSON serializable object like this:
 
->>> class SampleObject(JSONSerializableObject):
+>>> class SomeObject(JSONSerializableObject):
 ...
 ...     def __init__(self):
 ...         self._b = 'bar'
@@ -207,7 +207,7 @@ For example, you can write a JSON serializable object like this:
 
 This class would behave like this:
 
->>> s = SampleObject()
+>>> s = SomeObject()
 >>> s.a
 'foo'
 >>> s.b
@@ -227,56 +227,65 @@ Note that ``b`` is exported as ``beta`` due to ``name='beta'``. Also note that
 
 
 class JSONProperty(CustomizableJSONProperty):
-    """Property which supports default getter/setter/deleter, and is serialized
-    when the object is converted to JSON.
+    """Property which supports default getter/setter, and is exported when
+    the owner object is serialized to JSON.
 
     This is a simplified version of :class:`CustomizableJSONProperty` for a
-    trivial JSON property. This property supports basic getter/setter/deleter
-    so that a user doesn't need to write all boilerplate accessors.
+    trivial JSON property. This property supports basic getter/setter so that
+    a user doesn't need to write all boilerplate accessors. Deletion is not
+    supported.
 
     Example usage of this class:
 
     >>> class SomeObject(JSONSerializableObject):
     ...     foo = JSONProperty('foo')
 
-    Just this, you're done. You don't need to write a getter, setter or
-    deleter. Then you can set or read a value just like a usual property.
+    Just this, you're done. You don't need to write a getter or setter.
+    Then you can set or read a value just like a usual property.
 
     >>> s = SomeObject()
     >>> s.foo = 'FOO'
     >>> s.foo
     'FOO'
-    >>> s.json()
-    '{"foo": "FOO"}'
     >>> del s.foo
-    >>> s.foo
     Traceback (most recent call last):
         ...
-    AttributeError: 'JSONProperty' object has no attribute '_value'
-    >>> s.foo = 'BAR'
-    >>> s.foo
-    'BAR'
+    AttributeError: Not deletable
+    >>> s.json()
+    '{"foo": "FOO"}'
     """
 
     def __init__(self, name, omittable=True, default=None):
-        self._value = default
+        # Note that we can't have a single value in this JSONProperty object.
+        # A JSONProperty will be a class variable, and shared among all the
+        # instances of that class. They are all owner instances.
+        # Possible solution would be to:
+        # - Have an owner-to-value map in JSONProperty, or
+        # - Store the value to a wrapped variable of each owner
+        # Here we choose the latter approach to be consistent with
+        # ReadonlyJSONProperty.
+        # Of course, there is a chance of conflict if we do the latter, but in
+        # reality it almost never happens if we use a namespace like this:
+        self._wrapped_variable = ('__kcaa.kcsapi.jsonobject.JSONProperty_{:x}'
+            .format(id(self)))
+        self._default = default
         super(JSONProperty, self).__init__(fget=self._get, fset=self._set,
-                                           fdel=self._delete, name=name,
-                                           omittable=omittable)
+                                           name=name, omittable=omittable)
 
     def _get(self, owner):
-        return self._value
+        if not hasattr(owner, self._wrapped_variable):
+            self._set(owner, self._default)
+            return self._default
+        else:
+            return getattr(owner, self._wrapped_variable)
 
     def _set(self, owner, value):
-        self._value = value
-
-    def _delete(self, owner):
-        del self._value
+        setattr(owner, self._wrapped_variable, value)
 
 
 class ReadonlyJSONProperty(CustomizableJSONProperty):
     """Property which provides readonly access to a private variable of the
-    owner object, and is serialized when the object is converted to JSON.
+    owner object, and is exported when the owner object is serialized to JSON.
 
     This is a simplified version of :class:`CustomizableJSONProperty` for a
     trivial and readonly JSON property. This property support a transparent
