@@ -48,6 +48,19 @@ class TestJsonSerializableObject(object):
         assert NamedConservativeGetter('foo').json() == '{"field_foo": "foo"}'
         assert NamedConservativeGetter(None).json() == '{}'
 
+    def test_named_aggressive_getter(self):
+        class NamedAggressiveGetter(model.JsonSerializableObject):
+            def __init__(self, value):
+                self.value = value
+
+            # By default, a null value is exported.
+            @model.jsonproperty()
+            def field_foo(self):
+                return self.value
+
+        assert NamedAggressiveGetter('foo').json() == '{"field_foo": "foo"}'
+        assert NamedAggressiveGetter(None).json() == '{"field_foo": null}'
+
     def test_non_primitive_value_getter(self):
         class NonPrimitiveObject(object):
             pass
