@@ -13,8 +13,9 @@ packages.
 - [requests](https://pypi.python.org/pypi/requests)
 - [selenium](https://pypi.python.org/pypi/selenium)
 
-All of the above can be installed via `pip`. If you Debian-like distribution
-(including Ubuntu), you can install `pip` itself via `apt-get`. For example:
+All of the above can be installed via `pip`. If you use Debian-like Linux
+distribution (including Ubuntu), you can install `pip` itself via `apt-get`.
+For example:
 
     sudo apt-get install python-pip
     sudo pip install pytest python-dateutil requests selenium
