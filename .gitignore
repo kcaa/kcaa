@@ -1,5 +1,8 @@
 .buildlog
 build/
+docs/_build/
+docs/_static/
+docs/_templates/
 packages/
 pubspec.lock
 web/packages
