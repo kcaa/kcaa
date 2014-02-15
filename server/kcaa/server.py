@@ -87,7 +87,7 @@ def move_to_client_dir():
     # Change directory to client directory so that SimpleHTTPServer can serve
     # client resources.
     client_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..',
-                                              'client'))
+                                              '..', 'client'))
     if not os.path.isdir(client_dir):
         raise IOError('No client directory found: {}'.format(client_dir))
     os.chdir(client_dir)

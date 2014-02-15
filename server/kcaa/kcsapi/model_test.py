@@ -120,6 +120,8 @@ class TestJsonSerializableObject(object):
 
 
 def main():
+    import doctest
+    doctest.testmod(model)
     pytest.main(args=[__file__.replace('.pyc', '.py')])
 
 

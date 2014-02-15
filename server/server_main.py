@@ -1,29 +1,18 @@
 #!/usr/bin/env python
 
-import logging
 import multiprocessing
 import sys
 
-import controller
-import flags
-import server
+import kcaa
 
 
 def main(argv):
-    args = flags.parse_args(argv[1:])
-
-    # Log to stdout.
-    logger = logging.getLogger('kcaa')
-    logger.setLevel(logging.DEBUG)
-    handler = logging.StreamHandler(sys.stderr)
-    handler.setLevel(logging.DEBUG)
-    logger.addHandler(handler)
-
+    args = kcaa.flags.parse_args(argv[1:])
     to_exit = multiprocessing.Event()
     controller_conn, server_conn = multiprocessing.Pipe()
-    pc = multiprocessing.Process(target=controller.control,
+    pc = multiprocessing.Process(target=kcaa.controller.control,
                                  args=(args, server_conn, to_exit))
-    ps = multiprocessing.Process(target=server.handle_server,
+    ps = multiprocessing.Process(target=kcaa.server.handle_server,
                                  args=(args, controller_conn, to_exit))
     pc.start()
     ps.start()

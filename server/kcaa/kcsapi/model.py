@@ -1,4 +1,19 @@
 #!/usr/bin/env python
+"""Basic model of KCAA objects.
+
+This module contains some basic model of all KCAA objects, which are handled in
+the controller, or transmitted to the client.
+
+An example usage of :class:`JsonSerializableObject` would be:
+
+>>> class SampleObject(JsonSerializableObject):
+...     @jsonproperty
+...     def field_foo(self):
+...         return 'foo'
+>>> s = SampleObject()
+>>> s.json()
+'{"field_foo": "foo"}'
+"""
 
 import json
 
@@ -55,8 +70,10 @@ class DefaultHandler(object):
 
 
 class JsonSerializableObject(object):
+    """Object serializable to JSON."""
 
     def json(self, *args, **kwargs):
+        """Serialize this object to JSON."""
         return json.dumps(self, *args, cls=JsonSerializableObjectEncoder,
                           **kwargs)
 
@@ -89,15 +106,18 @@ class JsonSerializableObjectEncoder(json.JSONEncoder):
 
 
 class JsonSerializedProperty(object):
+    """Property which is serialized when the object is converted to JSON.
+
+    This is the real property object created when ``@jsonproperty`` decorator
+    is used. See :data:`jsonproperty` for usage.
+
+    This class or ``@jsonproperty`` decorator is compatible with the standard
+    ``@property`` decorator. However, by definition, the property should be at
+    least readable.
+    """
 
     def __init__(self, fget=None, fset=None, fdel=None, doc=None, name=None,
                  store_if_null=True):
-        """Create JSON serialized property.
-
-        This class or @jsonproperty decorator is compatible with the standard
-        @property decorator. However, by definition, the property should be at
-        least readable.
-        """
         self.fget = fget
         self.fset = fset
         self.fdel = fdel
@@ -148,8 +168,65 @@ class JsonSerializedProperty(object):
                               self.name, self.store_if_null)
 
 
-# Provide lower-cased version that looks more natural.
 jsonproperty = JsonSerializedProperty
+"""This is an alias of :class:`JsonSerializedProperty`, and intended to be used
+as a decorator notation (i.e. ``@jsonproperty``).
+
+Except for the fact that this property will be automatically exported when the
+container object's :meth:`JsonSerializableObject.json` is called, you can treat
+the property attribute just like one created with the standard ``@property``
+decorator.
+
+For example, you can write a JSON serializable object like this:
+
+>>> class SampleObject(JsonSerializableObject):
+...
+...     def __init__(self):
+...         self._bar = 'bar'
+...
+...     # Just like @property, this will create a gettable property named
+...     # "field_foo".
+...     @jsonproperty
+...     def field_foo(self):
+...         return 'foo'
+...
+...     # You can change the name of field when exported to JSON.
+...     # Of course, from Python code, this is accessible as "field_bar".
+...     @jsonproperty(name='debug_bar')
+...     def field_bar(self):
+...         return self._bar
+...
+...     # You can define a setter and deleter too, if you'd like to.
+...     @field_bar.setter
+...     def field_bar(self, value):
+...         self._bar = value
+...
+...     # You can omit some field if the value is None (null in JSON) by
+...     # setting store_if_null=False.
+...     # By default, all ``@jsonproperty`` objects are always exported.
+...     @jsonproperty(store_if_null=False)
+...     def field_baz(self):
+...         return None
+
+This class would behave like this:
+
+>>> s = SampleObject()
+>>> s.field_foo
+'foo'
+>>> s.field_bar
+'bar'
+>>> s.field_bar = 'BAR'
+>>> s.field_bar
+'BAR'
+>>> s.field_baz
+>>> s.json(sort_keys=True)
+'{"debug_bar": "BAR", "field_foo": "foo"}'
+
+Note that ``field_bar`` is exported as ``debug_bar`` due to
+``@jsonproperty(name='debug_bar')``, and ``field_baz`` is *not* exported
+because it's annotated as ``@jsonproperty(store_if_null=False)`` and returns
+None.
+"""
 
 
 if __name__ == '__main__':
