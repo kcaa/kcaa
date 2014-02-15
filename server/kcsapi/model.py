@@ -114,7 +114,7 @@ class JsonSerializedProperty(object):
 
 
 # Provide lower-cased version that looks more natural.
-json_serialized_property = JsonSerializedProperty
+jsonproperty = JsonSerializedProperty
 
 
 if __name__ == '__main__':

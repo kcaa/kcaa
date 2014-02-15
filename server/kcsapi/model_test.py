@@ -11,7 +11,7 @@ class TestJsonSerializableObject(object):
 
         class DefaultGetter(model.JsonSerializableObject):
             # Can decorate without any arguments.
-            @model.json_serialized_property
+            @model.jsonproperty
             def field_foo(self):
                 return 'foo'
 
@@ -25,8 +25,8 @@ class TestJsonSerializableObject(object):
         class NamedGetter(model.JsonSerializableObject):
             # This field is exported as "FOO".
             # Note that parameters should be named; you can't do this way:
-            # @model.json_serialized_property('FOO')
-            @model.json_serialized_property(name='FOO')
+            # @model.jsonproperty('FOO')
+            @model.jsonproperty(name='FOO')
             def field_foo(self):
                 return 'foo'
 
@@ -41,7 +41,7 @@ class TestJsonSerializableObject(object):
 
             # If you prefer, it's possible not to export if the value is null.
             # (In python, if the value is None.)
-            @model.json_serialized_property(store_if_null=False)
+            @model.jsonproperty(store_if_null=False)
             def field_foo(self):
                 return self.value
 
@@ -54,7 +54,7 @@ class TestJsonSerializableObject(object):
 
         class NonPrimitiveValueGetter(model.JsonSerializableObject):
             # The getter cannot return a non primitive value.
-            @model.json_serialized_property
+            @model.jsonproperty
             def field_foo(self):
                 return NonPrimitiveObject()
 
@@ -63,14 +63,14 @@ class TestJsonSerializableObject(object):
 
     def test_non_primitive_serializable_value_getter(self):
         class NonPrimitiveSerializableObject(model.JsonSerializableObject):
-            @model.json_serialized_property
+            @model.jsonproperty
             def field_child_foo(self):
                 return 'child_foo'
 
         class NonPrimitiveSerializableValueGetter(
                 model.JsonSerializableObject):
             # OK if the non primitive value is JSON serializable.
-            @model.json_serialized_property
+            @model.jsonproperty
             def field_foo(self):
                 return NonPrimitiveSerializableObject()
 
