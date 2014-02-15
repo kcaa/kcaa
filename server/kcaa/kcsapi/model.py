@@ -24,7 +24,7 @@ class KcaaObject(jsonobject.JSONSerializableObject):
         if self.debug:
             self.response = response
 
-    def json_custom(self, data):
+    def postprocess(self, data):
         if self.debug:
             data['_api_names'] = sorted(list(self.api_names))
             data['_raw_response'] = self.response

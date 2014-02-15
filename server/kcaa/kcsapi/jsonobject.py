@@ -33,7 +33,19 @@ import json
 
 
 class JSONSerializableObject(object):
-    """Object serializable to JSON."""
+    """Object serializable to JSON.
+
+    :param kwargs: arbitrary key-value mapping to initialize JSON properties
+
+    This class represents an object which is serializable to JSON. Typically
+    you subclass this class and define exportable properties using:
+
+    * :class:`JSONProperty`, read/write-able simple data holder
+    * :class:`ReadonlyJSONProperty`, readonly version of :class:`JSONProperty`
+    * :data:`jsonproperty`, which allows you to customize the property
+
+    See examples in this module for how to use them.
+    """
 
     def __init__(self, **kwargs):
         self_class = self.__class__
@@ -53,7 +65,19 @@ class JSONSerializableObject(object):
                 setattr(self, key, value)
 
     def json(self, *args, **kwargs):
-        """Serialize this object to JSON."""
+        """Serialize this object to JSON.
+
+        :param args: arbitrary positional arguments passed to
+                     :func:`json.dumps`
+        :param kwargs: arbitrary keyword arguments passed to :func:`json.dumps`
+        :returns: JSON representation of this object
+        :rtype: string
+        :raises TypeError: if this object contains non-serializable object
+
+        Serialize this object to JSON. This is done by creating a map
+        constructed by exportable properties. If a property returns a
+        non-primitive, such an object will be serialized recursively.
+        """
         return json.dumps(self, *args, cls=_JSONSerializableObjectEncoder,
                           **kwargs)
 
@@ -66,10 +90,18 @@ class JSONSerializableObject(object):
             value = attr.__get__(self)
             if not attr.omittable or value is not None:
                 data[attr.name] = value
-        return self.json_custom(data)
+        return self.postprocess(data)
 
-    def json_custom(self, data):
-        """Called when automatic export is done."""
+    def postprocess(self, data):
+        """Postprocess the automatically exported data.
+
+        :param map data: map representing this object
+
+        This is a callback method which will be called at the end of export.
+        The parameter ``data`` contains all the exported properties' data.
+        Usually you don't have to override this method, but if some properties
+        need to interact with each other, you can implement such logic here.
+        """
         return data
 
 
