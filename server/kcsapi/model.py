@@ -61,6 +61,7 @@ class JsonSerializableObject(object):
                           **kwargs)
 
     def _serialize_json(self):
+        """Automatically find properties to export."""
         cls = self.__class__
         data = {}
         for attr in cls.__dict__.itervalues():
@@ -74,6 +75,7 @@ class JsonSerializableObject(object):
         return self._serialize_json_custom(data)
 
     def _serialize_json_custom(self, data):
+        """Called when automatic export is done."""
         return data
 
 
