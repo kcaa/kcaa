@@ -1,6 +1,6 @@
-# KCAA: Kancolle Automated Assistant
+# KCAA: KanColle Automated Assistant
 
-KCAA (pronounced as K-car) is an assistant tool for playing Kancolle (Kantai
+KCAA (pronounced as *K-car*) is an assistant tool for playing Kancolle (Kantai
 Collection).
 
 # Python server dependencies
@@ -8,14 +8,15 @@ Collection).
 KCAA server (`server/server_main.py`) needs following third-party PyPI
 packages.
 
-- python-dateutil
-- requests
-- pytest (only for testing)
+- [pytest](https://pypi.python.org/pypi/pytest) (only for testing)
+- [python-dateutil](https://pypi.python.org/pypi/python-dateutil)
+- [requests](https://pypi.python.org/pypi/requests)
+- [selenium](https://pypi.python.org/pypi/selenium)
 
 All of the above can be installed via `pip`. For example,
 
-    pip install python-dateutil requests pytest
+    pip install pytest python-dateutil requests selenium
 
 You may need a root priviledge if you don't run python in a virtual
 environment. If you want to create your own sandbox environment, see also
-[http://www.virtualenv.org/].
+[virtualenv](https://pypi.python.org/pypi/virtualenv).
