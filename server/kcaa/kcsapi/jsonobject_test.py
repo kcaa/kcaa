@@ -146,6 +146,16 @@ class TestJSONSerializableObject(object):
         with pytest.raises(AttributeError):
             s.foo
 
+    def test_json_property_default(self):
+        class SomeObject(jsonobject.JSONSerializableObject):
+            # default speficies the default value of the property.
+            foo = jsonobject.JSONProperty('foo', default='FOO')
+
+        s = SomeObject()
+        assert s.foo == 'FOO'
+        s.foo = 'BAR'
+        assert s.foo == 'BAR'
+
     def test_json_readonly_property(self):
         class SomeObject(jsonobject.JSONSerializableObject):
             def __init__(self, foo):
