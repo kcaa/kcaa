@@ -1,10 +1,14 @@
 .buildlog
 build/
+.cache/
+.coverage
 docs/_build/
 docs/_static/
 docs/_templates/
+htmlcov/
 packages/
 pubspec.lock
+__pycache__/
 web/packages
 *.pyc
 
