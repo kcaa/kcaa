@@ -274,18 +274,28 @@ class JSONProperty(CustomizableJSONProperty):
     """Property which supports default getter/setter, and is exported when
     the owner object is serialized to JSON.
 
-    This is a simplified version of :class:`CustomizableJSONProperty` for a
-    trivial JSON property. This property supports basic getter/setter so that
-    a user doesn't need to write all boilerplate accessors. Deletion is not
-    supported.
+    :param str name: name of this property used in JSON
+    :param bool omittable: True if this property can be omitted if the value is
+                           None
+    :param default: default value of the property
 
-    Example usage of this class:
+    This is a read/write-able simple data holder which just behaves like a
+    simple variable. This is suitable for a trivial property for which you
+    would write boilerplace getter and setter. Deletion is not supported.
+
+    As a JSON property, this will be exported when the owner object is
+    serialized to JSON. Common parameters have the same meaning as those of
+    :func:`jsonproperty`.
+
+    Example object which has :class:`JSONProperty`:
 
     >>> class SomeObject(JSONSerializableObject):
     ...     foo = JSONProperty('foo')
 
-    Just this, you're done. You don't need to write a getter or setter.
-    Then you can set or read a value just like a usual property.
+    Just this, you're done. Note that the name of the property is mandatory.
+    However, you don't need to write a getter or setter.
+
+    Then you can set or get a value just like a usual property.
 
     >>> s = SomeObject()
     >>> s.foo = 'FOO'
@@ -297,13 +307,26 @@ class JSONProperty(CustomizableJSONProperty):
     AttributeError: Not deletable
     >>> s.json()
     '{"foo": "FOO"}'
+
+    You can set the default value with ``default`` parameter. Also you can
+    initialize the object with ``name=value`` pairs.
+
+    >>> class AnotherObject(JSONSerializableObject):
+    ...     bar = JSONProperty('bar', default='BAR')
+    ...
+    >>> t = AnotherObject()
+    >>> t.bar
+    'BAR'
+    >>> u = AnotherObject(bar='BAZ')
+    >>> u.bar
+    'BAZ'
     """
 
     def __init__(self, name, omittable=True, default=None):
         # Note that we can't have a single value in this JSONProperty object.
         # A JSONProperty will be a class variable, and shared among all the
         # instances of that class. They are all owner instances.
-        # Possible solution would be to:
+        # Possible solutions include:
         # - Have an owner-to-value map in JSONProperty, or
         # - Store the value to a wrapped variable of each owner
         # Here we choose the latter approach to be consistent with
