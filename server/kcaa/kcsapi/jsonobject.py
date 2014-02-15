@@ -42,7 +42,7 @@ class JSONSerializableObject(object):
 
     * :class:`JSONProperty`, read/write-able simple data holder
     * :class:`ReadonlyJSONProperty`, readonly version of :class:`JSONProperty`
-    * :data:`jsonproperty`, which allows you to customize the property
+    * :func:`jsonproperty`, which allows you to customize the property
 
     See examples in this module for how to use them.
     """
@@ -128,12 +128,8 @@ class CustomizableJSONProperty(object):
                            None
 
     This is the real property object created when ``@jsonproperty`` decorator
-    is used. Using this class directly is discouraged; use :data:`jsonproperty`
-    for readability and consistency.
-
-    This class or ``@jsonproperty`` decorator is fully compatible with the
-    standard ``@property`` decorator. However, by definition, the property
-    should be at least readable (otherwise the object cannot be serialized).
+    is used. It's discouraged to use this class directly. Use
+    :func:`jsonproperty` for readability and consistency.
     """
 
     def __init__(self, fget=None, fset=None, fdel=None, doc=None, name=None,
@@ -194,12 +190,27 @@ jsonproperty = CustomizableJSONProperty
 """Alias of :class:`CustomizableJSONProperty`, and intended to be used as a
 decorator notation (i.e. ``@jsonproperty``).
 
-Except for the fact that this property will be automatically exported when the
-container object's :meth:`JSONSerializableObject.json` is called, you can treat
-the property attribute just like one created with the standard ``@property``
-decorator.
+:param str name: name of this property used in JSON. Must be a keyword argument
+                 if present
+:param bool omittable: True if this property can be omitted if the value is
+                       None. Must be a keyword argument if present
 
-For example, you can write a JSON serializable object like this:
+``@jsonproperty`` decorator creates a customizable JSON property. This behaves
+like the standard ``@property`` decorator except for the fact that
+``@jsonproperty`` will be taken into account when the owner object is being
+serialized; the owner object will call the getter of JSON properties to get a
+JSON serializable objects. That means a getter should return JSON primitives
+(e.g. string, integer, floating-point value etc.) or any object deriving from
+:class:`JSONSerializableObject`.
+
+Remember that ``@jsonproperty`` is fully compatible with the standard
+``@property``. You can safely convert an existing property into JSON properties
+just by replacing ``@property`` to ``@jsonproperty``. However, if the property
+is trivial (i.e. if just encapsulating a private varaible), consider using
+:class:`JSONProperty` or :class:`ReadonlyJSONProperty`.
+
+With ``@jsonproperty`` decorators, you can write a JSON serializable object
+like this:
 
 >>> class SomeObject(JSONSerializableObject):
 ...
@@ -207,10 +218,11 @@ For example, you can write a JSON serializable object like this:
 ...         self._b = 'bar'
 ...
 ...     # Just like @property, this will create a gettable property named
-...     # "a". By default the JSON field name matches the name of property.
+...     # "a". By default the property name is used as is when exported to
+...     # JSON.
 ...     # Note that you have to return a JSON serializable value from getters;
-...     # JSON primitives (e.g. integers, floating-point values, strings, etc.)
-...     # or JSONSerializableObject.
+...     # either JSON primitives (e.g. string, integer, floating-point value
+...     # etc.) or JSONSerializableObject.
 ...     @jsonproperty
 ...     def a(self):
 ...         return 'foo'
