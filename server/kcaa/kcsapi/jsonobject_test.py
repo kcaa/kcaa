@@ -119,6 +119,18 @@ class TestJsonSerializableObject(object):
         with pytest.raises(AttributeError):
             assert gsd.field_foo
 
+    def test_json_property(self):
+        class SuccinctProperty(jsonobject.JsonSerializableObject):
+            # This does the same thing as @jsonproperty getter and setter.
+            field_foo = jsonobject.JsonProperty('field_foo')
+
+        sp = SuccinctProperty()
+        # The property defaults to None.
+        assert sp.field_foo is None
+        sp.field_foo = 123
+        assert sp.field_foo == 123
+        assert sp.json() == '{"field_foo": 123}'
+
 
 def main():
     import doctest

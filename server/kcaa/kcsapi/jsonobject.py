@@ -176,3 +176,51 @@ Note that ``field_bar`` is exported as ``debug_bar`` due to
 because it's annotated as ``@jsonproperty(store_if_null=False)`` and returns
 None.
 """
+
+
+class JsonProperty(JsonCustomizableProperty):
+    """Property which supports default fetch/store actions, and is serialized
+    when the object is converted to JSON.
+
+    This is a simplified version of :class:`JsonCustomizableProperty` for a
+    trivial JSON property. This property supports basic fetch/store actions so
+    that a user doesn't need to write all boilerplate getter/setter pairs.
+
+    Example usage of this class:
+
+    >>> class SomeObject(JsonSerializableObject):
+    ...     foo = JsonProperty('field_foo')
+
+    Just this. You don't need to write a getter, setter or deleter. Then you
+    can set or read a value just like a usual property.
+
+    >>> s = SomeObject()
+    >>> s.foo = 123
+    >>> s.foo
+    123
+    >>> s.json()
+    '{"field_foo": 123}'
+    """
+
+    def __init__(self, name, store_if_null=True, default=None):
+        self._value = default
+        super(JsonProperty, self).__init__(fget=self.get, fset=self.set,
+                                           fdel=self.delete, name=name,
+                                           store_if_null=store_if_null)
+
+    def get(self, owner):
+        """Get the value of the property."""
+        return self._value
+
+    def set(self, owner, value):
+        """Set the value of the property."""
+        self._value = value
+
+    def delete(self, owner):
+        """Delete the value of the property."""
+        del self._value
+
+
+if __name__ == '__main__':
+    import jsonobject_test
+    jsonobject_test.main()
