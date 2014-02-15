@@ -6,52 +6,64 @@ import model
 class QuestList(model.KcaaObject):
 
     def __init__(self, api_name, response, debug):
-        self.quests = {}
+        self._quests = {}
         super(QuestList, self).__init__(api_name, response, debug)
 
     def update(self, api_name, response):
         super(QuestList, self).update(api_name, response)
         data = response['api_data']
         # Number of all quests.
-        self.count = data['api_count']
+        self._count = data['api_count']
         # Number of quests undertaken.
-        self.count_undertaken = data['api_exec_count']
+        self._count_undertaken = data['api_exec_count']
         # Quest instances.
-        self.quests.update({quest_data['api_no']: Quest(quest_data) for
-                            quest_data in data['api_list']})
+        # TODO: Remove old quests? There may be another KCSAPI to remove
+        # completed ones. Not sure for timed out ones.
+        self._quests.update({quest_data['api_no']: Quest(quest_data) for
+                             quest_data in data['api_list']})
 
-    @property
-    def data(self):
-        return super(QuestList, self).format_data({
-            'count': self.count,
-            'count_undertaken': self.count_undertaken,
-            'quests': [self.quests[key].data for key in
-                       sorted(self.quests.keys())],
-        })
+    @model.jsonproperty
+    def count(self):
+        return self._count
+
+    @model.jsonproperty
+    def count_undertaken(self):
+        return self._count_undertaken
+
+    @model.jsonproperty
+    def quests(self):
+        return self._quests
 
 
-class Quest(object):
+class Quest(model.JsonSerializableObject):
 
     def __init__(self, data):
         # ID.
-        self.id = data['api_no']
+        self._id = data['api_no']
         # Name.
-        self.name = data['api_title']
+        self._name = data['api_title']
         # Description.
-        self.description = data['api_detail']
+        self._description = data['api_detail']
         # Reward materials.
-        self.rewards = {
+        self._rewards = {
             'oil': data['api_get_material'][0],
             'ammo': data['api_get_material'][1],
             'steel': data['api_get_material'][2],
             'bauxite': data['api_get_material'][3],
         }
 
-    @property
-    def data(self):
-        return {
-            'id': self.id,
-            'name': self.name,
-            'description': self.description,
-            'rewards': self.rewards,
-        }
+    @model.jsonproperty
+    def id(self):
+        return self._id
+
+    @model.jsonproperty
+    def name(self):
+        return self._name
+
+    @model.jsonproperty
+    def description(self):
+        return self._description
+
+    @model.jsonproperty
+    def rewards(self):
+        return self._rewards

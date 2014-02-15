@@ -44,7 +44,7 @@ def control(args, server_conn, to_exit):
                 logger.error('Controller got an exit signal. Shutting down.')
                 break
             for obj in kcsapi_handler.get_updated_objects():
-                server_conn.send((obj.object_type, obj.data))
+                server_conn.send((obj.object_type, obj.json()))
     except:
         traceback.print_exc()
     to_exit.set()
