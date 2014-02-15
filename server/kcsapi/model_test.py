@@ -90,6 +90,34 @@ class TestJsonSerializableObject(object):
         assert (NonPrimitiveSerializableValueGetter().json() ==
                 '{"field_foo": {"field_child_foo": "child_foo"}}')
 
+    def test_getter_setter_deleter(self):
+        class GetterSetterDeleter(model.JsonSerializableObject):
+            def __init__(self, foo):
+                self._foo = foo
+
+            @model.jsonproperty
+            def field_foo(self):
+                return self._foo
+
+            # Setters and deleters can be used just like the standard property.
+            @field_foo.setter
+            def field_foo(self, foo):
+                self._foo = foo
+
+            @field_foo.deleter
+            def field_foo(self):
+                del self._foo
+
+        gsd = GetterSetterDeleter(123)
+        assert gsd.field_foo == 123
+        assert gsd.json() == '{"field_foo": 123}'
+        gsd.field_foo = 456
+        assert gsd.field_foo == 456
+        assert gsd.json() == '{"field_foo": 456}'
+        del gsd.field_foo
+        with pytest.raises(AttributeError):
+            assert gsd.field_foo
+
 
 def main():
     pytest.main(args=[__file__.replace('.pyc', '.py')])
