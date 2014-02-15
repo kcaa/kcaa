@@ -57,12 +57,21 @@ class JsonSerializableObjectEncoder(json.JSONEncoder):
 class JsonCustomizableProperty(object):
     """Property which is serialized when the object is converted to JSON.
 
-    This is the real property object created when ``@jsonproperty`` decorator
-    is used. See :data:`jsonproperty` for usage.
 
-    This class or ``@jsonproperty`` decorator is compatible with the standard
-    ``@property`` decorator. However, by definition, the property should be at
-    least readable.
+    :param function fget: getter function
+    :param function fset: setter function
+    :param function fdel: deleter function
+    :param str doc: docstring
+    :param str name: name of this property used in JSON
+    :param bool store_if_null: True if this property will be stored in JSON
+                               even if None
+    This is the real property object created when ``@jsonproperty`` decorator
+    is used. Using this class directly is discouraged; use :data:`jsonproperty`
+    for readability and consistency.
+
+    This class or ``@jsonproperty`` decorator is fully compatible with the
+    standard ``@property`` decorator. However, by definition, the property
+    should be at least readable (otherwise the object cannot be serialized).
     """
 
     def __init__(self, fget=None, fset=None, fdel=None, doc=None, name=None,
