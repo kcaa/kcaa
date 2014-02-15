@@ -234,8 +234,12 @@ class TestJSONSerializableObject(object):
         assert s._baz == 'CLASS_BAZ'
         assert SomeObject._baz == 'CLASS_BAZ'
 
-    def test_readonly_json_property_custom_init(self):
-        pass
+    def test_readonly_json_property_default(self):
+        class SomeObject(jsonobject.JSONSerializableObject):
+            foo = jsonobject.ReadonlyJSONProperty('foo', default='FOO')
+
+        assert SomeObject().foo == 'FOO'
+        assert SomeObject(foo='BAR').foo == 'BAR'
 
 
 def main():

@@ -316,15 +316,21 @@ class ReadonlyJSONProperty(CustomizableJSONProperty):
     '{"foo": "BAR"}'
     """
 
-    def __init__(self, name, wrapped_variable=None, store_if_null=False):
+    def __init__(self, name, wrapped_variable=None, store_if_null=False,
+                 default=None):
         if not wrapped_variable:
             wrapped_variable = '_' + name
         self._wrapped_variable = wrapped_variable
+        self._default = default
         super(ReadonlyJSONProperty, self).__init__(fget=self._get, name=name,
                                                    store_if_null=store_if_null)
 
     def _get(self, owner):
-        return getattr(owner, self._wrapped_variable)
+        if not hasattr(owner, self._wrapped_variable):
+            setattr(owner, self._wrapped_variable, self._default)
+            return self._default
+        else:
+            return getattr(owner, self._wrapped_variable)
 
 
 if __name__ == '__main__':
