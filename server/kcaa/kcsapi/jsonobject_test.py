@@ -130,6 +130,23 @@ class TestJsonSerializableObject(object):
         sp.field_foo = 123
         assert sp.field_foo == 123
         assert sp.json() == '{"field_foo": 123}'
+        del sp.field_foo
+        with pytest.raises(AttributeError):
+            assert sp.field_foo
+
+    def test_json_readonly_property(self):
+        class ReadonlyProperty(jsonobject.JsonSerializableObject):
+            def __init__(self, foo):
+                self._foo = foo
+
+            # This property export self._foo as a readonly property.
+            foo = jsonobject.ReadonlyJsonProperty('field_foo', '_foo')
+
+        rp = ReadonlyProperty(123)
+        assert rp.foo == 123
+        with pytest.raises(AttributeError):
+            rp.foo = 456
+        assert rp.json('{"field_foo": 123}')
 
 
 def main():

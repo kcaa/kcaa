@@ -204,21 +204,59 @@ class JsonProperty(JsonCustomizableProperty):
 
     def __init__(self, name, store_if_null=True, default=None):
         self._value = default
-        super(JsonProperty, self).__init__(fget=self.get, fset=self.set,
-                                           fdel=self.delete, name=name,
+        super(JsonProperty, self).__init__(fget=self._get, fset=self._set,
+                                           fdel=self._delete, name=name,
                                            store_if_null=store_if_null)
 
-    def get(self, owner):
-        """Get the value of the property."""
+    def _get(self, owner):
         return self._value
 
-    def set(self, owner, value):
-        """Set the value of the property."""
+    def _set(self, owner, value):
         self._value = value
 
-    def delete(self, owner):
-        """Delete the value of the property."""
+    def _delete(self, owner):
         del self._value
+
+
+class ReadonlyJsonProperty(JsonCustomizableProperty):
+    """Property which provides readonly access to a private variable of the
+    owner object, and is serialized when the object is converted to JSON.
+
+    This is a simplified version of :class:`JsonCustomizableProperty` for a
+    trivial and readonly JSON property. This property support a transparent
+    fetch action to a private instance variable of the owner object, without
+    writing a boilerplate getter method.
+
+    Let's see an exmaple:
+
+    >>> class SomeObject(JsonSerializableObject):
+    ...     def __init__(self, foo):
+    ...         self._foo = foo
+    ...
+    ...     foo = ReadonlyJsonProperty('field_foo', '_foo')
+
+    Then, ``foo`` provides a transparent readonly access to a private instance
+    variable ``SomeObject._foo``.
+
+    >>> s = SomeObject(123)
+    >>> s.foo
+    123
+    >>> s.json()
+    '{"field_foo": 123}'
+    >>> t = SomeObject(456)
+    >>> t.foo
+    456
+    >>> t.json()
+    '{"field_foo": 456}'
+    """
+
+    def __init__(self, name, wrapped_variable, store_if_null=True):
+        self._wrapped_variable = wrapped_variable
+        super(ReadonlyJsonProperty, self).__init__(fget=self._get, name=name,
+                                                   store_if_null=store_if_null)
+
+    def _get(self, owner):
+        return getattr(owner, self._wrapped_variable)
 
 
 if __name__ == '__main__':
