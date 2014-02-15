@@ -6,11 +6,11 @@ import jsonobject
 from jsonobject import jsonproperty
 
 
-class TestJsonSerializableObject(object):
+class TestJSONSerializableObject(object):
 
     def test_default_getter(self):
 
-        class SomeObject(jsonobject.JsonSerializableObject):
+        class SomeObject(jsonobject.JSONSerializableObject):
             # Can decorate without any arguments.
             @jsonproperty
             def foo(self):
@@ -23,7 +23,7 @@ class TestJsonSerializableObject(object):
         assert s.json() == '{"foo": "FOO"}'
 
     def test_named_getter(self):
-        class SomeObject(jsonobject.JsonSerializableObject):
+        class SomeObject(jsonobject.JSONSerializableObject):
             # This field is exported as "field_foo".
             # Note that parameters should be named; you can't do this way:
             # @jsonproperty('field_foo')
@@ -36,7 +36,7 @@ class TestJsonSerializableObject(object):
         assert s.json() == '{"field_foo": "FOO"}'
 
     def test_not_exported_if_null(self):
-        class SomeObject(jsonobject.JsonSerializableObject):
+        class SomeObject(jsonobject.JSONSerializableObject):
             def __init__(self, value):
                 self.value = value
 
@@ -50,7 +50,7 @@ class TestJsonSerializableObject(object):
         assert SomeObject(None).json() == '{}'
 
     def test_exported_if_null(self):
-        class SomeObject(jsonobject.JsonSerializableObject):
+        class SomeObject(jsonobject.JSONSerializableObject):
             def __init__(self, value):
                 self.value = value
 
@@ -66,7 +66,7 @@ class TestJsonSerializableObject(object):
         class NonPrimitiveObject(object):
             pass
 
-        class SomeObject(jsonobject.JsonSerializableObject):
+        class SomeObject(jsonobject.JSONSerializableObject):
             # The getter cannot return a non JSON primitive value.
             @jsonproperty
             def foo(self):
@@ -77,12 +77,12 @@ class TestJsonSerializableObject(object):
 
     def test_non_primitive_serializable_value_getter(self):
         class NonPrimitiveSerializableObject(
-                jsonobject.JsonSerializableObject):
+                jsonobject.JSONSerializableObject):
             @jsonproperty
             def child_foo(self):
                 return 'CHILD_FOO'
 
-        class SomeObject(jsonobject.JsonSerializableObject):
+        class SomeObject(jsonobject.JSONSerializableObject):
             # OK if the non primitive value is JSON serializable.
             @jsonproperty
             def foo(self):
@@ -91,7 +91,7 @@ class TestJsonSerializableObject(object):
         assert SomeObject().json() == '{"foo": {"child_foo": "CHILD_FOO"}}'
 
     def test_setter_and_deleter(self):
-        class SomeObject(jsonobject.JsonSerializableObject):
+        class SomeObject(jsonobject.JSONSerializableObject):
             def __init__(self, foo):
                 self._foo = foo
 
@@ -129,12 +129,12 @@ class TestJsonSerializableObject(object):
         assert s.json() == '{"foo": "BAZ"}'
 
     def test_json_property(self):
-        class SomeObject(jsonobject.JsonSerializableObject):
+        class SomeObject(jsonobject.JSONSerializableObject):
             # This does the same thing as @jsonproperty getter, setter and
             # deleter.
             # Note that the JSON name is mandatory. It can be a positional
             # argument.
-            foo = jsonobject.JsonProperty('foo')
+            foo = jsonobject.JSONProperty('foo')
 
         s = SomeObject()
         # The property defaults to None.
@@ -147,12 +147,12 @@ class TestJsonSerializableObject(object):
             s.foo
 
     def test_json_readonly_property(self):
-        class SomeObject(jsonobject.JsonSerializableObject):
+        class SomeObject(jsonobject.JSONSerializableObject):
             def __init__(self, foo):
                 self._foo = foo
 
             # This property exports SomeObject._foo in a readonly manner.
-            foo = jsonobject.ReadonlyJsonProperty('foo', '_foo')
+            foo = jsonobject.ReadonlyJSONProperty('foo', '_foo')
 
         s = SomeObject('FOO')
         assert s.foo == 'FOO'

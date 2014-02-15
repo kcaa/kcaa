@@ -8,7 +8,7 @@ the controller, or transmitted to the client.
 import jsonobject
 
 
-class KcaaObject(jsonobject.JsonSerializableObject):
+class KcaaObject(jsonobject.JSONSerializableObject):
 
     def __init__(self, api_name, response, debug):
         self.api_names = set()
@@ -24,7 +24,7 @@ class KcaaObject(jsonobject.JsonSerializableObject):
         if self.debug:
             self.response = response
 
-    def format_custom(self, data):
+    def json_custom(self, data):
         if self.debug:
             data['_api_names'] = sorted(list(self.api_names))
             data['_raw_response'] = self.response

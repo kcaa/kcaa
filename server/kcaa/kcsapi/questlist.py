@@ -36,7 +36,7 @@ class QuestList(model.KcaaObject):
         return self._quests
 
 
-class Quest(jsonobject.JsonSerializableObject):
+class Quest(jsonobject.JSONSerializableObject):
 
     def __init__(self, data):
         # ID.

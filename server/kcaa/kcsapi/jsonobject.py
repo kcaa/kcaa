@@ -4,9 +4,9 @@
 This module contains some basic model of all KCAA objects, which are handled in
 the controller, or transmitted to the client.
 
-An example usage of :class:`JsonSerializableObject` would be:
+An example usage of :class:`JSONSerializableObject` would be:
 
->>> class SampleObject(JsonSerializableObject):
+>>> class SampleObject(JSONSerializableObject):
 ...     @jsonproperty
 ...     def foo(self):
 ...         return 'FOO'
@@ -18,42 +18,44 @@ An example usage of :class:`JsonSerializableObject` would be:
 import json
 
 
-class JsonSerializableObject(object):
+class JSONSerializableObject(object):
     """Object serializable to JSON."""
 
     def json(self, *args, **kwargs):
         """Serialize this object to JSON."""
-        return json.dumps(self, *args, cls=_JsonSerializableObjectEncoder,
+        return json.dumps(self, *args, cls=_JSONSerializableObjectEncoder,
                           **kwargs)
 
     def _serialize_json(self):
         cls = self.__class__
         data = {}
         for attr in cls.__dict__.itervalues():
-            if not isinstance(attr, JsonCustomizableProperty):
+            if not isinstance(attr, CustomizableJSONProperty):
                 continue
             if attr.store_if_null:
                 data[attr.name] = attr.__get__(self)
             value = attr.__get__(self)
             if value:
                 data[attr.name] = value
-        return self.format_custom(data)
+        return self.json_custom(data)
 
-    def format_custom(self, data):
+    def json_custom(self, data):
         """Called when automatic export is done."""
         return data
 
 
-class _JsonSerializableObjectEncoder(json.JSONEncoder):
+class _JSONSerializableObjectEncoder(json.JSONEncoder):
+    """Encoder which tries to encode :class:`JSONSerializableObject` in
+    addition to JSON primitives."""
 
     def default(self, obj):
         try:
             return obj._serialize_json()
         except:
-            super(_JsonSerializableObjectEncoder, self).default(obj)
+            super(_JSONSerializableObjectEncoder, self).default(obj)
 
 
-class JsonCustomizableProperty(object):
+class CustomizableJSONProperty(object):
     """Property which is serialized when the object is converted to JSON.
 
     :param function fget: getter function
@@ -112,37 +114,42 @@ class JsonCustomizableProperty(object):
         self.fdel(obj)
 
     def getter(self, fget):
+        """Handle ``@jsonproperty.getter`` notation."""
         return self.__class__(fget, self.fset, self.fdel, self.__doc__,
                               self.name, self.store_if_null)
 
     def setter(self, fset):
+        """Handle ``@jsonproperty.setter`` notation."""
         return self.__class__(self.fget, fset, self.fdel, self.__doc__,
                               self.name, self.store_if_null)
 
     def deleter(self, fdel):
+        """Handle ``@jsonproperty.deleter`` notation."""
         return self.__class__(self.fget, self.fset, fdel, self.__doc__,
                               self.name, self.store_if_null)
 
 
-jsonproperty = JsonCustomizableProperty
-"""This is an alias of :class:`JsonCustomizableProperty`, and intended to be
-used as a decorator notation (i.e. ``@jsonproperty``).
+jsonproperty = CustomizableJSONProperty
+"""Alias of :class:`CustomizableJSONProperty`, and intended to be used as a
+decorator notation (i.e. ``@jsonproperty``).
 
 Except for the fact that this property will be automatically exported when the
-container object's :meth:`JsonSerializableObject.json` is called, you can treat
+container object's :meth:`JSONSerializableObject.json` is called, you can treat
 the property attribute just like one created with the standard ``@property``
 decorator.
 
 For example, you can write a JSON serializable object like this:
 
->>> class SampleObject(JsonSerializableObject):
+>>> class SampleObject(JSONSerializableObject):
 ...
 ...     def __init__(self):
 ...         self._b = 'bar'
 ...
 ...     # Just like @property, this will create a gettable property named
-...     # "a". Nore that you have to return a JSON primitives, or
-...     # JsonSerializableObject, as a value of this property.
+...     # "a". By default the JSON field name matches the name of property.
+...     # Note that you have to return a JSON serializable value from getters;
+...     # JSON primitives (e.g. integers, floating-point values, strings, etc.)
+...     # or JSONSerializableObject.
 ...     @jsonproperty
 ...     def a(self):
 ...         return 'foo'
@@ -190,18 +197,18 @@ Note that ``b`` is exported as ``beta`` due to ``name='beta'``. Also note that
 """
 
 
-class JsonProperty(JsonCustomizableProperty):
-    """Property which supports default fetch/store actions, and is serialized
+class JSONProperty(CustomizableJSONProperty):
+    """Property which supports default getter/setter/deleter, and is serialized
     when the object is converted to JSON.
 
-    This is a simplified version of :class:`JsonCustomizableProperty` for a
-    trivial JSON property. This property supports basic fetch/store actions so
-    that a user doesn't need to write all boilerplate getter/setter pairs.
+    This is a simplified version of :class:`CustomizableJSONProperty` for a
+    trivial JSON property. This property supports basic getter/setter/deleter
+    so that a user doesn't need to write all boilerplate accessors.
 
     Example usage of this class:
 
-    >>> class SomeObject(JsonSerializableObject):
-    ...     foo = JsonProperty('foo')
+    >>> class SomeObject(JSONSerializableObject):
+    ...     foo = JSONProperty('foo')
 
     Just this, you're done. You don't need to write a getter, setter or
     deleter. Then you can set or read a value just like a usual property.
@@ -212,11 +219,19 @@ class JsonProperty(JsonCustomizableProperty):
     'FOO'
     >>> s.json()
     '{"foo": "FOO"}'
+    >>> del s.foo
+    >>> s.foo
+    Traceback (most recent call last):
+        ...
+    AttributeError: 'JSONProperty' object has no attribute '_value'
+    >>> s.foo = 'BAR'
+    >>> s.foo
+    'BAR'
     """
 
     def __init__(self, name, store_if_null=False, default=None):
         self._value = default
-        super(JsonProperty, self).__init__(fget=self._get, fset=self._set,
+        super(JSONProperty, self).__init__(fget=self._get, fset=self._set,
                                            fdel=self._delete, name=name,
                                            store_if_null=store_if_null)
 
@@ -230,31 +245,39 @@ class JsonProperty(JsonCustomizableProperty):
         del self._value
 
 
-class ReadonlyJsonProperty(JsonCustomizableProperty):
+class ReadonlyJSONProperty(CustomizableJSONProperty):
     """Property which provides readonly access to a private variable of the
     owner object, and is serialized when the object is converted to JSON.
 
-    This is a simplified version of :class:`JsonCustomizableProperty` for a
+    This is a simplified version of :class:`CustomizableJSONProperty` for a
     trivial and readonly JSON property. This property support a transparent
-    fetch action to a private instance variable of the owner object, without
-    writing a boilerplate getter method.
+    getter to a private variable of the owner object, without writing a
+    boilerplate getter method.
 
     Let's see an exmaple:
 
-    >>> class SomeObject(JsonSerializableObject):
+    >>> class SomeObject(JSONSerializableObject):
     ...     def __init__(self, foo):
     ...         self._foo = foo
     ...
-    ...     foo = ReadonlyJsonProperty('foo', '_foo')
+    ...     foo = ReadonlyJSONProperty('foo', '_foo')
 
-    Then, ``foo`` provides a transparent readonly access to a private instance
-    variable ``SomeObject._foo``.
+    Then, ``foo`` provides a transparent readonly access to a private variable
+    ``SomeObject._foo``.
 
     >>> s = SomeObject('FOO')
     >>> s.foo
     'FOO'
     >>> s.json()
     '{"foo": "FOO"}'
+    >>> s.foo ='BAR'
+    Traceback (most recent call last):
+        ...
+    AttributeError: Not settable
+    >>> del s.foo
+    Traceback (most recent call last):
+        ...
+    AttributeError: Not deletable
     >>> t = SomeObject('BAR')
     >>> t.foo
     'BAR'
@@ -264,7 +287,7 @@ class ReadonlyJsonProperty(JsonCustomizableProperty):
 
     def __init__(self, name, wrapped_variable, store_if_null=False):
         self._wrapped_variable = wrapped_variable
-        super(ReadonlyJsonProperty, self).__init__(fget=self._get, name=name,
+        super(ReadonlyJSONProperty, self).__init__(fget=self._get, name=name,
                                                    store_if_null=store_if_null)
 
     def _get(self, owner):
