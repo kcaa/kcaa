@@ -1,5 +1,5 @@
-name: kaac
-description: Kancolle Automated Assistant Client
+name: KCAA
+description: Kancolle Automated Assistant
 dependencies:
   json_object: any
   polymer: any
