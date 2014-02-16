@@ -263,6 +263,12 @@ class TestJSONSerializableObject(object):
         t = AnotherObject()
         assert t.json(sort_keys=True) == ('{"a": "A", "b": "B", "c": "C", '
                                           '"d": "D", "e": "E", "f": "F"}')
+        # You can initialize superclass' properties as well.
+        # Note that, however, properties created by @jsonproperty is not
+        # initializable from this syntax.
+        u = AnotherObject(a="AA", b="BB", d="DD", e="EE")
+        assert u.json(sort_keys=True) == ('{"a": "AA", "b": "BB", "c": "C", '
+                                          '"d": "DD", "e": "EE", "f": "F"}')
 
     def test_overriding_jsonobject(self):
         class SomeObject(jsonobject.JSONSerializableObject):
@@ -282,6 +288,8 @@ class TestJSONSerializableObject(object):
         assert t.json(sort_keys=True) == '{"a": "AA", "b": "B"}'
         t.update_a('AAA')
         assert t.json(sort_keys=True) == '{"a": "AAA", "b": "B"}'
+        u = AnotherObject(a='AAAA', b='BBBB')
+        assert u.json(sort_keys=True) == '{"a": "AAAA", "b": "BBBB"}'
 
     def test_instance_json_property(self):
         class SomeObject(object):
