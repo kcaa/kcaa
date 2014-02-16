@@ -249,6 +249,7 @@ class TestJSONSerializableObject(object):
             def c(self):
                 return 'C'
 
+        # You can create a nested class from another serializable object class.
         class AnotherObject(SomeObject):
             d = jsonobject.JSONProperty('d', default='D')
             e = jsonobject.ReadonlyJSONProperty('e', default='E')
@@ -262,6 +263,25 @@ class TestJSONSerializableObject(object):
         t = AnotherObject()
         assert t.json(sort_keys=True) == ('{"a": "A", "b": "B", "c": "C", '
                                           '"d": "D", "e": "E", "f": "F"}')
+
+    def test_overriding_jsonobject(self):
+        class SomeObject(jsonobject.JSONSerializableObject):
+            a = jsonobject.JSONProperty('a', default='A')
+            b = jsonobject.JSONProperty('b', default='B')
+
+            def update_a(self, value):
+                self.a = value
+
+        class AnotherObject(SomeObject):
+            # You can override some properties exported by the superclass.
+            a = jsonobject.JSONProperty('a', default='AA')
+
+        s = SomeObject()
+        assert s.json(sort_keys=True) == '{"a": "A", "b": "B"}'
+        t = AnotherObject()
+        assert t.json(sort_keys=True) == '{"a": "AA", "b": "B"}'
+        t.update_a('AAA')
+        assert t.json(sort_keys=True) == '{"a": "AAA", "b": "B"}'
 
 
 def main():
