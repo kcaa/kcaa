@@ -336,6 +336,26 @@ class TestJSONSerializableObject(object):
                                           '"foo": "FOOFOO", "quux": "QUUX", '
                                           '"qux": "QUX"}')
 
+    def test_instance_json_property_simple(self):
+        class SomeObject(jsonobject.JSONSerializableObject):
+            # This is a bit simple version of dynamic property creation.
+            # This way the class definition is much simpler...
+            def __init__(self, **kwargs):
+                super(SomeObject, self).__init__(**kwargs)
+                # bar is a dynamically created property.
+                self.bar = jsonobject.JSONProperty('bar', default='BAR')
+
+            foo = jsonobject.JSONProperty('foo', default='FOO')
+
+        s = SomeObject()
+        assert s.foo == 'FOO'
+        # However, you cannot manipulate bar naturally.
+        # You would call __get__(), __set__() to directly talk with this
+        # property (descriptor) object.
+        assert s.bar.__get__(s) == 'BAR'
+        # Serializing to JSON is still straightforward.
+        assert s.json(sort_keys=True) == '{"bar": "BAR", "foo": "FOO"}'
+
 
 def main():
     import doctest
