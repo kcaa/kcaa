@@ -82,9 +82,29 @@ class JSONSerializableObject(object):
                           **kwargs)
 
     def _serialize_json(self):
-        cls = self.__class__
         data = {}
-        for attr in cls.__dict__.itervalues():
+        for key in dir(self):
+            attr = None
+            # Tries to find a property from the current instance. This is not
+            # for an ordinary property, because they are owned by class
+            # objects. Properties created dynamically at the instance creation
+            # time would fall into this class, but they should be rare.
+            if key in self.__dict__:
+                attr = getattr(self, key)
+            else:
+                # This path is the normal flow.
+                # To get a CustomizableJSONProperty instance itself, not a
+                # computed value (the result of
+                # CustomizableJSONProperty.__get__()), we need to go through
+                # MRO to find the class that defines the property.
+                for cls in self.__class__.mro():
+                    if key in cls.__dict__:
+                        attr = getattr(cls, key)
+                        break
+            if attr is None:
+                # Special attributes like __doc__ cannot be found in the above
+                # way, but can be ignored.
+                continue
             if not issubclass(attr.__class__, CustomizableJSONProperty):
                 continue
             value = attr.__get__(self)

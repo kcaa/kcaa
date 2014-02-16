@@ -240,6 +240,29 @@ class TestJSONSerializableObject(object):
         assert s.foo == 'FOO'
         assert t.foo == 'BAR'
 
+    def test_nested_jsonobject(self):
+        class SomeObject(jsonobject.JSONSerializableObject):
+            a = jsonobject.JSONProperty('a', default='A')
+            b = jsonobject.ReadonlyJSONProperty('b', default='B')
+
+            @jsonproperty
+            def c(self):
+                return 'C'
+
+        class AnotherObject(SomeObject):
+            d = jsonobject.JSONProperty('d', default='D')
+            e = jsonobject.ReadonlyJSONProperty('e', default='E')
+
+            @jsonproperty
+            def f(self):
+                return 'F'
+
+        s = SomeObject()
+        assert s.json(sort_keys=True) == '{"a": "A", "b": "B", "c": "C"}'
+        t = AnotherObject()
+        assert t.json(sort_keys=True) == ('{"a": "A", "b": "B", "c": "C", '
+                                          '"d": "D", "e": "E", "f": "F"}')
+
 
 def main():
     import doctest
