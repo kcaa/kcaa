@@ -139,7 +139,6 @@ class Assistant extends PolymerElement {
       quests.clear();
       var questIDs = data["quests"].keys.toList();
       questIDs.sort();
-      print(questIDs);
       for (var questID in questIDs) {
         var questData = data["quests"][questID];
         quests.add(new Quest(questData["id"], questData["name"],

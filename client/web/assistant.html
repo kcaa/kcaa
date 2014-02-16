@@ -171,6 +171,8 @@
               </tr>
             </thead>
             <tbody>
+              <!-- TODO: Investigate why this pose a warning, and why this
+              doesn't work with dart2js. -->
               <template repeat="{{quest in quests}}">
                 <tr>
                   <td>{{quest.id}}</td>
