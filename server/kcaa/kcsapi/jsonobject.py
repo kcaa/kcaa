@@ -88,7 +88,8 @@ class JSONSerializableObject(object):
             # Tries to find a property from the current instance. This is not
             # for an ordinary property, because they are owned by class
             # objects. Properties created dynamically at the instance creation
-            # time would fall into this class, but they should be rare.
+            # time without creating a dynamic class would fall into this case,
+            # but they should be really rare.
             if key in self.__dict__:
                 attr = getattr(self, key)
             else:
