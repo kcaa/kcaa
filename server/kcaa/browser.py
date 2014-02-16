@@ -49,6 +49,8 @@ def open_browser(args):
 
 def open_kancolle_browser(args):
     browser = open_browser(args)
+    # TODO: If possible, narrow widht and height and scroll to reduce the
+    # whitespace area.
     browser.set_window_size(980, 800)
     browser.set_window_position(0, 0)
     browser.get(KANCOLLE_URL)
