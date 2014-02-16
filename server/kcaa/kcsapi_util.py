@@ -12,10 +12,6 @@ import kcsapi
 KCSAPI_PATH_REGEX = re.compile(r'/kcsapi(?P<api_name>/.*)')
 KCSAPI_PREFIX = 'svdata='
 
-KCSAPI_HANDLERS = {
-    '/api_get_member/questlist': [kcsapi.QuestList],
-}
-
 
 class KcsapiHandler(object):
 
@@ -24,6 +20,32 @@ class KcsapiHandler(object):
         self.har_manager = har_manager
         self.debug = True
         self.objects = {}
+        self.define_handlers()
+
+    def define_handlers(self):
+        """Define KCSAPI handlers.
+
+        The reason to define handlers here, not in a module level, is to
+        refresh the handler class objects to reflect what's in source files
+        under kcsapi/ directory. Note that this list itself is not reloaded;
+        if you want to add a handler or change something, you still need to
+        restart the server. (Or you can change the controller code to reload
+        this module as well, if you prefer. But reloading module is tricky, so
+        I'd recommend you not to abuse too much.)
+        """
+        self.kcsapi_handlers = {
+            '/api_get_member/questlist': [kcsapi.questlist.QuestList],
+        }
+
+    def reload_handlers(self):
+        """Reload KCSAPI handler modules to reflect possible bug fixes in
+        source files."""
+        reload(kcsapi)
+        kcsapi.reload_modules()
+        # As all models are reloaded, there is no compatibility between old
+        # objects and the new objects. Old ones need to be disposed.
+        self.objects.clear()
+        self.define_handlers()
 
     def get_kcsapi_responses(self, entries):
         for entry in entries:
@@ -50,10 +72,10 @@ class KcsapiHandler(object):
 
     def dispatch(self, api_name, response):
         try:
-            handlers = KCSAPI_HANDLERS[api_name]
+            handlers = self.kcsapi_handlers[api_name]
             self._logger.debug('Accessed KCSAPI: {}'.format(api_name))
         except KeyError:
-            handlers = [kcsapi.DefaultHandler(api_name)]
+            handlers = [kcsapi.model.DefaultHandler(api_name)]
             self._logger.debug('Unknown KCSAPI: {}'.format(api_name))
         for handler in handlers:
             object_type = handler.__name__

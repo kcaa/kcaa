@@ -43,8 +43,18 @@ def control(args, server_conn, to_exit):
             if to_exit.wait(0.0):
                 logger.error('Controller got an exit signal. Shutting down.')
                 break
-            for obj in kcsapi_handler.get_updated_objects():
-                server_conn.send((obj.object_type, obj.json()))
+            try:
+                for obj in kcsapi_handler.get_updated_objects():
+                    server_conn.send((obj.object_type, obj.json()))
+            except:
+                # Permit an exception in KCSAPI handler -- it's very likely a
+                # bug in how a raw response is read.
+                # Rather, reload all the handlers to reflect possible bug fixes
+                # in source files.
+                # Note that you need to catch another exception before seeing
+                # the effect of an edit.
+                traceback.print_exc()
+                kcsapi_handler.reload_handlers()
     except:
         traceback.print_exc()
     to_exit.set()
