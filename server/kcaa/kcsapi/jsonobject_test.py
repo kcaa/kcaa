@@ -336,6 +336,44 @@ class TestJSONSerializableObject(object):
                                           '"foo": "FOOFOO", "quux": "QUUX", '
                                           '"qux": "QUX"}')
 
+    def test_instance_json_property_shared_class(self):
+        class SomeObject(jsonobject.JSONSerializableObject):
+            # Do not do something like this!
+            # This is a bad example of a dynamic property, where I store a
+            # property to a shared class object, which will produce a side
+            # effect for other instances.
+            def __init__(self, **kwargs):
+                cls = self.__class__
+                # Create properties dynamically and add to the shared class
+                # object.
+                for key, value in kwargs.iteritems():
+                    if not hasattr(cls, key):
+                        setattr(cls, key, jsonobject.JSONProperty(
+                            key, default=value))
+                # Set the value using JSONSerializableObject's constructor.
+                super(cls, self).__init__(**kwargs)
+
+            baz = jsonobject.JSONProperty('baz', default='BAZ')
+
+        s = SomeObject(foo='FOO')
+        # This is expected...
+        assert s.foo == 'FOO'
+        assert s.baz == 'BAZ'
+        assert s.json(sort_keys=True) == '{"baz": "BAZ", "foo": "FOO"}'
+        # Also this is fine...
+        t = SomeObject(bar='BAR')
+        assert t.bar == 'BAR'
+        assert t.baz == 'BAZ'
+        # But what is this?! Why do I have foo here though I don't define it
+        # for t!
+        assert t.foo == 'FOO'
+        assert t.json(sort_keys=True) == ('{"bar": "BAR", "baz": "BAZ", '
+                                          '"foo": "FOO"}')
+        # That's why I put a property to the shared class object.
+        # So, use a dynamic class object like what's in
+        # test_instance_json_property. (But to begin with, avoid using a
+        # dynamic property as much as possible.)
+
     def test_instance_json_property_simple(self):
         class SomeObject(jsonobject.JSONSerializableObject):
             # This is a bit simple version of dynamic property creation.
