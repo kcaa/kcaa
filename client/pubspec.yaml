@@ -1,5 +1,6 @@
-name: KCAA
-description: Kancolle Automated Assistant
+name: kcaa
+version: 0.1.0
+description: 'KCAA: Kancolle Automated Assistant'
 dependencies:
   json_object: any
   polymer: any
