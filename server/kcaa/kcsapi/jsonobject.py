@@ -301,12 +301,12 @@ class JSONProperty(CustomizableJSONProperty):
     >>> s.foo = 'FOO'
     >>> s.foo
     'FOO'
+    >>> s.json()
+    '{"foo": "FOO"}'
     >>> del s.foo
     Traceback (most recent call last):
         ...
     AttributeError: Not deletable
-    >>> s.json()
-    '{"foo": "FOO"}'
 
     You can set the default value with ``default`` parameter. Also you can
     initialize the object with ``name=value`` pairs.
@@ -354,28 +354,40 @@ class ReadonlyJSONProperty(CustomizableJSONProperty):
     """Property which provides readonly access to a private variable of the
     owner object, and is exported when the owner object is serialized to JSON.
 
-    This is a simplified version of :class:`CustomizableJSONProperty` for a
-    trivial and readonly JSON property. This property support a transparent
-    getter to a private variable of the owner object, without writing a
-    boilerplate getter method.
+    :param str name: name of this property used in JSON
+    :param str wrapped_variable: name of the wrapped variable, or None if final
+    :param bool omittable: True if this property can be omitted if the value is
+                           None
+    :param default: default value of the property
 
-    Let's see an exmaple:
+    This is a readonly simple data holder. This is suitable for a trivial
+    property for which you would write a boilerplace getter. Setting or
+    deletion through this property is not allowed.
+
+    Though the property value cannot be changed by externally, the owner object
+    can change the value by making the property *wrap* a private variable of
+    it. ``wrapped_variable`` parameter controls this -- see the example below.
+
+    As a JSON property, this will be exported when the owner object is
+    serialized to JSON. Common parameters have the same meaning as those of
+    :func:`jsonproperty`.
+
+    Example object which has :class:`ReadonlyJSONProperty`:
 
     >>> class SomeObject(JSONSerializableObject):
-    ...     def __init__(self, foo):
-    ...         self._foo = foo
-    ...
     ...     foo = ReadonlyJSONProperty('foo', '_foo')
 
-    Then, ``foo`` provides a transparent readonly access to a private variable
-    ``SomeObject._foo``.
+    Here ``foo`` wraps a private variable ``SomeObject._foo``. ``foo`` provides
+    transparent readonly access to ``_foo`` to client code. The owner object
+    should read the value using ``foo``, and set the value using ``_foo``.
 
-    >>> s = SomeObject('FOO')
+    >>> s = SomeObject()
+    >>> s._foo = 'FOO'
     >>> s.foo
     'FOO'
     >>> s.json()
     '{"foo": "FOO"}'
-    >>> s.foo ='BAR'
+    >>> s.foo = 'BAR'
     Traceback (most recent call last):
         ...
     AttributeError: Not settable
@@ -383,11 +395,30 @@ class ReadonlyJSONProperty(CustomizableJSONProperty):
     Traceback (most recent call last):
         ...
     AttributeError: Not deletable
-    >>> t = SomeObject('BAR')
-    >>> t.foo
+
+    You can set the default value with ``default`` parameter. Also you can
+    initialize the object with ``name=value`` pairs.
+
+    >>> class AnotherObject(JSONSerializableObject):
+    ...     bar = ReadonlyJSONProperty('bar', '_bar', default='BAR')
+    ...
+    >>> t = AnotherObject()
+    >>> t.bar
     'BAR'
-    >>> t.json()
-    '{"foo": "BAR"}'
+    >>> u = AnotherObject(bar='BAZ')
+    >>> u.bar
+    'BAZ'
+
+    Also, you can omit setting the second parameter (``wrapped_variable``) if
+    you don't need to update the value. It's a kind of *final* or really
+    *readonly* variable in other languages.
+
+    >>> class YetAnotherObject(JSONSerializableObject):
+    ...     qux = ReadonlyJSONProperty('qux')
+    ...
+    >>> v = YetAnotherObject(qux='QUX')
+    >>> v.qux
+    'QUX'
     """
 
     def __init__(self, name, wrapped_variable=None, omittable=True,
