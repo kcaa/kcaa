@@ -283,6 +283,44 @@ class TestJSONSerializableObject(object):
         t.update_a('AAA')
         assert t.json(sort_keys=True) == '{"a": "AAA", "b": "B"}'
 
+    def test_instance_json_property(self):
+        class SomeObject(object):
+        #class SomeObject(jsonobject.JSONSerializableObject):
+            # Though it's not recommended for most use cases, JSON properties
+            # can be created dynamically at instance creation time.
+            # This is sometimes useful for dynamically importing unknown JSON
+            # but do not abuse this. This is tricky. For readability, an
+            # ordinary property should be explicitly declared at the class
+            # level.
+            def __init__(self, **kwargs):
+                # Dynamically create a new type, because properties
+                # (to be precise, descriptors) works if and only if owned by a
+                # class object.
+                cls = type('__{}_{}'.format(self.__class__.__name__, id(self)),
+                           (jsonobject.JSONSerializableObject,), {})
+                # Change the class of this instance.
+                self.__class__ = cls
+                # Create properties dynamically and add to the dynamically
+                # created class.
+                cls.foo = jsonobject.JSONProperty('foo', default='FOO')
+                cls.bar = jsonobject.ReadonlyJSONProperty('bar', default='BAR')
+                # And from kwargs. You may want to import JSON in this way.
+                for key, value in kwargs.iteritems():
+                    setattr(cls, key, jsonobject.JSONProperty(key))
+                # Set the value using JSONSerializableObject's constructor.
+                super(cls, self).__init__(**kwargs)
+
+        s = SomeObject(baz='BAZ', qux='QUX')
+        assert s.foo == 'FOO'
+        s.foo = 'FOOFOO'
+        assert s.bar == 'BAR'
+        with pytest.raises(AttributeError):
+            s.bar = 'BARBAR'
+        assert s.baz == 'BAZ'
+        assert s.qux == 'QUX'
+        assert s.json(sort_keys=True) == ('{"bar": "BAR", "baz": "BAZ", '
+                                          '"foo": "FOOFOO", "qux": "QUX"}')
+
 
 def main():
     import doctest
