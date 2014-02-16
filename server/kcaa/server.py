@@ -47,6 +47,7 @@ class KcaaHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(json.dumps(list(self.server.new_objects)))
 
+    # TODO: Investigate why 404 is returned on the second request or later.
     def handle_get_object(self, o):
         if self.command != 'GET':
             self.send_error(501, 'Unknown method: {}'.format(self.command))
