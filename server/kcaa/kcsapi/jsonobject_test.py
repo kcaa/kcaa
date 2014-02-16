@@ -309,13 +309,14 @@ class TestJSONSerializableObject(object):
                 # Change the class of this instance.
                 self.__class__ = cls
                 # Create properties dynamically and add to the dynamically
-                # created class.
+                # created class object.
                 cls.foo = jsonobject.JSONProperty('foo', default='FOO')
                 cls.bar = jsonobject.ReadonlyJSONProperty('bar', default='BAR')
                 # And from kwargs. You may want to import JSON in this way.
                 for key, value in kwargs.iteritems():
                     if not hasattr(cls, key):
-                        setattr(cls, key, jsonobject.JSONProperty(key))
+                        setattr(cls, key, jsonobject.JSONProperty(
+                            key, default='FOO'))
                 # Set the value using JSONSerializableObject's constructor.
                 super(cls, self).__init__(**kwargs)
 
@@ -335,6 +336,14 @@ class TestJSONSerializableObject(object):
         assert s.json(sort_keys=True) == ('{"bar": "BAR", "baz": "BAZ", '
                                           '"foo": "FOOFOO", "quux": "QUUX", '
                                           '"qux": "QUX"}')
+        # Confirm another instance won't suffer from any side effect.
+        t = SomeObject(corge='CORGE')
+        assert t.foo == 'FOO'
+        assert t.bar == 'BAR'
+        assert t.baz == 'BAZ'
+        assert t.corge == 'CORGE'
+        assert t.json(sort_keys=True) == ('{"bar": "BAR", "baz": "BAZ", '
+                                          '"corge": "CORGE", "foo": "FOO"}')
 
     def test_instance_json_property_shared_class(self):
         class SomeObject(jsonobject.JSONSerializableObject):
