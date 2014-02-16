@@ -32,6 +32,11 @@ AttributeError: Not settable
 import json
 
 
+# TODO: Create JSONSerializableObject from JSON (string) or Python
+# representation (a combination of map, list and primitives).
+# It's not clear how to handle recursive objects? (Really?)
+
+
 class JSONSerializableObject(object):
     """Object serializable to JSON.
 
