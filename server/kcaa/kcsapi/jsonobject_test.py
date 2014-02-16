@@ -292,8 +292,7 @@ class TestJSONSerializableObject(object):
         assert u.json(sort_keys=True) == '{"a": "AAAA", "b": "BBBB"}'
 
     def test_instance_json_property(self):
-        class SomeObject(object):
-        #class SomeObject(jsonobject.JSONSerializableObject):
+        class SomeObject(jsonobject.JSONSerializableObject):
             # Though it's not recommended for most use cases, JSON properties
             # can be created dynamically at instance creation time.
             # This is sometimes useful for dynamically importing unknown JSON
@@ -305,7 +304,8 @@ class TestJSONSerializableObject(object):
                 # (to be precise, descriptors) works if and only if owned by a
                 # class object.
                 cls = type('__{}_{}'.format(self.__class__.__name__, id(self)),
-                           (jsonobject.JSONSerializableObject,), {})
+                           (jsonobject.JSONSerializableObject,),
+                           dict(self.__class__.__dict__))
                 # Change the class of this instance.
                 self.__class__ = cls
                 # Create properties dynamically and add to the dynamically
@@ -314,20 +314,27 @@ class TestJSONSerializableObject(object):
                 cls.bar = jsonobject.ReadonlyJSONProperty('bar', default='BAR')
                 # And from kwargs. You may want to import JSON in this way.
                 for key, value in kwargs.iteritems():
-                    setattr(cls, key, jsonobject.JSONProperty(key))
+                    if not hasattr(cls, key):
+                        setattr(cls, key, jsonobject.JSONProperty(key))
                 # Set the value using JSONSerializableObject's constructor.
                 super(cls, self).__init__(**kwargs)
 
-        s = SomeObject(baz='BAZ', qux='QUX')
-        assert s.foo == 'FOO'
-        s.foo = 'FOOFOO'
+            # Note that, this class level property will be present in the new
+            # dynamically created class, because of self.__clas__.__dict__ is
+            # passed to type() above.
+            baz = jsonobject.JSONProperty('baz', default='BAZ')
+
+        s = SomeObject(foo='FOOFOO', qux='QUX', quux='QUUX')
+        assert s.foo == 'FOOFOO'
         assert s.bar == 'BAR'
         with pytest.raises(AttributeError):
             s.bar = 'BARBAR'
         assert s.baz == 'BAZ'
         assert s.qux == 'QUX'
+        assert s.quux == 'QUUX'
         assert s.json(sort_keys=True) == ('{"bar": "BAR", "baz": "BAZ", '
-                                          '"foo": "FOOFOO", "qux": "QUX"}')
+                                          '"foo": "FOOFOO", "quux": "QUUX", '
+                                          '"qux": "QUX"}')
 
 
 def main():
