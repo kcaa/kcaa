@@ -12,6 +12,7 @@ class QuestList(model.KcaaObject):
     """Number of quests undertaken."""
     quests = jsonobject.JSONProperty('quests', default={})
     """Quest instances."""
+    # TODO: Make this a list, not a map.
 
     def update(self, api_name, response):
         super(QuestList, self).update(api_name, response)
