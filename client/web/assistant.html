@@ -153,15 +153,15 @@
           <h3>コントロール</h3>
           <h4>APIデバッグ</h4>
           <div>
-            <template repeat="{{newObject in newObjects}}">
-              <button on-click="{{getObjectFromName}}">{{newObject}}</button>
+            <template repeat="{{objectType in availableObjects}}">
+              <button on-click="{{getObjectFromName}}">{{objectType}}</button>
             </template>
           </div>
         </div>
       </div>
       <div class="row horizontal">
         <div class="board">
-          <h3>任務一覧</h3>
+          <h3>任務一覧 ({{numQuestsUndertaken}}/{{numQuests}}個遂行中)</h3>
           <table>
             <thead>
               <tr>

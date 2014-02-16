@@ -38,8 +38,13 @@ class Quest {
 @CustomTag('eplusx-kancolle-assistant')
 class Assistant extends PolymerElement {
   @observable String debugInfo;
-  final List<String> newObjects = new ObservableList<String>();
+  final List<String> availableObjects = new ObservableList<String>();
+  Set<String> availableObjectSet = new Set<String>();
+
   final List<String> activeQuests = new ObservableList<String>();
+
+  @observable int numQuests = 0;
+  @observable int numQuestsUndertaken = 0;
   final List<Quest> quests = new ObservableList<Quest>();
 
   Uri clientRoot;
@@ -47,7 +52,7 @@ class Assistant extends PolymerElement {
   Uri serverGetNewObjects;
   Uri serverGetObject;
 
-  Timer newObjectsChecker;
+  Timer availableObjectsChecker;
 
   Assistant.created() : super.created();
 
@@ -57,8 +62,8 @@ class Assistant extends PolymerElement {
     serverRoot = clientRoot.resolve("/");
     serverGetNewObjects = serverRoot.resolve("/get_new_objects");
     serverGetObject = serverRoot.resolve("/get_object");
-    newObjectsChecker = new Timer.periodic(MILLISECOND * 100, (Timer timer) {
-      getNewObjects();
+    availableObjectsChecker = new Timer.periodic(MILLISECOND * 100, (Timer timer) {
+      updateAvailableObjects();
     });
 
     addCollapseButtons();
@@ -86,30 +91,61 @@ class Assistant extends PolymerElement {
     }
   }
 
-  void getNewObjects() {
+  void updateAvailableObjects() {
     HttpRequest.getString(serverGetNewObjects.toString())
         .then((String content) {
-          List<String> objectTypes = JSON.decode(content);
-          if (!iterableEquals(newObjects, objectTypes)) {
-            newObjects.clear();
-            newObjects.addAll(objectTypes);
+          List<String> newObjects = JSON.decode(content);
+          var newObjectFound = false;
+          for (var objectType in newObjects) {
+            newObjectFound =
+                newObjectFound || availableObjectSet.add(objectType);
+
+            // TODO: Use function lookup table (objectType -> function).
+            if (objectType == "QuestList") {
+              handleQuestList();
+            }
+          }
+          if (newObjectFound) {
+            var sortedObjects = availableObjectSet.toList(growable: false);
+            sortedObjects.sort();
+            availableObjects.clear();
+            availableObjects.addAll(sortedObjects);
           }
         });
   }
 
-  void getObject(String type) {
+  Future<Map<String, dynamic>> getObject(String type, bool debug) {
     Uri request = serverGetObject.resolveUri(new Uri(queryParameters: {
       "type": type,
     }));
-    HttpRequest.getString(request.toString())
+    return HttpRequest.getString(request.toString())
         .then((String content) {
           var json = JSON.decode(content);
-          debugInfo = formatJson(json);
+          if (debug) {
+            debugInfo = formatJson(json);
+          }
+          return json;
         });
   }
 
   void getObjectFromName(Event e, var detail, Element target) {
-    getObject(target.text);
+    getObject(target.text, true);
+  }
+
+  void handleQuestList() {
+    getObject("QuestList", false).then((Map<String, dynamic> data) {
+      numQuests = data["count"];
+      numQuestsUndertaken = data["count_undertaken"];
+      quests.clear();
+      var questIDs = data["quests"].keys.toList();
+      questIDs.sort();
+      print(questIDs);
+      for (var questID in questIDs) {
+        var questData = data["quests"][questID];
+        quests.add(new Quest(questData["id"], questData["name"],
+            questData["description"]));
+      }
+    });
   }
 
   static void appendIndentedText(String text, int level, StringBuffer buffer) {
