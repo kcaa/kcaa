@@ -15,9 +15,6 @@ class QuestList(model.KcaaObject):
 
     def update(self, api_name, response):
         super(QuestList, self).update(api_name, response)
-        print QuestList.__dict__.keys()
-        print model.KcaaObject.__dict__.keys()
-        return
         data = response['api_data']
         self.count = data['api_count']
         self.count_undertaken = data['api_exec_count']
@@ -29,10 +26,10 @@ class QuestList(model.KcaaObject):
                 name=quest_data['api_title'],
                 description=quest_data['api_detail'],
                 rewards={
-                    'oil': data['api_get_material'][0],
-                    'ammo': data['api_get_material'][1],
-                    'steel': data['api_get_material'][2],
-                    'bauxite': data['api_get_material'][3]})
+                    'oil': quest_data['api_get_material'][0],
+                    'ammo': quest_data['api_get_material'][1],
+                    'steel': quest_data['api_get_material'][2],
+                    'bauxite': quest_data['api_get_material'][3]})
             self.quests[quest.id] = quest
 
 
