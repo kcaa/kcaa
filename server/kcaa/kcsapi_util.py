@@ -13,6 +13,9 @@ KCSAPI_PATH_REGEX = re.compile(r'/kcsapi(?P<api_name>/.*)')
 KCSAPI_PREFIX = 'svdata='
 
 
+# TODO: Capitalize Kcsapi to KCSAPI, per PEP8.
+
+
 class KcsapiHandler(object):
 
     def __init__(self, har_manager):
