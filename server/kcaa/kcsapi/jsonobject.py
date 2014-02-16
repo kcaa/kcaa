@@ -97,7 +97,7 @@ class JSONSerializableObject(object):
                 # computed value (the result of
                 # CustomizableJSONProperty.__get__()), we need to go through
                 # MRO to find the class that defines the property.
-                for cls in self.__class__.mro():
+                for cls in self.__class__.__mro__:
                     if key in cls.__dict__:
                         attr = getattr(cls, key)
                         break
