@@ -309,41 +309,29 @@ class TestJSONSerializableObject(object):
                 # Change the class of this instance.
                 self.__class__ = cls
                 # Create properties dynamically and add to the dynamically
-                # created class object.
-                cls.foo = jsonobject.JSONProperty('foo', default='FOO')
-                cls.bar = jsonobject.ReadonlyJSONProperty('bar', default='BAR')
-                # And from kwargs. You may want to import JSON in this way.
+                # created class object. You may want to import not from kwargs,
+                # and use JSON instead.
                 for key, value in kwargs.iteritems():
                     if not hasattr(cls, key):
                         setattr(cls, key, jsonobject.JSONProperty(
-                            key, default='FOO'))
+                            key, default=value))
                 # Set the value using JSONSerializableObject's constructor.
                 super(cls, self).__init__(**kwargs)
 
             # Note that, this class level property will be present in the new
             # dynamically created class, because of self.__clas__.__dict__ is
             # passed to type() above.
-            baz = jsonobject.JSONProperty('baz', default='BAZ')
+            foo = jsonobject.JSONProperty('foo', default='FOO')
 
-        s = SomeObject(foo='FOOFOO', qux='QUX', quux='QUUX')
-        assert s.foo == 'FOOFOO'
+        s = SomeObject(bar='BAR')
+        assert s.foo == 'FOO'
         assert s.bar == 'BAR'
-        with pytest.raises(AttributeError):
-            s.bar = 'BARBAR'
-        assert s.baz == 'BAZ'
-        assert s.qux == 'QUX'
-        assert s.quux == 'QUUX'
-        assert s.json(sort_keys=True) == ('{"bar": "BAR", "baz": "BAZ", '
-                                          '"foo": "FOOFOO", "quux": "QUUX", '
-                                          '"qux": "QUX"}')
+        assert s.json(sort_keys=True) == '{"bar": "BAR", "foo": "FOO"}'
         # Confirm another instance won't suffer from any side effect.
-        t = SomeObject(corge='CORGE')
+        t = SomeObject(baz='BAZ')
         assert t.foo == 'FOO'
-        assert t.bar == 'BAR'
         assert t.baz == 'BAZ'
-        assert t.corge == 'CORGE'
-        assert t.json(sort_keys=True) == ('{"bar": "BAR", "baz": "BAZ", '
-                                          '"corge": "CORGE", "foo": "FOO"}')
+        assert t.json(sort_keys=True) == '{"baz": "BAZ", "foo": "FOO"}'
 
     def test_instance_json_property_shared_class(self):
         class SomeObject(jsonobject.JSONSerializableObject):
@@ -362,20 +350,20 @@ class TestJSONSerializableObject(object):
                 # Set the value using JSONSerializableObject's constructor.
                 super(cls, self).__init__(**kwargs)
 
-            baz = jsonobject.JSONProperty('baz', default='BAZ')
+            foo = jsonobject.JSONProperty('foo', default='FOO')
 
-        s = SomeObject(foo='FOO')
+        s = SomeObject(bar='BAR')
         # This is expected...
         assert s.foo == 'FOO'
-        assert s.baz == 'BAZ'
-        assert s.json(sort_keys=True) == '{"baz": "BAZ", "foo": "FOO"}'
+        assert s.bar == 'BAR'
+        assert s.json(sort_keys=True) == '{"bar": "BAR", "foo": "FOO"}'
         # Also this is fine...
-        t = SomeObject(bar='BAR')
-        assert t.bar == 'BAR'
-        assert t.baz == 'BAZ'
-        # But what is this?! Why do I have foo here though I don't define it
-        # for t!
+        t = SomeObject(baz='BAZ')
         assert t.foo == 'FOO'
+        assert t.baz == 'BAZ'
+        # But what is this?! Why do I have bar here though I don't define it
+        # for t!
+        assert t.bar == 'BAR'
         assert t.json(sort_keys=True) == ('{"bar": "BAR", "baz": "BAZ", '
                                           '"foo": "FOO"}')
         # That's why I put a property to the shared class object.
