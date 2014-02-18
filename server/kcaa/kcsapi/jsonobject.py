@@ -60,7 +60,7 @@ class JSONSerializableObject(object):
                     '{}.{} is {}, not CustomizableJSONProperty'
                     .format(self_class.__name__, key, member_class))
             if issubclass(member_class, ReadonlyJSONProperty):
-                setattr(self, member._wrapped_variable, value)
+                member._set(self, value)
             else:
                 setattr(self, key, value)
 
@@ -381,6 +381,7 @@ class JSONProperty(CustomizableJSONProperty):
         setattr(owner, self._wrapped_variable, value)
 
 
+# TODO: Make this a subclass of JSONProperty?
 class ReadonlyJSONProperty(CustomizableJSONProperty):
     """Property which provides readonly access to a private variable of the
     owner object, and is exported when the owner object is serialized to JSON.
@@ -389,6 +390,7 @@ class ReadonlyJSONProperty(CustomizableJSONProperty):
     :param str wrapped_variable: name of the wrapped variable, or None if final
     :param bool omittable: True if this property can be omitted if the value is
                            None
+    :param type value_type: expected type of the value
     :param default: default value of the property
 
     This is a readonly simple data holder. This is suitable for a trivial
@@ -453,12 +455,17 @@ class ReadonlyJSONProperty(CustomizableJSONProperty):
     """
 
     def __init__(self, name, wrapped_variable=None, omittable=True,
-                 default=None):
+                 default=None, value_type=None):
         if not wrapped_variable:
             wrapped_variable = ('__kcaa.kcsapi.jsonobject.'
                                 'ReadonlyJSONProperty_{:x}'.format(id(self)))
         self._wrapped_variable = wrapped_variable
         self._default = default
+        self._value_type = value_type
+        if (default is not None and value_type is not None and
+                not isinstance(default, value_type)):
+            raise TypeError('Default value {} of type {} is not {}'.format(
+                default, default.__class__.__name__, value_type.__name__))
         super(ReadonlyJSONProperty, self).__init__(fget=self._get, name=name,
                                                    omittable=omittable)
 
@@ -467,9 +474,28 @@ class ReadonlyJSONProperty(CustomizableJSONProperty):
             setattr(owner, self._wrapped_variable, self._default)
             return self._default
         else:
+            # Since it requires an extra cost to monitor what value is set to
+            # the wrapped variable (it should be possible though), type check
+            # is done when a value is being fetched.
+            value = getattr(owner, self._wrapped_variable)
+            if (value is not None and self._value_type is not None and
+                    not isinstance(value, self._value_type)):
+                raise TypeError('Stored value {} of type {} is not {}'.format(
+                    value, value.__class__.__name__,
+                    self._value_type.__name__))
             return getattr(owner, self._wrapped_variable)
 
+    def _set(self, owner, value):
+        # This method is not inteded to be "fset" -- just for type checking in
+        # JSONSerializableObject initialization.
+        if (value is not None and self._value_type is not None and
+                not isinstance(value, self._value_type)):
+            raise TypeError('Default value {} of type {} is not {}'.format(
+                value, value.__class__.__name__, self._value_type.__name__))
+        setattr(owner, self._wrapped_variable, value)
 
+
+# TODO: Write example code
 class DynamicJSONSerializableObject(JSONSerializableObject):
     """Creates a dynamic :class:`JSONSerializableObject` from a Python
     representation of a JSON object.
@@ -509,6 +535,7 @@ class DynamicJSONSerializableObject(JSONSerializableObject):
         super(cls, self).__init__(**kwargs)
 
 
+# TODO: Write example code
 def parse_text(text, readonly=False, omittable=True, *args, **kwargs):
     """Parse JSON text and creates a dynamic :class:`JSONSerializaObject`.
 

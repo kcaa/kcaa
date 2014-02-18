@@ -315,6 +315,30 @@ class TestJSONSerializableObject(object):
             class SomeObject(jsonobject.JSONSerializableObject):
                 a = jsonobject.JSONProperty('a', default='A', value_type=int)
 
+    def test_value_type_readonly(self):
+        class SomeObject(jsonobject.JSONSerializableObject):
+            a = jsonobject.ReadonlyJSONProperty('a', default='A',
+                                                value_type=str)
+
+        with pytest.raises(TypeError):
+            SomeObject(a=123)
+
+    def test_value_type_readonly_wrapped_variable(self):
+        class SomeObject(jsonobject.JSONSerializableObject):
+            a = jsonobject.ReadonlyJSONProperty('a', '_a', value_type=str)
+
+        s = SomeObject(a=None)
+        assert s._a is None
+        s._a = 123
+        # ReadonlyJSONProperty checks value type on read.
+        with pytest.raises(TypeError):
+            assert s.a == 123
+
+    def test_value_type_readonly_default(self):
+        with pytest.raises(TypeError):
+            class SomeObject(jsonobject.JSONSerializableObject):
+                a = jsonobject.JSONProperty('a', default='A', value_type=int)
+
     def test_instance_json_property(self):
         class SomeObject(jsonobject.JSONSerializableObject):
             # Though it's not recommended for most use cases, JSON properties
