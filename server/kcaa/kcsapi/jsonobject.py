@@ -567,6 +567,16 @@ def parse_text(text, readonly=False, omittable=True, *args, **kwargs):
                                          readonly=readonly,
                                          omittable=omittable)
 
+parse = DynamicJSONSerializableObject
+"""Creates a dynamic :class:`JSONSerializableObject` from a Python
+representation of a JSON object.
+
+This is an alias of :class:`DynamicJSONSerializableObject` prepared as a
+counterpart of :func:`parse_text`. Note that the difference in *args* and
+*kwargs*; this function takes *kwargs* for key-value initialization, not for
+calling :func:`json.loads`.
+"""
+
 
 if __name__ == '__main__':
     import jsonobject_test
