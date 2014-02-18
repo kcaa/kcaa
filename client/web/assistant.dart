@@ -137,12 +137,9 @@ class Assistant extends PolymerElement {
       numQuests = data["count"];
       numQuestsUndertaken = data["count_undertaken"];
       quests.clear();
-      var questIDs = data["quests"].keys.toList();
-      questIDs.sort();
-      for (var questID in questIDs) {
-        var questData = data["quests"][questID];
-        quests.add(new Quest(questData["id"], questData["name"],
-            questData["description"]));
+      for (var quest in data["quests"]) {
+        quests.add(new Quest(quest["id"], quest["name"],
+            quest["description"]));
       }
     });
   }
