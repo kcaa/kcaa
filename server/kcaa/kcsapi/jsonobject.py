@@ -37,6 +37,8 @@ import json
 class JSONSerializableObject(object):
     """Object serializable to JSON.
 
+    :param bool _initialize: True if initialize. Set False if this object will
+                             be initialized later
     :param kwargs: arbitrary key-value mapping to initialize JSON properties
 
     This class represents an object which is serializable to JSON. Typically
@@ -49,12 +51,21 @@ class JSONSerializableObject(object):
     See examples in this module for how to use them.
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, _initialize=True, **kwargs):
+        if _initialize:
+            self._initialize(kwargs, False)
+        else:
+            self.__overriding_data = kwargs
+
+    def _initialize(self, data, ignore_unknown):
         self_class = self.__class__
-        for key, value in kwargs.iteritems():
+        for key, value in data.iteritems():
             if not hasattr(self_class, key):
-                raise AttributeError('{}.{} not found'.format(
-                    self_class.__name__, key))
+                if ignore_unknown:
+                    continue
+                else:
+                    raise AttributeError('{}.{} not found'.format(
+                        self_class.__name__, key))
             member = getattr(self_class, key)
             member_class = member.__class__
             if not issubclass(member_class, CustomizableJSONProperty):
@@ -126,6 +137,60 @@ class JSONSerializableObject(object):
         need to interact with each other, you can implement such logic here.
         """
         return data
+
+    # TODO: Write example code.
+    @classmethod
+    def parse_text(cls, text, _ignore_unknown=False, *args, **kwargs):
+        """Parse JSON text and creates a typed :class:`JSONSerializaObject`.
+
+        :param text: text representing JSON object
+        :type text: str or unicode
+        :param bool ignore_unknown: True if ignoring unknown properties
+        :param args: arbitrary positional arguments passed to
+                     :func:`json.loads`
+        :param kwargs: arbitrary keyword arguments passed to :func:`json.loads`
+        :returns: Object parsed from the text
+        :rtype: :class:`JSONSerializableObject`
+        :raises TypeError: if text doesn't represent a JSON map
+        :raises ValueError: if text is ill-formed
+
+        Creates a typed subclass instance of :class:`JSONSerializableObject` by
+        parsing the *text* as a JSON. This is a safer option than
+        :func:`parse_text` because you can define schema by defining a property
+        with value_type expectation.
+
+        The given *text* should be a valid JSON map object representation.
+        This is a shorthand for :meth:`parse` and lets you skip calling
+        :func:`json.loads`. Note that you can't override values with *kwargs*;
+        it's a parameter for :func:`json.loads`.
+        """
+        return cls.parse(json.loads(text, *args, **kwargs),
+                         _ignore_unknown=_ignore_unknown)
+
+    @classmethod
+    def parse(cls, obj, _ignore_unknown=False, *args, **kwargs):
+        """Creates a typed :class:`JSONSerializableObject` from a Python
+        representation of a JSON object.
+
+        :param dict obj: Python representation of a JSON object
+        :param bool ignore_unknown: True if ignoring unknown properties
+        :param kwargs: arbitrary positional arguments passed to the class'
+                       constructor
+        :param kwargs: arbitrary keyword arguments passed to the class'
+                       constructor
+        :returns: Object parsed from the text
+        :rtype: :class:`JSONSerializableObject`
+        :raises TypeError: if obj is not a dict, or if some type check fails
+        """
+        if not isinstance(obj, dict):
+            raise TypeError('Given obj is {}, not dict'.format(
+                obj.__class__.__name__))
+        # At first we don't initialize the object with kwargs. Instead obj is
+        # used to initialize, and then kwargs specifications override them.
+        parsed_obj = cls(_initialize=False, *args, **kwargs)
+        parsed_obj._initialize(obj, _ignore_unknown)
+        parsed_obj._initialize(parsed_obj.__overriding_data, False)
+        return parsed_obj
 
 
 class _JSONSerializableObjectEncoder(json.JSONEncoder):
@@ -506,7 +571,7 @@ class DynamicJSONSerializableObject(JSONSerializableObject):
     """Creates a dynamic :class:`JSONSerializableObject` from a Python
     representation of a JSON object.
 
-    :param map obj: Python representation of a JSON object
+    :param dict obj: Python representation of a JSON object
     :param bool readonly: True if the resulted object should be readonly
     :param bool omittable: True if a property can be omitted if the value is
                            None
@@ -545,12 +610,6 @@ class DynamicJSONSerializableObject(JSONSerializableObject):
 def parse_text(text, readonly=False, omittable=True, *args, **kwargs):
     """Parse JSON text and creates a dynamic :class:`JSONSerializaObject`.
 
-    Creates a :class:`JSONSerializableObject` by parsing the *text* as a JSON.
-    It should be a valid JSON map object representation. This is a shorthand
-    for :class:`DynamicJSONSerializableObject` and lets you skip calling
-    :func:`json.loads`. Note that you can't override values with *kwargs*; it's
-    a parameter for :func:`json.loads`.
-
     :param text: text representing JSON object
     :type text: str or unicode
     :param bool readonly: True if the resulted object should be readonly
@@ -562,6 +621,12 @@ def parse_text(text, readonly=False, omittable=True, *args, **kwargs):
     :rtype: :class:`JSONSerializableObject`
     :raises TypeError: if text doesn't represent a JSON map
     :raises ValueError: if text is ill-formed
+
+    Creates a :class:`JSONSerializableObject` by parsing the *text* as a JSON.
+    It should be a valid JSON map object representation. This is a shorthand
+    for :class:`DynamicJSONSerializableObject` and lets you skip calling
+    :func:`json.loads`. Note that you can't override values with *kwargs*; it's
+    a parameter for :func:`json.loads`.
     """
     return DynamicJSONSerializableObject(json.loads(text, *args, **kwargs),
                                          readonly=readonly,

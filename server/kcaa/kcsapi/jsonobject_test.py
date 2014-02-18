@@ -342,6 +342,39 @@ class TestJSONSerializableObject(object):
             class SomeObject(jsonobject.JSONSerializableObject):
                 a = jsonobject.JSONProperty('a', default='A', value_type=int)
 
+    def test_parse_text(self):
+        class SomeObject(jsonobject.JSONSerializableObject):
+            foo = jsonobject.JSONProperty('foo', u'FOO', value_type=unicode)
+            bar = jsonobject.JSONProperty('bar', 0, value_type=int)
+
+        s = SomeObject.parse_text('{"foo": "FOOFOO", "bar": 123}')
+        assert s.foo == u'FOOFOO'
+        assert s.bar == 123
+        t = SomeObject.parse_text('{}')
+        assert t.foo == u'FOO'
+        assert t.bar == 0
+        # Ill-formed JSON.
+        with pytest.raises(ValueError):
+            SomeObject.parse_text('{"foo": "FOO}')
+        # Value type mismatch.
+        with pytest.raises(TypeError):
+            SomeObject.parse_text('{"foo": 123}')
+        # Unknown field was found.
+        with pytest.raises(AttributeError):
+            SomeObject.parse_text('{"baz": 123}')
+        # Unknown field was found, but ignored.
+        u = SomeObject.parse_text('{"baz": 123}', _ignore_unknown=True)
+        assert u.json(sort_keys=True) == '{"bar": 0, "foo": "FOO"}'
+
+    def test_parse_overriding(self):
+        class SomeObject(jsonobject.JSONSerializableObject):
+            foo = jsonobject.JSONProperty('foo', u'FOO', value_type=unicode)
+
+        s = SomeObject.parse({'foo': u'FOOFOO'})
+        assert s.foo == u'FOOFOO'
+        t = SomeObject.parse({'foo': u'FOOFOO'}, foo=u'FOOFOOFOO')
+        assert t.foo == u'FOOFOOFOO'
+
     def test_instance_json_property(self):
         class SomeObject(jsonobject.JSONSerializableObject):
             # Though it's not recommended for most use cases, JSON properties
@@ -461,10 +494,10 @@ class TestDynamicJSONSerializableObject(object):
     def test_readwrite_omittable(self):
         s = jsonobject.parse_text('{"foo": "FOO", "bar": "BAR"}',
                                   readonly=False, omittable=True)
-        assert s.foo == 'FOO'
-        assert s.bar == 'BAR'
+        assert s.foo == u'FOO'
+        assert s.bar == u'BAR'
         assert s.json(sort_keys=True) == '{"bar": "BAR", "foo": "FOO"}'
-        s.foo = 'FOOFOO'
+        s.foo = u'FOOFOO'
         s.bar = None
         # Note that every property is omittable.
         assert s.json(sort_keys=True) == '{"foo": "FOOFOO"}'
@@ -473,7 +506,7 @@ class TestDynamicJSONSerializableObject(object):
         s = jsonobject.parse_text('{"foo": "FOO", "bar": "BAR"}',
                                   readonly=False, omittable=False)
         assert s.json(sort_keys=True) == '{"bar": "BAR", "foo": "FOO"}'
-        s.foo = 'FOOFOO'
+        s.foo = u'FOOFOO'
         s.bar = None
         # No property is omittable.
         assert s.json(sort_keys=True) == '{"bar": null, "foo": "FOOFOO"}'
@@ -481,12 +514,12 @@ class TestDynamicJSONSerializableObject(object):
     def test_readonly_omittable(self):
         s = jsonobject.parse_text('{"foo": "FOO", "bar": null}',
                                   readonly=True, omittable=True)
-        assert s.foo == 'FOO'
+        assert s.foo == u'FOO'
         assert s.bar is None
         with pytest.raises(AttributeError):
-            s.foo = 'FOOFOO'
+            s.foo = u'FOOFOO'
         with pytest.raises(AttributeError):
-            s.bar = 'BARBAR'
+            s.bar = u'BARBAR'
         # Every property is omittable, so bar should be omitted even though it
         # appeared in the input.
         assert s.json(sort_keys=True) == '{"foo": "FOO"}'
@@ -494,7 +527,7 @@ class TestDynamicJSONSerializableObject(object):
     def test_readonly_not_omittable(self):
         s = jsonobject.parse_text('{"foo": "FOO", "bar": null}',
                                   readonly=True, omittable=False)
-        assert s.foo == 'FOO'
+        assert s.foo == u'FOO'
         assert s.bar is None
         # No property is omittable.
         assert s.json(sort_keys=True) == '{"bar": null, "foo": "FOO"}'
@@ -502,26 +535,26 @@ class TestDynamicJSONSerializableObject(object):
     def test_nested_map(self):
         # Nested map should create a nested JSONSerializableObject.
         s = jsonobject.parse_text('{"foo": "FOO", "bar": {"baz": "BAZ"}}')
-        assert s.foo == 'FOO'
-        assert s.bar.baz == 'BAZ'
+        assert s.foo == u'FOO'
+        assert s.bar.baz == u'BAZ'
 
     def test_value_overriding(self):
         obj = {'foo': 'FOO', 'bar': 'BAR'}
         s = jsonobject.DynamicJSONSerializableObject(obj)
-        assert s.foo == 'FOO'
-        assert s.bar == 'BAR'
+        assert s.foo == u'FOO'
+        assert s.bar == u'BAR'
         assert s.json(sort_keys=True) == '{"bar": "BAR", "foo": "FOO"}'
         # With the constructor (not parse_text), you can override some values.
         t = jsonobject.DynamicJSONSerializableObject(obj, bar='BARBAR')
-        assert t.foo == 'FOO'
-        assert t.bar == 'BARBAR'
+        assert t.foo == u'FOO'
+        assert t.bar == u'BARBAR'
         assert t.json(sort_keys=True) == '{"bar": "BARBAR", "foo": "FOO"}'
         # If no value available in the input object, a new property will be
         # created (no exception thrown).
         u = jsonobject.DynamicJSONSerializableObject(obj, baz='BAZ')
-        assert u.foo == 'FOO'
-        assert u.bar == 'BAR'
-        assert u.baz == 'BAZ'
+        assert u.foo == u'FOO'
+        assert u.bar == u'BAR'
+        assert u.baz == u'BAZ'
         assert u.json(sort_keys=True) == ('{"bar": "BAR", "baz": "BAZ", '
                                           '"foo": "FOO"}')
 
