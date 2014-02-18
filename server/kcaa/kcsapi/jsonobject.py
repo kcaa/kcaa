@@ -466,11 +466,13 @@ class DynamicJSONSerializableObject(JSONSerializableObject):
 
     :param map obj: Python representation of a JSON object
     :param bool readonly: True if the resulted object should be readonly
+    :param bool omittable: True if a property can be omitted if the value is
+                           None
     :param kwargs: arbitrary key-value mapping to override JSON properties
     :raises TypeError: if obj is not a dict
     """
 
-    def __init__(self, obj, readonly=False, **kwargs):
+    def __init__(self, obj, readonly=False, omittable=True, **kwargs):
         if not isinstance(obj, dict):
             raise TypeError('Given obj is {}, not dict'.format(
                 obj.__class__.__name__))
@@ -488,11 +490,12 @@ class DynamicJSONSerializableObject(JSONSerializableObject):
             if isinstance(value, dict):
                 value = DynamicJSONSerializableObject(value,
                                                       readonly=readonly)
-            setattr(cls, key, property_type(key, default=value))
+            setattr(cls, key, property_type(key, omittable=omittable,
+                                            default=value))
         super(cls, self).__init__(**kwargs)
 
 
-def parse_text(text, readonly=False, *args, **kwargs):
+def parse_text(text, readonly=False, omittable=True, *args, **kwargs):
     """Parse JSON text and creates a dynamic :class:`JSONSerializaObject`.
 
     Creates a :class:`JSONSerializableObject` by parsing the *text* as a JSON.
@@ -504,6 +507,8 @@ def parse_text(text, readonly=False, *args, **kwargs):
     :param text: text representing JSON object
     :type text: str or unicode
     :param bool readonly: True if the resulted object should be readonly
+    :param bool omittable: True if a property can be omitted if the value is
+                           None (effective only when not readonly)
     :param args: arbitrary positional arguments passed to :func:`json.loads`
     :param kwargs: arbitrary keyword arguments passed to :func:`json.loads`
     :returns: Object parsed from the text
@@ -512,7 +517,8 @@ def parse_text(text, readonly=False, *args, **kwargs):
     :raises ValueError: if text is ill-formed
     """
     return DynamicJSONSerializableObject(json.loads(text, *args, **kwargs),
-                                         readonly=readonly)
+                                         readonly=readonly,
+                                         omittable=omittable)
 
 
 if __name__ == '__main__':

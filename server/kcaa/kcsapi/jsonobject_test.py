@@ -407,6 +407,27 @@ class TestDynamicJSONSerializableObject(object):
             # Looks like a map, but corrupted.
             jsonobject.parse_text('{"foo": "bar}')
 
+    def test_parse_text_readwrite_omittable(self):
+        s = jsonobject.parse_text('{"foo": "FOO", "bar": "BAR"}',
+                                  readonly=False, omittable=True)
+        assert s.foo == 'FOO'
+        assert s.bar == 'BAR'
+        assert s.json(sort_keys=True) == '{"bar": "BAR", "foo": "FOO"}'
+        s.foo = 'FOOFOO'
+        s.bar = None
+        # Note that every property is omittable.
+        assert s.json(sort_keys=True) == '{"foo": "FOOFOO"}'
+
+    def test_parse_text_readwrite_not_omittable(self):
+        # Readwrite, not omittable.
+        s = jsonobject.parse_text('{"foo": "FOO", "bar": "BAR"}',
+                                  readonly=False, omittable=False)
+        assert s.json(sort_keys=True) == '{"bar": "BAR", "foo": "FOO"}'
+        s.foo = 'FOOFOO'
+        s.bar = None
+        # No property is omittable.
+        assert s.json(sort_keys=True) == '{"bar": null, "foo": "FOOFOO"}'
+
 
 def main():
     import doctest
