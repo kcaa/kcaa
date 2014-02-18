@@ -194,7 +194,8 @@ class TestJSONSerializableObject(object):
                 self._foo = foo
 
             # This property exports SomeObject._foo in a readonly manner.
-            foo = jsonobject.ReadonlyJSONProperty('foo', '_foo')
+            foo = jsonobject.ReadonlyJSONProperty('foo',
+                                                  wrapped_variable='_foo')
 
         s = SomeObject('FOO')
         assert s.foo == 'FOO'
@@ -207,7 +208,8 @@ class TestJSONSerializableObject(object):
         class SomeObject(jsonobject.JSONSerializableObject):
             # If wrapped_variable is omitted, the property tries to wrap one
             # with a random unique name.
-            foo = jsonobject.ReadonlyJSONProperty('foo', '_foo')
+            foo = jsonobject.ReadonlyJSONProperty('foo',
+                                                  wrapped_variable='_foo')
             # This is a class variable whose name conflicts with the wrapped
             # variable of foo.
             _foo = 'CLASS_FOO'
@@ -325,7 +327,8 @@ class TestJSONSerializableObject(object):
 
     def test_value_type_readonly_wrapped_variable(self):
         class SomeObject(jsonobject.JSONSerializableObject):
-            a = jsonobject.ReadonlyJSONProperty('a', '_a', value_type=str)
+            a = jsonobject.ReadonlyJSONProperty('a', value_type=str,
+                                                wrapped_variable='_a')
 
         s = SomeObject(a=None)
         assert s._a is None

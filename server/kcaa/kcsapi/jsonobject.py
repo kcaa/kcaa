@@ -8,8 +8,8 @@ exportable properties.
 A short example illustrating what this module does:
 
 >>> class SomeObject(JSONSerializableObject):
-...     foo = JSONProperty('foo', default='FOO')
-...     bar = ReadonlyJSONProperty('bar', '_bar')
+...     foo = JSONProperty('foo', 'FOO_DEFAULT')
+...     bar = ReadonlyJSONProperty('bar', 'BAR_DEFAULT')
 ...
 ...     @jsonproperty
 ...     def baz(self):
@@ -17,8 +17,10 @@ A short example illustrating what this module does:
 ...
 >>> s = SomeObject(bar='BAR')
 >>> s.foo
-'FOO'
+'FOO_DEFAULT'
 >>> s.foo = 'FOOFOO'
+>>> s.bar
+'BAR'
 >>> s.bar = 'BARBAR'
 Traceback (most recent call last):
     ...
@@ -291,15 +293,16 @@ Note that ``b`` is exported as ``beta`` due to ``name='beta'``. Also note that
 """
 
 
+# TODO: Write example code on value_type
 class JSONProperty(CustomizableJSONProperty):
     """Property which supports default getter/setter, and is exported when
     the owner object is serialized to JSON.
 
     :param str name: name of this property used in JSON
-    :param bool omittable: True if this property can be omitted if the value is
-                           None
     :param default: default value of the property
     :param type value_type: expected type of the value
+    :param bool omittable: True if this property can be omitted if the value is
+                           None
 
     This is a read/write-able simple data holder which just behaves like a
     simple variable. This is suitable for a trivial property for which you
@@ -330,21 +333,22 @@ class JSONProperty(CustomizableJSONProperty):
         ...
     AttributeError: Not deletable
 
-    You can set the default value with ``default`` parameter. Also you can
-    initialize the object with ``name=value`` pairs.
+    You can set the default value with ``default`` parameter (or the second
+    positional parameter). Also you can initialize the object with
+    ``name=value`` pairs.
 
     >>> class AnotherObject(JSONSerializableObject):
-    ...     bar = JSONProperty('bar', default='BAR')
+    ...     bar = JSONProperty('bar', 'BAR')
     ...
     >>> t = AnotherObject()
     >>> t.bar
     'BAR'
-    >>> u = AnotherObject(bar='BAZ')
+    >>> u = AnotherObject(bar='BARBAR')
     >>> u.bar
-    'BAZ'
+    'BARBAR'
     """
 
-    def __init__(self, name, omittable=True, default=None, value_type=None):
+    def __init__(self, name, default=None, value_type=None, omittable=True):
         # Note that we can't have a single value in this JSONProperty object.
         # A JSONProperty will be a class variable, and shared among all the
         # instances of that class. They are all owner instances.
@@ -387,11 +391,11 @@ class ReadonlyJSONProperty(CustomizableJSONProperty):
     owner object, and is exported when the owner object is serialized to JSON.
 
     :param str name: name of this property used in JSON
-    :param str wrapped_variable: name of the wrapped variable, or None if final
+    :param default: default value of the property
+    :param type value_type: expected type of the value
     :param bool omittable: True if this property can be omitted if the value is
                            None
-    :param type value_type: expected type of the value
-    :param default: default value of the property
+    :param str wrapped_variable: name of the wrapped variable, or None if final
 
     This is a readonly simple data holder. This is suitable for a trivial
     property for which you would write a boilerplate getter. Setting or
@@ -408,7 +412,7 @@ class ReadonlyJSONProperty(CustomizableJSONProperty):
     Example object which has :class:`ReadonlyJSONProperty`:
 
     >>> class SomeObject(JSONSerializableObject):
-    ...     foo = ReadonlyJSONProperty('foo', '_foo')
+    ...     foo = ReadonlyJSONProperty('foo', wrapped_variable='_foo')
 
     Here ``foo`` wraps a private variable ``SomeObject._foo``. ``foo`` provides
     transparent readonly access to ``_foo`` to client code. The owner object
@@ -420,7 +424,7 @@ class ReadonlyJSONProperty(CustomizableJSONProperty):
     'FOO'
     >>> s.json()
     '{"foo": "FOO"}'
-    >>> s.foo = 'BAR'
+    >>> s.foo = 'FOOFOO'
     Traceback (most recent call last):
         ...
     AttributeError: Not settable
@@ -429,22 +433,23 @@ class ReadonlyJSONProperty(CustomizableJSONProperty):
         ...
     AttributeError: Not deletable
 
-    You can set the default value with ``default`` parameter. Also you can
-    initialize the object with ``name=value`` pairs.
+    You can set the default value with ``default`` parameter (or the second
+    positional parameter). Also you can initialize the object with
+    ``name=value`` pairs.
 
     >>> class AnotherObject(JSONSerializableObject):
-    ...     bar = ReadonlyJSONProperty('bar', '_bar', default='BAR')
+    ...     bar = ReadonlyJSONProperty('bar', 'BAR', wrapped_variable='_bar')
     ...
     >>> t = AnotherObject()
     >>> t.bar
     'BAR'
-    >>> u = AnotherObject(bar='BAZ')
+    >>> u = AnotherObject(bar='BARBAR')
     >>> u.bar
-    'BAZ'
+    'BARBAR'
 
-    Also, you can omit setting the second parameter (``wrapped_variable``) if
-    you don't need to update the value. It's a kind of *final* or really
-    *readonly* variable in other languages.
+    Also, you can omit ``wrapped_variable`` parameter if you don't need to
+    update the value. It's a kind of *final* or really *readonly* variable in
+    other languages.
 
     >>> class YetAnotherObject(JSONSerializableObject):
     ...     qux = ReadonlyJSONProperty('qux')
@@ -454,18 +459,18 @@ class ReadonlyJSONProperty(CustomizableJSONProperty):
     'QUX'
     """
 
-    def __init__(self, name, wrapped_variable=None, omittable=True,
-                 default=None, value_type=None):
+    def __init__(self, name, default=None, value_type=None, omittable=True,
+                 wrapped_variable=None):
         if not wrapped_variable:
             wrapped_variable = ('__kcaa.kcsapi.jsonobject.'
                                 'ReadonlyJSONProperty_{:x}'.format(id(self)))
-        self._wrapped_variable = wrapped_variable
         self._default = default
         self._value_type = value_type
         if (default is not None and value_type is not None and
                 not isinstance(default, value_type)):
             raise TypeError('Default value {} of type {} is not {}'.format(
                 default, default.__class__.__name__, value_type.__name__))
+        self._wrapped_variable = wrapped_variable
         super(ReadonlyJSONProperty, self).__init__(fget=self._get, name=name,
                                                    omittable=omittable)
 

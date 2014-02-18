@@ -10,7 +10,7 @@ class QuestList(model.KcaaObject):
     """Number of all quests."""
     count_undertaken = jsonobject.JSONProperty('count_undertaken')
     """Number of quests undertaken."""
-    quests = jsonobject.JSONProperty('quests', default={})
+    quests = jsonobject.JSONProperty('quests', {})
     """Quest instances."""
     # TODO: Make this a list, not a map.
 
