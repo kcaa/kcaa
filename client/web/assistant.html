@@ -166,6 +166,8 @@
             <thead>
               <tr>
                 <th>ID</th>
+                <th>種別</th>
+                <th>状態</th>
                 <th>名前</th>
                 <th>説明</th>
               </tr>
@@ -176,6 +178,8 @@
               <template repeat="{{quest in quests}}">
                 <tr>
                   <td>{{quest.id}}</td>
+                  <td>{{quest.category}}</td>
+                  <td>{{quest.state}}</td>
                   <td>{{quest.name}}</td>
                   <td>{{quest.description}}</td>
                 </tr>

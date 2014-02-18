@@ -13,6 +13,14 @@ class Quest(jsonobject.JSONSerializableObject):
     description = jsonobject.ReadonlyJSONProperty('description', u'',
                                                   value_type=unicode)
     """Description."""
+    category = jsonobject.ReadonlyJSONProperty('category', 0, value_type=int)
+    """Category."""
+    CATEGORY_ORGANIZE = 1
+    CATEGORY_ATTACK = 2
+    state = jsonobject.ReadonlyJSONProperty('state', 0, value_type=int)
+    """State."""
+    STATE_INACTIVE = 1
+    STATE_ACTIVE = 2
     rewards = jsonobject.ReadonlyJSONProperty('rewards', {}, value_type=dict)
     """Rewards."""
     # TODO: Add Rewards object
@@ -41,6 +49,8 @@ class QuestList(model.KcaaObject):
                 id=quest_data.api_no,
                 name=quest_data.api_title,
                 description=quest_data.api_detail,
+                category=quest_data.api_category,
+                state=quest_data.api_state,
                 rewards={
                     'oil': quest_data.api_get_material[0],
                     'ammo': quest_data.api_get_material[1],

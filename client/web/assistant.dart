@@ -31,8 +31,10 @@ class Quest {
   int id;
   String name;
   String description;
+  int category;
+  int state;
 
-  Quest(this.id, this.name, this.description) {}
+  Quest(this.id, this.name, this.description, this.category, this.state) {}
 }
 
 @CustomTag('eplusx-kancolle-assistant')
@@ -139,7 +141,7 @@ class Assistant extends PolymerElement {
       quests.clear();
       for (var quest in data["quests"]) {
         quests.add(new Quest(quest["id"], quest["name"],
-            quest["description"]));
+            quest["description"], quest["category"], quest["state"]));
       }
     });
   }
