@@ -299,10 +299,11 @@ class JSONProperty(CustomizableJSONProperty):
     :param bool omittable: True if this property can be omitted if the value is
                            None
     :param default: default value of the property
+    :param type value_type: expected type of the value
 
     This is a read/write-able simple data holder which just behaves like a
     simple variable. This is suitable for a trivial property for which you
-    would write boilerplace getter and setter. Deletion is not supported.
+    would write boilerplate getter and setter. Deletion is not supported.
 
     As a JSON property, this will be exported when the owner object is
     serialized to JSON. Common parameters have the same meaning as those of
@@ -343,7 +344,7 @@ class JSONProperty(CustomizableJSONProperty):
     'BAZ'
     """
 
-    def __init__(self, name, omittable=True, default=None):
+    def __init__(self, name, omittable=True, default=None, value_type=None):
         # Note that we can't have a single value in this JSONProperty object.
         # A JSONProperty will be a class variable, and shared among all the
         # instances of that class. They are all owner instances.
@@ -357,6 +358,11 @@ class JSONProperty(CustomizableJSONProperty):
         self._wrapped_variable = ('__kcaa.kcsapi.jsonobject.JSONProperty_{:x}'
             .format(id(self)))
         self._default = default
+        self._value_type = value_type
+        if (default is not None and value_type is not None and
+                not isinstance(default, value_type)):
+            raise TypeError('Default value {} of type {} is not {}'.format(
+                default, default.__class__.__name__, value_type.__name__))
         super(JSONProperty, self).__init__(fget=self._get, fset=self._set,
                                            name=name, omittable=omittable)
 
@@ -368,6 +374,10 @@ class JSONProperty(CustomizableJSONProperty):
             return getattr(owner, self._wrapped_variable)
 
     def _set(self, owner, value):
+        if (value is not None and self._value_type is not None and
+                not isinstance(value, self._value_type)):
+            raise TypeError('Given value {} of type {} is not {}'.format(
+                value, value.__class__.__name__, self._value_type.__name__))
         setattr(owner, self._wrapped_variable, value)
 
 
@@ -382,7 +392,7 @@ class ReadonlyJSONProperty(CustomizableJSONProperty):
     :param default: default value of the property
 
     This is a readonly simple data holder. This is suitable for a trivial
-    property for which you would write a boilerplace getter. Setting or
+    property for which you would write a boilerplate getter. Setting or
     deletion through this property is not allowed.
 
     Though the property value cannot be changed by externally, the owner object

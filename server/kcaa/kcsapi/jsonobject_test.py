@@ -291,6 +291,23 @@ class TestJSONSerializableObject(object):
         u = AnotherObject(a='AAAA', b='BBBB')
         assert u.json(sort_keys=True) == '{"a": "AAAA", "b": "BBBB"}'
 
+    def test_value_type(self):
+        class SomeObject(jsonobject.JSONSerializableObject):
+            a = jsonobject.JSONProperty('a', default='A', value_type=str)
+            b = jsonobject.JSONProperty('b', default=123, value_type=int)
+            c = jsonobject.JSONProperty('c', default='C')
+
+        s = SomeObject()
+        assert s.json(sort_keys=True) == '{"a": "A", "b": 123, "c": "C"}'
+        # It's a value type violation when setting a value of different type.
+        with pytest.raises(TypeError):
+            s.a = 123
+        with pytest.raises(TypeError):
+            s.b = 'B'
+        # c doesn't declare the value type: any arbitrary type is acceptable.
+        s.c = 456
+        assert s.json(sort_keys=True) == '{"a": "A", "b": 123, "c": 456}'
+
     def test_instance_json_property(self):
         class SomeObject(jsonobject.JSONSerializableObject):
             # Though it's not recommended for most use cases, JSON properties
