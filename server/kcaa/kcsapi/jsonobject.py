@@ -53,15 +53,15 @@ class JSONSerializableObject(object):
 
     def __init__(self, _initialize=True, **kwargs):
         if _initialize:
-            self._initialize(kwargs, False)
+            self._initialize(kwargs, _ignore_unknown=False)
         else:
             self.__overriding_data = kwargs
 
-    def _initialize(self, data, ignore_unknown):
+    def _initialize(self, data, _ignore_unknown=False):
         self_class = self.__class__
         for key, value in data.iteritems():
             if not hasattr(self_class, key):
-                if ignore_unknown:
+                if _ignore_unknown:
                     continue
                 else:
                     raise AttributeError('{}.{} not found'.format(
@@ -72,6 +72,13 @@ class JSONSerializableObject(object):
                 raise AttributeError(
                     '{}.{} is {}, not CustomizableJSONProperty'
                     .format(self_class.__name__, key, member_class))
+            # Try to parse as JSONSerializableObject if the value type is
+            # specified and the value is a dict.
+            if (issubclass(member_class, JSONProperty) and
+                    isinstance(value, dict) and
+                    issubclass(member._value_type, JSONSerializableObject)):
+                value = member._value_type.parse(
+                    value, _ignore_unknown=_ignore_unknown)
             if issubclass(member_class, ReadonlyJSONProperty):
                 member._initialize(self, value)
             else:
@@ -181,6 +188,10 @@ class JSONSerializableObject(object):
         :returns: Object parsed from the text
         :rtype: :class:`JSONSerializableObject`
         :raises TypeError: if obj is not a dict, or if some type check fails
+
+        If you want your subclass parseable, you shouldn't create a your own
+        parameter that needs to be initialized in __init__. Otherwise parsing
+        will be failed if that object is being created as a descendant.
         """
         if not isinstance(obj, dict):
             raise TypeError('Given obj is {}, not dict'.format(
@@ -188,8 +199,9 @@ class JSONSerializableObject(object):
         # At first we don't initialize the object with kwargs. Instead obj is
         # used to initialize, and then kwargs specifications override them.
         parsed_obj = cls(_initialize=False, *args, **kwargs)
-        parsed_obj._initialize(obj, _ignore_unknown)
-        parsed_obj._initialize(parsed_obj.__overriding_data, False)
+        parsed_obj._initialize(obj, _ignore_unknown=_ignore_unknown)
+        parsed_obj._initialize(parsed_obj.__overriding_data,
+                               _ignore_unknown=False)
         return parsed_obj
 
 
@@ -556,14 +568,7 @@ class ReadonlyJSONProperty(JSONProperty):
     # Not settable.
     _set = None
 
-    def _initialize(self, owner, value):
-        # This method is not inteded to be "fset" -- just for type checking in
-        # JSONSerializableObject initialization.
-        if (value is not None and self._value_type is not None and
-                not isinstance(value, self._value_type)):
-            raise TypeError('Given value {} of type {} is not {}'.format(
-                value, value.__class__.__name__, self._value_type.__name__))
-        setattr(owner, self._wrapped_variable, value)
+    _initialize = JSONProperty._set
 
 
 # TODO: Write example code
