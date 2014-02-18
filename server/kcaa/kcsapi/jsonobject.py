@@ -62,7 +62,7 @@ class JSONSerializableObject(object):
                     '{}.{} is {}, not CustomizableJSONProperty'
                     .format(self_class.__name__, key, member_class))
             if issubclass(member_class, ReadonlyJSONProperty):
-                member._set(self, value)
+                member._initialize(self, value)
             else:
                 setattr(self, key, value)
 
@@ -303,6 +303,8 @@ class JSONProperty(CustomizableJSONProperty):
     :param type value_type: expected type of the value
     :param bool omittable: True if this property can be omitted if the value is
                            None
+    :param str wrapped_variable: name of the wrapped variable, or None if using
+                                 an automatically chosen one
 
     This is a read/write-able simple data holder which just behaves like a
     simple variable. This is suitable for a trivial property for which you
@@ -348,7 +350,8 @@ class JSONProperty(CustomizableJSONProperty):
     'BARBAR'
     """
 
-    def __init__(self, name, default=None, value_type=None, omittable=True):
+    def __init__(self, name, default=None, value_type=None, omittable=True,
+                 wrapped_variable=None):
         # Note that we can't have a single value in this JSONProperty object.
         # A JSONProperty will be a class variable, and shared among all the
         # instances of that class. They are all owner instances.
@@ -359,14 +362,16 @@ class JSONProperty(CustomizableJSONProperty):
         # ReadonlyJSONProperty.
         # Of course, there is a chance of conflict if we do the latter, but in
         # reality it almost never happens if we use a namespace like this:
-        self._wrapped_variable = ('__kcaa.kcsapi.jsonobject.JSONProperty_{:x}'
-            .format(id(self)))
         self._default = default
         self._value_type = value_type
         if (default is not None and value_type is not None and
                 not isinstance(default, value_type)):
             raise TypeError('Default value {} of type {} is not {}'.format(
                 default, default.__class__.__name__, value_type.__name__))
+        if not wrapped_variable:
+            wrapped_variable = ('__{}_{:x}'.format(self.__class__.__name__,
+                                                   id(self)))
+        self._wrapped_variable = wrapped_variable
         super(JSONProperty, self).__init__(fget=self._get, fset=self._set,
                                            name=name, omittable=omittable)
 
@@ -385,8 +390,7 @@ class JSONProperty(CustomizableJSONProperty):
         setattr(owner, self._wrapped_variable, value)
 
 
-# TODO: Make this a subclass of JSONProperty?
-class ReadonlyJSONProperty(CustomizableJSONProperty):
+class ReadonlyJSONProperty(JSONProperty):
     """Property which provides readonly access to a private variable of the
     owner object, and is exported when the owner object is serialized to JSON.
 
@@ -461,18 +465,9 @@ class ReadonlyJSONProperty(CustomizableJSONProperty):
 
     def __init__(self, name, default=None, value_type=None, omittable=True,
                  wrapped_variable=None):
-        if not wrapped_variable:
-            wrapped_variable = ('__kcaa.kcsapi.jsonobject.'
-                                'ReadonlyJSONProperty_{:x}'.format(id(self)))
-        self._default = default
-        self._value_type = value_type
-        if (default is not None and value_type is not None and
-                not isinstance(default, value_type)):
-            raise TypeError('Default value {} of type {} is not {}'.format(
-                default, default.__class__.__name__, value_type.__name__))
-        self._wrapped_variable = wrapped_variable
-        super(ReadonlyJSONProperty, self).__init__(fget=self._get, name=name,
-                                                   omittable=omittable)
+        super(ReadonlyJSONProperty, self).__init__(
+            name, default=default, value_type=value_type,
+            omittable=omittable, wrapped_variable=wrapped_variable)
 
     def _get(self, owner):
         if not hasattr(owner, self._wrapped_variable):
@@ -482,20 +477,26 @@ class ReadonlyJSONProperty(CustomizableJSONProperty):
             # Since it requires an extra cost to monitor what value is set to
             # the wrapped variable (it should be possible though), type check
             # is done when a value is being fetched.
+            # Other than that this method is identical to JSONProperty._get(),
+            # but we separate this from it for a possible performance reason
+            # (not proven to be statically significant, though).
             value = getattr(owner, self._wrapped_variable)
             if (value is not None and self._value_type is not None and
                     not isinstance(value, self._value_type)):
                 raise TypeError('Stored value {} of type {} is not {}'.format(
                     value, value.__class__.__name__,
                     self._value_type.__name__))
-            return getattr(owner, self._wrapped_variable)
+            return value
 
-    def _set(self, owner, value):
+    # Not settable.
+    _set = None
+
+    def _initialize(self, owner, value):
         # This method is not inteded to be "fset" -- just for type checking in
         # JSONSerializableObject initialization.
         if (value is not None and self._value_type is not None and
                 not isinstance(value, self._value_type)):
-            raise TypeError('Default value {} of type {} is not {}'.format(
+            raise TypeError('Given value {} of type {} is not {}'.format(
                 value, value.__class__.__name__, self._value_type.__name__))
         setattr(owner, self._wrapped_variable, value)
 
