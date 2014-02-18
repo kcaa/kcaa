@@ -448,6 +448,12 @@ class TestDynamicJSONSerializableObject(object):
         # No property is omittable.
         assert s.json(sort_keys=True) == '{"bar": null, "foo": "FOO"}'
 
+    def test_nested_map(self):
+        # Nested map should create a nested JSONSerializableObject.
+        s = jsonobject.parse_text('{"foo": "FOO", "bar": {"baz": "BAZ"}}')
+        assert s.foo == 'FOO'
+        assert s.bar.baz == 'BAZ'
+
 
 def main():
     import doctest
