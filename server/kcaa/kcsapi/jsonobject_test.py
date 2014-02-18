@@ -394,7 +394,7 @@ class TestJSONSerializableObject(object):
 
 class TestDynamicJSONSerializableObject(object):
 
-    def test_parse_text_invalid(self):
+    def test_invalid(self):
         with pytest.raises(TypeError):
             jsonobject.parse_text('null')
         with pytest.raises(TypeError):
@@ -407,7 +407,7 @@ class TestDynamicJSONSerializableObject(object):
             # Looks like a map, but corrupted.
             jsonobject.parse_text('{"foo": "bar}')
 
-    def test_parse_text_readwrite_omittable(self):
+    def test_readwrite_omittable(self):
         s = jsonobject.parse_text('{"foo": "FOO", "bar": "BAR"}',
                                   readonly=False, omittable=True)
         assert s.foo == 'FOO'
@@ -418,7 +418,7 @@ class TestDynamicJSONSerializableObject(object):
         # Note that every property is omittable.
         assert s.json(sort_keys=True) == '{"foo": "FOOFOO"}'
 
-    def test_parse_text_readwrite_not_omittable(self):
+    def test_readwrite_not_omittable(self):
         s = jsonobject.parse_text('{"foo": "FOO", "bar": "BAR"}',
                                   readonly=False, omittable=False)
         assert s.json(sort_keys=True) == '{"bar": "BAR", "foo": "FOO"}'
@@ -427,7 +427,7 @@ class TestDynamicJSONSerializableObject(object):
         # No property is omittable.
         assert s.json(sort_keys=True) == '{"bar": null, "foo": "FOOFOO"}'
 
-    def test_parse_text_readonly_omittable(self):
+    def test_readonly_omittable(self):
         s = jsonobject.parse_text('{"foo": "FOO", "bar": null}',
                                   readonly=True, omittable=True)
         assert s.foo == 'FOO'
@@ -440,7 +440,7 @@ class TestDynamicJSONSerializableObject(object):
         # appeared in the input.
         assert s.json(sort_keys=True) == '{"foo": "FOO"}'
 
-    def test_parse_text_readonly_not_omittable(self):
+    def test_readonly_not_omittable(self):
         s = jsonobject.parse_text('{"foo": "FOO", "bar": null}',
                                   readonly=True, omittable=False)
         assert s.foo == 'FOO'
