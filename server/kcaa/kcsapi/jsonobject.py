@@ -72,17 +72,33 @@ class JSONSerializableObject(object):
                 raise AttributeError(
                     '{}.{} is {}, not CustomizableJSONProperty'
                     .format(self_class.__name__, key, member_class))
-            # Try to parse as JSONSerializableObject if the value type is
-            # specified and the value is a dict.
-            if (issubclass(member_class, JSONProperty) and
-                    isinstance(value, dict) and
-                    issubclass(member._value_type, JSONSerializableObject)):
-                value = member._value_type.parse(
-                    value, _ignore_unknown=_ignore_unknown)
+            if issubclass(member_class, JSONProperty):
+                value = JSONSerializableObject._replace_containers(
+                    value, member._value_type, member._element_type,
+                    _ignore_unknown=_ignore_unknown)
             if issubclass(member_class, ReadonlyJSONProperty):
                 member._initialize(self, value)
             else:
                 setattr(self, key, value)
+
+    @staticmethod
+    def _replace_containers(value, value_type, element_type,
+                            _ignore_unknown=False):
+        # Try to parse as JSONSerializableObject if the value type is
+        # specified and the value is a dict.
+        if (isinstance(value, dict) and
+                issubclass(value_type, JSONSerializableObject)):
+            return value_type.parse(value, _ignore_unknown=_ignore_unknown)
+        elif isinstance(value, list) and issubclass(value_type, list):
+            # This way we can't define schema that contains a list of list of
+            # some type. That should rarely happen, and we don't support such
+            # cases. Maybe one can create a special JSONSerializableObject for
+            # list.
+            return [JSONSerializableObject._replace_containers(
+                v, element_type, None, _ignore_unknown=_ignore_unknown) for
+                v in value]
+        else:
+            return value
 
     def json(self, *args, **kwargs):
         """Serialize this object to JSON.
@@ -378,6 +394,8 @@ class JSONProperty(CustomizableJSONProperty):
     :param str name: name of this property used in JSON
     :param default: default value of the property
     :param type value_type: expected type of the value
+    :param type element_type: expected type of the element (if value_type is
+                              list)
     :param bool omittable: True if this property can be omitted if the value is
                            None
     :param str wrapped_variable: name of the wrapped variable, or None if using
@@ -427,8 +445,8 @@ class JSONProperty(CustomizableJSONProperty):
     'BARBAR'
     """
 
-    def __init__(self, name, default=None, value_type=None, omittable=True,
-                 wrapped_variable=None):
+    def __init__(self, name, default=None, value_type=None, element_type=None,
+                 omittable=True, wrapped_variable=None):
         # Note that we can't have a single value in this JSONProperty object.
         # A JSONProperty will be a class variable, and shared among all the
         # instances of that class. They are all owner instances.
@@ -441,10 +459,8 @@ class JSONProperty(CustomizableJSONProperty):
         # reality it almost never happens if we use a namespace like this:
         self._default = default
         self._value_type = value_type
-        if (default is not None and value_type is not None and
-                not isinstance(default, value_type)):
-            raise TypeError('Default value {} of type {} is not {}'.format(
-                default, default.__class__.__name__, value_type.__name__))
+        self._element_type = element_type
+        self._check_type(default)
         if not wrapped_variable:
             wrapped_variable = ('__{}_{:x}'.format(self.__class__.__name__,
                                                    id(self)))
@@ -460,11 +476,22 @@ class JSONProperty(CustomizableJSONProperty):
             return getattr(owner, self._wrapped_variable)
 
     def _set(self, owner, value):
-        if (value is not None and self._value_type is not None and
-                not isinstance(value, self._value_type)):
-            raise TypeError('Given value {} of type {} is not {}'.format(
-                value, value.__class__.__name__, self._value_type.__name__))
+        self._check_type(value)
         setattr(owner, self._wrapped_variable, value)
+
+    def _check_type(self, value):
+        if value is not None and self._value_type is not None:
+            if not isinstance(value, self._value_type):
+                raise TypeError('Given value {} of type {} is not {}'.format(
+                    value, value.__class__.__name__,
+                    self._value_type.__name__))
+            if (issubclass(self._value_type, list) and
+                    self._element_type is not None):
+                bad_element = lambda e: not isinstance(e, self._element_type)
+                if any(map(bad_element, value)):
+                    raise TypeError('Given list {} should contain only '
+                                    'elements of type {}'.format(
+                                        value, self._element_type.__name__))
 
 
 class ReadonlyJSONProperty(JSONProperty):
@@ -474,6 +501,8 @@ class ReadonlyJSONProperty(JSONProperty):
     :param str name: name of this property used in JSON
     :param default: default value of the property
     :param type value_type: expected type of the value
+    :param type element_type: expected type of the element (if value_type is
+                              list)
     :param bool omittable: True if this property can be omitted if the value is
                            None
     :param str wrapped_variable: name of the wrapped variable, or None if final
@@ -540,11 +569,12 @@ class ReadonlyJSONProperty(JSONProperty):
     'QUX'
     """
 
-    def __init__(self, name, default=None, value_type=None, omittable=True,
-                 wrapped_variable=None):
+    def __init__(self, name, default=None, value_type=None, element_type=None,
+                 omittable=True, wrapped_variable=None):
         super(ReadonlyJSONProperty, self).__init__(
             name, default=default, value_type=value_type,
-            omittable=omittable, wrapped_variable=wrapped_variable)
+            element_type=element_type, omittable=omittable,
+            wrapped_variable=wrapped_variable)
 
     def _get(self, owner):
         if not hasattr(owner, self._wrapped_variable):
@@ -554,15 +584,8 @@ class ReadonlyJSONProperty(JSONProperty):
             # Since it requires an extra cost to monitor what value is set to
             # the wrapped variable (it should be possible though), type check
             # is done when a value is being fetched.
-            # Other than that this method is identical to JSONProperty._get(),
-            # but we separate this from it for a possible performance reason
-            # (not proven to be statically significant, though).
             value = getattr(owner, self._wrapped_variable)
-            if (value is not None and self._value_type is not None and
-                    not isinstance(value, self._value_type)):
-                raise TypeError('Stored value {} of type {} is not {}'.format(
-                    value, value.__class__.__name__,
-                    self._value_type.__name__))
+            self._check_type(value)
             return value
 
     # Not settable.

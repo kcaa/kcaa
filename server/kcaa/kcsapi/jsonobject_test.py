@@ -385,6 +385,19 @@ class TestJSONSerializableObject(object):
         s = AnotherObject.parse_text('{"bar": {"foo": 123}}')
         assert s.bar.foo == 123
 
+    def test_parse_list(self):
+        class SomeObject(jsonobject.JSONSerializableObject):
+            foo = jsonobject.JSONProperty('foo', 123, value_type=int)
+
+        class AnotherObject(jsonobject.JSONSerializableObject):
+            bar = jsonobject.JSONProperty('bar', value_type=list,
+                                          element_type=SomeObject)
+
+        s = AnotherObject.parse_text('{"bar": [{"foo": 1}, {"foo": 2}]}')
+        assert len(s.bar) == 2
+        assert s.bar[0].foo == 1
+        assert s.bar[1].foo == 2
+
     def test_instance_json_property(self):
         class SomeObject(jsonobject.JSONSerializableObject):
             # Though it's not recommended for most use cases, JSON properties
