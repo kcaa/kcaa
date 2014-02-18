@@ -126,36 +126,6 @@ class JSONSerializableObject(object):
         return data
 
 
-# TODO: Create JSONSerializableObject from JSON (string) or Python
-# representation (a combination of map, list and primitives).
-# It's not clear how to handle recursive objects? (Really?)
-
-
-def parse_text(text, *args, **kwargs):
-    """Parse JSON text and creates a dynamic JSONSerializaObject.
-
-    :param text: text representing JSON object
-    :type text: str or unicode
-    :param args: arbitrary positional arguments passed to :func:`json.dumps`
-    :param kwargs: arbitrary keyword arguments passed to :func:`json.dumps`
-    :returns: Object parsed from the text
-    :rtype: :class:`JSONSerializableObject`
-    """
-    return parse_json(json.dumps(text, *args, **kwargs))
-
-
-def parse_json(obj, *args, **kwargs):
-    """Parse JSON Python object and creates a dynamic JSONSerializaObject.
-
-    :param obj: Python object representing JSON object
-    :param args: arbitrary positional arguments passed to :func:`json.dumps`
-    :param kwargs: arbitrary keyword arguments passed to :func:`json.dumps`
-    :returns: Object parsed from the text
-    :rtype: :class:`JSONSerializableObject`
-    """
-    pass
-
-
 class _JSONSerializableObjectEncoder(json.JSONEncoder):
     """Encoder which tries to encode :class:`JSONSerializableObject` in
     addition to JSON primitives."""
@@ -488,6 +458,61 @@ class ReadonlyJSONProperty(CustomizableJSONProperty):
             return self._default
         else:
             return getattr(owner, self._wrapped_variable)
+
+
+class DynamicJSONSerializableObject(JSONSerializableObject):
+    """Creates a dynamic :class:`JSONSerializableObject` from a Python
+    representation of a JSON object.
+
+    :param map obj: Python representation of a JSON object
+    :param bool readonly: True if the resulted object should be readonly
+    :param kwargs: arbitrary key-value mapping to override JSON properties
+    :raises TypeError: if obj is not a dict
+    """
+
+    def __init__(self, obj, readonly=False, **kwargs):
+        if not isinstance(obj, dict):
+            raise TypeError('Given obj is {}, not dict'.format(
+                obj.__class__.__name__))
+        # Dynamically create a new type, because properties (to be precise,
+        # descriptors) works if and only if owned by a class object.
+        cls = type('__{}_{}'.format(self.__class__.__name__, id(self)),
+                   (JSONSerializableObject,), dict(self.__class__.__dict__))
+        self.__class__ = cls
+        if readonly:
+            property_type = ReadonlyJSONProperty
+        else:
+            property_type = JSONProperty
+        for key, value in obj.iteritems():
+            # Recursively create an object if it's a map.
+            if isinstance(value, dict):
+                value = DynamicJSONSerializableObject(value,
+                                                      readonly=readonly)
+            setattr(cls, key, property_type(key, default=value))
+        super(cls, self).__init__(**kwargs)
+
+
+def parse_text(text, readonly=False, *args, **kwargs):
+    """Parse JSON text and creates a dynamic :class:`JSONSerializaObject`.
+
+    Creates a :class:`JSONSerializableObject` by parsing the *text* as a JSON.
+    It should be a valid JSON map object representation. This is a shorthand
+    for :class:`DynamicJSONSerializableObject` and lets you skip calling
+    :func:`json.loads`. Note that you can't override values with *kwargs*; it's
+    a parameter for :func:`json.loads`.
+
+    :param text: text representing JSON object
+    :type text: str or unicode
+    :param bool readonly: True if the resulted object should be readonly
+    :param args: arbitrary positional arguments passed to :func:`json.loads`
+    :param kwargs: arbitrary keyword arguments passed to :func:`json.loads`
+    :returns: Object parsed from the text
+    :rtype: :class:`JSONSerializableObject`
+    :raises TypeError: if text doesn't represent a JSON map
+    :raises ValueError: if text is ill-formed
+    """
+    return DynamicJSONSerializableObject(json.loads(text, *args, **kwargs),
+                                         readonly=readonly)
 
 
 if __name__ == '__main__':

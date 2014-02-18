@@ -392,6 +392,22 @@ class TestJSONSerializableObject(object):
         assert s.json(sort_keys=True) == '{"bar": "BAR", "foo": "FOO"}'
 
 
+class TestDynamicJSONSerializableObject(object):
+
+    def test_parse_text_invalid(self):
+        with pytest.raises(TypeError):
+            jsonobject.parse_text('null')
+        with pytest.raises(TypeError):
+            jsonobject.parse_text('"foo"')
+        with pytest.raises(TypeError):
+            jsonobject.parse_text('123')
+        with pytest.raises(TypeError):
+            jsonobject.parse_text('["foo", "bar"]')
+        with pytest.raises(ValueError):
+            # Looks like a map, but corrupted.
+            jsonobject.parse_text('{"foo": "bar}')
+
+
 def main():
     import doctest
     doctest.testmod(jsonobject)
