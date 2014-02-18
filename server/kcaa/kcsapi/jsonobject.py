@@ -492,6 +492,10 @@ class DynamicJSONSerializableObject(JSONSerializableObject):
                                                       readonly=readonly)
             setattr(cls, key, property_type(key, omittable=omittable,
                                             default=value))
+        # Create a property if it's not in the input object.
+        for key, value in kwargs.iteritems():
+            if not hasattr(cls, key):
+                setattr(cls, key, property_type(key, default=value))
         super(cls, self).__init__(**kwargs)
 
 

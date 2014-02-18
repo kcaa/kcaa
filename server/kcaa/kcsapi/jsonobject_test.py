@@ -454,6 +454,26 @@ class TestDynamicJSONSerializableObject(object):
         assert s.foo == 'FOO'
         assert s.bar.baz == 'BAZ'
 
+    def test_value_overriding(self):
+        obj = {'foo': 'FOO', 'bar': 'BAR'}
+        s = jsonobject.DynamicJSONSerializableObject(obj)
+        assert s.foo == 'FOO'
+        assert s.bar == 'BAR'
+        assert s.json(sort_keys=True) == '{"bar": "BAR", "foo": "FOO"}'
+        # With the constructor (not parse_text), you can override some values.
+        t = jsonobject.DynamicJSONSerializableObject(obj, bar='BARBAR')
+        assert t.foo == 'FOO'
+        assert t.bar == 'BARBAR'
+        assert t.json(sort_keys=True) == '{"bar": "BARBAR", "foo": "FOO"}'
+        # If no value available in the input object, a new property will be
+        # created (no exception thrown).
+        u = jsonobject.DynamicJSONSerializableObject(obj, baz='BAZ')
+        assert u.foo == 'FOO'
+        assert u.bar == 'BAR'
+        assert u.baz == 'BAZ'
+        assert u.json(sort_keys=True) == ('{"bar": "BAR", "baz": "BAZ", '
+                                          '"foo": "FOO"}')
+
 
 def main():
     import doctest
