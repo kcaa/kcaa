@@ -419,7 +419,6 @@ class TestDynamicJSONSerializableObject(object):
         assert s.json(sort_keys=True) == '{"foo": "FOOFOO"}'
 
     def test_parse_text_readwrite_not_omittable(self):
-        # Readwrite, not omittable.
         s = jsonobject.parse_text('{"foo": "FOO", "bar": "BAR"}',
                                   readonly=False, omittable=False)
         assert s.json(sort_keys=True) == '{"bar": "BAR", "foo": "FOO"}'
@@ -427,6 +426,27 @@ class TestDynamicJSONSerializableObject(object):
         s.bar = None
         # No property is omittable.
         assert s.json(sort_keys=True) == '{"bar": null, "foo": "FOOFOO"}'
+
+    def test_parse_text_readonly_omittable(self):
+        s = jsonobject.parse_text('{"foo": "FOO", "bar": null}',
+                                  readonly=True, omittable=True)
+        assert s.foo == 'FOO'
+        assert s.bar is None
+        with pytest.raises(AttributeError):
+            s.foo = 'FOOFOO'
+        with pytest.raises(AttributeError):
+            s.bar = 'BARBAR'
+        # Every property is omittable, so bar should be omitted even though it
+        # appeared in the input.
+        assert s.json(sort_keys=True) == '{"foo": "FOO"}'
+
+    def test_parse_text_readonly_not_omittable(self):
+        s = jsonobject.parse_text('{"foo": "FOO", "bar": null}',
+                                  readonly=True, omittable=False)
+        assert s.foo == 'FOO'
+        assert s.bar is None
+        # No property is omittable.
+        assert s.json(sort_keys=True) == '{"bar": null, "foo": "FOO"}'
 
 
 def main():

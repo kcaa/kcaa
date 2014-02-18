@@ -508,7 +508,7 @@ def parse_text(text, readonly=False, omittable=True, *args, **kwargs):
     :type text: str or unicode
     :param bool readonly: True if the resulted object should be readonly
     :param bool omittable: True if a property can be omitted if the value is
-                           None (effective only when not readonly)
+                           None
     :param args: arbitrary positional arguments passed to :func:`json.loads`
     :param kwargs: arbitrary keyword arguments passed to :func:`json.loads`
     :returns: Object parsed from the text
