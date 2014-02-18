@@ -32,11 +32,6 @@ AttributeError: Not settable
 import json
 
 
-# TODO: Create JSONSerializableObject from JSON (string) or Python
-# representation (a combination of map, list and primitives).
-# It's not clear how to handle recursive objects? (Really?)
-
-
 class JSONSerializableObject(object):
     """Object serializable to JSON.
 
@@ -129,6 +124,36 @@ class JSONSerializableObject(object):
         need to interact with each other, you can implement such logic here.
         """
         return data
+
+
+# TODO: Create JSONSerializableObject from JSON (string) or Python
+# representation (a combination of map, list and primitives).
+# It's not clear how to handle recursive objects? (Really?)
+
+
+def parse_text(text, *args, **kwargs):
+    """Parse JSON text and creates a dynamic JSONSerializaObject.
+
+    :param text: text representing JSON object
+    :type text: str or unicode
+    :param args: arbitrary positional arguments passed to :func:`json.dumps`
+    :param kwargs: arbitrary keyword arguments passed to :func:`json.dumps`
+    :returns: Object parsed from the text
+    :rtype: :class:`JSONSerializableObject`
+    """
+    return parse_json(json.dumps(text, *args, **kwargs))
+
+
+def parse_json(obj, *args, **kwargs):
+    """Parse JSON Python object and creates a dynamic JSONSerializaObject.
+
+    :param obj: Python object representing JSON object
+    :param args: arbitrary positional arguments passed to :func:`json.dumps`
+    :param kwargs: arbitrary keyword arguments passed to :func:`json.dumps`
+    :returns: Object parsed from the text
+    :rtype: :class:`JSONSerializableObject`
+    """
+    pass
 
 
 class _JSONSerializableObjectEncoder(json.JSONEncoder):
