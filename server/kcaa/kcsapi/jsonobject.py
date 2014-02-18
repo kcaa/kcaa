@@ -598,10 +598,8 @@ class DynamicJSONSerializableObject(JSONSerializableObject):
         else:
             property_type = JSONProperty
         for key, value in obj.iteritems():
-            # Recursively create an object if it's a map.
-            if isinstance(value, dict):
-                value = DynamicJSONSerializableObject(value,
-                                                      readonly=readonly)
+            value = DynamicJSONSerializableObject._replace_containers(
+                value, readonly=readonly)
             setattr(cls, key, property_type(key, omittable=omittable,
                                             default=value))
         # Create a property if it's not in the input object.
@@ -609,6 +607,17 @@ class DynamicJSONSerializableObject(JSONSerializableObject):
             if not hasattr(cls, key):
                 setattr(cls, key, property_type(key, default=value))
         super(cls, self).__init__(**kwargs)
+
+    @staticmethod
+    def _replace_containers(value, readonly=False):
+        # Recursively create an object if it's a map.
+        if isinstance(value, dict):
+            return DynamicJSONSerializableObject(value, readonly=readonly)
+        elif isinstance(value, list):
+            return [DynamicJSONSerializableObject._replace_containers(
+                v, readonly=readonly) for v in value]
+        else:
+            return value
 
 
 # TODO: Write example code

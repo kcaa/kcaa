@@ -548,6 +548,13 @@ class TestDynamicJSONSerializableObject(object):
         assert s.foo == u'FOO'
         assert s.bar.baz == u'BAZ'
 
+    def test_list(self):
+        # List should create a list of JSONSerializableObject.
+        s = jsonobject.parse_text('{"foo": [{"bar": 1}, {"bar": 2}]}')
+        assert len(s.foo) == 2
+        assert s.foo[0].bar == 1
+        assert s.foo[1].bar == 2
+
     def test_value_overriding(self):
         obj = {'foo': 'FOO', 'bar': 'BAR'}
         s = jsonobject.DynamicJSONSerializableObject(obj)
