@@ -308,6 +308,13 @@ class TestJSONSerializableObject(object):
         s.c = 456
         assert s.json(sort_keys=True) == '{"a": "A", "b": 123, "c": 456}'
 
+    def test_value_type_default(self):
+        # It's also forbidden to have an incompatible default value.
+        # Note that this check happens when a class is being defined.
+        with pytest.raises(TypeError):
+            class SomeObject(jsonobject.JSONSerializableObject):
+                a = jsonobject.JSONProperty('a', default='A', value_type=int)
+
     def test_instance_json_property(self):
         class SomeObject(jsonobject.JSONSerializableObject):
             # Though it's not recommended for most use cases, JSON properties
