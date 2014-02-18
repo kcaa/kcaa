@@ -17,7 +17,7 @@ distribution (including Ubuntu), you can install `pip` itself via `apt-get`.
 For example:
 
     sudo apt-get install python-pip
-    sudo pip install pytest python-dateutil requests selenium
+    sudo pip install python-dateutil requests selenium
 
 You will need a root priviledge if you don't run python in a virtual
 environment. If you want to create your own sandbox environment, see also
