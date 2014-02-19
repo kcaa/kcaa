@@ -36,7 +36,6 @@ class QuestList(model.KcaaObject):
     quests = jsonobject.JSONProperty('quests', [], value_type=list,
                                      element_type=Quest)
     """Quest instances."""
-    # TODO: Make this a list, not a map.
 
     def update(self, api_name, response):
         super(QuestList, self).update(api_name, response)
@@ -57,13 +56,16 @@ class QuestList(model.KcaaObject):
                     'steel': quest_data.api_get_material[2],
                     'bauxite': quest_data.api_get_material[3]}))
         quests.sort(lambda x, y: x.id - y.id)
+        # Merge with existing quests.
+        self.merge_quests(quests)
+
+    def merge_quests(self, quests):
+        merged = []
         if len(self.quests) == 0:
             self.quests = quests
             return
         elif len(quests) == 0:
             return
-        # Merge with existing quests.
-        merged = []
         a, b = self.quests, quests
         bmin, bmax = b[0].id, b[-1].id
         ai, bi = 0, 0
