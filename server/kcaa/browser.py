@@ -49,9 +49,7 @@ def open_browser(args):
 
 def open_kancolle_browser(args):
     browser = open_browser(args)
-    # TODO: If possible, narrow widht and height and scroll to reduce the
-    # whitespace area.
-    browser.set_window_size(980, 800)
+    browser.set_window_size(840, 600)
     browser.set_window_position(0, 0)
     browser.get(KANCOLLE_URL)
     if args.credentials:
@@ -67,10 +65,25 @@ def open_kancolle_browser(args):
     return browser
 
 
+def get_game_frame(browser, game_frame):
+    if game_frame:
+        return game_frame
+    try:
+        game_frame = browser.find_element_by_id('game_frame')
+        game_frame.click()
+        # TODO: Possibly there's a better way to center the game frame.
+        browser.execute_script('window.scrollBy(0, -50);')
+        return game_frame
+    except:
+        return None
+
+
 def setup_kancolle_browser(args, to_exit):
     try:
         monitor = BrowserMonitor('Kancolle', open_kancolle_browser(args), 5)
+        game_frame = None
         while True:
+            browser = monitor.browser
             time.sleep(1.0)
             if to_exit.wait(0.0):
                 break
@@ -78,6 +91,7 @@ def setup_kancolle_browser(args, to_exit):
                 # If a user closes the Kancolle browser, it should be a signal
                 # that the user wants to exit the game.
                 break
+            game_frame = get_game_frame(browser, game_frame)
     except:
         traceback.print_exc()
     to_exit.set()
@@ -89,8 +103,8 @@ def setup_kancolle_browser(args, to_exit):
 
 def open_kcaa_browser(args, root_url):
     browser = open_browser(args)
-    browser.set_window_size(700, 800)
-    browser.set_window_position(980, 0)
+    browser.set_window_size(840, 1050)
+    browser.set_window_position(840, 0)
     browser.get(root_url)
     return browser
 
