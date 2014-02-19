@@ -8,6 +8,7 @@ import traceback
 import browser
 import kcsapi_util
 import proxy_util
+import server
 
 
 class DummyProcess(object):
@@ -16,16 +17,20 @@ class DummyProcess(object):
         pass
 
 
-def control(args, server_conn, to_exit):
+def control(args):
     # It seems that uncaught exceptions are silently buffered after creating
     # another multiprocessing.Process.
+    ps = DummyProcess()
     pk = DummyProcess()
     pc = DummyProcess()
     try:
         logger = logging.getLogger('kcaa.controller')
         har_manager = proxy_util.HarManager(args, 3.0)
-        # HarManager first resets the proxy. Notify the server that it's done.
-        server_conn.send(True)
+        to_exit = multiprocessing.Event()
+        controller_conn, server_conn = multiprocessing.Pipe()
+        ps = multiprocessing.Process(target=server.handle_server,
+                                     args=(args, to_exit, controller_conn))
+        ps.start()
         if not server_conn.poll(3.0):
             logger.error('Server is not responding. Shutting down.')
             to_exit.set()
@@ -58,5 +63,6 @@ def control(args, server_conn, to_exit):
     except:
         traceback.print_exc()
     to_exit.set()
+    ps.join()
     pk.join()
     pc.join()

@@ -114,16 +114,9 @@ def setup(args, logger):
     return httpd, root_url
 
 
-def handle_server(args, controller_conn, to_exit):
+def handle_server(args, to_exit, controller_conn):
     try:
         logger = logging.getLogger('kcaa.server')
-        # Wait until the controller reset the proxy.
-        if not controller_conn.poll(12.0):
-            logger.error('Controller couldn\'t reset the proxy. '
-                         'Shutting down.')
-            to_exit.set()
-            return
-        assert controller_conn.recv()
         httpd, root_url = setup(args, logger)
         httpd.new_objects = set()
         httpd.objects = {}
