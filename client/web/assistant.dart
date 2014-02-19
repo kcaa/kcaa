@@ -34,7 +34,29 @@ class Quest {
   int category;
   int state;
 
+  final Map<int, String> CATEGORY_MAP = <int, String>{
+    1: "編成",
+    2: "出撃",
+    3: "演習",
+    4: "遠征",
+    5: "補給",
+    6: "工廠",
+    7: "改装",
+  };
+  final Map<int, String> STATE_MAP = <int, String>{
+    1: "未受諾",
+    2: "遂行中",
+  };
+
   Quest(this.id, this.name, this.description, this.category, this.state) {}
+
+  String getCategory() {
+    return CATEGORY_MAP[category];
+  }
+
+  String getState() {
+    return STATE_MAP[category];
+  }
 }
 
 @CustomTag('eplusx-kancolle-assistant')

@@ -118,6 +118,7 @@
           hsl(180, 50%, 90%));
         border-collapse: collapse;
         box-shadow: 3px 3px 1px hsla(210, 20%, 70%, 0.2);
+        font-size: 0.9em;
         margin: 10px 0 0;
         width: 100%;
       }
@@ -176,8 +177,8 @@
               <!-- TODO: Why doesn't this work with dart2js? -->
               <tr template repeat="{{quest in quests}}">
                 <td>{{quest.id}}</td>
-                <td>{{quest.category}}</td>
-                <td>{{quest.state}}</td>
+                <td>{{quest.getCategory()}}</td>
+                <td>{{quest.getState()}}</td>
                 <td>{{quest.name}}</td>
                 <td>{{quest.description}}</td>
               </tr>
