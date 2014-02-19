@@ -173,17 +173,14 @@
               </tr>
             </thead>
             <tbody>
-              <!-- TODO: Investigate why this pose a warning, and why this
-              doesn't work with dart2js. -->
-              <template repeat="{{quest in quests}}">
-                <tr>
-                  <td>{{quest.id}}</td>
-                  <td>{{quest.category}}</td>
-                  <td>{{quest.state}}</td>
-                  <td>{{quest.name}}</td>
-                  <td>{{quest.description}}</td>
-                </tr>
-              </template>
+              <!-- TODO: Why doesn't this work with dart2js? -->
+              <tr template repeat="{{quest in quests}}">
+                <td>{{quest.id}}</td>
+                <td>{{quest.category}}</td>
+                <td>{{quest.state}}</td>
+                <td>{{quest.name}}</td>
+                <td>{{quest.description}}</td>
+              </tr>
             </tbody>
           </table>
         </div>
