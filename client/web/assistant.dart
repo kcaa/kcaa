@@ -31,10 +31,12 @@ class Quest {
   int id;
   String name;
   String description;
-  int category;
-  int state;
+  String category;
+  bool isActive;
+  int oil, ammo, steel, bauxite;
+  int progress;
 
-  final Map<int, String> CATEGORY_MAP = <int, String>{
+  static final Map<int, String> CATEGORY_MAP = <int, String>{
     1: "編成",
     2: "出撃",
     3: "演習",
@@ -43,19 +45,20 @@ class Quest {
     6: "工廠",
     7: "改装",
   };
-  final Map<int, String> STATE_MAP = <int, String>{
-    1: "未受諾",
-    2: "遂行中",
+  static final Map<int, bool> STATE_MAP = <int, bool>{
+    1: false,
+    2: true,
   };
 
-  Quest(this.id, this.name, this.description, this.category, this.state) {}
-
-  String getCategory() {
-    return CATEGORY_MAP[category];
-  }
-
-  String getState() {
-    return STATE_MAP[category];
+  Quest(this.id, this.name, this.description, int category, int state,
+      Map<String, int> rewards)
+      : category = CATEGORY_MAP[category],
+        isActive = STATE_MAP[state],
+        oil = rewards["oil"],
+        ammo = rewards["ammo"],
+        steel = rewards["steel"],
+        bauxite = rewards["bauxite"] {
+    progress = 0;
   }
 }
 
@@ -163,7 +166,8 @@ class Assistant extends PolymerElement {
       quests.clear();
       for (var quest in data["quests"]) {
         quests.add(new Quest(quest["id"], quest["name"],
-            quest["description"], quest["category"], quest["state"]));
+            quest["description"], quest["category"], quest["state"],
+            quest["rewards"]));
       }
     });
   }

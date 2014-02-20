@@ -22,7 +22,7 @@
         box-sizing: border-box;
         display: inline-block;
         margin: 10px;
-        min-width: 310px;
+        min-width: 370px;
         padding: 15px;
         position: relative;
         text-align: left;
@@ -133,6 +133,17 @@
       th, td {
         padding: 0.2em 0.4em;
       }
+      .active {
+        background-color: hsla(30, 60%, 80%, 0.4);
+        font-weight: bold;
+      }
+      td > div:nth-child(2) {
+        font-size: 90%;
+      }
+      td.labelColumn div {
+        text-align: center;
+        width: 100%;
+      }
       .debugInfo {
         font-family: monospace;
         margin-top: 10px;
@@ -164,23 +175,45 @@
         <div class="board">
           <h3>任務一覧 ({{numQuestsUndertaken}}/{{numQuests}}個遂行中)</h3>
           <table>
+            <col width="5%">
+            <col width="68%">
+            <col width="5%">
+            <col width="5%">
+            <col width="5%">
+            <col width="7%">
+            <col width="5%">
             <thead>
               <tr>
-                <th>ID</th>
                 <th>種別</th>
-                <th>状態</th>
-                <th>名前</th>
                 <th>説明</th>
+                <th>燃料</th>
+                <th>弾薬</th>
+                <th>鋼材</th>
+                <th>ボーキ</th>
+                <th>進捗</th>
               </tr>
             </thead>
             <tbody>
               <!-- TODO: Why doesn't this work with dart2js? -->
-              <tr template repeat="{{quest in quests}}">
-                <td>{{quest.id}}</td>
-                <td>{{quest.getCategory()}}</td>
-                <td>{{quest.getState()}}</td>
-                <td>{{quest.name}}</td>
-                <td>{{quest.description}}</td>
+              <tr class="{{ {active: quest.isActive} }}"
+                  template repeat="{{quest in quests}}">
+                <td class="labelColumn">
+                  <div>{{quest.category}}</div>
+                  <div>{{quest.id}}</div>
+                </td>
+                <td>
+                  <div>{{quest.name}}</div>
+                  <div>{{quest.description}}</div>
+                </td>
+                <td>{{quest.oil}}</td>
+                <td>{{quest.ammo}}</td>
+                <td>{{quest.steel}}</td>
+                <td>{{quest.bauxite}}</td>
+                <td>
+                  <template if="{{quest.isActive}}">
+                    {{quest.progress}}%
+                  </template>
+                </td>
               </tr>
             </tbody>
           </table>
