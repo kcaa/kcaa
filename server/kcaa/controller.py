@@ -28,8 +28,10 @@ def control(args):
         har_manager = proxy_util.HarManager(args, 3.0)
         to_exit = multiprocessing.Event()
         controller_conn, server_conn = multiprocessing.Pipe()
+        browsers_server_conn, servers_browser_conn = multiprocessing.Pipe()
         ps = multiprocessing.Process(target=server.handle_server,
-                                     args=(args, to_exit, controller_conn))
+                                     args=(args, to_exit, controller_conn,
+                                           servers_browser_conn))
         ps.start()
         if not server_conn.poll(3.0):
             logger.error('Server is not responding. Shutting down.')
@@ -37,7 +39,8 @@ def control(args):
             return
         root_url = server_conn.recv()
         pk = multiprocessing.Process(target=browser.setup_kancolle_browser,
-                                     args=(args, to_exit))
+                                     args=(args, browsers_server_conn,
+                                           to_exit))
         pc = multiprocessing.Process(target=browser.setup_kcaa_browser,
                                      args=(args, root_url, to_exit))
         pk.start()

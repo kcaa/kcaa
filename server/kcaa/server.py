@@ -15,6 +15,7 @@ class KcaaHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
     GET_NEW_OBJECTS = '/get_new_objects'
     GET_OBJECT = '/get_object'
+    CLICK = '/click'
     CLIENT_PREFIX = '/client/'
 
     def do_HEAD(self):
@@ -33,6 +34,8 @@ class KcaaHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             self.handle_get_new_objects(o)
         elif o.path == KcaaHTTPRequestHandler.GET_OBJECT:
             self.handle_get_object(o)
+        elif o.path == KcaaHTTPRequestHandler.CLICK:
+            self.handle_click(o)
         elif o.path.startswith(KcaaHTTPRequestHandler.CLIENT_PREFIX):
             self.handle_client(o)
         else:
@@ -70,6 +73,26 @@ class KcaaHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             self.wfile.write(data)
         except KeyError:
             self.send_error(404)
+
+    def handle_click(self, o):
+        if self.command != 'GET':
+            self.send_error(501, 'Unknown method: {}'.format(self.command))
+            return
+        queries = urlparse.parse_qs(o.query)
+        try:
+            x = int(queries['x'][0])
+            y = int(queries['y'][0])
+        except KeyError:
+            self.send_error(400, 'Missing parameter: x or y')
+            return
+        except ValueError:
+            self.send_error(400, 'Failed to parse: x or y')
+            return
+        self.server.browser_conn.send(('click', x, y))
+        self.send_response(200)
+        self.send_header('Content-Type', 'text/plain')
+        self.end_headers()
+        self.wfile.write('success')
 
     def handle_client(self, o):
         self.path = '/' + o.path[len(KcaaHTTPRequestHandler.CLIENT_PREFIX):]
@@ -113,12 +136,13 @@ def setup(args, logger):
     return httpd, root_url
 
 
-def handle_server(args, to_exit, controller_conn):
+def handle_server(args, to_exit, controller_conn, browser_conn):
     try:
         logger = logging.getLogger('kcaa.server')
         httpd, root_url = setup(args, logger)
         httpd.new_objects = set()
         httpd.objects = {}
+        httpd.browser_conn = browser_conn
         controller_conn.send(root_url)
         httpd.timeout = 0.1
         while True:

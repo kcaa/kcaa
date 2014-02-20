@@ -5,6 +5,7 @@ import time
 import traceback
 
 from selenium import webdriver
+from selenium.webdriver.common import action_chains
 
 
 KANCOLLE_URL = 'http://www.dmm.com/netgame/social/-/gadgets/=/app_id=854854/'
@@ -49,7 +50,7 @@ def open_browser(args):
 
 def open_kancolle_browser(args):
     browser = open_browser(args)
-    browser.set_window_size(840, 600)
+    browser.set_window_size(980, 780)
     browser.set_window_position(0, 0)
     browser.get(KANCOLLE_URL)
     if args.credentials:
@@ -92,6 +93,16 @@ def setup_kancolle_browser(args, to_exit):
                 # that the user wants to exit the game.
                 break
             game_frame = get_game_frame(browser, game_frame)
+            if game_frame:
+                while server_conn.poll():
+                    request = server_conn.recv()
+                    event_type = request[0]
+                    if event_type == 'click':
+                        x, y = request[1:]
+                        actions = action_chains.ActionChains(browser)
+                        actions.move_to_element_with_offset(game_frame, x, y)
+                        actions.click(None)
+                        actions.perform()
     except:
         traceback.print_exc()
     to_exit.set()
@@ -103,8 +114,8 @@ def setup_kancolle_browser(args, to_exit):
 
 def open_kcaa_browser(args, root_url):
     browser = open_browser(args)
-    browser.set_window_size(840, 1050)
-    browser.set_window_position(840, 0)
+    browser.set_window_size(700, 1050)
+    browser.set_window_position(980, 0)
     browser.get(root_url)
     return browser
 
