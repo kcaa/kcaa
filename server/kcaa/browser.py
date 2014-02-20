@@ -66,23 +66,63 @@ def open_kancolle_browser(args):
     return browser
 
 
-def get_game_frame(browser, game_frame):
+def get_game_frame(browser, game_frame, dx, dy):
     if game_frame:
-        return game_frame
+        return game_frame, dx, dy
+    # Is there a better way to get this? Currently these are read from the
+    # iframe source.
+    game_area_width = 800
+    game_area_height = 480
+    game_area_top = 16
     try:
         game_frame = browser.find_element_by_id('game_frame')
-        game_frame.click()
-        # TODO: Possibly there's a better way to center the game frame.
-        browser.execute_script('window.scrollBy(0, -50);')
-        return game_frame
     except:
-        return None
+        return None, None, None
+    dx = (game_frame.size['width'] - game_area_width) / 2
+    dy = game_area_top
+    add_digitizer(browser, game_area_width, game_area_height, dx, dy)
+    return game_frame, dx, dy
 
 
-def setup_kancolle_browser(args, to_exit):
+def add_digitizer(browser, game_area_width, game_area_height, dx, dy):
+    browser.execute_script('''
+        var game_frame = document.getElementById("game_frame");
+        var frameRect = game_frame.getBoundingClientRect();
+        var digitizer = document.createElement("div");
+        digitizer.style.backgroundColor = "hsla(0, 50%, 50%, 0.5)";
+        digitizer.style.display = "none";
+        digitizer.style.height = ''' + str(game_area_height) + ''' + "px";
+        digitizer.style.left =
+            Math.floor(frameRect.left + ''' + str(dx) + ''') + "px";
+        digitizer.style.position = "absolute";
+        digitizer.style.top =
+            Math.floor(frameRect.top + ''' + str(dy) + ''') + "px";
+        digitizer.style.width = ''' + str(game_area_width) + '''+ "px";
+        digitizer.style.zIndex = "1";
+        digitizer.onmousemove = function (e) {
+            var rect = digitizer.getBoundingClientRect();
+            window.location.hash = (e.clientX - rect.left) + "," +
+                (e.clientY - rect.top);
+        }
+        digitizer.onclick = function (e) {
+            digitizer.style.display = "none";
+        }
+        document.body.appendChild(digitizer);
+        var show_digitizer = document.createElement("button");
+        show_digitizer.textContent = "Show Digitizer";
+        show_digitizer.style.position = "absolute";
+        show_digitizer.onclick = function (e) {
+            digitizer.style.display = "block";
+        }
+        var w = document.getElementById("w");
+        w.insertBefore(show_digitizer, w.children[0]);
+    ''')
+
+
+def setup_kancolle_browser(args, server_conn, to_exit):
     try:
         monitor = BrowserMonitor('Kancolle', open_kancolle_browser(args), 5)
-        game_frame = None
+        game_frame, dx, dy = None, None, None
         while True:
             browser = monitor.browser
             time.sleep(1.0)
@@ -92,13 +132,15 @@ def setup_kancolle_browser(args, to_exit):
                 # If a user closes the Kancolle browser, it should be a signal
                 # that the user wants to exit the game.
                 break
-            game_frame = get_game_frame(browser, game_frame)
+            game_frame, dx, dy = get_game_frame(browser, game_frame, dx, dy)
             if game_frame:
                 while server_conn.poll():
                     request = server_conn.recv()
                     event_type = request[0]
                     if event_type == 'click':
                         x, y = request[1:]
+                        x += dx
+                        y += dy
                         actions = action_chains.ActionChains(browser)
                         actions.move_to_element_with_offset(game_frame, x, y)
                         actions.click(None)
