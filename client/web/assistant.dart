@@ -35,6 +35,7 @@ class Quest {
   String state;
   int oil, ammo, steel, bauxite;
   int progress;
+  String cycle;
 
   static final Map<int, String> CATEGORY_MAP = <int, String>{
     1: "編成",
@@ -50,17 +51,22 @@ class Quest {
     2: "active",
     3: "complete",
   };
+  static final Map<int, String> CYCLE_MAP = <int, String>{
+    1: "一回",
+    2: "日毎",
+    3: "週毎",
+  };
 
   Quest(this.id, this.name, this.description, int category, int state,
-      Map<String, int> rewards)
+      Map<String, int> rewards, int progress, int cycle)
       : category = CATEGORY_MAP[category],
         state = STATE_MAP[state],
         oil = rewards["oil"],
         ammo = rewards["ammo"],
         steel = rewards["steel"],
-        bauxite = rewards["bauxite"] {
-    progress = 0;
-  }
+        bauxite = rewards["bauxite"],
+        progress = progress,
+        cycle = CYCLE_MAP[cycle] {}
 }
 
 @CustomTag('eplusx-kancolle-assistant')
@@ -174,7 +180,7 @@ class Assistant extends PolymerElement {
       for (var quest in data["quests"]) {
         quests.add(new Quest(quest["id"], quest["name"],
             quest["description"], quest["category"], quest["state"],
-            quest["rewards"]));
+            quest["rewards"], quest["progress"], quest["cycle"]));
       }
     });
   }

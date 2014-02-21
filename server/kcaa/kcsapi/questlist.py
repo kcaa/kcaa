@@ -24,6 +24,16 @@ class Quest(jsonobject.JSONSerializableObject):
     STATE_INACTIVE = 1
     STATE_ACTIVE = 2
     STATE_COMPLETE = 3
+    bonus_type = jsonobject.ReadonlyJSONProperty('bonus_type', 0,
+                                                 value_type=int)
+    """Bonus type."""
+    # TODO: Investigate what these values mean. Probably what kind of bonus
+    # items can be obtained.
+    cycle = jsonobject.ReadonlyJSONProperty('cycle', 0, value_type=int)
+    """Repop cycle."""
+    CYCLE_ONCE = 1
+    CYCLE_DAILY = 2
+    CYCLE_WEEKLY = 3
     rewards = jsonobject.ReadonlyJSONProperty('rewards', {}, value_type=dict)
     """Rewards."""
     # TODO: Add Rewards object
@@ -57,6 +67,8 @@ class QuestList(model.KcaaObject):
                 category=quest_data.api_category,
                 state=quest_data.api_state,
                 progress=progress,
+                bonus_type=quest_data.api_bonus_flag,
+                cycle=quest_data.api_type,
                 rewards={
                     'oil': quest_data.api_get_material[0],
                     'ammo': quest_data.api_get_material[1],
