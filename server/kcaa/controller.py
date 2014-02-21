@@ -11,6 +11,9 @@ import proxy_util
 import server
 
 
+COMMAND_RELOAD_KCSAPI = 'reload_kcsapi'
+
+
 class DummyProcess(object):
 
     def join(self):
@@ -51,6 +54,11 @@ def control(args):
             if to_exit.wait(0.0):
                 logger.error('Controller got an exit signal. Shutting down.')
                 break
+            while server_conn.poll():
+                data = server_conn.recv()
+                command = data[0]
+                if command == COMMAND_RELOAD_KCSAPI:
+                    kcsapi_handler.reload_handlers()
             try:
                 for obj in kcsapi_handler.get_updated_objects():
                     server_conn.send((obj.object_type, obj.json()))

@@ -79,6 +79,7 @@ class Assistant extends PolymerElement {
   Uri serverRoot;
   Uri serverGetNewObjects;
   Uri serverGetObject;
+  Uri serverReloadKCSAPIModules;
 
   Timer availableObjectsChecker;
 
@@ -90,6 +91,7 @@ class Assistant extends PolymerElement {
     serverRoot = clientRoot.resolve("/");
     serverGetNewObjects = serverRoot.resolve("/get_new_objects");
     serverGetObject = serverRoot.resolve("/get_object");
+    serverReloadKCSAPIModules = serverRoot.resolve("/reload_kcsapi");
     availableObjectsChecker = new Timer.periodic(MILLISECOND * 100, (Timer timer) {
       updateAvailableObjects();
     });
@@ -141,6 +143,10 @@ class Assistant extends PolymerElement {
           }
         });
   }
+
+  void reloadKCSAPIModules() {
+    HttpRequest.getString(serverReloadKCSAPIModules.toString());
+    }
 
   Future<Map<String, dynamic>> getObject(String type, bool debug) {
     Uri request = serverGetObject.resolveUri(new Uri(queryParameters: {

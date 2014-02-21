@@ -6,6 +6,8 @@ import os
 import traceback
 import urlparse
 
+import controller
+
 
 DEPLOYED_PACKAGE = 'build'
 DEVELOPMENT_PACKAGE = 'web'
@@ -15,6 +17,7 @@ class KcaaHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
     GET_NEW_OBJECTS = '/get_new_objects'
     GET_OBJECT = '/get_object'
+    RELOAD_KCSAPI = '/reload_kcsapi'
     CLICK = '/click'
     CLIENT_PREFIX = '/client/'
 
@@ -34,6 +37,8 @@ class KcaaHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             self.handle_get_new_objects(o)
         elif o.path == KcaaHTTPRequestHandler.GET_OBJECT:
             self.handle_get_object(o)
+        elif o.path == KcaaHTTPRequestHandler.RELOAD_KCSAPI:
+            self.handle_reload_kcsapi(o)
         elif o.path == KcaaHTTPRequestHandler.CLICK:
             self.handle_click(o)
         elif o.path.startswith(KcaaHTTPRequestHandler.CLIENT_PREFIX):
@@ -73,6 +78,13 @@ class KcaaHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             self.wfile.write(data)
         except KeyError:
             self.send_error(404)
+
+    def handle_reload_kcsapi(self, o):
+        self.server.controller_conn.send((controller.COMMAND_RELOAD_KCSAPI,))
+        self.send_response(200)
+        self.send_header('Content-Type', 'text/plain')
+        self.end_headers()
+        self.wfile.write('success')
 
     def handle_click(self, o):
         if self.command != 'GET':
@@ -142,6 +154,7 @@ def handle_server(args, to_exit, controller_conn, browser_conn):
         httpd, root_url = setup(args, logger)
         httpd.new_objects = set()
         httpd.objects = {}
+        httpd.controller_conn = controller_conn
         httpd.browser_conn = browser_conn
         controller_conn.send(root_url)
         httpd.timeout = 0.1
