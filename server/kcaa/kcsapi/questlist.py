@@ -19,8 +19,11 @@ class Quest(jsonobject.JSONSerializableObject):
     CATEGORY_ATTACK = 2
     state = jsonobject.ReadonlyJSONProperty('state', 0, value_type=int)
     """State."""
+    progress = jsonobject.ReadonlyJSONProperty('progress', 0, value_type=int)
+    """Progress percentile."""
     STATE_INACTIVE = 1
     STATE_ACTIVE = 2
+    STATE_COMPLETE = 3
     rewards = jsonobject.ReadonlyJSONProperty('rewards', {}, value_type=dict)
     """Rewards."""
     # TODO: Add Rewards object
@@ -44,12 +47,16 @@ class QuestList(model.KcaaObject):
         self.count_undertaken = data.api_exec_count
         quests = []
         for quest_data in data.api_list:
+            progress = (0, 50, 80)[quest_data.api_progress_flag]
+            if quest_data.api_state == Quest.STATE_COMPLETE:
+                progress = 100
             quests.append(Quest(
                 id=quest_data.api_no,
                 name=quest_data.api_title,
                 description=quest_data.api_detail,
                 category=quest_data.api_category,
                 state=quest_data.api_state,
+                progress=progress,
                 rewards={
                     'oil': quest_data.api_get_material[0],
                     'ammo': quest_data.api_get_material[1],
