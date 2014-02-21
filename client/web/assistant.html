@@ -22,7 +22,7 @@
         box-sizing: border-box;
         display: inline-block;
         margin: 10px;
-        min-width: 310px;
+        min-width: 300px;
         padding: 15px;
         position: relative;
         text-align: left;
@@ -128,14 +128,26 @@
         border-width: 1px;
       }
       thead {
-        background-color: hsla(240, 60%, 80%, 0.4);
+        background-color: hsla(240, 60%, 80%, 0.3);
+        color: hsl(240, 40%, 10%);
       }
       th, td {
         padding: 0.2em 0.4em;
       }
-      .active {
-        background-color: hsla(30, 60%, 80%, 0.4);
+      div.title {
         font-weight: bold;
+      }
+      tr.active {
+        background-color: hsla(30, 60%, 70%, 0.3);
+        color: hsl(30, 40%, 10%);
+        font-weight: bold;
+        text-shadow: 1px 1px 1px hsla(30, 40%, 10%, 0.2);
+      }
+      tr.complete {
+        background-color: hsla(150, 60%, 70%, 0.3);
+        color: hsl(150, 40%, 10%);
+        font-weight: bold;
+        text-shadow: 1px 1px 1px hsla(150, 40%, 10%, 0.2);
       }
       td > div:nth-child(2) {
         font-size: 90%;
@@ -195,14 +207,14 @@
             </thead>
             <tbody>
               <!-- TODO: Why doesn't this work with dart2js? -->
-              <tr class="{{ {active: quest.isActive} }}"
+              <tr class="{{quest.state}}"
                   template repeat="{{quest in quests}}">
                 <td class="labelColumn">
                   <div>{{quest.category}}</div>
                   <div>{{quest.id}}</div>
                 </td>
                 <td>
-                  <div>{{quest.name}}</div>
+                  <div class="title">{{quest.name}}</div>
                   <div>{{quest.description}}</div>
                 </td>
                 <td>{{quest.oil}}</td>
@@ -210,8 +222,11 @@
                 <td>{{quest.steel}}</td>
                 <td>{{quest.bauxite}}</td>
                 <td>
-                  <template if="{{quest.isActive}}">
+                  <template if="{{quest.state == 'active'}}">
                     {{quest.progress}}%
+                  </template>
+                  <template if="{{quest.state == 'complete'}}">
+                    達成!
                   </template>
                 </td>
               </tr>

@@ -32,7 +32,7 @@ class Quest {
   String name;
   String description;
   String category;
-  bool isActive;
+  String state;
   int oil, ammo, steel, bauxite;
   int progress;
 
@@ -45,15 +45,16 @@ class Quest {
     6: "工廠",
     7: "改装",
   };
-  static final Map<int, bool> STATE_MAP = <int, bool>{
-    1: false,
-    2: true,
+  static final Map<int, String> STATE_MAP = <int, String>{
+    1: "",
+    2: "active",
+    3: "complete",
   };
 
   Quest(this.id, this.name, this.description, int category, int state,
       Map<String, int> rewards)
       : category = CATEGORY_MAP[category],
-        isActive = STATE_MAP[state],
+        state = STATE_MAP[state],
         oil = rewards["oil"],
         ammo = rewards["ammo"],
         steel = rewards["steel"],
