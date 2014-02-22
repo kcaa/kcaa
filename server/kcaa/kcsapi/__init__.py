@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import jsonobject
+import missionlist
 import model
 import questlist
 
@@ -60,6 +61,7 @@ def reload_modules():
 def main():
     import doctest
     doctest.testmod(jsonobject)
+    doctest.testmod(missionlist)
     doctest.testmod(model)
     doctest.testmod(questlist)
     import os.path

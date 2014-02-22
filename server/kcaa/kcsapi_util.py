@@ -41,6 +41,8 @@ class KCSAPIHandler(object):
             '/api_get_member/questlist': [kcsapi.questlist.QuestList],
             '/api_req_quest/start': [kcsapi.model.NullHandler()],
             '/api_req_quest/stop': [kcsapi.model.NullHandler()],
+            # Missions
+            '/api_get_master/mission': [kcsapi.missionlist.MissionList],
         }
 
     def reload_handlers(self):
