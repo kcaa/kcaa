@@ -77,6 +77,37 @@ class NullHandler(object):
         return None
 
 
+def merge_list(old_list, new_list):
+    merged = []
+    if len(old_list) == 0:
+        return new_list
+    elif len(new_list) == 0:
+        return old_list
+    a, b = old_list, new_list
+    bmin, bmax = b[0].id, b[-1].id
+    ai, bi = 0, 0
+    while ai < len(a) and bi < len(b):
+        aid, bid = a[ai].id, b[bi].id
+        # If a and b have the same ID, prefer b (new quest data).
+        if aid == bid:
+            merged.append(b[bi])
+            ai += 1
+            bi += 1
+        elif aid < bid:
+            # Exclude old quests.
+            if aid < bmin or aid > bmax:
+                merged.append(a[ai])
+            ai += 1
+        else:
+            merged.append(b[bi])
+            bi += 1
+    if ai == len(a):
+        merged.extend(b[bi:])
+    else:
+        merged.extend(a[ai:])
+    return merged
+
+
 if __name__ == '__main__':
     import model_test
     model_test.main()

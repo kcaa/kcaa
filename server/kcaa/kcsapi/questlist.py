@@ -92,36 +92,4 @@ class QuestList(model.KCAAObject):
                     steel=quest_data.api_get_material[2],
                     bauxite=quest_data.api_get_material[3])))
         quests.sort(lambda x, y: x.id - y.id)
-        # Merge with existing quests.
-        self.merge_quests(quests)
-
-    def merge_quests(self, quests):
-        merged = []
-        if len(self.quests) == 0:
-            self.quests = quests
-            return
-        elif len(quests) == 0:
-            return
-        a, b = self.quests, quests
-        bmin, bmax = b[0].id, b[-1].id
-        ai, bi = 0, 0
-        while ai < len(a) and bi < len(b):
-            aid, bid = a[ai].id, b[bi].id
-            # If a and b have the same ID, prefer b (new quest data).
-            if aid == bid:
-                merged.append(b[bi])
-                ai += 1
-                bi += 1
-            elif aid < bid:
-                # Exclude old quests.
-                if aid < bmin or aid > bmax:
-                    merged.append(a[ai])
-                ai += 1
-            else:
-                merged.append(b[bi])
-                bi += 1
-        if ai == len(a):
-            merged.extend(b[bi:])
-        else:
-            merged.extend(a[ai:])
-        self.quests = merged
+        self.quests = model.merge_list(self.quests, quests)
