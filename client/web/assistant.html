@@ -127,9 +127,10 @@
         border-style: solid;
         border-width: 1px;
       }
-      thead {
+      thead th {
         background-color: hsla(240, 60%, 80%, 0.3);
         color: hsl(240, 40%, 10%);
+        box-shadow: 2px 2px 3px hsla(240, 40%, 10%, 0.3) inset;
       }
       th, td {
         padding: 0.2em 0.4em;
@@ -143,11 +144,17 @@
         font-weight: bold;
         text-shadow: 1px 1px 1px hsla(30, 40%, 10%, 0.2);
       }
+      tr.active td {
+        box-shadow: 2px 2px 3px hsla(30, 40%, 10%, 0.3) inset;
+      }
       tr.complete {
         background-color: hsla(150, 60%, 70%, 0.3);
         color: hsl(150, 40%, 10%);
         font-weight: bold;
         text-shadow: 1px 1px 1px hsla(150, 40%, 10%, 0.2);
+      }
+      tr.complete td {
+        box-shadow: 2px 2px 3px hsla(150, 40%, 10%, 0.3) inset;
       }
       td > div:nth-child(2) {
         font-size: 90%;
