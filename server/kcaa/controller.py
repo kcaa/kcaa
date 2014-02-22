@@ -48,7 +48,7 @@ def control(args):
                                      args=(args, root_url, to_exit))
         pk.start()
         pc.start()
-        kcsapi_handler = kcsapi_util.KcsapiHandler(har_manager)
+        kcsapi_handler = kcsapi_util.KCSAPIHandler(har_manager)
         while True:
             time.sleep(0.1)
             if to_exit.wait(0.0):
