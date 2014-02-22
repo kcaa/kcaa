@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'dart:html';
 import 'package:polymer/polymer.dart';
 
+part 'domain/missionlist.dart';
 part 'domain/questlist.dart';
 part 'util.dart';
 
@@ -14,6 +15,9 @@ class Assistant extends PolymerElement {
   @observable int numQuests = 0;
   @observable int numQuestsUndertaken = 0;
   final List<Quest> quests = new ObservableList<Quest>();
+
+  // Missions.
+  final List<Mission> missions = new ObservableList<Mission>();
 
   // Server URIs.
   Uri clientRoot;
@@ -30,6 +34,7 @@ class Assistant extends PolymerElement {
 
   // Object handlers.
   final Map<String, Function> OBJECT_HANDLERS = <String, Function>{
+    "MissionList": handleMissionList,
     "QuestList": handleQuestList,
   };
 
@@ -82,7 +87,9 @@ class Assistant extends PolymerElement {
                 availableObjectSet.add(objectType) || newObjectFound;
             var handler = OBJECT_HANDLERS[objectType];
             if (handler != null) {
-              handler(this);
+              getObject(objectType, false).then((Map<String, dynamic> data) {
+                handler(this, data);
+              });
             }
           }
           if (newObjectFound) {

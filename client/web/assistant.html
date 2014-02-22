@@ -40,8 +40,8 @@
             <tbody>
               <!-- This doesn't work with dart2js because it seems not
                    supporting accessing members (quest.state or the like). -->
-              <tr class="{{quest.state}}"
-                  template repeat="{{quest in quests}}">
+              <tr template repeat="{{quest in quests}}"
+                  class="{{quest.state}}">
                 <td class="labelColumn">
                   <div>{{quest.category}}</div>
                   <div>{{quest.cycle}}</div>
@@ -62,6 +62,57 @@
                     達成!
                   </template>
                 </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="row horizontal">
+        <div class="board">
+          <h3>遠征一覧</h3>
+          <table>
+            <col width="70px">
+            <col>
+            <col width="50px">
+            <col width="50px">
+            <col width="50px">
+            <col width="50px">
+            <thead>
+              <tr>
+                <th>海域</th>
+                <th>説明</th>
+                <th>達成</th>
+                <th>燃料</th>
+                <th>弾薬</th>
+                <th>実行</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr template repeat="{{mission in missions}}"
+                  class="{{mission.state}}">
+                <td class="labelColumn">
+                  <div>{{mission.maparea}}</div>
+                  <div>{{mission.difficulty}}</div>
+                </td>
+                <td>
+                  <div class="title">{{mission.name}}</div>
+                  <div>{{mission.description}}</div>
+                </td>
+                <td>
+                  <template if="{{mission.state == 'new'}}">
+                    NEW
+                  </template>
+                  <template if="{{mission.state == ''}}">
+                    ✓
+                  </template>
+                </td>
+                <td>
+                  {{(mission.fuelConsumption * 100).toStringAsFixed(0)}}%
+                </td>
+                <td>
+                  {{(mission.ammoConsumption * 100).toStringAsFixed(0)}}%
+                </td>
+                <td>N/A</td>
               </tr>
             </tbody>
           </table>

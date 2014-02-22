@@ -1,0 +1,54 @@
+part of kcaa;
+
+class Mission {
+  static final Map<int, String> DIFFICULTY_MAP = <int, String>{
+    1: "E",
+    2: "D",
+    3: "C",
+    4: "B",
+    5: "A",
+    6: "S",  // S
+    7: "S",  // SS
+    8: "S",  // SSS
+  };
+  static final Map<int, String> MAPAREA_MAP = <int, String>{
+    1: "鎮守府",
+    2: "南西諸島",
+    3: "北方",
+    4: "西方",
+    5: "南方",
+  };
+  static final Map<int, String> STATE_MAP = <int, String>{
+    0: "new",
+    1: "active",
+    2: "",
+  };
+
+  int id;
+  String name;
+  String description;
+  String difficulty;
+  String maparea;
+  String state;
+  int time;
+  double fuelConsumption;
+  double ammoConsumption;
+
+  Mission(Map<String, dynamic> data)
+      : id = data["id"],
+        name = data["name"],
+        description = data["description"],
+        difficulty = DIFFICULTY_MAP[data["difficulty"]],
+        maparea = MAPAREA_MAP[data["maparea"]],
+        state = STATE_MAP[data["state"]],
+        time = data["time"],
+        fuelConsumption = data["fuel_consumption"],
+        ammoConsumption = data["ammo_consumption"] {}
+}
+
+void handleMissionList(Assistant assistant, Map<String, dynamic> data) {
+  assistant.missions.clear();
+  for (var missionData in data["missions"]) {
+    assistant.missions.add(new Mission(missionData));
+  }
+}

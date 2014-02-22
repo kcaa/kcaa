@@ -136,15 +136,24 @@ table, th, td {
   border-width: 1px;
 }
 thead th {
-  background-color: hsla(240, 60%, 80%, 0.3);
-  color: hsl(240, 40%, 10%);
-  box-shadow: 2px 2px 3px hsla(240, 40%, 10%, 0.3) inset;
+  background-color: hsla(0, 10%, 80%, 0.3);
+  color: hsl(0, 10%, 10%);
+  box-shadow: 2px 2px 3px hsla(0, 10%, 10%, 0.3) inset;
 }
 th, td {
   padding: 0.2em 0.4em;
 }
 div.title {
   font-weight: bold;
+}
+tr.new {
+  background-color: hsla(270, 60%, 90%, 0.3);
+  color: hsl(270, 40%, 20%);
+  font-weight: bold;
+  text-shadow: 1px 1px 1px hsla(270, 40%, 20%, 0.2);
+}
+tr.new td {
+  box-shadow: 2px 2px 3px hsla(270, 40%, 20%, 0.3) inset;
 }
 tr.active {
   background-color: hsla(30, 60%, 70%, 0.3);

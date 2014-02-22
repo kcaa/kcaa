@@ -1,15 +1,6 @@
 part of kcaa;
 
 class Quest {
-  int id;
-  String name;
-  String description;
-  String category;
-  String state;
-  int fuel, ammo, steel, bauxite;
-  int progress;
-  String cycle;
-
   static final Map<int, String> CATEGORY_MAP = <int, String>{
     1: "編成",
     2: "出撃",
@@ -30,27 +21,34 @@ class Quest {
     3: "週毎",
   };
 
-  Quest(this.id, this.name, this.description, int category, int state,
-      Map<String, int> rewards, int progress, int cycle)
-      : category = CATEGORY_MAP[category],
-        state = STATE_MAP[state],
-        fuel = rewards["fuel"],
-        ammo = rewards["ammo"],
-        steel = rewards["steel"],
-        bauxite = rewards["bauxite"],
-        progress = progress,
-        cycle = CYCLE_MAP[cycle] {}
+  int id;
+  String name;
+  String description;
+  String category;
+  String state;
+  int fuel, ammo, steel, bauxite;
+  int progress;
+  String cycle;
+
+  Quest(Map<String, dynamic> data)
+      : id = data["id"],
+        name = data["name"],
+        description = data["description"],
+        category = CATEGORY_MAP[data["category"]],
+        state = STATE_MAP[data["state"]],
+        fuel = data["rewards"]["fuel"],
+        ammo = data["rewards"]["ammo"],
+        steel = data["rewards"]["steel"],
+        bauxite = data["rewards"]["bauxite"],
+        progress = data["progress"],
+        cycle = CYCLE_MAP[data["cycle"]] {}
 }
 
-void handleQuestList(Assistant assistant) {
-  assistant.getObject("QuestList", false).then((Map<String, dynamic> data) {
-    assistant.numQuests = data["count"];
-    assistant.numQuestsUndertaken = data["count_undertaken"];
-    assistant.quests.clear();
-    for (var quest in data["quests"]) {
-      assistant.quests.add(new Quest(quest["id"], quest["name"],
-          quest["description"], quest["category"], quest["state"],
-          quest["rewards"], quest["progress"], quest["cycle"]));
-    }
-  });
+void handleQuestList(Assistant assistant, Map<String, dynamic> data) {
+  assistant.numQuests = data["count"];
+  assistant.numQuestsUndertaken = data["count_undertaken"];
+  assistant.quests.clear();
+  for (var questData in data["quests"]) {
+    assistant.quests.add(new Quest(questData));
+  }
 }
