@@ -8,15 +8,14 @@ import model
 
 class Mission(jsonobject.JSONSerializableObject):
 
-    id = jsonobject.ReadonlyJSONProperty('id', 0, value_type=int)
+    id = jsonobject.ReadonlyJSONProperty('id', value_type=int)
     """ID."""
-    name = jsonobject.ReadonlyJSONProperty('name', u'', value_type=unicode)
+    name = jsonobject.ReadonlyJSONProperty('name', value_type=unicode)
     """Name."""
-    description = jsonobject.ReadonlyJSONProperty('description', u'',
+    description = jsonobject.ReadonlyJSONProperty('description',
                                                   value_type=unicode)
     """Description."""
-    difficulty = jsonobject.ReadonlyJSONProperty('difficulty', 0,
-                                                 value_type=int)
+    difficulty = jsonobject.ReadonlyJSONProperty('difficulty', value_type=int)
     """Difficulty."""
     DIFFICULTY_E = 1
     DIFFICULTY_D = 2
@@ -26,19 +25,19 @@ class Mission(jsonobject.JSONSerializableObject):
     DIFFICULTY_S = 6
     DIFFICULTY_SS = 7
     DIFFICULTY_SSS = 8
-    maparea = jsonobject.ReadonlyJSONProperty('maparea', 0, value_type=int)
+    maparea = jsonobject.ReadonlyJSONProperty('maparea', value_type=int)
     """Map area."""
     MAPAREA_BASE = 1
     MAPAREA_SOUTHWESTERN_ISLANDS = 2
     MAPAREA_NORTH = 3
     MAPAREA_WEST = 4
     MAPAREA_SOUTH = 5
-    state = jsonobject.ReadonlyJSONProperty('state', 0, value_type=int)
+    state = jsonobject.ReadonlyJSONProperty('state', value_type=int)
     """State."""
     STATE_NEW = 0
     STATE_ACTIVE = 1
     STATE_COMPLETE = 2
-    time = jsonobject.ReadonlyJSONProperty('time', 0, value_type=int)
+    time = jsonobject.ReadonlyJSONProperty('time', value_type=int)
     """Required time to complete in minutes."""
     ammo_consumption = jsonobject.ReadonlyJSONProperty(
         'ammo_consumption', 0, value_type=numbers.Number)
@@ -46,9 +45,9 @@ class Mission(jsonobject.JSONSerializableObject):
     fuel_consumption = jsonobject.ReadonlyJSONProperty(
         'fuel_consumption', 0, value_type=numbers.Number)
     """Fuel consumption relative to the fleet capacity. Ranges from 0 to 1."""
-    bonus_items = jsonobject.ReadonlyJSONProperty('bonus_items', None)
+    bonus_items = jsonobject.ReadonlyJSONProperty('bonus_items')
     """TODO: Bonus items?"""
-    undertaking_fleet = jsonobject.JSONProperty('undertaking_fleet', None,
+    undertaking_fleet = jsonobject.JSONProperty('undertaking_fleet',
                                                 value_type=list)
     """Fleet which is undertaking this mission. First element represents the
     order of the fleet, and the second holds the fleet name."""

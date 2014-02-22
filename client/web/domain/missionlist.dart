@@ -78,7 +78,7 @@ class Mission {
 void handleMissionList(Assistant assistant, Map<String, dynamic> data) {
   assistant.missions.clear();
   for (var missionData in data["missions"]) {
-    if (missionData["name"] != "") {
+    if (missionData["name"] != null) {
       assistant.missions.add(new Mission(missionData));
     }
   }
