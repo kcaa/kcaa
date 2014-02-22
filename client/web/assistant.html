@@ -55,7 +55,7 @@
                 <td>{{quest.steel}}</td>
                 <td>{{quest.bauxite}}</td>
                 <td>
-                  <template if="{{quest.state == 'active'}}">
+                  <template if="{{quest.state != 'complete'}}">
                     {{quest.progress}}%
                   </template>
                   <template if="{{quest.state == 'complete'}}">
