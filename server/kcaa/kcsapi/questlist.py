@@ -51,7 +51,7 @@ class Quest(jsonobject.JSONSerializableObject):
     """Rewards."""
 
 
-class QuestList(model.KcaaObject):
+class QuestList(model.KCAAObject):
     """List of quests.
 
     This object holds a list of all the quests. Note that this object may not

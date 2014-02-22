@@ -9,10 +9,10 @@ import jsonobject
 from jsonobject import jsonproperty
 
 
-class KcaaObject(jsonobject.JSONSerializableObject):
+class KCAAObject(jsonobject.JSONSerializableObject):
 
     def __init__(self, api_name, response, debug, **kwargs):
-        super(KcaaObject, self).__init__(**kwargs)
+        super(KCAAObject, self).__init__(**kwargs)
         self.api_names = set()
         self.debug = debug
         self.update(api_name, response)
@@ -37,7 +37,7 @@ class KcaaObject(jsonobject.JSONSerializableObject):
             self.response = response
 
 
-class DefaultObject(KcaaObject):
+class DefaultObject(KCAAObject):
 
     @jsonproperty
     def object_type(self):
