@@ -6,7 +6,7 @@ class Quest {
   String description;
   String category;
   String state;
-  int oil, ammo, steel, bauxite;
+  int fuel, ammo, steel, bauxite;
   int progress;
   String cycle;
 
@@ -34,7 +34,7 @@ class Quest {
       Map<String, int> rewards, int progress, int cycle)
       : category = CATEGORY_MAP[category],
         state = STATE_MAP[state],
-        oil = rewards["oil"],
+        fuel = rewards["fuel"],
         ammo = rewards["ammo"],
         steel = rewards["steel"],
         bauxite = rewards["bauxite"],

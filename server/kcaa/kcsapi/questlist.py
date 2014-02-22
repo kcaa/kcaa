@@ -6,8 +6,8 @@ import model
 
 class Rewards(jsonobject.JSONSerializableObject):
 
-    oil = jsonobject.ReadonlyJSONProperty('oil', 0, value_type=int)
-    """Oil."""
+    fuel = jsonobject.ReadonlyJSONProperty('fuel', 0, value_type=int)
+    """Fuel."""
     ammo = jsonobject.ReadonlyJSONProperty('ammo', 0, value_type=int)
     """Ammo."""
     steel = jsonobject.ReadonlyJSONProperty('steel', 0, value_type=int)
@@ -92,7 +92,7 @@ class QuestList(model.KCAAObject):
                 bonus_type=quest_data.api_bonus_flag,
                 cycle=quest_data.api_type,
                 rewards=Rewards(
-                    oil=quest_data.api_get_material[0],
+                    fuel=quest_data.api_get_material[0],
                     ammo=quest_data.api_get_material[1],
                     steel=quest_data.api_get_material[2],
                     bauxite=quest_data.api_get_material[3])))
