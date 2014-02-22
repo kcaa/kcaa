@@ -6,6 +6,7 @@ docs/_build/
 docs/_static/
 docs/_templates/
 htmlcov/
+packages
 packages/
 pubspec.lock
 __pycache__/

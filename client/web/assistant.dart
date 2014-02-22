@@ -5,7 +5,7 @@ import 'dart:convert';
 import 'dart:html';
 import 'package:polymer/polymer.dart';
 
-part 'questlist.dart';
+part 'domain/questlist.dart';
 part 'util.dart';
 
 @CustomTag('eplusx-kancolle-assistant')
