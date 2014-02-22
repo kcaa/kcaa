@@ -4,6 +4,18 @@ import jsonobject
 import model
 
 
+class Rewards(jsonobject.JSONSerializableObject):
+
+    oil = jsonobject.ReadonlyJSONProperty('oil', 0, value_type=int)
+    """Oil."""
+    ammo = jsonobject.ReadonlyJSONProperty('ammo', 0, value_type=int)
+    """Ammo."""
+    steel = jsonobject.ReadonlyJSONProperty('steel', 0, value_type=int)
+    """Steel."""
+    bauxite = jsonobject.ReadonlyJSONProperty('bauxite', 0, value_type=int)
+    """Bauxite."""
+
+
 class Quest(jsonobject.JSONSerializableObject):
 
     id = jsonobject.ReadonlyJSONProperty('id', 0, value_type=int)
@@ -34,9 +46,9 @@ class Quest(jsonobject.JSONSerializableObject):
     CYCLE_ONCE = 1
     CYCLE_DAILY = 2
     CYCLE_WEEKLY = 3
-    rewards = jsonobject.ReadonlyJSONProperty('rewards', {}, value_type=dict)
+    rewards = jsonobject.ReadonlyJSONProperty('rewards', None,
+                                              value_type=Rewards)
     """Rewards."""
-    # TODO: Add Rewards object
 
 
 class QuestList(model.KcaaObject):
@@ -69,11 +81,11 @@ class QuestList(model.KcaaObject):
                 progress=progress,
                 bonus_type=quest_data.api_bonus_flag,
                 cycle=quest_data.api_type,
-                rewards={
-                    'oil': quest_data.api_get_material[0],
-                    'ammo': quest_data.api_get_material[1],
-                    'steel': quest_data.api_get_material[2],
-                    'bauxite': quest_data.api_get_material[3]}))
+                rewards=Rewards(
+                    oil=quest_data.api_get_material[0],
+                    ammo=quest_data.api_get_material[1],
+                    steel=quest_data.api_get_material[2],
+                    bauxite=quest_data.api_get_material[3])))
         quests.sort(lambda x, y: x.id - y.id)
         # Merge with existing quests.
         self.merge_quests(quests)
