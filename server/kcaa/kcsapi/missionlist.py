@@ -48,8 +48,6 @@ class Mission(jsonobject.JSONSerializableObject):
     """Fuel consumption relative to the fleet capacity. Ranges from 0 to 1."""
     bonus_items = jsonobject.ReadonlyJSONProperty('bonus_items', None)
     """TODO: Bonus items?"""
-    active = jsonobject.ReadonlyJSONProperty('active', 0, value_type=int)
-    """TODO: Active?"""
 
 
 class MissionList(model.KCAAObject):
@@ -72,7 +70,6 @@ class MissionList(model.KCAAObject):
                 state=mission_data.api_state,
                 time=mission_data.api_time,
                 ammo_consumption=mission_data.api_use_bull,
-                fuel_consumption=mission_data.api_use_fuel,
-                active=mission_data.api_active))
+                fuel_consumption=mission_data.api_use_fuel))
         missions.sort(lambda x, y: x.id - y.id)
         self.missions = model.merge_list(self.missions, missions)
