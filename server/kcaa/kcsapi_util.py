@@ -12,6 +12,9 @@ import kcsapi
 KCSAPI_PATH_REGEX = re.compile(r'/kcsapi(?P<api_name>/.*)')
 KCSAPI_PREFIX = 'svdata='
 
+# UTF-8 Byte Order Mark.
+BOM = '\xEF\xBB\xBF'
+
 
 class KCSAPIHandler(object):
 
@@ -63,12 +66,20 @@ class KCSAPIHandler(object):
                 encoding = content.get('encoding')
                 if encoding == 'base64':
                     text = base64.b64decode(text)
+                # Remove BOM if any.
+                if text.startswith(BOM):
+                    text = text[len(BOM):]
                 # Skip response prefix which makes JSON parsing fail.
                 if text.startswith(KCSAPI_PREFIX):
                     text = text[len(KCSAPI_PREFIX):]
                 else:
                     self._logger.debug(
-                        'Unexpected KCSAPI response: {}'.format(text))
+                        'Unexpected KCSAPI response got for {}'.format(o.path))
+                    self._logger.debug(
+                        'Raw response: {}'.format(text))
+                    self._logger.debug('First 64 bytes: {}'.format(
+                        ' '.join(('{:X}'.format(ord(c))) for c in text[:64])))
+                    continue
                 # KCSAPI response should be in UTF-8.
                 response = json.loads(text, encoding='utf8')
                 yield api_name, response
