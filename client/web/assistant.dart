@@ -79,7 +79,7 @@ class Assistant extends PolymerElement {
           var newObjectFound = false;
           for (var objectType in newObjects) {
             newObjectFound =
-                newObjectFound || availableObjectSet.add(objectType);
+                availableObjectSet.add(objectType) || newObjectFound;
             var handler = OBJECT_HANDLERS[objectType];
             if (handler != null) {
               handler(this);
