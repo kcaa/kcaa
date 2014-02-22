@@ -175,9 +175,11 @@ tr.complete td {
 }
 td > div {
   font-size: 90%;
+  opacity: 0.8;
 }
 td > div:first-child {
   font-size: 100%;
+  opacity: 1;
 }
 td.labelColumn div {
   text-align: center;
