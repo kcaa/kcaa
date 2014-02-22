@@ -38,7 +38,8 @@
               </tr>
             </thead>
             <tbody>
-              <!-- TODO: Why doesn't this work with dart2js? -->
+              <!-- This doesn't work with dart2js because it seems not
+                   supporting accessing members (quest.state or the like). -->
               <tr class="{{quest.state}}"
                   template repeat="{{quest in quests}}">
                 <td class="labelColumn">
