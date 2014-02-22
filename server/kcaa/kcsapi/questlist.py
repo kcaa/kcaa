@@ -52,6 +52,11 @@ class Quest(jsonobject.JSONSerializableObject):
 
 
 class QuestList(model.KcaaObject):
+    """List of quests.
+
+    This object holds a list of all the quests. Note that this object may not
+    be up to date when a user hasn't accessed the quests page.
+    """
 
     count = jsonobject.JSONProperty('count', 0, value_type=int)
     """Number of all quests."""
