@@ -75,8 +75,6 @@ class Assistant extends PolymerElement {
   final List<String> availableObjects = new ObservableList<String>();
   Set<String> availableObjectSet = new Set<String>();
 
-  final List<String> activeQuests = new ObservableList<String>();
-
   @observable int numQuests = 0;
   @observable int numQuestsUndertaken = 0;
   final List<Quest> quests = new ObservableList<Quest>();

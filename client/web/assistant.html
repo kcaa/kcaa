@@ -3,10 +3,13 @@
   <template>
     <style>
       #assistant {
-        display: inline-block;
-        text-align: center;
+      }
+      div.row {
+        box-sizing: border-box;
+        width: 100%;
       }
       div.horizontal {
+        margin: 0;
         padding: 10px;
       }
       div.board {
@@ -22,13 +25,22 @@
         box-sizing: border-box;
         display: inline-block;
         margin: 10px;
-        min-width: 300px;
         padding: 15px;
         position: relative;
         text-align: left;
         vertical-align: top;
       }
       div.horizontal div.board {
+        margin: 0;
+        width: 100%;
+      }
+      div.twoColumn div.column {
+        box-sizing: border-box;
+        display: inline-block;
+        padding: 10px;
+        width: 49.5%;
+      }
+      div.twoColumn div.board {
         margin: 0;
         width: 100%;
       }
@@ -170,25 +182,15 @@
       }
     </style>
     <div id="assistant">
-      <div class="row">
-        <div class="board">
-          <h3>ステータス</h3>
-          <h4>遂行中の任務</h4>
-          <ul>
-            <template repeat="{{quest in activeQuests}}">
-              <li>{{quest}}</li>
-            </template>
-          </ul>
+      <div class="row twoColumn">
+        <div class="column">
+          <div class="board">
+            <h3>ステータス</h3>
+          </div>
         </div>
-        <div id="statsBoard" class="board">
-          <h3>コントロール</h3>
-          <h4>モジュールリロード</h4>
-          <button on-click="{{reloadKCSAPIModules}}">KCSAPI</button>
-          <h4>APIデバッグ</h4>
-          <div>
-            <template repeat="{{objectType in availableObjects}}">
-              <button on-click="{{getObjectFromName}}">{{objectType}}</button>
-            </template>
+        <div class="column">
+          <div class="board">
+            <h3>クイックコマンド</h3>
           </div>
         </div>
       </div>
@@ -241,6 +243,19 @@
               </tr>
             </tbody>
           </table>
+        </div>
+      </div>
+      <div class="row horizontal">
+        <div class="board">
+          <h3>デバッグコントロール</h3>
+          <h4>モジュールリロード</h4>
+          <button on-click="{{reloadKCSAPIModules}}">KCSAPI</button>
+          <h4>API出力</h4>
+          <div>
+            <template repeat="{{objectType in availableObjects}}">
+              <button on-click="{{getObjectFromName}}">{{objectType}}</button>
+            </template>
+          </div>
         </div>
       </div>
       <div class="row horizontal">
