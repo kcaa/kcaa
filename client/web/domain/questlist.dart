@@ -10,7 +10,7 @@ class Quest {
     6: "工廠",
     7: "改装",
   };
-  static final Map<int, String> STATE_MAP = <int, String>{
+  static final Map<int, String> STATE_CLASS_MAP = <int, String>{
     1: "",
     2: "active",
     3: "complete",
@@ -25,7 +25,8 @@ class Quest {
   String name;
   String description;
   String category;
-  String state;
+  int state;
+  String stateClass;
   int fuel, ammo, steel, bauxite;
   int progress;
   String cycle;
@@ -35,7 +36,8 @@ class Quest {
         name = data["name"],
         description = data["description"],
         category = CATEGORY_MAP[data["category"]],
-        state = STATE_MAP[data["state"]],
+        state = data["state"],
+        stateClass = STATE_CLASS_MAP[data["state"]],
         fuel = data["rewards"]["fuel"],
         ammo = data["rewards"]["ammo"],
         steel = data["rewards"]["steel"],

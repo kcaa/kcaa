@@ -18,7 +18,7 @@ class Mission {
     4: "西方",
     5: "南方",
   };
-  static final Map<int, String> STATE_MAP = <int, String>{
+  static final Map<int, String> STATE_CLASS_MAP = <int, String>{
     0: "new",
     1: "new",
     2: "",
@@ -29,7 +29,8 @@ class Mission {
   String description;
   String difficulty;
   String maparea;
-  String state;
+  int state;
+  String stateClass;
   int time;
   double fuelConsumption;
   double ammoConsumption;
@@ -44,7 +45,8 @@ class Mission {
         description = data["description"],
         difficulty = DIFFICULTY_MAP[data["difficulty"]],
         maparea = MAPAREA_MAP[data["maparea"]],
-        state = STATE_MAP[data["state"]],
+        state = data["state"],
+        stateClass = STATE_CLASS_MAP[data["state"]],
         time = data["time"],
         fuelConsumption = data["fuel_consumption"],
         ammoConsumption = data["ammo_consumption"] {
@@ -52,7 +54,7 @@ class Mission {
     if (data["undertaking_fleet"] != null) {
       undertakingFleetId = data["undertaking_fleet"][0];
       undertakingFleetName = data["undertaking_fleet"][1];
-      state = "active";
+      stateClass = "active";
     } else {
       undertakingFleetId = -1;
     }

@@ -41,7 +41,7 @@
               <!-- This doesn't work with dart2js because it seems not
                    supporting accessing members (quest.state or the like). -->
               <tr template repeat="{{quest in quests}}"
-                  class="{{quest.state}}">
+                  class="{{quest.stateClass}}">
                 <td class="labelColumn">
                   <div>{{quest.category}}</div>
                   <div>{{quest.cycle}}</div>
@@ -89,7 +89,7 @@
             </thead>
             <tbody>
               <tr template repeat="{{mission in missions}}"
-                  class="{{mission.state}}">
+                  class="{{mission.stateClass}}">
                 <td class="labelColumn">
                   <div>{{mission.maparea}}</div>
                   <div>{{mission.difficulty}}</div>
