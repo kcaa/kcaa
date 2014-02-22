@@ -27,15 +27,20 @@ class Quest(jsonobject.JSONSerializableObject):
     """Description."""
     category = jsonobject.ReadonlyJSONProperty('category', 0, value_type=int)
     """Category."""
-    CATEGORY_ORGANIZE = 1
-    CATEGORY_ATTACK = 2
+    CATEGORY_FORMULATION = 1
+    CATEGORY_EXPEDITION = 2
+    CATEGORY_PRACTICE = 3
+    CATEGORY_MISSION = 4
+    CATEGORY_LOGISTICS = 5
+    CATEGORY_SHIPYARD = 6
+    CATEGORY_REBUILDING = 7
     state = jsonobject.ReadonlyJSONProperty('state', 0, value_type=int)
     """State."""
-    progress = jsonobject.ReadonlyJSONProperty('progress', 0, value_type=int)
-    """Progress percentile."""
     STATE_INACTIVE = 1
     STATE_ACTIVE = 2
     STATE_COMPLETE = 3
+    progress = jsonobject.ReadonlyJSONProperty('progress', 0, value_type=int)
+    """Progress percentile."""
     bonus_type = jsonobject.ReadonlyJSONProperty('bonus_type', 0,
                                                  value_type=int)
     """Bonus type."""
