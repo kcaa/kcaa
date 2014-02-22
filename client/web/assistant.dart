@@ -1,90 +1,31 @@
-library kaa;
+library kcaa;
 
 import 'dart:async';
 import 'dart:convert';
 import 'dart:html';
 import 'package:polymer/polymer.dart';
 
-const MILLISECOND = const Duration(milliseconds: 1);
-
-Timer runLater(int milliseconds, void callback()) {
-  return new Timer(MILLISECOND * milliseconds, callback);
-}
-
-bool iterableEquals(Iterable a, Iterable b) {
-  var ai = a.iterator;
-  var bi = b.iterator;
-  var different = false;
-  while (true) {
-    var aHasNext = ai.moveNext();
-    var bHasNext = bi.moveNext();
-    if (!aHasNext || !bHasNext) {
-      return aHasNext == bHasNext;
-    }
-    if (ai.current != bi.current) {
-      return false;
-    }
-  }
-}
-
-class Quest {
-  int id;
-  String name;
-  String description;
-  String category;
-  String state;
-  int oil, ammo, steel, bauxite;
-  int progress;
-  String cycle;
-
-  static final Map<int, String> CATEGORY_MAP = <int, String>{
-    1: "編成",
-    2: "出撃",
-    3: "演習",
-    4: "遠征",
-    5: "補給",
-    6: "工廠",
-    7: "改装",
-  };
-  static final Map<int, String> STATE_MAP = <int, String>{
-    1: "",
-    2: "active",
-    3: "complete",
-  };
-  static final Map<int, String> CYCLE_MAP = <int, String>{
-    1: "一回",
-    2: "日毎",
-    3: "週毎",
-  };
-
-  Quest(this.id, this.name, this.description, int category, int state,
-      Map<String, int> rewards, int progress, int cycle)
-      : category = CATEGORY_MAP[category],
-        state = STATE_MAP[state],
-        oil = rewards["oil"],
-        ammo = rewards["ammo"],
-        steel = rewards["steel"],
-        bauxite = rewards["bauxite"],
-        progress = progress,
-        cycle = CYCLE_MAP[cycle] {}
-}
+part 'questlist.dart';
+part 'util.dart';
 
 @CustomTag('eplusx-kancolle-assistant')
 class Assistant extends PolymerElement {
-  @observable String debugInfo;
-  final List<String> availableObjects = new ObservableList<String>();
-  Set<String> availableObjectSet = new Set<String>();
-
+  // Quests.
   @observable int numQuests = 0;
   @observable int numQuestsUndertaken = 0;
   final List<Quest> quests = new ObservableList<Quest>();
 
+  // Server URIs.
   Uri clientRoot;
   Uri serverRoot;
   Uri serverGetNewObjects;
   Uri serverGetObject;
   Uri serverReloadKCSAPIModules;
 
+  // Debug information.
+  @observable String debugInfo;
+  final List<String> availableObjects = new ObservableList<String>();
+  Set<String> availableObjectSet = new Set<String>();
   Timer availableObjectsChecker;
 
   Assistant.created() : super.created();
@@ -93,10 +34,11 @@ class Assistant extends PolymerElement {
   void enteredView() {
     clientRoot = Uri.parse(window.location.href);
     serverRoot = clientRoot.resolve("/");
-    serverGetNewObjects = serverRoot.resolve("/get_new_objects");
-    serverGetObject = serverRoot.resolve("/get_object");
-    serverReloadKCSAPIModules = serverRoot.resolve("/reload_kcsapi");
-    availableObjectsChecker = new Timer.periodic(MILLISECOND * 100, (Timer timer) {
+    serverGetNewObjects = serverRoot.resolve("get_new_objects");
+    serverGetObject = serverRoot.resolve("get_object");
+    serverReloadKCSAPIModules = serverRoot.resolve("reload_kcsapi");
+    availableObjectsChecker =
+        new Timer.periodic(MILLISECOND * 100, (Timer timer) {
       updateAvailableObjects();
     });
 
@@ -150,7 +92,7 @@ class Assistant extends PolymerElement {
 
   void reloadKCSAPIModules() {
     HttpRequest.getString(serverReloadKCSAPIModules.toString());
-    }
+  }
 
   Future<Map<String, dynamic>> getObject(String type, bool debug) {
     Uri request = serverGetObject.resolveUri(new Uri(queryParameters: {
@@ -181,43 +123,5 @@ class Assistant extends PolymerElement {
             quest["rewards"], quest["progress"], quest["cycle"]));
       }
     });
-  }
-
-  static void appendIndentedText(String text, int level, StringBuffer buffer) {
-    var indentationMark = "  ";
-    for (var i = 0; i < level; ++i) {
-      buffer.write(indentationMark);
-    }
-    buffer.write(text);
-  }
-
-  static String formatJson(json, [int level=0, bool firstLineIndented=false]) {
-    var buffer = new StringBuffer();
-    if (!firstLineIndented) {
-      appendIndentedText("", level, buffer);
-    }
-    if (json is Map) {
-      buffer.write("{\n");
-      var keys = new List.from(json.keys, growable: false);
-      keys.sort();
-      for (var key in keys) {
-        appendIndentedText('"${key}"', level + 1, buffer);
-        buffer.write(": ");
-        buffer.write(formatJson(json[key], level + 1, true));
-      }
-      appendIndentedText("}\n", level, buffer);
-    } else if (json is List) {
-      buffer.write("[\n");
-      for (var value in json) {
-        buffer.write(formatJson(value, level + 1, false));
-      }
-      appendIndentedText("]\n", level, buffer);
-    } else if (json is String) {
-      buffer.write('"${json.toString()}"\n');
-    }
-    else {
-      buffer.write("${json.toString()}\n");
-    }
-    return buffer.toString();
   }
 }
