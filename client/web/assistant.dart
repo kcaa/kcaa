@@ -28,6 +28,11 @@ class Assistant extends PolymerElement {
   Set<String> availableObjectSet = new Set<String>();
   Timer availableObjectsChecker;
 
+  // Object handlers.
+  final Map<String, Function> OBJECT_HANDLERS = <String, Function>{
+    "QuestList": handleQuestList,
+  };
+
   Assistant.created() : super.created();
 
   @override
@@ -75,10 +80,9 @@ class Assistant extends PolymerElement {
           for (var objectType in newObjects) {
             newObjectFound =
                 newObjectFound || availableObjectSet.add(objectType);
-
-            // TODO: Use function lookup table (objectType -> function).
-            if (objectType == "QuestList") {
-              handleQuestList();
+            var handler = OBJECT_HANDLERS[objectType];
+            if (handler != null) {
+              handler(this);
             }
           }
           if (newObjectFound) {
@@ -110,18 +114,5 @@ class Assistant extends PolymerElement {
 
   void getObjectFromName(Event e, var detail, Element target) {
     getObject(target.text, true);
-  }
-
-  void handleQuestList() {
-    getObject("QuestList", false).then((Map<String, dynamic> data) {
-      numQuests = data["count"];
-      numQuestsUndertaken = data["count_undertaken"];
-      quests.clear();
-      for (var quest in data["quests"]) {
-        quests.add(new Quest(quest["id"], quest["name"],
-            quest["description"], quest["category"], quest["state"],
-            quest["rewards"], quest["progress"], quest["cycle"]));
-      }
-    });
   }
 }

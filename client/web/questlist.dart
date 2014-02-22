@@ -41,3 +41,16 @@ class Quest {
         progress = progress,
         cycle = CYCLE_MAP[cycle] {}
 }
+
+void handleQuestList(Assistant assistant) {
+  assistant.getObject("QuestList", false).then((Map<String, dynamic> data) {
+    assistant.numQuests = data["count"];
+    assistant.numQuestsUndertaken = data["count_undertaken"];
+    assistant.quests.clear();
+    for (var quest in data["quests"]) {
+      assistant.quests.add(new Quest(quest["id"], quest["name"],
+          quest["description"], quest["category"], quest["state"],
+          quest["rewards"], quest["progress"], quest["cycle"]));
+    }
+  });
+}
