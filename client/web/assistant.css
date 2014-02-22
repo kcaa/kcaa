@@ -173,8 +173,11 @@ tr.complete {
 tr.complete td {
   box-shadow: 2px 2px 3px hsla(150, 40%, 10%, 0.3) inset;
 }
-td > div:nth-child(2) {
+td > div {
   font-size: 90%;
+}
+td > div:first-child {
+  font-size: 100%;
 }
 td.labelColumn div {
   text-align: center;

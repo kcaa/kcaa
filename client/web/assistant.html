@@ -76,15 +76,15 @@
             <col width="50px">
             <col width="50px">
             <col width="50px">
-            <col width="50px">
+            <col width="100px">
             <thead>
               <tr>
                 <th>海域</th>
                 <th>説明</th>
-                <th>達成</th>
                 <th>燃料</th>
                 <th>弾薬</th>
-                <th>実行</th>
+                <th>時間</th>
+                <th>遂行艦隊</th>
               </tr>
             </thead>
             <tbody>
@@ -99,20 +99,28 @@
                   <div>{{mission.description}}</div>
                 </td>
                 <td>
-                  <template if="{{mission.state == 'new'}}">
-                    NEW
-                  </template>
-                  <template if="{{mission.state == ''}}">
-                    ✓
-                  </template>
-                </td>
-                <td>
                   {{(mission.fuelConsumption * 100).toStringAsFixed(0)}}%
                 </td>
                 <td>
                   {{(mission.ammoConsumption * 100).toStringAsFixed(0)}}%
                 </td>
-                <td>N/A</td>
+                <td>{{mission.time}}分</td>
+                <td>
+                  <!-- It's easier to enclose everything with <template>, but
+                       that introduces difficulty in CSS styling with
+                       "td > div:first-child". -->
+                  <div>{{mission.undertakingFleetName}}</div>
+                  <div>
+                    <template if="{{mission.undertakingFleetId != -1}}">
+                      第{{mission.undertakingFleetId}}艦隊
+                    </template>
+                  </div>
+                  <div>
+                    <template if="{{mission.etaDatetimeString != null}}">
+                      帰還: {{mission.etaDatetimeString}}
+                    </template>
+                  </div>
+                </td>
               </tr>
             </tbody>
           </table>

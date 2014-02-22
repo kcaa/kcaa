@@ -37,6 +37,14 @@ class KCSAPIHandler(object):
         I'd recommend you not to abuse too much.)
         """
         self.kcsapi_handlers = {
+            # Deck
+            # Not sure what's the difference between /deck and /deck_port. They
+            # share the same data structure.
+            # As long as I know, /deck is used when a fleet departs for a
+            # mission, and /deck_port when a user comes back to the start
+            # screen (which is called a port).
+            '/api_get_member/deck': [kcsapi.missionlist.MissionList],
+            '/api_get_member/deck_port': [kcsapi.missionlist.MissionList],
             # Quests
             '/api_get_member/questlist': [kcsapi.questlist.QuestList],
             '/api_req_quest/start': [kcsapi.model.NullHandler()],

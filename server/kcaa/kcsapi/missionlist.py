@@ -48,6 +48,13 @@ class Mission(jsonobject.JSONSerializableObject):
     """Fuel consumption relative to the fleet capacity. Ranges from 0 to 1."""
     bonus_items = jsonobject.ReadonlyJSONProperty('bonus_items', None)
     """TODO: Bonus items?"""
+    undertaking_fleet = jsonobject.JSONProperty('undertaking_fleet', None,
+                                                value_type=list)
+    """Fleet which is undertaking this mission. First element represents the
+    order of the fleet, and the second holds the fleet name."""
+    # TODO: Create Fleet object.
+    eta = jsonobject.JSONProperty('eta', value_type=int)
+    """Estimated Time of Arrival, in UNIX time with millisecond precision."""
 
 
 class MissionList(model.KCAAObject):
@@ -58,10 +65,22 @@ class MissionList(model.KCAAObject):
 
     def update(self, api_name, response):
         super(MissionList, self).update(api_name, response)
+        if api_name == '/api_get_master/mission':
+            self.update_api_get_master_mission(response)
+        elif (api_name == '/api_get_member/deck' or
+              api_name == '/api_get_member/deck_port'):
+            self.update_api_get_member_deck(response)
+
+    def update_api_get_master_mission(self, response):
+        mission_to_fleet = {}
+        for mission in self.missions:
+            if mission.undertaking_fleet:
+                mission_to_fleet[mission.id] = [mission.undertaking_fleet,
+                                                mission.eta]
         missions = []
         for data in response['api_data']:
             mission_data = jsonobject.parse(data)
-            missions.append(Mission(
+            mission = Mission(
                 id=mission_data.api_id,
                 name=mission_data.api_name,
                 description=mission_data.api_details,
@@ -70,6 +89,39 @@ class MissionList(model.KCAAObject):
                 state=mission_data.api_state,
                 time=mission_data.api_time,
                 ammo_consumption=mission_data.api_use_bull,
-                fuel_consumption=mission_data.api_use_fuel))
+                fuel_consumption=mission_data.api_use_fuel)
+            fleet = mission_to_fleet.get(mission.id)
+            if fleet:
+                mission.undertaking_fleet = fleet[0]
+                mission.eta = fleet[1]
+            missions.append(mission)
         missions.sort(lambda x, y: x.id - y.id)
         self.missions = model.merge_list(self.missions, missions)
+
+    def update_api_get_member_deck(self, response):
+        mission_to_fleet = {}
+        for data in response['api_data']:
+            fleet_data = jsonobject.parse(data)
+            if fleet_data.api_mission[0] != 0:
+                mission_to_fleet[fleet_data.api_mission[1]] = [
+                    fleet_data.api_id,
+                    fleet_data.api_name,
+                    fleet_data.api_mission[2]]
+        for mission in self.missions:
+            fleet = mission_to_fleet.get(mission.id)
+            if fleet:
+                mission.undertaking_fleet = fleet[:2]
+                mission.eta = fleet[2]
+                del mission_to_fleet[mission.id]
+            else:
+                mission.undertaking_fleet = None
+                mission.eta = None
+        # Create missions if it's not there yet. Otherwise undertaking_fleet
+        # and eta will not be shown soon.
+        if len(mission_to_fleet) > 0:
+            for id, fleet in mission_to_fleet.iteritems():
+                self.missions.append(Mission(
+                    id=id,
+                    undertaking_fleet=fleet[:2],
+                    eta=fleet[2]))
+            self.missions.sort(lambda x, y: x.id - y.id)
