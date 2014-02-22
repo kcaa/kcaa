@@ -15,7 +15,7 @@ def get_desired_capabilities(args):
     capabilities = {}
     capabilities['proxy'] = {'httpProxy': args.proxy,
                              'ftpProxy': args.proxy,
-                             'sslProxy': args.proxy,
+                             'sslProxy': None,
                              'noProxy': '127.0.0.1,localhost',
                              'proxyType': 'MANUAL',
                              'class': 'org.openqa.selenium.Proxy',
