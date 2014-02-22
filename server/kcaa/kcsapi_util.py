@@ -34,7 +34,10 @@ class KCSAPIHandler(object):
         I'd recommend you not to abuse too much.)
         """
         self.kcsapi_handlers = {
+            # Quests
             '/api_get_member/questlist': [kcsapi.questlist.QuestList],
+            '/api_req_quest/start': [kcsapi.model.NullHandler()],
+            '/api_req_quest/stop': [kcsapi.model.NullHandler()],
         }
 
     def reload_handlers(self):
@@ -82,11 +85,14 @@ class KCSAPIHandler(object):
             old_obj = self.objects.get(object_type)
             if not old_obj:
                 obj = handler(api_name, response, self.debug)
-                self.objects[object_type] = obj
+                # Handler may return None in case there is no need to handle
+                # the KCSAPI response.
+                if obj:
+                    self.objects[object_type] = obj
+                    yield obj
             else:
                 old_obj.update(api_name, response)
-                obj = old_obj
-            yield obj
+                yield old_obj
 
     def get_updated_objects(self):
         entries = self.har_manager.get_updated_entries()

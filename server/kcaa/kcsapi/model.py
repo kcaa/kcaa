@@ -61,6 +61,22 @@ class DefaultHandler(object):
         return DefaultObject(*args, **kwargs)
 
 
+class NullHandler(object):
+    """Create a handler that does nothing.
+
+    This handler is useful when you want to simply ignore a specific KCSAPI
+    reponse. With this handler no new button will pollute the KCAA debug
+    control window.
+    """
+
+    @property
+    def __name__(self):
+        return self.__class__.__name__
+
+    def __call__(self, *args, **kwargs):
+        return None
+
+
 if __name__ == '__main__':
     import model_test
     model_test.main()
