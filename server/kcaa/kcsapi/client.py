@@ -14,7 +14,8 @@ class Screen(model.KCAAObject):
     SCREEN_UNKNOWN = 0
     screen = jsonobject.JSONProperty('screen', SCREEN_UNKNOWN, value_type=int)
     """Current screen."""
-    SCREEN_START = 1
+    SCREEN_SPECIAL = 1
+    SCREEN_SPECIAL_START = 101
     SCREEN_PORT = 2
     SCREEN_PORT_MAIN = 200
     SCREEN_PORT_RECORD = 201
@@ -23,16 +24,21 @@ class Screen(model.KCAAObject):
     SCREEN_PORT_FURNITURE = 204
     SCREEN_PORT_QUESTLIST = 205
     SCREEN_PORT_ITEMSHOP = 206
+    SCREEN_PORT_EXPEDITION = 207
+    SCREEN_PORT_PRACTICE = 208
+    SCREEN_PORT_MISSION = 209
 
     API_SCREEN_TO_SCREEN_MAP = {
         '/api_get_member/questlist': [(SCREEN_PORT, SCREEN_PORT_QUESTLIST)],
-        '/api_get_member/useitem': [(SCREEN_PORT, SCREEN_PORT_ITEMRACK)],
     }
     API_TO_SCREEN_MAP = {
+        '/api_get_master/mapinfo': SCREEN_PORT_EXPEDITION,
+        '/api_get_master/mission': SCREEN_PORT_MISSION,
         '/api_get_master/payitem': SCREEN_PORT_ITEMSHOP,
         '/api_get_member/book2': SCREEN_PORT_ENCYCLOPEDIA,
         '/api_get_member/deck_port': SCREEN_PORT_MAIN,
-        '/api_start': SCREEN_START,
+        '/api_get_member/practice': SCREEN_PORT_PRACTICE,
+        '/api_start': SCREEN_SPECIAL_START,
     }
 
     def update(self, api_name, response):
