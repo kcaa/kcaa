@@ -36,8 +36,24 @@ class KCSAPIHandler(object):
         this module as well, if you prefer. But reloading module is tricky, so
         I'd recommend you not to abuse too much.)
         """
+        # API URLs can be classified into 4 classes:
+        # - /api_get_master/FOO: Get the general definition about FOO. User
+        #                        independent.
+        # - /api_get_member/FOO: Get the current status about FOO. User
+        #                        dependent.
+        # - /api_req_FOO/BAR: Make changes on FOO by doing an action BAR.
+        #                     Doesn't necessarily deliver useful information
+        #                     in the response (i.e. oftentimes the request
+        #                     itself is important).
+        # - Others.
         self.kcsapi_handlers = {
-            # Deck
+            # Initialization, or account information
+            # /api_start seems delivering information required to render
+            # maparea.
+            '/api_auth_member/logincheck': [kcsapi.model.NullHandler()],
+            '/api_req_member/get_incentive': [kcsapi.model.NullHandler()],
+            '/api_start': [kcsapi.model.NullHandler()],
+            # Decks (Fleets)
             # Not sure what's the difference between /deck and /deck_port. They
             # share the same data structure.
             # As long as I know, /deck is used when a fleet departs for a
@@ -51,6 +67,17 @@ class KCSAPIHandler(object):
             '/api_req_quest/stop': [kcsapi.model.NullHandler()],
             # Missions
             '/api_get_master/mission': [kcsapi.missionlist.MissionList],
+            '/api_req_mission/start': [kcsapi.model.NullHandler()],
+            # Furnitures
+            # Not interested in furniture configuration.
+            '/api_get_master/furniture': [kcsapi.model.NullHandler()],
+            '/api_get_member/furniture': [kcsapi.model.NullHandler()],
+            # Maparea
+            # Delivers only names.
+            '/api_get_master/maparea': [kcsapi.model.NullHandler()],
+            # Log
+            # Almost useless.
+            '/api_get_member/actionlog': [kcsapi.model.NullHandler()],
         }
 
     def reload_handlers(self):
