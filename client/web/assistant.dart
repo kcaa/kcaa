@@ -30,7 +30,7 @@ class Assistant extends PolymerElement {
   Uri serverReloadKCSAPIModules;
 
   // Client status.
-  @observable String screen = "不明";
+  @observable String screen;
 
   // Debug information.
   @observable String debugInfo;
