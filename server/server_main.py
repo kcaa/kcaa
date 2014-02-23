@@ -1,13 +1,33 @@
 #!/usr/bin/env python
 
+import datetime
+import logging
 import multiprocessing
 import sys
 
 import kcaa
 
 
+class ShortLogFormatter(logging.Formatter):
+
+    def format(self, record):
+        now = datetime.datetime.now()
+        return '{} {:5s}: {}'.format(now.strftime('%H:%M:%S'),
+                                     record.levelname[:5],
+                                     record.getMessage())
+
+
 def main(argv):
     args = kcaa.flags.parse_args(argv[1:])
+
+    # Log to stdout.
+    logger = logging.getLogger('kcaa')
+    logger.setLevel(logging.DEBUG)
+    handler = logging.StreamHandler(sys.stderr)
+    handler.setLevel(logging.DEBUG)
+    handler.setFormatter(ShortLogFormatter())
+    logger.addHandler(handler)
+
     p = multiprocessing.Process(target=kcaa.controller.control, args=(args,))
     p.start()
     p.join()

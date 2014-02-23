@@ -127,7 +127,7 @@ class KCSAPIHandler(object):
             self._logger.debug('Accessed KCSAPI: {}'.format(api_name))
         except KeyError:
             handlers = [kcsapi.model.DefaultHandler(api_name)]
-            self._logger.debug('Unknown KCSAPI: {}'.format(api_name))
+            self._logger.debug('Unknown KCSAPI:  {}'.format(api_name))
         for handler in handlers:
             object_type = handler.__name__
             old_obj = self.objects.get(object_type)
