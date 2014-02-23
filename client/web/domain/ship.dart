@@ -33,6 +33,9 @@ class Ship {
   int hp, maxHp;
   String hpPercentage;
   int armor, enhancedArmor, maxArmor;
+  int firepower, enhancedFirepower, maxFirepower;
+  int thunderstroke, enhancedThunderstroke, maxThunderstroke;
+  int antiAir, enhancedAntiAir, maxAntiAir;
   String armorClass, firepowerClass, thunderstrokeClass, antiAirClass;
   String stateClass;
 
@@ -51,11 +54,28 @@ class Ship {
         armor = data["armor"]["current"],
         enhancedArmor =
           data["armor"]["baseline"] + data["enhanced_ability"]["armor"],
-        maxArmor = data["armor"]["maximum"] {
+        maxArmor = data["armor"]["maximum"],
+        firepower = data["firepower"]["current"],
+        enhancedFirepower =
+          data["firepower"]["baseline"] + data["enhanced_ability"]["firepower"],
+        maxFirepower = data["firepower"]["maximum"],
+        thunderstroke = data["thunderstroke"]["current"],
+        enhancedThunderstroke =
+          data["thunderstroke"]["baseline"] +
+          data["enhanced_ability"]["thunderstroke"],
+        maxThunderstroke = data["thunderstroke"]["maximum"],
+        antiAir = data["anti_air"]["current"],
+        enhancedAntiAir =
+          data["anti_air"]["baseline"] + data["enhanced_ability"]["anti_air"],
+        maxAntiAir = data["anti_air"]["maximum"] {
     fuelPercentage = (100.0 * fuel / fuelCapacity).toStringAsFixed(0);
     ammoPercentage = (100.0 * ammo / ammoCapacity).toStringAsFixed(0);
     hpPercentage = (100.0 * hp / maxHp).toStringAsFixed(0);
     armorClass = enhancedArmor == maxArmor ? "fullyEnhanced" : "";
+    firepowerClass = enhancedFirepower == maxFirepower ? "fullyEnhanced" : "";
+    thunderstrokeClass =
+        enhancedThunderstroke == maxThunderstroke ? "fullyEnhanced" : "";
+    antiAirClass = enhancedAntiAir == maxAntiAir ? "fullyEnhanced" : "";
   }
 }
 

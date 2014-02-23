@@ -183,9 +183,20 @@
                   <div>{{ship.armor}}</div>
                   <div>{{ship.enhancedArmor}}/{{ship.maxArmor}}</div>
                 </td>
-                <td></td>
-                <td></td>
-                <td></td>
+                <td class="numberColumn {{ship.firepowerClass}}">
+                  <div>{{ship.firepower}}</div>
+                  <div>{{ship.enhancedFirepower}}/{{ship.maxFirepower}}</div>
+                </td>
+                <td class="numberColumn {{ship.thunderstrokeClass}}">
+                  <div>{{ship.thunderstroke}}</div>
+                  <div>
+                    {{ship.enhancedThunderstroke}}/{{ship.maxThunderstroke}}
+                  </div>
+                </td>
+                <td class="numberColumn {{ship.antiAirClass}}">
+                  <div>{{ship.antiAir}}</div>
+                  <div>{{ship.enhancedAntiAir}}/{{ship.maxAntiAir}}</div>
+                </td>
                 <td>パディング</td>
               </tr>
             </tbody>
