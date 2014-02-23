@@ -58,8 +58,8 @@ class MissionList(model.KCAAObject):
                                        element_type=Mission)
     """Mission instances."""
 
-    def update(self, api_name, response):
-        super(MissionList, self).update(api_name, response)
+    def update(self, api_name, response, objects):
+        super(MissionList, self).update(api_name, response, objects)
         if api_name == '/api_get_master/mission':
             self.update_api_get_master_mission(response)
         elif (api_name == '/api_get_member/deck' or

@@ -51,8 +51,8 @@ class Screen(model.KCAAObject):
         '/api_start': SCREEN_SPECIAL_START,
     }
 
-    def update(self, api_name, response):
-        super(Screen, self).update(api_name, response)
+    def update(self, api_name, response, objects):
+        super(Screen, self).update(api_name, response, objects)
         # Use the previous screen and API name to guess the current screen.
         if api_name in Screen.API_SCREEN_TO_SCREEN_MAP:
             for transition_rule in Screen.API_SCREEN_TO_SCREEN_MAP[api_name]:

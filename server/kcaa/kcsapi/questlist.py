@@ -60,8 +60,8 @@ class QuestList(model.KCAAObject):
                                      element_type=Quest)
     """Quest instances."""
 
-    def update(self, api_name, response):
-        super(QuestList, self).update(api_name, response)
+    def update(self, api_name, response, objects):
+        super(QuestList, self).update(api_name, response, objects)
         data = jsonobject.parse(response['api_data'])
         self.count = data.api_count
         self.count_undertaken = data.api_exec_count

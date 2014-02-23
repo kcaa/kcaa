@@ -54,6 +54,7 @@ class KCSAPIHandler(object):
             '/api_get_member/book2': [kcsapi.model.NullHandler()],
             # Ships
             '/api_get_master/ship': [kcsapi.ship.ShipDefinitionList],
+            '/api_get_member/ship': [kcsapi.ship.ShipList],
             # Decks (Fleets)
             # Not sure what's the difference between /deck and /deck_port. They
             # share the same data structure.
@@ -139,14 +140,14 @@ class KCSAPIHandler(object):
             object_type = handler.__name__
             old_obj = self.objects.get(object_type)
             if not old_obj:
-                obj = handler(api_name, response, self.debug)
+                obj = handler(api_name, response, self.objects, self.debug)
                 # Handler may return None in case there is no need to handle
                 # the KCSAPI response.
                 if obj:
                     self.objects[object_type] = obj
                     yield obj
             else:
-                old_obj.update(api_name, response)
+                old_obj.update(api_name, response, self.objects)
                 yield old_obj
 
     def get_updated_objects(self):

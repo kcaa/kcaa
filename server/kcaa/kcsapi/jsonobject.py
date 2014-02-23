@@ -117,7 +117,8 @@ class JSONSerializableObject(object):
         return json.dumps(self, *args, cls=_JSONSerializableObjectEncoder,
                           **kwargs)
 
-    def _serialize_json(self):
+    def convert_to_dict(self):
+        """TODO: Document and test."""
         data = {}
         for key in dir(self):
             attr = None
@@ -227,7 +228,7 @@ class _JSONSerializableObjectEncoder(json.JSONEncoder):
 
     def default(self, obj):
         try:
-            return obj._serialize_json()
+            return obj.convert_to_dict()
         except:
             super(_JSONSerializableObjectEncoder, self).default(obj)
 
