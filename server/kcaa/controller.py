@@ -60,6 +60,7 @@ def control(args):
                 if command == COMMAND_RELOAD_KCSAPI:
                     reload(kcsapi_util)
                     kcsapi_handler = kcsapi_util.KCSAPIHandler(har_manager)
+                    kcsapi_handler.reload_handlers()
             try:
                 for obj in kcsapi_handler.get_updated_objects():
                     server_conn.send((obj.object_type, obj.json()))
@@ -73,6 +74,7 @@ def control(args):
                 traceback.print_exc()
                 reload(kcsapi_util)
                 kcsapi_handler = kcsapi_util.KCSAPIHandler(har_manager)
+                kcsapi_handler.reload_handlers()
     except:
         traceback.print_exc()
     to_exit.set()
