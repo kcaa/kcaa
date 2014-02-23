@@ -136,6 +136,10 @@
             <col width="50px">
             <col width="50px">
             <col width="50px">
+            <col width="50px">
+            <col width="50px">
+            <col width="50px">
+            <col width="50px">
             <col>
             <thead>
               <tr>
@@ -143,6 +147,10 @@
                 <th>レベル</th>
                 <th>燃料</th>
                 <th>弾薬</th>
+                <th>戦意</th>
+                <th>HP</th>
+                <th>装甲</th>
+                <th>回避</th>
                 <th>パディング</th>
               </tr>
             </thead>
@@ -153,15 +161,22 @@
                   <div class="title">{{ship.name}}</div>
                   <div>{{ship.shipType}}</div>
                 </td>
-                <td>{{ship.level}}</td>
-                <td class="labelColumn">
+                <td class="numberColumn">{{ship.level}}</td>
+                <td class="numberColumn">
                   <div>{{ship.fuelPercentage}}%</div>
                   <div>{{ship.fuelCapacity}}</div>
                 </td>
-                <td class="labelColumn">
+                <td class="numberColumn">
                   <div>{{ship.ammoPercentage}}%</div>
                   <div>{{ship.ammoCapacity}}</div>
                 </td>
+                <td class="numberColumn">{{ship.vitality}}</td>
+                <td class="numberColumn">
+                  <div>{{ship.hpPercentage}}%</div>
+                  <div>{{ship.hp}}/{{ship.maxHp}}</div>
+                </td>
+                <td></td>
+                <td></td>
                 <td></td>
               </tr>
             </tbody>

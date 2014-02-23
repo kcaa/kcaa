@@ -26,8 +26,12 @@ class Ship {
   String name;
   String shipType;
   int level;
+  int fuel, fuelCapacity;
+  int ammo, ammoCapacity;
   String fuelPercentage, ammoPercentage;
-  int fuelCapacity, ammoCapacity;
+  int vitality;
+  int hp, maxHp;
+  String hpPercentage;
   String stateClass;
 
   Ship(Map<String, dynamic> data)
@@ -35,15 +39,17 @@ class Ship {
         name = data["name"],
         shipType = SHIP_TYPE_MAP[data["ship_type"]],
         level = data["level"],
-        fuelPercentage =
-          (100.0 * data["loaded_resource"]["fuel"] /
-              data["resource_capacity"]["fuel"]).toStringAsFixed(0),
-        ammoPercentage =
-          (100.0 * data["loaded_resource"]["ammo"] /
-              data["resource_capacity"]["ammo"]).toStringAsFixed(0),
+        fuel = data["loaded_resource"]["fuel"],
         fuelCapacity = data["resource_capacity"]["fuel"],
+        ammo = data["loaded_resource"]["ammo"],
         ammoCapacity = data["resource_capacity"]["ammo"],
+        vitality = data["vitality"],
+        hp = data["hitpoint"]["current"],
+        maxHp = data["hitpoint"]["maximum"],
         stateClass = "" {
+    fuelPercentage = (100.0 * fuel / fuelCapacity).toStringAsFixed(0);
+    ammoPercentage = (100.0 * ammo / ammoCapacity).toStringAsFixed(0);
+    hpPercentage = (100.0 * hp / maxHp).toStringAsFixed(0);
   }
 }
 
