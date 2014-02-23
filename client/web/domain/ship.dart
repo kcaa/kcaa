@@ -32,6 +32,7 @@ class Ship {
   int vitality;
   int hp, maxHp;
   String hpPercentage;
+  int armor, enhancedArmor, maxArmor;
   String stateClass;
 
   Ship(Map<String, dynamic> data)
@@ -46,7 +47,10 @@ class Ship {
         vitality = data["vitality"],
         hp = data["hitpoint"]["current"],
         maxHp = data["hitpoint"]["maximum"],
-        stateClass = "" {
+        armor = data["armor"]["current"],
+        enhancedArmor =
+          data["armor"]["baseline"] + data["enhanced_ability"]["armor"],
+        maxArmor = data["armor"]["maximum"] {
     fuelPercentage = (100.0 * fuel / fuelCapacity).toStringAsFixed(0);
     ammoPercentage = (100.0 * ammo / ammoCapacity).toStringAsFixed(0);
     hpPercentage = (100.0 * hp / maxHp).toStringAsFixed(0);

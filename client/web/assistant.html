@@ -140,6 +140,8 @@
             <col width="50px">
             <col width="50px">
             <col width="50px">
+            <col width="50px">
+            <col width="50px">
             <col>
             <thead>
               <tr>
@@ -150,7 +152,9 @@
                 <th>戦意</th>
                 <th>HP</th>
                 <th>装甲</th>
-                <th>回避</th>
+                <th>火力</th>
+                <th>雷装</th>
+                <th>対空</th>
                 <th>パディング</th>
               </tr>
             </thead>
@@ -175,9 +179,14 @@
                   <div>{{ship.hpPercentage}}%</div>
                   <div>{{ship.hp}}/{{ship.maxHp}}</div>
                 </td>
+                <td class="numberColumn">
+                  <div>{{ship.armor}}</div>
+                  <div>{{ship.enhancedArmor}}/{{ship.maxArmor}}</div>
+                </td>
                 <td></td>
                 <td></td>
                 <td></td>
+                <td>パディング</td>
               </tr>
             </tbody>
           </table>
@@ -206,4 +215,3 @@
   </template>
   <script type="application/dart" src="assistant.dart"></script>
 </polymer-element>
-
