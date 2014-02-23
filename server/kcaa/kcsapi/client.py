@@ -27,6 +27,9 @@ class Screen(model.KCAAObject):
     SCREEN_PORT_EXPEDITION = 207
     SCREEN_PORT_PRACTICE = 208
     SCREEN_PORT_MISSION = 209
+    SCREEN_PRACTICE = 4
+    SCREEN_PRACTICE_BATTLE = 400
+    SCREEN_PRACTICE_BATTLERESULT = 401
 
     API_SCREEN_TO_SCREEN_MAP = {
     }
@@ -38,6 +41,8 @@ class Screen(model.KCAAObject):
         '/api_get_member/deck_port': SCREEN_PORT_MAIN,
         '/api_get_member/practice': SCREEN_PORT_PRACTICE,
         '/api_get_member/questlist': SCREEN_PORT_QUESTLIST,
+        '/api_req_practice/battle': SCREEN_PRACTICE_BATTLE,
+        '/api_req_practice/battle_result': SCREEN_PRACTICE_BATTLERESULT,
         '/api_start': SCREEN_SPECIAL_START,
     }
 
