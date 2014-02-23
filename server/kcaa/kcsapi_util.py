@@ -52,6 +52,8 @@ class KCSAPIHandler(object):
             '/api_start': [kcsapi.model.NullHandler()],
             # Encyclopedia
             '/api_get_member/book2': [kcsapi.model.NullHandler()],
+            # Ships
+            '/api_get_master/ship': [kcsapi.ship.ShipDefinitionList],
             # Decks (Fleets)
             # Not sure what's the difference between /deck and /deck_port. They
             # share the same data structure.

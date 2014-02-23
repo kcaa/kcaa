@@ -6,6 +6,7 @@ import missionlist
 import model
 import questlist
 import resource
+import ship
 
 
 def reload_modules():
@@ -68,6 +69,7 @@ def main():
     doctest.testmod(model)
     doctest.testmod(questlist)
     doctest.testmod(resource)
+    doctest.testmod(ship)
     import os.path
     import pytest
     pytest.main(args=[os.path.dirname(__file__)])
