@@ -16,7 +16,7 @@ class Quest(jsonobject.JSONSerializableObject):
     """Description."""
     category = jsonobject.ReadonlyJSONProperty('category', value_type=int)
     """Category."""
-    CATEGORY_FORMULATION = 1
+    CATEGORY_ORGANIZING = 1
     CATEGORY_EXPEDITION = 2
     CATEGORY_PRACTICE = 3
     CATEGORY_MISSION = 4
