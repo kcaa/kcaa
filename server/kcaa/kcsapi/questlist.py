@@ -67,6 +67,8 @@ class QuestList(model.KCAAObject):
         self.count_undertaken = data.api_exec_count
         quests = []
         for quest_data in data.api_list:
+            if quest_data == -1:
+                continue
             progress = (0, 50, 80)[quest_data.api_progress_flag]
             if quest_data.api_state == Quest.STATE_COMPLETE:
                 progress = 100
