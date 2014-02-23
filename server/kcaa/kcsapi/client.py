@@ -29,7 +29,6 @@ class Screen(model.KCAAObject):
     SCREEN_PORT_MISSION = 209
 
     API_SCREEN_TO_SCREEN_MAP = {
-        '/api_get_member/questlist': [(SCREEN_PORT, SCREEN_PORT_QUESTLIST)],
     }
     API_TO_SCREEN_MAP = {
         '/api_get_master/mapinfo': SCREEN_PORT_EXPEDITION,
@@ -38,6 +37,7 @@ class Screen(model.KCAAObject):
         '/api_get_member/book2': SCREEN_PORT_ENCYCLOPEDIA,
         '/api_get_member/deck_port': SCREEN_PORT_MAIN,
         '/api_get_member/practice': SCREEN_PORT_PRACTICE,
+        '/api_get_member/questlist': [(SCREEN_PORT, SCREEN_PORT_QUESTLIST)],
         '/api_start': SCREEN_SPECIAL_START,
     }
 
