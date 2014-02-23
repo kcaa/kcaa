@@ -30,11 +30,7 @@ class KCSAPIHandler(object):
 
         The reason to define handlers here, not in a module level, is to
         refresh the handler class objects to reflect what's in source files
-        under kcsapi/ directory. Note that this list itself is not reloaded;
-        if you want to add a handler or change something, you still need to
-        restart the server. (Or you can change the controller code to reload
-        this module as well, if you prefer. But reloading module is tricky, so
-        I'd recommend you not to abuse too much.)
+        under kcsapi/ directory.
         """
         # API URLs can be classified into 4 classes:
         # - /api_get_master/FOO: Get the general definition about FOO. User
