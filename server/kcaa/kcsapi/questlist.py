@@ -2,18 +2,7 @@
 
 import jsonobject
 import model
-
-
-class Rewards(jsonobject.JSONSerializableObject):
-
-    fuel = jsonobject.ReadonlyJSONProperty('fuel', value_type=int)
-    """Fuel."""
-    ammo = jsonobject.ReadonlyJSONProperty('ammo', value_type=int)
-    """Ammo."""
-    steel = jsonobject.ReadonlyJSONProperty('steel', value_type=int)
-    """Steel."""
-    bauxite = jsonobject.ReadonlyJSONProperty('bauxite', value_type=int)
-    """Bauxite."""
+import resource
 
 
 class Quest(jsonobject.JSONSerializableObject):
@@ -50,7 +39,8 @@ class Quest(jsonobject.JSONSerializableObject):
     CYCLE_ONCE = 1
     CYCLE_DAILY = 2
     CYCLE_WEEKLY = 3
-    rewards = jsonobject.ReadonlyJSONProperty('rewards', value_type=Rewards)
+    rewards = jsonobject.ReadonlyJSONProperty('rewards',
+                                              value_type=resource.Resource)
     """Rewards."""
 
 
@@ -89,7 +79,7 @@ class QuestList(model.KCAAObject):
                 progress=progress,
                 bonus_type=quest_data.api_bonus_flag,
                 cycle=quest_data.api_type,
-                rewards=Rewards(
+                rewards=resource.Resource(
                     fuel=quest_data.api_get_material[0],
                     ammo=quest_data.api_get_material[1],
                     steel=quest_data.api_get_material[2],

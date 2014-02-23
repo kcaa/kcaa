@@ -32,8 +32,8 @@ class Mission {
   int state;
   String stateClass;
   int time;
-  double fuelConsumption;
-  double ammoConsumption;
+  int fuelConsumption;
+  int ammoConsumption;
   int undertakingFleetId;
   String undertakingFleetName;
   DateTime eta;
@@ -48,8 +48,10 @@ class Mission {
         state = data["state"],
         stateClass = STATE_CLASS_MAP[data["state"]],
         time = data["time"],
-        fuelConsumption = data["fuel_consumption"],
-        ammoConsumption = data["ammo_consumption"] {
+        fuelConsumption =
+          (data["consumption"]["fuel"] * 100).toStringAsFixed(0),
+        ammoConsumption =
+          (data["consumption"]["ammo"] * 100).toStringAsFixed(0) {
     // Undertaking fleet.
     if (data["undertaking_fleet"] != null) {
       undertakingFleetId = data["undertaking_fleet"][0];

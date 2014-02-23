@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 
-import numbers
-
 import jsonobject
 import model
+import resource
 
 
 class Mission(jsonobject.JSONSerializableObject):
@@ -39,12 +38,9 @@ class Mission(jsonobject.JSONSerializableObject):
     STATE_COMPLETE = 2
     time = jsonobject.ReadonlyJSONProperty('time', value_type=int)
     """Required time to complete in minutes."""
-    ammo_consumption = jsonobject.ReadonlyJSONProperty(
-        'ammo_consumption', 0, value_type=numbers.Number)
-    """Ammo consumption relative to the fleet capacity. Ranges from 0 to 1."""
-    fuel_consumption = jsonobject.ReadonlyJSONProperty(
-        'fuel_consumption', 0, value_type=numbers.Number)
-    """Fuel consumption relative to the fleet capacity. Ranges from 0 to 1."""
+    consumption = jsonobject.ReadonlyJSONProperty(
+        'consumption', value_type=resource.ResourcePercentage)
+    """Resource consumption percentage relative to the fleet capacity."""
     bonus_items = jsonobject.ReadonlyJSONProperty('bonus_items')
     """TODO: Bonus items?"""
     undertaking_fleet = jsonobject.JSONProperty('undertaking_fleet',
@@ -87,8 +83,9 @@ class MissionList(model.KCAAObject):
                 maparea=mission_data.api_maparea_id,
                 state=mission_data.api_state,
                 time=mission_data.api_time,
-                ammo_consumption=mission_data.api_use_bull,
-                fuel_consumption=mission_data.api_use_fuel)
+                consumption=resource.ResourcePercentage(
+                    fuel=float(mission_data.api_use_fuel),
+                    ammo=float(mission_data.api_use_bull)))
             fleet = mission_to_fleet.get(mission.id)
             if fleet:
                 mission.undertaking_fleet = fleet[0]

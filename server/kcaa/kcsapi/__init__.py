@@ -5,6 +5,7 @@ import jsonobject
 import missionlist
 import model
 import questlist
+import resource
 
 
 def reload_modules():
@@ -66,6 +67,7 @@ def main():
     doctest.testmod(missionlist)
     doctest.testmod(model)
     doctest.testmod(questlist)
+    doctest.testmod(resource)
     import os.path
     import pytest
     pytest.main(args=[os.path.dirname(__file__)])
