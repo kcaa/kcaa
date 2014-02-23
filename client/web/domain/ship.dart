@@ -26,6 +26,8 @@ class Ship {
   String name;
   String shipType;
   int level;
+  String fuelPercentage, ammoPercentage;
+  int fuelCapacity, ammoCapacity;
   String stateClass;
 
   Ship(Map<String, dynamic> data)
@@ -33,6 +35,14 @@ class Ship {
         name = data["name"],
         shipType = SHIP_TYPE_MAP[data["ship_type"]],
         level = data["level"],
+        fuelPercentage =
+          (100.0 * data["loaded_resource"]["fuel"] /
+              data["resource_capacity"]["fuel"]).toStringAsFixed(0),
+        ammoPercentage =
+          (100.0 * data["loaded_resource"]["ammo"] /
+              data["resource_capacity"]["ammo"]).toStringAsFixed(0),
+        fuelCapacity = data["resource_capacity"]["fuel"],
+        ammoCapacity = data["resource_capacity"]["ammo"],
         stateClass = "" {
   }
 }
@@ -40,7 +50,7 @@ class Ship {
 void handleShipList(Assistant assistant, Map<String, dynamic> data) {
   assistant.ships.clear();
   var ships = new List.from(data["ships"].values, growable: false);
-  ships.sort((x, y) => x["id"].compareTo(y["id"]));
+  ships.sort((x, y) => -x["level"].compareTo(y["level"]));
   for (var shipData in ships) {
     assistant.ships.add(new Ship(shipData));
   }

@@ -133,21 +133,36 @@
           <h3>艦船</h3>
           <table>
             <col width="70px">
-            <col width="70px">
             <col width="50px">
+            <col width="50px">
+            <col width="50px">
+            <col>
             <thead>
               <tr>
                 <th>名前</th>
-                <th>種別</th>
                 <th>レベル</th>
+                <th>燃料</th>
+                <th>弾薬</th>
+                <th>パディング</th>
               </tr>
             </thead>
             <tbody>
               <tr template repeat="{{ship in ships}}"
                   class="{{ship.stateClass}}">
-                <td>{{ship.name}}</td>
-                <td>{{ship.shipType}}</td>
+                <td>
+                  <div class="title">{{ship.name}}</div>
+                  <div>{{ship.shipType}}</div>
+                </td>
                 <td>{{ship.level}}</td>
+                <td class="labelColumn">
+                  <div>{{ship.fuelPercentage}}%</div>
+                  <div>{{ship.fuelCapacity}}</div>
+                </td>
+                <td class="labelColumn">
+                  <div>{{ship.ammoPercentage}}%</div>
+                  <div>{{ship.ammoCapacity}}</div>
+                </td>
+                <td></td>
               </tr>
             </tbody>
           </table>
