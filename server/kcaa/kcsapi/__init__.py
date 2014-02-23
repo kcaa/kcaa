@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import client
 import jsonobject
 import missionlist
 import model
@@ -60,6 +61,7 @@ def reload_modules():
 
 def main():
     import doctest
+    doctest.testmod(client)
     doctest.testmod(jsonobject)
     doctest.testmod(missionlist)
     doctest.testmod(model)

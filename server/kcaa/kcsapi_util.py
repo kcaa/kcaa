@@ -49,10 +49,11 @@ class KCSAPIHandler(object):
         self.kcsapi_handlers = {
             # Initialization, or account information
             # /api_start seems delivering information required to render
-            # maparea.
+            # maparea. It's still useful for deciding what screen the client is
+            # showing.
             '/api_auth_member/logincheck': [kcsapi.model.NullHandler()],
             '/api_req_member/get_incentive': [kcsapi.model.NullHandler()],
-            '/api_start': [kcsapi.model.NullHandler()],
+            '/api_start': [kcsapi.client.Screen],
             # Decks (Fleets)
             # Not sure what's the difference between /deck and /deck_port. They
             # share the same data structure.
@@ -60,7 +61,8 @@ class KCSAPIHandler(object):
             # mission, and /deck_port when a user comes back to the start
             # screen (which is called a port).
             '/api_get_member/deck': [kcsapi.missionlist.MissionList],
-            '/api_get_member/deck_port': [kcsapi.missionlist.MissionList],
+            '/api_get_member/deck_port': [kcsapi.client.Screen,
+                                          kcsapi.missionlist.MissionList],
             # Quests
             '/api_get_member/questlist': [kcsapi.questlist.QuestList],
             '/api_req_quest/start': [kcsapi.model.NullHandler()],
