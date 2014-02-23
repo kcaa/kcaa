@@ -33,6 +33,7 @@ class Ship {
   int hp, maxHp;
   String hpPercentage;
   int armor, enhancedArmor, maxArmor;
+  String armorClass, firepowerClass, thunderstrokeClass, antiAirClass;
   String stateClass;
 
   Ship(Map<String, dynamic> data)
@@ -54,6 +55,7 @@ class Ship {
     fuelPercentage = (100.0 * fuel / fuelCapacity).toStringAsFixed(0);
     ammoPercentage = (100.0 * ammo / ammoCapacity).toStringAsFixed(0);
     hpPercentage = (100.0 * hp / maxHp).toStringAsFixed(0);
+    armorClass = enhancedArmor == maxArmor ? "fullyEnhanced" : "";
   }
 }
 
