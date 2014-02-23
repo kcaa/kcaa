@@ -197,8 +197,9 @@ class ShipDefinitionList(model.KCAAObject):
                 sort_order=ship_data.api_sortno)
             # Unknown fields:
             #   api_atap, api_bakk, api_baku,
-            #   api_enqflg, api_gumax, api_houk, api_houm, api_ndock_item,
-            #   api_raik, api_raim, api_sakb, api_systems, api_touchs
+            #   api_enqflg, api_gumax, api_houk, api_houm, api_member_id,
+            #   api_ndock_item, api_raik, api_raim, api_sakb, api_systems,
+            #   api_touchs
             # Suspicious fields:
             #   api_broken: Required resources and time to repair?
             #   api_cnum: Number in the ship class?
@@ -325,7 +326,7 @@ class ShipList(model.KCAAObject):
                     firepower=ship_data.api_kyouka[0],
                     thunderstroke=ship_data.api_kyouka[1],
                     anti_air=ship_data.api_kyouka[2],
-                    armor=ship_data.api_kyouka[0]),
+                    armor=ship_data.api_kyouka[3]),
                 'sort_order': ship_data.api_sortno})
             self.ships[ship_def['id']] = Ship(**ship_def)
             updated_ids.add(ship_def['id'])
