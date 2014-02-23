@@ -49,7 +49,9 @@ class KCSAPIHandler(object):
             # showing.
             '/api_auth_member/logincheck': [kcsapi.model.NullHandler()],
             '/api_req_member/get_incentive': [kcsapi.model.NullHandler()],
-            '/api_start': [kcsapi.client.Screen],
+            '/api_start': [kcsapi.model.NullHandler()],
+            # Encyclopedia
+            '/api_get_member/book2': [kcsapi.model.NullHandler()],
             # Decks (Fleets)
             # Not sure what's the difference between /deck and /deck_port. They
             # share the same data structure.
@@ -57,8 +59,7 @@ class KCSAPIHandler(object):
             # mission, and /deck_port when a user comes back to the start
             # screen (which is called a port).
             '/api_get_member/deck': [kcsapi.missionlist.MissionList],
-            '/api_get_member/deck_port': [kcsapi.client.Screen,
-                                          kcsapi.missionlist.MissionList],
+            '/api_get_member/deck_port': [kcsapi.missionlist.MissionList],
             # Quests
             '/api_get_member/questlist': [kcsapi.questlist.QuestList],
             '/api_req_quest/start': [kcsapi.model.NullHandler()],
@@ -66,6 +67,8 @@ class KCSAPIHandler(object):
             # Missions
             '/api_get_master/mission': [kcsapi.missionlist.MissionList],
             '/api_req_mission/start': [kcsapi.model.NullHandler()],
+            # Items
+            #'/api_get_member/useitem': [],
             # Furnitures
             # Not interested in furniture configuration.
             '/api_get_master/furniture': [kcsapi.model.NullHandler()],
@@ -77,6 +80,10 @@ class KCSAPIHandler(object):
             # Almost useless.
             '/api_get_member/actionlog': [kcsapi.model.NullHandler()],
         }
+        # Eager handlers accept all KCSAPI responses regardless of API URL.
+        self.kcsapi_eager_handlers = [
+            kcsapi.client.Screen,
+        ]
 
     def reload_handlers(self):
         """Reload KCSAPI handler modules to reflect possible bug fixes in
@@ -126,7 +133,7 @@ class KCSAPIHandler(object):
         except KeyError:
             handlers = [kcsapi.model.DefaultHandler(api_name)]
             self._logger.debug('Unknown KCSAPI:  {}'.format(api_name))
-        for handler in handlers:
+        for handler in handlers + self.kcsapi_eager_handlers:
             object_type = handler.__name__
             old_obj = self.objects.get(object_type)
             if not old_obj:

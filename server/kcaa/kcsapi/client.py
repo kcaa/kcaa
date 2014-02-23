@@ -11,17 +11,44 @@ class Screen(model.KCAAObject):
     (Kancolle Flash player) is currently showing to the user.
     """
 
-    screen = jsonobject.JSONProperty('screen', value_type=int)
+    SCREEN_UNKNOWN = 0
+    screen = jsonobject.JSONProperty('screen', SCREEN_UNKNOWN, value_type=int)
     """Current screen."""
     SCREEN_START = 1
-    SCREEN_PORT = 100
+    SCREEN_PORT = 2
+    SCREEN_PORT_MAIN = 200
+    SCREEN_PORT_RECORD = 201
+    SCREEN_PORT_ENCYCLOPEDIA = 202
+    SCREEN_PORT_ITEMRACK = 203
+    SCREEN_PORT_FURNITURE = 204
+    SCREEN_PORT_QUESTLIST = 205
+    SCREEN_PORT_ITEMSHOP = 206
 
+    API_SCREEN_TO_SCREEN_MAP = {
+        '/api_get_member/questlist': [(SCREEN_PORT, SCREEN_PORT_QUESTLIST)],
+        '/api_get_member/useitem': [(SCREEN_PORT, SCREEN_PORT_ITEMRACK)],
+    }
     API_TO_SCREEN_MAP = {
+        '/api_get_master/payitem': SCREEN_PORT_ITEMSHOP,
+        '/api_get_member/book2': SCREEN_PORT_ENCYCLOPEDIA,
+        '/api_get_member/deck_port': SCREEN_PORT_MAIN,
         '/api_start': SCREEN_START,
-        '/api_get_member/deck_port': SCREEN_PORT,
     }
 
     def update(self, api_name, response):
         super(Screen, self).update(api_name, response)
-        if api_name in Screen.API_TO_SCREEN_MAP:
+        # Use the previous screen and API name to guess the current screen.
+        if api_name in Screen.API_SCREEN_TO_SCREEN_MAP:
+            for transition_rule in Screen.API_SCREEN_TO_SCREEN_MAP[api_name]:
+                if Screen.in_category(self.screen, transition_rule[0]):
+                    self.screen = transition_rule[1]
+                    break
+        # Some API names are unique enough to identify the current screen.
+        elif api_name in Screen.API_TO_SCREEN_MAP:
             self.screen = Screen.API_TO_SCREEN_MAP[api_name]
+
+    @staticmethod
+    def in_category(screen, category):
+        while screen > category:
+            screen /= 100
+        return screen == category
