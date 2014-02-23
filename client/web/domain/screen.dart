@@ -2,8 +2,8 @@ part of kcaa;
 
 class Screen {
   static final Map<int, String> SCREEN_MAP = <int, String>{
-    0: "スタート画面",
-    1: "母港",
+    1: "スタート画面",
+    100: "母港",
   };
 }
 

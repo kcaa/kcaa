@@ -13,8 +13,8 @@ class Screen(model.KCAAObject):
 
     screen = jsonobject.JSONProperty('screen', value_type=int)
     """Current screen."""
-    SCREEN_START = 0
-    SCREEN_PORT = 1
+    SCREEN_START = 1
+    SCREEN_PORT = 100
 
     API_TO_SCREEN_MAP = {
         '/api_start': SCREEN_START,
