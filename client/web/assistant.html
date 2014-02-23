@@ -132,17 +132,17 @@
         <div class="board">
           <h3>艦船</h3>
           <table>
-            <col width="80px">
-            <col width="50px">
-            <col width="50px">
-            <col width="50px">
-            <col width="50px">
-            <col width="50px">
-            <col width="50px">
-            <col width="50px">
-            <col width="50px">
-            <col width="50px">
             <col>
+            <col width="50px">
+            <col width="50px">
+            <col width="50px">
+            <col width="50px">
+            <col width="50px">
+            <col width="50px">
+            <col width="50px">
+            <col width="50px">
+            <col width="50px">
+            <col width="70px">
             <thead>
               <tr>
                 <th>名前</th>
@@ -155,7 +155,7 @@
                 <th>火力</th>
                 <th>雷装</th>
                 <th>対空</th>
-                <th>パディング</th>
+                <th>所属艦隊</th>
               </tr>
             </thead>
             <tbody>
@@ -165,7 +165,12 @@
                   <div class="title">{{ship.name}}</div>
                   <div>{{ship.shipType}}</div>
                 </td>
-                <td class="numberColumn">{{ship.level}}</td>
+                <td class="numberColumn {{ship.levelClass}}">
+                  <div>{{ship.level}}</div>
+                  <template if="{{ship.upgradeLevel != 0}}">
+                    <div>改: {{ship.upgradeLevel}}</div>
+                  </template>
+                </td>
                 <td class="numberColumn">
                   <div>{{ship.fuelPercentage}}%</div>
                   <div>{{ship.fuelCapacity}}</div>
@@ -197,7 +202,7 @@
                   <div>{{ship.antiAir}}</div>
                   <div>{{ship.enhancedAntiAir}}/{{ship.maxAntiAir}}</div>
                 </td>
-                <td>パディング</td>
+                <td>TODO</td>
               </tr>
             </tbody>
           </table>

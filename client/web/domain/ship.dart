@@ -25,7 +25,8 @@ class Ship {
   int id;
   String name;
   String shipType;
-  int level;
+  int level, upgradeLevel;
+  String levelClass;
   int fuel, fuelCapacity;
   int ammo, ammoCapacity;
   String fuelPercentage, ammoPercentage;
@@ -44,6 +45,7 @@ class Ship {
         name = data["name"],
         shipType = SHIP_TYPE_MAP[data["ship_type"]],
         level = data["level"],
+        upgradeLevel = data["upgrade_level"],
         fuel = data["loaded_resource"]["fuel"],
         fuelCapacity = data["resource_capacity"]["fuel"],
         ammo = data["loaded_resource"]["ammo"],
@@ -68,6 +70,7 @@ class Ship {
         enhancedAntiAir =
           data["anti_air"]["baseline"] + data["enhanced_ability"]["anti_air"],
         maxAntiAir = data["anti_air"]["maximum"] {
+    levelClass = upgradeLevel != 0 && level >= upgradeLevel ? "upgradable" : "";
     fuelPercentage = (100.0 * fuel / fuelCapacity).toStringAsFixed(0);
     ammoPercentage = (100.0 * ammo / ammoCapacity).toStringAsFixed(0);
     hpPercentage = (100.0 * hp / maxHp).toStringAsFixed(0);

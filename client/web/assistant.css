@@ -187,10 +187,10 @@ td.labelColumn, td.labelColumn div, td.numberColumn, td.numberColumn div {
 td.labelColumn div, td.numberColumn div {
   width: 100%;
 }
-td.fullyEnhanced {
+td.upgradable, td.fullyEnhanced {
   font-weight: bold;
 }
-td.fullyEnhanced div:first-child:after {
+td.upgradable div:first-child:after, td.fullyEnhanced div:first-child:after {
   content: "✓";
 }
 .debugInfo {
