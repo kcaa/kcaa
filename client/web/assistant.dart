@@ -25,6 +25,7 @@ class Assistant extends PolymerElement {
   // Server URIs.
   Uri clientRoot;
   Uri serverRoot;
+  Uri serverGetObjects;
   Uri serverGetNewObjects;
   Uri serverGetObject;
   Uri serverReloadKCSAPIModules;
@@ -55,6 +56,7 @@ class Assistant extends PolymerElement {
   void enteredView() {
     clientRoot = Uri.parse(window.location.href);
     serverRoot = clientRoot.resolve("/");
+    serverGetObjects = serverRoot.resolve("get_objects");
     serverGetNewObjects = serverRoot.resolve("get_new_objects");
     serverGetObject = serverRoot.resolve("get_object");
     serverReloadKCSAPIModules = serverRoot.resolve("reload_kcsapi");
@@ -89,25 +91,30 @@ class Assistant extends PolymerElement {
   }
 
   void updateAvailableObjects() {
+    HttpRequest.getString(serverGetObjects.toString())
+      .then((String content) {
+        List<String> objectTypes = JSON.decode(content);
+        var newObjectFound = false;
+        for (var objectType in objectTypes) {
+          newObjectFound =
+              availableObjectSet.add(objectType) || newObjectFound;
+        }
+        if (newObjectFound) {
+          availableObjects.clear();
+          availableObjects.addAll(objectTypes);
+        }
+      });
+
     HttpRequest.getString(serverGetNewObjects.toString())
         .then((String content) {
-          List<String> newObjects = JSON.decode(content);
-          var newObjectFound = false;
-          for (var objectType in newObjects) {
-            newObjectFound =
-                availableObjectSet.add(objectType) || newObjectFound;
+          List<String> objectTypes = JSON.decode(content);
+          for (var objectType in objectTypes) {
             var handler = OBJECT_HANDLERS[objectType];
             if (handler != null) {
               getObject(objectType, false).then((Map<String, dynamic> data) {
                 handler(this, data);
               });
             }
-          }
-          if (newObjectFound) {
-            var sortedObjects = availableObjectSet.toList(growable: false);
-            sortedObjects.sort();
-            availableObjects.clear();
-            availableObjects.addAll(sortedObjects);
           }
         });
   }

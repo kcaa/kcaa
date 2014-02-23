@@ -15,6 +15,7 @@ DEVELOPMENT_PACKAGE = 'web'
 
 class KcaaHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
+    GET_OBJECTS = '/get_objects'
     GET_NEW_OBJECTS = '/get_new_objects'
     GET_OBJECT = '/get_object'
     RELOAD_KCSAPI = '/reload_kcsapi'
@@ -33,7 +34,9 @@ class KcaaHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
     def dispatch(self):
         o = urlparse.urlparse(self.path)
-        if o.path == KcaaHTTPRequestHandler.GET_NEW_OBJECTS:
+        if o.path == KcaaHTTPRequestHandler.GET_OBJECTS:
+            self.handle_get_objects(o)
+        elif o.path == KcaaHTTPRequestHandler.GET_NEW_OBJECTS:
             self.handle_get_new_objects(o)
         elif o.path == KcaaHTTPRequestHandler.GET_OBJECT:
             self.handle_get_object(o)
@@ -46,6 +49,16 @@ class KcaaHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         else:
             self.send_error(404, 'Unknown handler: {}'.format(self.path))
 
+    def handle_get_objects(self, o):
+        if self.command != 'GET':
+            self.send_error(501, 'Unknown method: {}'.format(self.command))
+            return
+        self.send_response(200)
+        self.send_header('Content-Type', 'text/json; charset=UTF-8')
+        self.end_headers()
+        self.wfile.write(json.dumps(sorted(list(
+            self.server.objects.iterkeys()))))
+
     def handle_get_new_objects(self, o):
         if self.command != 'GET':
             self.send_error(501, 'Unknown method: {}'.format(self.command))
@@ -53,7 +66,7 @@ class KcaaHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         self.send_response(200)
         self.send_header('Content-Type', 'text/json; charset=UTF-8')
         self.end_headers()
-        self.wfile.write(json.dumps(list(self.server.new_objects)))
+        self.wfile.write(json.dumps(sorted(list(self.server.new_objects))))
 
     def handle_get_object(self, o):
         if self.command != 'GET':
