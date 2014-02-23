@@ -9,6 +9,7 @@ import 'package:polymer/polymer.dart';
 
 part 'domain/missionlist.dart';
 part 'domain/questlist.dart';
+part 'domain/screen.dart';
 part 'util.dart';
 
 @CustomTag('eplusx-kancolle-assistant')
@@ -28,6 +29,9 @@ class Assistant extends PolymerElement {
   Uri serverGetObject;
   Uri serverReloadKCSAPIModules;
 
+  // Client status.
+  @observable String screen = "不明";
+
   // Debug information.
   @observable String debugInfo;
   final List<String> availableObjects = new ObservableList<String>();
@@ -38,6 +42,7 @@ class Assistant extends PolymerElement {
   final Map<String, Function> OBJECT_HANDLERS = <String, Function>{
     "MissionList": handleMissionList,
     "QuestList": handleQuestList,
+    "Screen": handleScreen,
   };
 
   Assistant.created() : super.created() {
