@@ -65,12 +65,13 @@ class Assistant extends PolymerElement {
     serverGetNewObjects = serverRoot.resolve("get_new_objects");
     serverGetObject = serverRoot.resolve("get_object");
     serverReloadKCSAPIModules = serverRoot.resolve("reload_kcsapi");
+
     availableObjectsChecker =
         new Timer.periodic(MILLISECOND * 100, (Timer timer) {
       updateAvailableObjects();
     });
-
     addCollapseButtons();
+    handleObjects(serverGetObjects);
   }
 
   void addCollapseButtons() {
@@ -95,6 +96,21 @@ class Assistant extends PolymerElement {
     }
   }
 
+  void handleObjects(Uri objectsUri) {
+    HttpRequest.getString(objectsUri.toString())
+      .then((String content) {
+        List<String> objectTypes = JSON.decode(content);
+        for (var objectType in objectTypes) {
+          var handler = OBJECT_HANDLERS[objectType];
+          if (handler != null) {
+            getObject(objectType, false).then((Map<String, dynamic> data) {
+              handler(this, data);
+            });
+          }
+        }
+      });
+  }
+
   void updateAvailableObjects() {
     HttpRequest.getString(serverGetObjects.toString())
       .then((String content) {
@@ -110,18 +126,7 @@ class Assistant extends PolymerElement {
         }
       });
 
-    HttpRequest.getString(serverGetNewObjects.toString())
-        .then((String content) {
-          List<String> objectTypes = JSON.decode(content);
-          for (var objectType in objectTypes) {
-            var handler = OBJECT_HANDLERS[objectType];
-            if (handler != null) {
-              getObject(objectType, false).then((Map<String, dynamic> data) {
-                handler(this, data);
-              });
-            }
-          }
-        });
+    handleObjects(serverGetNewObjects);
   }
 
   void reloadKCSAPIModules() {
