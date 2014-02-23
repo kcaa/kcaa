@@ -130,6 +130,31 @@
       </div>
       <div class="row horizontal">
         <div class="board">
+          <h3>艦船</h3>
+          <table>
+            <col width="70px">
+            <col width="70px">
+            <col width="50px">
+            <thead>
+              <tr>
+                <th>名前</th>
+                <th>種別</th>
+                <th>レベル</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr template repeat="{{ship in ships}}"
+                  class="{{ship.stateClass}}">
+                <td>{{ship.name}}</td>
+                <td>{{ship.shipType}}</td>
+                <td>{{ship.level}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="row horizontal">
+        <div class="board">
           <h3>デバッグコントロール</h3>
           <h4>モジュールリロード</h4>
           <button on-click="{{reloadKCSAPIModules}}">KCSAPIハンドラ</button>

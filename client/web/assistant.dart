@@ -10,10 +10,14 @@ import 'package:polymer/polymer.dart';
 part 'domain/missionlist.dart';
 part 'domain/questlist.dart';
 part 'domain/screen.dart';
+part 'domain/ship.dart';
 part 'util.dart';
 
 @CustomTag('eplusx-kancolle-assistant')
 class Assistant extends PolymerElement {
+  // Ships.
+  final List<Ship> ships = new ObservableList<Ship>();
+
   // Quests.
   @observable int numQuests = 0;
   @observable int numQuestsUndertaken = 0;
@@ -44,6 +48,7 @@ class Assistant extends PolymerElement {
     "MissionList": handleMissionList,
     "QuestList": handleQuestList,
     "Screen": handleScreen,
+    "ShipList": handleShipList,
   };
 
   Assistant.created() : super.created() {
