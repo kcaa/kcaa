@@ -281,9 +281,13 @@ class ShipList(model.KCAAObject):
                 ShipList.update_ship(ship, ship_data)
                 self.ships[ship['id']] = Ship(**ship)
                 updated_ids.add(ship['id'])
-        elif api_name == '/api_get_member/ship2':
+        elif (api_name == '/api_get_member/ship2' or
+              api_name == '/api_get_member/ship3'):
             ships = objects['ShipList'].ships
-            for data in response['api_data']:
+            ships_data = (response['api_data'] if
+                          api_name == '/api_get_member/ship2' else
+                          response['api_data']['api_ship_data'])
+            for data in ships_data:
                 ship_data = jsonobject.parse(data)
                 ship = ships[ship_data.api_id].convert_to_dict()
                 ShipList.update_ship(ship, ship_data)
@@ -351,6 +355,8 @@ class ShipList(model.KCAAObject):
                 anti_air=ship_data.api_kyouka[2],
                 armor=ship_data.api_kyouka[3]),
             'sort_order': ship_data.api_sortno})
+        if hasattr(ship_data, 'backs'):
+            ship['rarity'] = ship_data.backs
         if hasattr(ship_data, 'api_taik'):
             ship['hull_durability'] = Variable(
                 current=ship_data.api_taik[0],
