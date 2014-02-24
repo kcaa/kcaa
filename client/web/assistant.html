@@ -133,6 +133,7 @@
           <h3>艦船</h3>
           <table>
             <col>
+            <col width="60px">
             <col width="50px">
             <col width="50px">
             <col width="50px">
@@ -141,8 +142,7 @@
             <col width="50px">
             <col width="50px">
             <col width="50px">
-            <col width="50px">
-            <col width="70px">
+            <col width="60px">
             <thead>
               <tr>
                 <th>名前</th>
@@ -155,7 +155,7 @@
                 <th>火力</th>
                 <th>雷装</th>
                 <th>対空</th>
-                <th>所属艦隊</th>
+                <th>所属</th>
               </tr>
             </thead>
             <tbody>
@@ -166,7 +166,9 @@
                   <div>{{ship.shipType}}</div>
                 </td>
                 <td class="numberColumn {{ship.levelClass}}">
-                  <div>{{ship.level}}</div>
+                  <div>{{ship.level}}<span
+                    class="subordinate">.{{ship.experienceGauge}}</span>
+                  </div>
                   <template if="{{ship.upgradeLevel != 0}}">
                     <div>改: {{ship.upgradeLevel}}</div>
                   </template>
@@ -202,7 +204,7 @@
                   <div>{{ship.antiAir}}</div>
                   <div>{{ship.enhancedAntiAir}}/{{ship.maxAntiAir}}</div>
                 </td>
-                <td>TODO</td>
+                <td>第n艦隊</td>
               </tr>
             </tbody>
           </table>

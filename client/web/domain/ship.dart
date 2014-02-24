@@ -27,6 +27,7 @@ class Ship {
   String shipType;
   int level, upgradeLevel;
   String levelClass;
+  String experienceGauge;
   int fuel, fuelCapacity;
   int ammo, ammoCapacity;
   String fuelPercentage, ammoPercentage;
@@ -74,6 +75,13 @@ class Ship {
         maxAntiAir = data["anti_air"]["maximum"],
         locked = data["locked"] {
     levelClass = upgradeLevel != 0 && level >= upgradeLevel ? "upgradable" : "";
+    // What?! Dart doesn't have something similar to sprintf...
+    // Neither in string interpolation......
+    var experienceGaugeValue = data["experience_gauge"];
+    experienceGauge = experienceGaugeValue.toString();
+    if (experienceGaugeValue < 10) {
+      experienceGauge = "0" + experienceGauge;
+    }
     fuelPercentage = (100.0 * fuel / fuelCapacity).toStringAsFixed(0);
     ammoPercentage = (100.0 * ammo / ammoCapacity).toStringAsFixed(0);
     hpPercentage = (100.0 * hp / maxHp).toStringAsFixed(0);
