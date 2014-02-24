@@ -67,14 +67,11 @@ def control(args):
             except:
                 # Permit an exception in KCSAPI handler -- it's very likely a
                 # bug in how a raw response is read.
-                # Rather, reload all the handlers to reflect possible bug fixes
-                # in source files.
-                # Note that you need to catch another exception before seeing
-                # the effect of an edit.
+                # Do not reload modules because some objects like ShipList rely
+                # on other objects, and can work even if there is a bug in
+                # orthogonal modules. You can always reload modules explicitly
+                # with the reload button in the KCAA control window.
                 traceback.print_exc()
-                reload(kcsapi_util)
-                kcsapi_handler = kcsapi_util.KCSAPIHandler(har_manager)
-                kcsapi_handler.reload_handlers()
     except:
         traceback.print_exc()
     to_exit.set()
