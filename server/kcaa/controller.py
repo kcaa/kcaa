@@ -23,13 +23,13 @@ class DummyProcess(object):
 def control(args):
     # It seems that uncaught exceptions are silently buffered after creating
     # another multiprocessing.Process.
+    to_exit = multiprocessing.Event()
     ps = DummyProcess()
     pk = DummyProcess()
     pc = DummyProcess()
     try:
         logger = logging.getLogger('kcaa.controller')
         har_manager = proxy_util.HarManager(args, 3.0)
-        to_exit = multiprocessing.Event()
         controller_conn, server_conn = multiprocessing.Pipe()
         browsers_server_conn, servers_browser_conn = multiprocessing.Pipe()
         ps = multiprocessing.Process(target=server.handle_server,
