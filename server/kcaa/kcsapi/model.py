@@ -11,11 +11,11 @@ from jsonobject import jsonproperty
 
 class KCAAObject(jsonobject.JSONSerializableObject):
 
-    def __init__(self, api_name, response, objects, debug, **kwargs):
+    def __init__(self, api_name, request, response, objects, debug, **kwargs):
         super(KCAAObject, self).__init__(**kwargs)
         self.api_names = set()
         self.debug = debug
-        self.update(api_name, response, objects)
+        self.update(api_name, request, response, objects)
 
     @jsonproperty
     def object_type(self):
@@ -26,14 +26,20 @@ class KCAAObject(jsonobject.JSONSerializableObject):
         if self.debug:
             return sorted(list(self.api_names))
 
+    @jsonproperty(name='_raw_request')
+    def debug_raw_request(self):
+        if self.debug:
+            return self.request
+
     @jsonproperty(name='_raw_response')
     def debug_raw_response(self):
         if self.debug:
             return self.response
 
-    def update(self, api_name, response, objects):
+    def update(self, api_name, request, response, objects):
         self.api_names.add(api_name)
         if self.debug:
+            self.request = request
             self.response = response
 
 
@@ -43,8 +49,8 @@ class DefaultObject(KCAAObject):
     def object_type(self):
         return list(self.api_names)[0]
 
-    def update(self, api_name, response, objects):
-        super(DefaultObject, self).update(api_name, response, objects)
+    def update(self, api_name, request, response, objects):
+        super(DefaultObject, self).update(api_name, request, response, objects)
         assert len(self.api_names) == 1
 
 

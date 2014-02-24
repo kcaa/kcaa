@@ -135,8 +135,9 @@ class ShipDefinitionList(model.KCAAObject):
     """Ships. Keyed by ship ID."""
     # TODO: Needs key_type in jsonobject module.
 
-    def update(self, api_name, response, objects):
-        super(ShipDefinitionList, self).update(api_name, response, objects)
+    def update(self, api_name, request, response, objects):
+        super(ShipDefinitionList, self).update(api_name, request, response,
+                                               objects)
         for data in response['api_data']:
             ship_data = jsonobject.parse(data)
             # /api_get_master/ship KCSAPI returns empty results for unknown
@@ -269,8 +270,8 @@ class ShipList(model.KCAAObject):
     ships = jsonobject.JSONProperty('ships', {}, value_type=dict)
     """Ships. Keyed by instanceID."""
 
-    def update(self, api_name, response, objects):
-        super(ShipList, self).update(api_name, response, objects)
+    def update(self, api_name, request, response, objects):
+        super(ShipList, self).update(api_name, request, response, objects)
         updated_ids = set()
         if api_name == '/api_get_member/ship':
             ship_defs = objects['ShipDefinitionList'].ships

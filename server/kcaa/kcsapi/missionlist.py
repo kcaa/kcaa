@@ -58,15 +58,15 @@ class MissionList(model.KCAAObject):
                                        element_type=Mission)
     """Mission instances."""
 
-    def update(self, api_name, response, objects):
-        super(MissionList, self).update(api_name, response, objects)
+    def update(self, api_name, request, response, objects):
+        super(MissionList, self).update(api_name, request, response, objects)
         if api_name == '/api_get_master/mission':
             self.update_api_get_master_mission(response)
         elif (api_name == '/api_get_member/deck' or
               api_name == '/api_get_member/deck_port'):
             self.update_api_get_member_deck(response)
 
-    def update_api_get_master_mission(self, response):
+    def update_api_get_master_mission(self, request, response):
         mission_to_fleet = {}
         for mission in self.missions:
             if mission.undertaking_fleet:
@@ -94,7 +94,7 @@ class MissionList(model.KCAAObject):
         missions.sort(lambda x, y: x.id - y.id)
         self.missions = model.merge_list(self.missions, missions)
 
-    def update_api_get_member_deck(self, response):
+    def update_api_get_member_deck(self, request, response):
         mission_to_fleet = {}
         for data in response['api_data']:
             fleet_data = jsonobject.parse(data)

@@ -106,6 +106,8 @@ class KCSAPIHandler(object):
             match = KCSAPI_PATH_REGEX.match(o.path)
             if match:
                 api_name = match.group('api_name')
+                request = {param['name']: param['value'] for param in
+                           entry['request']['postData']['params']}
                 content = entry['response']['content']
                 text = content['text']
                 # Highly likely the KCSAPI response is Base64 encoded, because
@@ -129,9 +131,9 @@ class KCSAPIHandler(object):
                     continue
                 # KCSAPI response should be in UTF-8.
                 response = json.loads(text, encoding='utf8')
-                yield api_name, response
+                yield api_name, request, response
 
-    def dispatch(self, api_name, response):
+    def dispatch(self, api_name, request, response):
         try:
             handlers = self.kcsapi_handlers[api_name]
             self._logger.debug('Accessed KCSAPI: {}'.format(api_name))
@@ -142,20 +144,26 @@ class KCSAPIHandler(object):
             object_type = handler.__name__
             old_obj = self.objects.get(object_type)
             if not old_obj:
-                obj = handler(api_name, response, self.objects, self.debug)
+                obj = handler(api_name, request, response, self.objects,
+                              self.debug)
                 # Handler may return None in case there is no need to handle
                 # the KCSAPI response.
                 if obj:
                     self.objects[object_type] = obj
                     yield obj
             else:
-                old_obj.update(api_name, response, self.objects)
+                old_obj.update(api_name, request, response, self.objects)
                 yield old_obj
 
     def get_updated_objects(self):
         entries = self.har_manager.get_updated_entries()
         if not entries:
             return
-        for api_name, response in self.get_kcsapi_responses(entries):
-            for obj in self.dispatch(api_name, response):
+        for api_name, request, response in self.get_kcsapi_responses(entries):
+            # Process only succeeded ones.
+            if not response['api_result']:
+                self._logger.warn('KCSAPI request on {} failed.'.format(
+                    api_name))
+                continue
+            for obj in self.dispatch(api_name, request, response):
                 yield obj
