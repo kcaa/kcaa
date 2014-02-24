@@ -283,19 +283,23 @@ class ShipList(model.KCAAObject):
                 updated_ids.add(ship['id'])
         elif (api_name == '/api_get_member/ship2' or
               api_name == '/api_get_member/ship3'):
-            ships = objects['ShipList'].ships
             ships_data = (response['api_data'] if
                           api_name == '/api_get_member/ship2' else
                           response['api_data']['api_ship_data'])
             for data in ships_data:
                 ship_data = jsonobject.parse(data)
-                ship = ships[ship_data.api_id].convert_to_dict()
+                ship = self.ships[ship_data.api_id].convert_to_dict()
                 ShipList.update_ship(ship, ship_data)
                 self.ships[ship['id']] = Ship(**ship)
                 updated_ids.add(ship['id'])
         elif api_name == '/api_req_hensei/lock':
-            ship = objects['ShipList'].ships[int(request['api_ship_id'])]
+            ship = self.ships[int(request['api_ship_id'])]
             ship.locked = bool(response['api_data']['api_locked'])
+            return
+        elif api_name == '/api_req_kousyou/getship':
+            ship_defs = objects['ShipDefinitionList'].ships
+            self.ships[response['api_data']['api_id']] = (
+                ship_defs[response['api_data']['api_ship_id']])
             return
         # Remove ships that have gone.
         for not_updated_id in set(self.ships.iterkeys()) - updated_ids:
