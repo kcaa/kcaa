@@ -84,25 +84,32 @@ class Assistant extends PolymerElement {
     handleObjects(serverGetObjects);
   }
 
+  void collapseSection(Element header, bool toCollapse,
+                       [Element collapseButton=null]) {
+    for (var element in header.parent.children) {
+      if (element == header) {
+        continue;
+      }
+      element.classes.toggle("hidden", toCollapse);
+    }
+    header.dataset["collapsed"] = (toCollapse).toString();
+    if (collapseButton != null) {
+      collapseButton.text = toCollapse ? "►" : "▼";
+    }
+  }
+
   void addCollapseButtons() {
     // shadowRoot provides access to the root of this custom element.
     for (Element header in shadowRoot.querySelectorAll("div.board > h3")) {
       var collapseButton = new ButtonElement();
       collapseButton.classes.add("collapse");
-      collapseButton.text = "▼";
-      collapseButton.dataset["collapsed"] = "false";
       collapseButton.onClick.listen((MouseEvent e) {
-        var toCollapse = collapseButton.dataset["collapsed"] == "false";
-        for (var element in header.parent.children) {
-          if (element == header) {
-            continue;
-          }
-          element.classes.toggle("hidden", toCollapse);
-        }
-        collapseButton.text = toCollapse ? "►" : "▼";
-        collapseButton.dataset["collapsed"] = (toCollapse).toString();
+        var toCollapse = header.dataset["collapsed"] == "false";
+        collapseSection(header, toCollapse, collapseButton);
       });
       header.children.add(collapseButton);
+      collapseSection(header, header.dataset["collapsed"] == "true",
+          collapseButton);
     }
   }
 

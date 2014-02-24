@@ -19,7 +19,22 @@
       </div>
       <div class="row horizontal">
         <div class="board">
-          <h3>任務一覧 ({{numQuestsUndertaken}}/{{numQuests}}個遂行中)</h3>
+          <h3 data-collapsed="false">艦隊</h3>
+          <template repeat="{{fleet in fleets}}">
+            <h4>第{{fleet.id}}艦隊: {{fleet.name}}</h4>
+            <ul>
+              <template repeat="{{ship in fleet.ships}}">
+                <li>{{ship.id}}: {{ship.name}}</li>
+              </template>
+            </ul>
+          </template>
+        </div>
+      </div>
+      <div class="row horizontal">
+        <div class="board">
+          <h3 data-collapsed="true">
+            任務一覧 ({{numQuestsUndertaken}}/{{numQuests}}個遂行中)
+          </h3>
           <table>
             <col width="50px">
             <col>
@@ -71,7 +86,7 @@
       </div>
       <div class="row horizontal">
         <div class="board">
-          <h3>遠征一覧</h3>
+          <h3 data-collapsed="true">遠征一覧 ({{missions.length}}個)</h3>
           <table>
             <col width="70px">
             <col>
@@ -130,7 +145,7 @@
       </div>
       <div class="row horizontal">
         <div class="board">
-          <h3>艦船</h3>
+          <h3 data-collapsed="true">艦船 ({{ships.length}}隻)</h3>
           <table>
             <col>
             <col width="60px">
@@ -217,20 +232,7 @@
       </div>
       <div class="row horizontal">
         <div class="board">
-          <h3>艦隊</h3>
-          <template repeat="{{fleet in fleets}}">
-            <h4>第{{fleet.id}}艦隊: {{fleet.name}}</h4>
-            <ul>
-              <template repeat="{{ship in fleet.ships}}">
-                <li>{{ship.id}}: {{ship.name}}</li>
-              </template>
-            </ul>
-          </template>
-        </div>
-      </div>
-      <div class="row horizontal">
-        <div class="board">
-          <h3>デバッグコントロール</h3>
+          <h3 data-collapsed="true">デバッグコントロール</h3>
           <h4>モジュールリロード</h4>
           <button on-click="{{reloadKCSAPIModules}}">KCSAPIハンドラ</button>
           <h4>API出力</h4>
@@ -243,7 +245,7 @@
       </div>
       <div class="row horizontal">
         <div class="board">
-          <h3>デバッグ情報</h3>
+          <h3 data-collapsed="true">デバッグ情報</h3>
           <div class="debugInfo">{{debugInfo}}</div>
         </div>
       </div>
