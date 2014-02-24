@@ -296,6 +296,11 @@ class ShipList(model.KCAAObject):
             ship = self.ships[int(request['api_ship_id'])]
             ship.locked = bool(response['api_data']['api_locked'])
             return
+        elif api_name == '/api_req_kaisou/remodeling':
+            ship_defs = objects['ShipDefinitionList'].ships
+            self.ships[request['api_data']['api_id']] = (
+                ship_defs[self.ships[int(request['api_id'])].upgrade_to])
+            return
         elif api_name == '/api_req_kousyou/getship':
             ship_defs = objects['ShipDefinitionList'].ships
             self.ships[response['api_data']['api_id']] = (
