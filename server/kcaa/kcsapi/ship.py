@@ -260,7 +260,7 @@ class Ship(ShipDefinition):
     enhanced_ability = jsonobject.ReadonlyJSONProperty(
         'enhanced_ability', value_type=AbilityEnhancement)
     """Enhanced ability by rebuilding or growth."""
-    locked = jsonobject.ReadonlyJSONProperty('locked', value_type=bool)
+    locked = jsonobject.JSONProperty('locked', value_type=bool)
     """True if this ship is locked."""
 
 
@@ -289,6 +289,10 @@ class ShipList(model.KCAAObject):
                 ShipList.update_ship(ship, ship_data)
                 self.ships[ship['id']] = Ship(**ship)
                 updated_ids.add(ship['id'])
+        elif api_name == '/api_req_hensei/lock':
+            ship = objects['ShipList'].ships[int(request['api_ship_id'])]
+            ship.locked = bool(response['api_data']['api_locked'])
+            return
         # Remove ships that have gone.
         for not_updated_id in set(self.ships.iterkeys()) - updated_ids:
             del self.ships[not_updated_id]

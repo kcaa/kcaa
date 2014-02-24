@@ -56,6 +56,7 @@ class KCSAPIHandler(object):
             '/api_get_master/ship': [kcsapi.ship.ShipDefinitionList],
             '/api_get_member/ship': [kcsapi.ship.ShipList],
             '/api_get_member/ship2': [kcsapi.ship.ShipList],
+            '/api_req_hensei/lock': [kcsapi.ship.ShipList],
             # TODO: Handle ship3.
             # Decks (Fleets)
             # Not sure what's the difference between /deck and /deck_port. They
