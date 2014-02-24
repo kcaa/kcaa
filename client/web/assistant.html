@@ -142,7 +142,7 @@
             <col width="50px">
             <col width="50px">
             <col width="50px">
-            <col width="60px">
+            <col width="50px">
             <thead>
               <tr>
                 <th>名前</th>
@@ -205,10 +205,27 @@
                   <div>{{ship.antiAir}}</div>
                   <div>{{ship.enhancedAntiAir}}/{{ship.maxAntiAir}}</div>
                 </td>
-                <td>第n艦隊</td>
+                <td class="labelColumn">
+                  <template if="{{ship.belongingFleet != null}}">
+                    第{{ship.belongingFleet.id}}
+                  </template>
+                </td>
               </tr>
             </tbody>
           </table>
+        </div>
+      </div>
+      <div class="row horizontal">
+        <div class="board">
+          <h3>艦隊</h3>
+          <template repeat="{{fleet in fleets}}">
+            <h4>第{{fleet.id}}艦隊: {{fleet.name}}</h4>
+            <ul>
+              <template repeat="{{ship in fleet.ships}}">
+                <li>{{ship.id}}: {{ship.name}}</li>
+              </template>
+            </ul>
+          </template>
         </div>
       </div>
       <div class="row horizontal">

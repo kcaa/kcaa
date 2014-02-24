@@ -66,8 +66,11 @@ class KCSAPIHandler(object):
             # As long as I know, /deck is used when a fleet departs for a
             # mission, and /deck_port when a user comes back to the start
             # screen (which is called a port).
-            '/api_get_member/deck': [kcsapi.missionlist.MissionList],
-            '/api_get_member/deck_port': [kcsapi.missionlist.MissionList],
+            '/api_get_member/deck': [kcsapi.fleet.FleetList,
+                                     kcsapi.missionlist.MissionList],
+            '/api_get_member/deck_port': [kcsapi.fleet.FleetList,
+                                          kcsapi.missionlist.MissionList],
+            '/api_req_hensei/change': [kcsapi.fleet.FleetList],
             # Quests
             '/api_get_member/questlist': [kcsapi.questlist.QuestList],
             '/api_req_quest/start': [kcsapi.model.NullHandler()],

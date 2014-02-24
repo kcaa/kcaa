@@ -42,9 +42,10 @@ class Ship {
   String armorClass, firepowerClass, thunderstrokeClass, antiAirClass;
   bool locked;
   String lockedClass;
+  Fleet belongingFleet;
   String stateClass;
 
-  Ship(Map<String, dynamic> data)
+  Ship(Map<String, dynamic> data, List<Fleet> fleets)
       : id = data["id"],
         name = data["name"],
         shipType = SHIP_TYPE_MAP[data["ship_type"]],
@@ -94,11 +95,22 @@ class Ship {
         enhancedThunderstroke == maxThunderstroke ? "fullyEnhanced" : "";
     antiAirClass = enhancedAntiAir == maxAntiAir ? "fullyEnhanced" : "";
     lockedClass = locked ? "locked" : "";
+    // Check the belonging fleet.
+    for (var fleet in fleets) {
+      for (var ship in fleet.ships) {
+        if (ship.id == id) {
+          belongingFleet = fleet;
+          // If there is a means to notify the change in ObservableList, I would
+          // update the ship in fleet.ships as well...
+        }
+      }
+    }
   }
 }
 
 void handleShipList(Assistant assistant, Map<String, dynamic> data) {
   assistant.ships.clear();
+  assistant.shipMap.clear();
   var ships = new List.from(data["ships"].values, growable: false);
   ships.sort((Map x, Map y) {
     if (x["level"] != y["level"]) {
@@ -110,6 +122,8 @@ void handleShipList(Assistant assistant, Map<String, dynamic> data) {
     }
   });
   for (var shipData in ships) {
-    assistant.ships.add(new Ship(shipData));
+    var ship = new Ship(shipData, assistant.fleets);
+    assistant.ships.add(ship);
+    assistant.shipMap[ship.id] = ship;
   }
 }

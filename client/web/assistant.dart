@@ -7,6 +7,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:polymer/polymer.dart';
 
+part 'domain/fleet.dart';
 part 'domain/missionlist.dart';
 part 'domain/questlist.dart';
 part 'domain/screen.dart';
@@ -17,6 +18,10 @@ part 'util.dart';
 class Assistant extends PolymerElement {
   // Ships.
   final List<Ship> ships = new ObservableList<Ship>();
+  Map<int, Ship> shipMap = new Map<int, Ship>();
+
+  // Fleets.
+  final List<Fleet> fleets = new ObservableList<Fleet>();
 
   // Quests.
   @observable int numQuests = 0;
@@ -44,12 +49,17 @@ class Assistant extends PolymerElement {
   Timer availableObjectsChecker;
 
   // Object handlers.
-  final Map<String, Function> OBJECT_HANDLERS = <String, Function>{
+  static final Map<String, Function> OBJECT_HANDLERS = <String, Function>{
+    "FleetList": handleFleetList,
     "MissionList": handleMissionList,
     "QuestList": handleQuestList,
     "Screen": handleScreen,
     "ShipList": handleShipList,
   };
+  // Referenced objects. If the object list contains these object types, the
+  // client processes them first so that other object handlers can reference the
+  // contents of them.
+  static final List<String> REFERENCED_OBJECTS = <String>["ShipList"];
 
   Assistant.created() : super.created() {
     // Theoretically this is not safe, as some data requiring ja_JP date format
@@ -96,18 +106,36 @@ class Assistant extends PolymerElement {
     }
   }
 
+  Future handleObject(String objectType) {
+    var handler = OBJECT_HANDLERS[objectType];
+    if (handler != null) {
+      return getObject(objectType, false).then((Map<String, dynamic> data) {
+        handler(this, data);
+      });
+    }
+  }
+
   void handleObjects(Uri objectsUri) {
     HttpRequest.getString(objectsUri.toString())
       .then((String content) {
-        List<String> objectTypes = JSON.decode(content);
-        for (var objectType in objectTypes) {
-          var handler = OBJECT_HANDLERS[objectType];
-          if (handler != null) {
-            getObject(objectType, false).then((Map<String, dynamic> data) {
-              handler(this, data);
+        Set<String> objectTypes =
+            (JSON.decode(content) as List<String>).toSet();
+        // Handle referenced objects first.
+        Future handlerChain = new Future.value();
+        for (var referencedObject in REFERENCED_OBJECTS) {
+          if (objectTypes.contains(referencedObject)) {
+            handlerChain = handlerChain.then((_) {
+              return handleObject(referencedObject);
             });
+            objectTypes.remove(referencedObject);
           }
         }
+        // Then handle the rest.
+        handlerChain.then((_) {
+          for (var objectType in objectTypes) {
+            handleObject(objectType);
+          }
+        });
       });
   }
 
