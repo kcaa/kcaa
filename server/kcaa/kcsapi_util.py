@@ -55,7 +55,8 @@ class KCSAPIHandler(object):
             # Ships
             '/api_get_master/ship': [kcsapi.ship.ShipDefinitionList],
             '/api_get_member/ship': [kcsapi.ship.ShipList],
-            # TODO: Handle ship2 and ship3.
+            '/api_get_member/ship2': [kcsapi.ship.ShipList],
+            # TODO: Handle ship3.
             # Decks (Fleets)
             # Not sure what's the difference between /deck and /deck_port. They
             # share the same data structure.

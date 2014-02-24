@@ -242,6 +242,13 @@ class Ship(ShipDefinition):
     """Level."""
     experience = jsonobject.ReadonlyJSONProperty('experience', value_type=int)
     """Experience point."""
+    experience_next = jsonobject.ReadonlyJSONProperty(
+        'experience_next', value_type=int)
+    """Experience point needed to reach the next level."""
+    experience_gauge = jsonobject.ReadonlyJSONProperty(
+        'experience_gauge', value_type=int)
+    """Percentage representing how many experience points collected in the
+    current level."""
     hitpoint = jsonobject.ReadonlyJSONProperty('hitpoint', value_type=Variable)
     """Hit point (variable of hull durability)."""
     vitality = jsonobject.ReadonlyJSONProperty('vitality', value_type=int)
@@ -252,6 +259,8 @@ class Ship(ShipDefinition):
     enhanced_ability = jsonobject.ReadonlyJSONProperty(
         'enhanced_ability', value_type=AbilityEnhancement)
     """Enhanced ability by rebuilding or growth."""
+    locked = jsonobject.ReadonlyJSONProperty('locked', value_type=bool)
+    """True if this ship is locked."""
 
 
 class ShipList(model.KCAAObject):
@@ -262,74 +271,93 @@ class ShipList(model.KCAAObject):
 
     def update(self, api_name, response, objects):
         super(ShipList, self).update(api_name, response, objects)
-        ship_defs = objects['ShipDefinitionList'].ships
-        if api_name == '/api_get_member/ship':
-            self.update_ships(response['api_data'], ship_defs)
-
-    def update_ships(self, ships_data, ship_defs):
         updated_ids = set()
-        for data in ships_data:
-            ship_data = jsonobject.parse(data)
-            ship_def = ship_defs[ship_data.api_ship_id].convert_to_dict()
-            ship_def.update({
-                'id': ship_data.api_id,
-                'ship_id': ship_data.api_ship_id,
-                'level': ship_data.api_lv,
-                'experience': ship_data.api_exp,
-                'hitpoint': Variable(
-                    current=ship_data.api_nowhp,
-                    maximum=ship_data.api_maxhp),
-                'vitality': ship_data.api_cond,
-                'loaded_resource': resource.Resource(
-                    fuel=ship_data.api_fuel,
-                    ammo=ship_data.api_bull),
-                # These ability parameters have correspondents in the ship
-                # definition, but they are just the baseline values -- here we
-                # populate the specific value to this ship instance.
-                'hull_durability': Variable(
-                    current=ship_data.api_taik[0],
-                    baseline=ship_def['hull_durability'].baseline,
-                    maximum=ship_data.api_taik[1]),
-                'armor': Variable(
-                    current=ship_data.api_soukou[0],
-                    baseline=ship_def['armor'].baseline,
-                    maximum=ship_data.api_soukou[1]),
-                'avoidance': Variable(
-                    current=ship_data.api_kaihi[0],
-                    baseline=ship_def['avoidance'].baseline,
-                    maximum=ship_data.api_kaihi[1]),
-                'firepower': Variable(
-                    current=ship_data.api_karyoku[0],
-                    baseline=ship_def['firepower'].baseline,
-                    maximum=ship_data.api_karyoku[1]),
-                'thunderstroke': Variable(
-                    current=ship_data.api_raisou[0],
-                    baseline=ship_def['thunderstroke'].baseline,
-                    maximum=ship_data.api_raisou[1]),
-                'anti_air': Variable(
-                    current=ship_data.api_taiku[0],
-                    baseline=ship_def['anti_air'].baseline,
-                    maximum=ship_data.api_taiku[1]),
-                'anti_submarine': Variable(
-                    current=ship_data.api_taisen[0],
-                    baseline=ship_def['anti_submarine'].baseline,
-                    maximum=ship_data.api_taisen[1]),
-                'scouting': Variable(
-                    current=ship_data.api_sakuteki[0],
-                    baseline=ship_def['scouting'].baseline,
-                    maximum=ship_data.api_sakuteki[1]),
-                'luck': Variable(
-                    current=ship_data.api_lucky[0],
-                    baseline=ship_def['luck'].baseline,
-                    maximum=ship_data.api_lucky[1]),
-                'enhanced_ability': AbilityEnhancement(
-                    firepower=ship_data.api_kyouka[0],
-                    thunderstroke=ship_data.api_kyouka[1],
-                    anti_air=ship_data.api_kyouka[2],
-                    armor=ship_data.api_kyouka[3]),
-                'sort_order': ship_data.api_sortno})
-            self.ships[ship_def['id']] = Ship(**ship_def)
-            updated_ids.add(ship_def['id'])
+        if api_name == '/api_get_member/ship':
+            ship_defs = objects['ShipDefinitionList'].ships
+            for data in response['api_data']:
+                ship_data = jsonobject.parse(data)
+                ship = ship_defs[ship_data.api_ship_id].convert_to_dict()
+                ShipList.update_ship(ship, ship_data)
+                self.ships[ship['id']] = Ship(**ship)
+                updated_ids.add(ship['id'])
+        elif api_name == '/api_get_member/ship2':
+            ships = objects['ShipList'].ships
+            for data in response['api_data']:
+                ship_data = jsonobject.parse(data)
+                ship = ships[ship_data.api_id].convert_to_dict()
+                ShipList.update_ship(ship, ship_data)
+                self.ships[ship['id']] = Ship(**ship)
+                updated_ids.add(ship['id'])
         # Remove ships that have gone.
         for not_updated_id in set(self.ships.iterkeys()) - updated_ids:
             del self.ships[not_updated_id]
+
+    @staticmethod
+    def update_ship(ship, ship_data):
+        ship.update({
+            'id': ship_data.api_id,
+            'ship_id': ship_data.api_ship_id,
+            'level': ship_data.api_lv,
+            'hitpoint': Variable(
+                current=ship_data.api_nowhp,
+                maximum=ship_data.api_maxhp),
+            'vitality': ship_data.api_cond,
+            'loaded_resource': resource.Resource(
+                fuel=ship_data.api_fuel,
+                ammo=ship_data.api_bull),
+            # These ability parameters have correspondents in the ship
+            # definition, but they are just the baseline values -- here we
+            # populate the specific value to this ship instance.
+            'armor': Variable(
+                current=ship_data.api_soukou[0],
+                baseline=ship['armor'].baseline,
+                maximum=ship_data.api_soukou[1]),
+            'avoidance': Variable(
+                current=ship_data.api_kaihi[0],
+                baseline=ship['avoidance'].baseline,
+                maximum=ship_data.api_kaihi[1]),
+            'firepower': Variable(
+                current=ship_data.api_karyoku[0],
+                baseline=ship['firepower'].baseline,
+                maximum=ship_data.api_karyoku[1]),
+            'thunderstroke': Variable(
+                current=ship_data.api_raisou[0],
+                baseline=ship['thunderstroke'].baseline,
+                maximum=ship_data.api_raisou[1]),
+            'anti_air': Variable(
+                current=ship_data.api_taiku[0],
+                baseline=ship['anti_air'].baseline,
+                maximum=ship_data.api_taiku[1]),
+            'anti_submarine': Variable(
+                current=ship_data.api_taisen[0],
+                baseline=ship['anti_submarine'].baseline,
+                maximum=ship_data.api_taisen[1]),
+            'scouting': Variable(
+                current=ship_data.api_sakuteki[0],
+                baseline=ship['scouting'].baseline,
+                maximum=ship_data.api_sakuteki[1]),
+            'luck': Variable(
+                current=ship_data.api_lucky[0],
+                baseline=ship['luck'].baseline,
+                maximum=ship_data.api_lucky[1]),
+            'enhanced_ability': AbilityEnhancement(
+                firepower=ship_data.api_kyouka[0],
+                thunderstroke=ship_data.api_kyouka[1],
+                anti_air=ship_data.api_kyouka[2],
+                armor=ship_data.api_kyouka[3]),
+            'sort_order': ship_data.api_sortno})
+        if hasattr(ship_data, 'api_taik'):
+            ship['hull_durability'] = Variable(
+                current=ship_data.api_taik[0],
+                baseline=ship['hull_durability'].baseline,
+                maximum=ship_data.api_taik[1])
+        # api_exp may be given as a list or a scalar.
+        if isinstance(ship_data.api_exp, list):
+            ship.update({
+                'experience': ship_data.api_exp[0],
+                'experience_next': ship_data.api_exp[1],
+                'experience_gauge': ship_data.api_exp[2]})
+        else:
+            ship['experience'] = ship_data.api_exp
+        if hasattr(ship_data, 'api_locked'):
+            ship['locked'] = ship_data.api_locked != 0

@@ -38,6 +38,8 @@ class Ship {
   int thunderstroke, enhancedThunderstroke, maxThunderstroke;
   int antiAir, enhancedAntiAir, maxAntiAir;
   String armorClass, firepowerClass, thunderstrokeClass, antiAirClass;
+  bool locked;
+  String lockedClass;
   String stateClass;
 
   Ship(Map<String, dynamic> data)
@@ -69,7 +71,8 @@ class Ship {
         antiAir = data["anti_air"]["current"],
         enhancedAntiAir =
           data["anti_air"]["baseline"] + data["enhanced_ability"]["anti_air"],
-        maxAntiAir = data["anti_air"]["maximum"] {
+        maxAntiAir = data["anti_air"]["maximum"],
+        locked = data["locked"] {
     levelClass = upgradeLevel != 0 && level >= upgradeLevel ? "upgradable" : "";
     fuelPercentage = (100.0 * fuel / fuelCapacity).toStringAsFixed(0);
     ammoPercentage = (100.0 * ammo / ammoCapacity).toStringAsFixed(0);
@@ -79,6 +82,7 @@ class Ship {
     thunderstrokeClass =
         enhancedThunderstroke == maxThunderstroke ? "fullyEnhanced" : "";
     antiAirClass = enhancedAntiAir == maxAntiAir ? "fullyEnhanced" : "";
+    lockedClass = locked ? "locked" : "";
   }
 }
 
