@@ -61,10 +61,10 @@ class MissionList(model.KCAAObject):
     def update(self, api_name, request, response, objects):
         super(MissionList, self).update(api_name, request, response, objects)
         if api_name == '/api_get_master/mission':
-            self.update_api_get_master_mission(response)
+            self.update_api_get_master_mission(request, response)
         elif (api_name == '/api_get_member/deck' or
               api_name == '/api_get_member/deck_port'):
-            self.update_api_get_member_deck(response)
+            self.update_api_get_member_deck(request, response)
 
     def update_api_get_master_mission(self, request, response):
         mission_to_fleet = {}
