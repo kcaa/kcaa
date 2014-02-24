@@ -27,6 +27,7 @@ class Ship {
   String shipType;
   int level, upgradeLevel;
   String levelClass;
+  int experienceGaugeValue;
   String experienceGauge;
   int fuel, fuelCapacity;
   int ammo, ammoCapacity;
@@ -77,10 +78,12 @@ class Ship {
     levelClass = upgradeLevel != 0 && level >= upgradeLevel ? "upgradable" : "";
     // What?! Dart doesn't have something similar to sprintf...
     // Neither in string interpolation......
-    var experienceGaugeValue = data["experience_gauge"];
-    experienceGauge = experienceGaugeValue.toString();
-    if (experienceGaugeValue < 10) {
-      experienceGauge = "0" + experienceGauge;
+    if (data.containsKey("experience_gauge")) {
+      experienceGaugeValue = data["experience_gauge"];
+      experienceGauge = experienceGaugeValue.toString();
+      if (experienceGaugeValue < 10) {
+        experienceGauge = "0" + experienceGauge;
+      }
     }
     fuelPercentage = (100.0 * fuel / fuelCapacity).toStringAsFixed(0);
     ammoPercentage = (100.0 * ammo / ammoCapacity).toStringAsFixed(0);
@@ -97,7 +100,15 @@ class Ship {
 void handleShipList(Assistant assistant, Map<String, dynamic> data) {
   assistant.ships.clear();
   var ships = new List.from(data["ships"].values, growable: false);
-  ships.sort((x, y) => -x["level"].compareTo(y["level"]));
+  ships.sort((Map x, Map y) {
+    if (x["level"] != y["level"]) {
+      return -x["level"].compareTo(y["level"]);
+    } else if (x.containsKey("experience_gauge")) {
+      return -x["experience_gauge"].compareTo(y["experience_gauge"]);
+    } else {
+      return 0;
+    }
+  });
   for (var shipData in ships) {
     assistant.ships.add(new Ship(shipData));
   }

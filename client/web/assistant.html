@@ -166,9 +166,10 @@
                   <div>{{ship.shipType}}</div>
                 </td>
                 <td class="numberColumn {{ship.levelClass}}">
-                  <div>{{ship.level}}<span
+                  <div>{{ship.level}}<template
+                    if="{{ship.experienceGauge != null}}"><span
                     class="subordinate">.{{ship.experienceGauge}}</span>
-                  </div>
+                    </template></div>
                   <template if="{{ship.upgradeLevel != 0}}">
                     <div>改: {{ship.upgradeLevel}}</div>
                   </template>
