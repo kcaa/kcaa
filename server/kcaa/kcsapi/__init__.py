@@ -29,7 +29,7 @@ def reload_modules():
     Then we reload the module alpha, and a new class object A' is created.
     What about B'? **IT STILL SUBCLASSES CLASS A, NOT A'!!** (this is
     mentioned in the last sentence of `reload()`_ built-in function
-    documentation.) Here,  we see that B' is not a  subclass of A', which
+    documentation.) Here, we see that B' is not a  subclass of A', which
     will make `issubclass(B', A')` to be False and `super(A', <B' object>)`
     to raise TypeError. Beware that, in literal Python source file, the code
     reads `issubclass(B, A)` and `super(A, <B object>)` which looks good...
