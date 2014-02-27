@@ -78,8 +78,9 @@ class JSONSerializableObject(object):
                     _ignore_unknown=_ignore_unknown)
             if issubclass(member_class, ReadonlyJSONProperty):
                 member._initialize(self, value)
-            else:
+            elif member.fset:
                 setattr(self, key, value)
+            # Ignore getter-only CustomizableJSONProperty.
 
     @staticmethod
     def _replace_containers(value, value_type, element_type,
@@ -210,6 +211,8 @@ class JSONSerializableObject(object):
         parameter that needs to be initialized in __init__. Otherwise parsing
         will be failed if that object is being created as a descendant.
         """
+        # TODO: Write tests. Especially when parsing an object which has a
+        # readonly property, or getter-only @jsonproperty.
         if not isinstance(obj, dict):
             raise TypeError('Given obj is {}, not dict'.format(
                 obj.__class__.__name__))
