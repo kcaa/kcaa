@@ -6,6 +6,7 @@ class Fleet {
   List<Ship> ships = new List<Ship>();
   String undertakingMission;
   bool collapsed;
+  String defaultHiddenClass;
 
   Fleet(Map<String, dynamic> data, Map<int, Ship> shipMap,
         List<Mission> missions, {bool collapsed: null})
@@ -29,6 +30,7 @@ class Fleet {
     } else {
       this.collapsed = id != 1;
     }
+    defaultHiddenClass = this.collapsed ? "hidden": "";
   }
 
   void updateShips(Map<int, Ship> shipMap) {
@@ -63,5 +65,7 @@ void notifyFleetList(Assistant assistant) {
     fleet.updateShips(assistant.shipMap);
     assistant.fleets[i] = fleet;
   }
+  // This is just for collapse buttons. Hiding collapsed fleets are taken care
+  // of by defaultHiddenClass. That works better because no rerendering happens.
   runLater(0, () => assistant.updateCollapsedSections());
 }
