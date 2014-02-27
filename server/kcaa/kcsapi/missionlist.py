@@ -46,8 +46,8 @@ class Mission(jsonobject.JSONSerializableObject):
     undertaking_fleet = jsonobject.JSONProperty('undertaking_fleet',
                                                 value_type=list)
     """Fleet which is undertaking this mission. First element represents the
-    order of the fleet, and the second holds the fleet name."""
-    # TODO: Create Fleet object.
+    ID of the fleet, and the second holds the fleet name."""
+    # Do not use fleet.Fleet here, as it yields another module dependency.
     eta = jsonobject.JSONProperty('eta', value_type=int)
     """Estimated Time of Arrival, in UNIX time with millisecond precision."""
 
@@ -67,11 +67,11 @@ class MissionList(model.KCAAObject):
             self.update_api_get_member_deck(request, response)
 
     def update_api_get_master_mission(self, request, response):
-        mission_to_fleet = {}
+        mission_to_progress = {}
         for mission in self.missions:
             if mission.undertaking_fleet:
-                mission_to_fleet[mission.id] = [mission.undertaking_fleet,
-                                                mission.eta]
+                mission_to_progress[mission.id] = [mission.undertaking_fleet,
+                                                   mission.eta]
         missions = []
         for data in response['api_data']:
             mission_data = jsonobject.parse(data)
@@ -86,38 +86,39 @@ class MissionList(model.KCAAObject):
                 consumption=resource.ResourcePercentage(
                     fuel=float(mission_data.api_use_fuel),
                     ammo=float(mission_data.api_use_bull)))
-            fleet = mission_to_fleet.get(mission.id)
-            if fleet:
-                mission.undertaking_fleet = fleet[0]
-                mission.eta = fleet[1]
+            progress = mission_to_progress.get(mission.id)
+            if progress:
+                mission.undertaking_fleet = progress[0]
+                mission.eta = progress[1]
             missions.append(mission)
         missions.sort(lambda x, y: x.id - y.id)
         self.missions = model.merge_list(self.missions, missions)
 
     def update_api_get_member_deck(self, request, response):
-        mission_to_fleet = {}
+        mission_to_progress = {}
         for data in response['api_data']:
             fleet_data = jsonobject.parse(data)
             if fleet_data.api_mission[0] != 0:
-                mission_to_fleet[fleet_data.api_mission[1]] = [
-                    fleet_data.api_id,
-                    fleet_data.api_name,
-                    fleet_data.api_mission[2]]
+                mission_id = fleet_data.api_mission[1]
+                eta = fleet_data.api_mission[2]
+                mission_to_progress[mission_id] = [
+                    [fleet_data.api_id, fleet_data.api_name],
+                    eta]
         for mission in self.missions:
-            fleet = mission_to_fleet.get(mission.id)
-            if fleet:
-                mission.undertaking_fleet = fleet[:2]
-                mission.eta = fleet[2]
-                del mission_to_fleet[mission.id]
+            progress = mission_to_progress.get(mission.id)
+            if progress:
+                mission.undertaking_fleet = progress[0]
+                mission.eta = progress[1]
+                del mission_to_progress[mission.id]
             else:
                 mission.undertaking_fleet = None
                 mission.eta = None
         # Create missions if it's not there yet. Otherwise undertaking_fleet
         # and eta will not be shown soon.
-        if len(mission_to_fleet) > 0:
-            for id, fleet in mission_to_fleet.iteritems():
+        if len(mission_to_progress) > 0:
+            for id, progress in mission_to_progress.iteritems():
                 self.missions.append(Mission(
                     id=id,
-                    undertaking_fleet=fleet[:2],
-                    eta=fleet[2]))
+                    undertaking_fleet=progress[0],
+                    eta=progress[1]))
             self.missions.sort(lambda x, y: x.id - y.id)
