@@ -21,91 +21,96 @@
         <div class="board">
           <h3 data-collapsed="false">艦隊</h3>
           <template repeat="{{fleet in fleets}}">
-            <h4>
-              第{{fleet.id}}艦隊: {{fleet.name}}
-              <template if="{{fleet.undertakingMission != null}}">
-                (遠征中: {{fleet.undertakingMission}})
-              </template>
-            </h4>
-            <!-- TODO: This is mostly the same as ship list. How can I get rid
-                 of this duplicate? -->
-            <!-- TODO: How to customize columns? Sometimes I want to see other
-                 parameters like cruising speed, anti-submarine or the like. -->
-            <table>
-              <col>
-              <col width="60px">
-              <col width="50px">
-              <col width="50px">
-              <col width="50px">
-              <col width="50px">
-              <col width="50px">
-              <col width="50px">
-              <col width="50px">
-              <col width="50px">
-              <thead>
-                <tr>
-                  <th>名前</th>
-                  <th>レベル</th>
-                  <th>燃料</th>
-                  <th>弾薬</th>
-                  <th>戦意</th>
-                  <th>HP</th>
-                  <th>装甲</th>
-                  <th>火力</th>
-                  <th>雷装</th>
-                  <th>対空</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr template repeat="{{ship in fleet.ships}}"
-                    class="{{ship.stateClass}}">
-                  <td>
-                    <div class="title {{ship.lockedClass}}">{{ship.name}}</div>
-                    <div>{{ship.shipType}}</div>
-                  </td>
-                  <td class="numberColumn {{ship.levelClass}}">
-                    <div>{{ship.level}}<template
-                      if="{{ship.experienceGauge != null}}"><span
-                      class="subordinate">.{{ship.experienceGauge}}</span>
-                      </template></div>
-                    <template if="{{ship.upgradeLevel != 0}}">
-                      <div>改: {{ship.upgradeLevel}}</div>
-                    </template>
-                  </td>
-                  <td class="numberColumn">
-                    <div>{{ship.fuelPercentage}}%</div>
-                    <div>{{ship.fuelCapacity}}</div>
-                  </td>
-                  <td class="numberColumn">
-                    <div>{{ship.ammoPercentage}}%</div>
-                    <div>{{ship.ammoCapacity}}</div>
-                  </td>
-                  <td class="numberColumn">{{ship.vitality}}</td>
-                  <td class="numberColumn">
-                    <div>{{ship.hpPercentage}}%</div>
-                    <div>{{ship.hp}}/{{ship.maxHp}}</div>
-                  </td>
-                  <td class="numberColumn {{ship.armorClass}}">
-                    <div>{{ship.armor}}</div>
-                    <div>{{ship.enhancedArmor}}/{{ship.maxArmor}}</div>
-                  </td>
-                  <td class="numberColumn {{ship.firepowerClass}}">
-                    <div>{{ship.firepower}}</div>
-                    <div>{{ship.enhancedFirepower}}/{{ship.maxFirepower}}</div>
-                  </td>
-                  <td class="numberColumn {{ship.thunderstrokeClass}}">
-                    <div>{{ship.thunderstroke}}</div>
-                    <div>
-                      {{ship.enhancedThunderstroke}}/{{ship.maxThunderstroke}}
-                    </div>
-                  </td>
-                  <td class="numberColumn {{ship.antiAirClass}}">
-                    <div>{{ship.antiAir}}</div>
-                    <div>{{ship.enhancedAntiAir}}/{{ship.maxAntiAir}}</div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+            <section>
+              <h4 data-collapsed="{{fleet.collapsed}}">
+                第{{fleet.id}}艦隊: {{fleet.name}}
+                <template if="{{fleet.undertakingMission != null}}">
+                  (遠征中: {{fleet.undertakingMission}})
+                </template>
+                <button class="collapse"
+                        on-click="{{toggleCollapseFleet}}"
+                        data-fleet-id="{{fleet.id}}"></button>
+              </h4>
+              <!-- TODO: This is mostly the same as ship list. How can I get rid
+                   of this duplicate? -->
+              <!-- TODO: How to customize columns? Sometimes I want to see other
+                   parameters like cruising speed, anti-submarine or the like. -->
+              <table>
+                <col>
+                <col width="60px">
+                <col width="50px">
+                <col width="50px">
+                <col width="50px">
+                <col width="50px">
+                <col width="50px">
+                <col width="50px">
+                <col width="50px">
+                <col width="50px">
+                <thead>
+                  <tr>
+                    <th>名前</th>
+                    <th>レベル</th>
+                    <th>燃料</th>
+                    <th>弾薬</th>
+                    <th>戦意</th>
+                    <th>HP</th>
+                    <th>装甲</th>
+                    <th>火力</th>
+                    <th>雷装</th>
+                    <th>対空</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr template repeat="{{ship in fleet.ships}}"
+                      class="{{ship.stateClass}}">
+                    <td>
+                      <div class="title {{ship.lockedClass}}">{{ship.name}}</div>
+                      <div>{{ship.shipType}}</div>
+                    </td>
+                    <td class="numberColumn {{ship.levelClass}}">
+                      <div>{{ship.level}}<template
+                        if="{{ship.experienceGauge != null}}"><span
+                        class="subordinate">.{{ship.experienceGauge}}</span>
+                        </template></div>
+                      <template if="{{ship.upgradeLevel != 0}}">
+                        <div>改: {{ship.upgradeLevel}}</div>
+                      </template>
+                    </td>
+                    <td class="numberColumn">
+                      <div>{{ship.fuelPercentage}}%</div>
+                      <div>{{ship.fuelCapacity}}</div>
+                    </td>
+                    <td class="numberColumn">
+                      <div>{{ship.ammoPercentage}}%</div>
+                      <div>{{ship.ammoCapacity}}</div>
+                    </td>
+                    <td class="numberColumn">{{ship.vitality}}</td>
+                    <td class="numberColumn">
+                      <div>{{ship.hpPercentage}}%</div>
+                      <div>{{ship.hp}}/{{ship.maxHp}}</div>
+                    </td>
+                    <td class="numberColumn {{ship.armorClass}}">
+                      <div>{{ship.armor}}</div>
+                      <div>{{ship.enhancedArmor}}/{{ship.maxArmor}}</div>
+                    </td>
+                    <td class="numberColumn {{ship.firepowerClass}}">
+                      <div>{{ship.firepower}}</div>
+                      <div>{{ship.enhancedFirepower}}/{{ship.maxFirepower}}</div>
+                    </td>
+                    <td class="numberColumn {{ship.thunderstrokeClass}}">
+                      <div>{{ship.thunderstroke}}</div>
+                      <div>
+                        {{ship.enhancedThunderstroke}}/{{ship.maxThunderstroke}}
+                      </div>
+                    </td>
+                    <td class="numberColumn {{ship.antiAirClass}}">
+                      <div>{{ship.antiAir}}</div>
+                      <div>{{ship.enhancedAntiAir}}/{{ship.maxAntiAir}}</div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </section>
           </template>
         </div>
       </div>

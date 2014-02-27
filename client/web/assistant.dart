@@ -14,6 +14,14 @@ part 'domain/screen.dart';
 part 'domain/ship.dart';
 part 'util.dart';
 
+class CollapsedSectionInfo {
+  Element header;
+  Element collapseButton;
+  bool collapsed;
+
+  CollapsedSectionInfo(this.header, this.collapseButton, this.collapsed);
+}
+
 @CustomTag('eplusx-kancolle-assistant')
 class Assistant extends PolymerElement {
   // Ships.
@@ -81,35 +89,53 @@ class Assistant extends PolymerElement {
       updateAvailableObjects();
     });
     addCollapseButtons();
+    updateCollapsedSections();
     handleObjects(serverGetObjects);
   }
 
-  void collapseSection(Element header, bool toCollapse,
-                       [Element collapseButton=null]) {
+  CollapsedSectionInfo collapseSection(Element header, Element collapseButton,
+                       bool collapsed) {
     for (var element in header.parent.children) {
       if (element == header) {
         continue;
       }
-      element.classes.toggle("hidden", toCollapse);
+      element.classes.toggle("hidden", collapsed);
     }
-    header.dataset["collapsed"] = (toCollapse).toString();
-    if (collapseButton != null) {
-      collapseButton.text = toCollapse ? "►" : "▼";
-    }
+    header.dataset["collapsed"] = (collapsed).toString();
+    collapseButton.text = collapsed ? "►" : "▼";
+    return new CollapsedSectionInfo(header, collapseButton, collapsed);
+  }
+
+  CollapsedSectionInfo toggleCollapseSection(MouseEvent e) {
+    var collapseButton = e.target;
+    var header = collapseButton.parent;
+    var collapsed = header.dataset["collapsed"] != "true";
+    return collapseSection(header, collapseButton, collapsed);
+  }
+
+  void toggleCollapseFleet(MouseEvent e) {
+    var collapsedSection = toggleCollapseSection(e);
+    var fleetId = int.parse(collapsedSection.collapseButton.dataset["fleetId"]);
+    fleets[fleetId - 1].collapsed = collapsedSection.collapsed;
   }
 
   void addCollapseButtons() {
     // shadowRoot provides access to the root of this custom element.
-    for (Element header in shadowRoot.querySelectorAll("div.board > h3")) {
+    for (Element header in
+        shadowRoot.querySelectorAll("div.board *[data-collapsed]")) {
       var collapseButton = new ButtonElement();
       collapseButton.classes.add("collapse");
-      collapseButton.onClick.listen((MouseEvent e) {
-        var toCollapse = header.dataset["collapsed"] == "false";
-        collapseSection(header, toCollapse, collapseButton);
-      });
+      collapseButton.onClick.listen(toggleCollapseSection);
       header.children.add(collapseButton);
-      collapseSection(header, header.dataset["collapsed"] == "true",
-          collapseButton);
+    }
+  }
+
+  void updateCollapsedSections() {
+    for (Element header in
+        shadowRoot.querySelectorAll("div.board *[data-collapsed]")) {
+      var collapseButton = header.querySelector("button.collapse");
+      collapseSection(header, collapseButton,
+          header.dataset["collapsed"] == "true");
     }
   }
 
