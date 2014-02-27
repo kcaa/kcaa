@@ -95,14 +95,22 @@ class Ship {
         enhancedThunderstroke == maxThunderstroke ? "fullyEnhanced" : "";
     antiAirClass = enhancedAntiAir == maxAntiAir ? "fullyEnhanced" : "";
     lockedClass = locked ? "locked" : "";
-    // Check the belonging fleet.
+    updateBelongingFleet(fleets);
+  }
+
+  bool updateBelongingFleet(List<Fleet> fleets) {
     for (var fleet in fleets) {
       for (var ship in fleet.ships) {
         if (ship.id == id) {
+          var changed = belongingFleet == null || fleet.id != belongingFleet.id;
           belongingFleet = fleet;
+          return changed;
         }
       }
     }
+    var changed = belongingFleet != null;
+    belongingFleet = null;
+    return changed;
   }
 }
 
@@ -125,4 +133,13 @@ void handleShipList(Assistant assistant, Map<String, dynamic> data) {
     assistant.shipMap[ship.id] = ship;
   }
   notifyFleetList(assistant);
+}
+
+void notifyShipList(Assistant assistant) {
+  for (var i = 0; i < assistant.ships.length; ++i) {
+    var ship = assistant.ships[i];
+    if (ship.updateBelongingFleet(assistant.fleets)) {
+      assistant.ships[i] = ship;
+    }
+  }
 }

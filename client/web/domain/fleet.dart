@@ -14,8 +14,6 @@ class Fleet {
     for (var shipId in data["ship_ids"]) {
       var ship = shipMap[shipId];
       ships.add(ship);
-      // If there is a means to notify the change in ObservableList, I would
-      // update ship.belongingFleet as well...
     }
     if (data["mission_id"] != null) {
       var missionId = data["mission_id"];
@@ -54,6 +52,7 @@ void handleFleetList(Assistant assistant, Map<String, dynamic> data) {
           assistant.missions));
     }
   }
+  notifyShipList(assistant);
   // Wait for the DOM to be updated.
   runLater(0, () => assistant.updateCollapsedSections());
 }
