@@ -131,20 +131,23 @@ class ShipDefinition(jsonobject.JSONSerializableObject):
 class ShipDefinitionList(model.KCAAObject):
     """List of ship definitions."""
 
-    ships = jsonobject.JSONProperty('ships', {}, value_type=dict)
-    """Ships. Keyed by ship ID."""
-    # TODO: Needs key_type in jsonobject module.
+    ships = jsonobject.JSONProperty('ships', {}, value_type=dict,
+                                    element_type=ShipDefinition)
+    """Ships. Keyed by ship ID (string)."""
 
-    def update(self, api_name, request, response, objects):
+    def update(self, api_name, request, response, objects, debug):
         super(ShipDefinitionList, self).update(api_name, request, response,
-                                               objects)
+                                               objects, debug)
         for data in response['api_data']:
             ship_data = jsonobject.parse(data)
             # /api_get_master/ship KCSAPI returns empty results for unknown
             # ships. Those entries have a fuel capacity of 0.
             if ship_data.api_fuel_max == 0:
                 continue
-            self.ships[ship_data.api_id] = ShipDefinition(
+            # Maps are always keyed by string in JSON, so it's safer to key
+            # string here. This is required to make this object usable with
+            # KCSAPI handler's serialization/deserialization mechanism.
+            self.ships[str(ship_data.api_id)] = ShipDefinition(
                 id=ship_data.api_id,
                 name=ship_data.api_name,
                 ship_type=ship_data.api_stype,
@@ -267,20 +270,22 @@ class Ship(ShipDefinition):
 class ShipList(model.KCAAObject):
     """List of owned ship instances."""
 
-    ships = jsonobject.JSONProperty('ships', {}, value_type=dict)
-    """Ships. Keyed by instanceID."""
+    ships = jsonobject.JSONProperty('ships', {}, value_type=dict,
+                                    element_type=Ship)
+    """Ships. Keyed by instance ID (string)."""
 
-    def update(self, api_name, request, response, objects):
-        super(ShipList, self).update(api_name, request, response, objects)
+    def update(self, api_name, request, response, objects, debug):
+        super(ShipList, self).update(api_name, request, response, objects,
+                                     debug)
         updated_ids = set()
         if api_name == '/api_get_member/ship':
             ship_defs = objects['ShipDefinitionList'].ships
             for data in response['api_data']:
                 ship_data = jsonobject.parse(data)
-                ship = ship_defs[ship_data.api_ship_id].convert_to_dict()
+                ship = ship_defs[str(ship_data.api_ship_id)].convert_to_dict()
                 ShipList.update_ship(ship, ship_data)
-                self.ships[ship['id']] = Ship(**ship)
-                updated_ids.add(ship['id'])
+                self.ships[str(ship['id'])] = Ship(**ship)
+                updated_ids.add(str(ship['id']))
         elif (api_name == '/api_get_member/ship2' or
               api_name == '/api_get_member/ship3'):
             ships_data = (response['api_data'] if
@@ -288,23 +293,23 @@ class ShipList(model.KCAAObject):
                           response['api_data']['api_ship_data'])
             for data in ships_data:
                 ship_data = jsonobject.parse(data)
-                ship = self.ships[ship_data.api_id].convert_to_dict()
+                ship = self.ships[str(ship_data.api_id)].convert_to_dict()
                 ShipList.update_ship(ship, ship_data)
-                self.ships[ship['id']] = Ship(**ship)
-                updated_ids.add(ship['id'])
+                self.ships[str(ship['id'])] = Ship(**ship)
+                updated_ids.add(str(ship['id']))
         elif api_name == '/api_req_hensei/lock':
-            ship = self.ships[int(request['api_ship_id'])]
+            ship = self.ships[str(request['api_ship_id'])]
             ship.locked = bool(response['api_data']['api_locked'])
             return
         elif api_name == '/api_req_kaisou/remodeling':
             ship_defs = objects['ShipDefinitionList'].ships
-            self.ships[request['api_data']['api_id']] = (
-                ship_defs[self.ships[int(request['api_id'])].upgrade_to])
+            self.ships[str(request['api_data']['api_id'])] = (
+                ship_defs[self.ships[str(request['api_id'])].upgrade_to])
             return
         elif api_name == '/api_req_kousyou/getship':
             ship_defs = objects['ShipDefinitionList'].ships
-            self.ships[response['api_data']['api_id']] = (
-                ship_defs[response['api_data']['api_ship_id']])
+            self.ships[str(response['api_data']['api_id'])] = (
+                ship_defs[str(response['api_data']['api_ship_id'])])
             return
         # Remove ships that have gone.
         for not_updated_id in set(self.ships.iterkeys()) - updated_ids:

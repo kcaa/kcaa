@@ -106,6 +106,31 @@ class KCSAPIHandler(object):
         self.objects.clear()
         self.define_handlers()
 
+    def serialize_objects(self):
+        """Serialize objects so that the client can deserialize and restore the
+        state."""
+        return {key: [value.__class__.__module__, value.__class__.__name__,
+                      value.json()]
+                for key, value in self.objects.iteritems()}
+
+    def deserialize_objects(self, serialized_objects):
+        """Deserialize objects to restore the previous state.
+
+        *IMPORTANT NOTE: this method uses :meth:`eval` to find the module (the
+        first value in the list). Do not call this method with a data from an
+        untrusted source.*
+        """
+        namespace = __name__.rpartition('.')[0]
+        namespace = namespace + '.' if namespace else ''
+        for key, value in serialized_objects.iteritems():
+            module_name, class_name, text = value
+            if module_name.startswith(namespace):
+                module_name = module_name[len(namespace):]
+            module = eval(module_name)
+            cls = getattr(module, class_name)
+            self.objects[key] = cls.parse_text(text)
+        print self.objects.keys()
+
     def get_kcsapi_responses(self, entries):
         for entry in entries:
             o = urlparse.urlparse(entry['request']['url'])
@@ -150,15 +175,17 @@ class KCSAPIHandler(object):
             object_type = handler.__name__
             old_obj = self.objects.get(object_type)
             if not old_obj:
-                obj = handler(api_name, request, response, self.objects,
-                              self.debug)
+                obj = handler()
                 # Handler may return None in case there is no need to handle
                 # the KCSAPI response.
                 if obj:
+                    obj.update(api_name, request, response, self.objects,
+                               self.debug)
                     self.objects[object_type] = obj
                     yield obj
             else:
-                old_obj.update(api_name, request, response, self.objects)
+                old_obj.update(api_name, request, response, self.objects,
+                               self.debug)
                 yield old_obj
 
     def get_updated_objects(self):

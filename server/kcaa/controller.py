@@ -58,9 +58,12 @@ def control(args):
                 data = server_conn.recv()
                 command = data[0]
                 if command == COMMAND_RELOAD_KCSAPI:
+                    serialized_objects = kcsapi_handler.serialize_objects()
+                    print serialized_objects.keys()
                     reload(kcsapi_util)
                     kcsapi_handler = kcsapi_util.KCSAPIHandler(har_manager)
                     kcsapi_handler.reload_handlers()
+                    kcsapi_handler.deserialize_objects(serialized_objects)
             try:
                 for obj in kcsapi_handler.get_updated_objects():
                     server_conn.send((obj.object_type, obj.json()))

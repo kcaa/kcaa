@@ -27,8 +27,9 @@ class FleetList(model.KCAAObject):
     Note that this list has 0-origin, while other objects use 1-origin index to
     reference a fleet."""
 
-    def update(self, api_name, request, response, objects):
-        super(FleetList, self).update(api_name, request, response, objects)
+    def update(self, api_name, request, response, objects, debug):
+        super(FleetList, self).update(api_name, request, response, objects,
+                                      debug)
         if (api_name == '/api_get_member/deck' or
                 api_name == '/api_get_member/deck_port'):
             self.fleets = []
