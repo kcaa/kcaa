@@ -342,6 +342,40 @@ class TestJSONSerializableObject(object):
             class SomeObject(jsonobject.JSONSerializableObject):
                 a = jsonobject.JSONProperty('a', default='A', value_type=int)
 
+    def test_element_type_list(self):
+        class SomeObject(jsonobject.JSONSerializableObject):
+            a = jsonobject.JSONProperty('a', value_type=list, element_type=int)
+
+        s = SomeObject(a=[1, 2, 3])
+        with pytest.raises(TypeError):
+            s.a = ['1', '2', '3']
+
+    def test_element_type_tuple(self):
+        class SomeObject(jsonobject.JSONSerializableObject):
+            a = jsonobject.JSONProperty('a', value_type=tuple,
+                                        element_type=int)
+
+        s = SomeObject(a=(1, 2, 3))
+        with pytest.raises(TypeError):
+            s.a = ('1', '2', '3')
+
+    def test_element_type_dict(self):
+        class SomeObject(jsonobject.JSONSerializableObject):
+            a = jsonobject.JSONProperty('a', value_type=dict, element_type=int)
+
+        s = SomeObject(a={'a': 1, 'b': 2})
+        with pytest.raises(TypeError):
+            s.a = {'a': '1', 'b': '2'}
+
+    def test_key_type_dict(self):
+        class SomeObject(jsonobject.JSONSerializableObject):
+            a = jsonobject.JSONProperty('a', value_type=dict)
+
+        s = SomeObject(a={'a': 1, 'b': 2})
+        s.a = {u'a': 1, u'b': 2}
+        with pytest.raises(TypeError):
+            s.a = {1: 1, 2: 2}
+
     def test_parse_text(self):
         class SomeObject(jsonobject.JSONSerializableObject):
             foo = jsonobject.JSONProperty('foo', u'FOO', value_type=unicode)

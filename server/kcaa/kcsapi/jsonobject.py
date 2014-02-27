@@ -85,11 +85,15 @@ class JSONSerializableObject(object):
     @staticmethod
     def _replace_containers(value, value_type, element_type,
                             _ignore_unknown=False):
+        if not value_type:
+            return value
         # Try to parse as JSONSerializableObject if the value type is
         # specified and the value is a dict.
-        if (isinstance(value, dict) and
+        elif (isinstance(value, dict) and
                 issubclass(value_type, JSONSerializableObject)):
             return value_type.parse(value, _ignore_unknown=_ignore_unknown)
+        elif not element_type:
+            return value
         elif (isinstance(value, dict) and value_type == dict and
                 issubclass(element_type, JSONSerializableObject)):
             replaced_map = {}
@@ -496,6 +500,7 @@ class JSONProperty(CustomizableJSONProperty):
 
     def _check_type(self, value):
         if value is not None and self._value_type is not None:
+            bad_element = lambda e: not isinstance(e, self._element_type)
             if not isinstance(value, self._value_type):
                 raise TypeError('Given value {} of type {} is not {}'.format(
                     value, value.__class__.__name__,
@@ -503,12 +508,23 @@ class JSONProperty(CustomizableJSONProperty):
             elif ((issubclass(self._value_type, list) or
                    issubclass(self._value_type, tuple)) and
                     self._element_type is not None):
-                bad_element = lambda e: not isinstance(e, self._element_type)
                 if any(map(bad_element, value)):
                     raise TypeError('Given {} {} should contain only '
                                     'elements of type {}'.format(
                                         value, self._value_type,
                                         self._element_type.__name__))
+            elif issubclass(self._value_type, dict):
+                bad_key = lambda k: (not isinstance(k, str) and
+                                     not isinstance(k, unicode))
+                if any(map(bad_key, value.iterkeys())):
+                    raise TypeError('Given dict {} should contain only keys '
+                                    'of type str or unicode'.format(value))
+                if self._element_type is not None:
+                    if any(map(bad_element, value.itervalues())):
+                        raise TypeError('Given dict {} should contain only '
+                                        'elements of type {}'.format(
+                                            value,
+                                            self._element_type.__name__))
 
 
 class ReadonlyJSONProperty(JSONProperty):
