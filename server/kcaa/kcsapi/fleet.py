@@ -13,6 +13,8 @@ class Fleet(jsonobject.JSONSerializableObject):
     ship_ids = jsonobject.JSONProperty('ship_ids', value_type=list,
                                        element_type=int)
     """IDs of ships belonging to this fleet."""
+    mission_id = jsonobject.JSONProperty('mission_id', value_type=int)
+    """ID of mission which this fleet is undertaking."""
 
 
 class FleetList(model.KCAAObject):
@@ -32,10 +34,14 @@ class FleetList(model.KCAAObject):
             self.fleets = []
             for data in response['api_data']:
                 fleet_data = jsonobject.parse(data)
+                mission_id = None
+                if fleet_data.api_mission[0] != 0:
+                    mission_id = fleet_data.api_mission[1]
                 self.fleets.append(Fleet(
                     id=fleet_data.api_id,
                     name=fleet_data.api_name,
-                    ship_ids=filter(lambda x: x != -1, fleet_data.api_ship)))
+                    ship_ids=filter(lambda x: x != -1, fleet_data.api_ship),
+                    mission_id=mission_id))
         elif api_name == '/api_req_hensei/change':
             for i, data in enumerate(response['api_data']):
                 self.fleets[i].ship_ids = filter(lambda x: x != -1, data)

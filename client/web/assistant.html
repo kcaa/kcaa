@@ -21,7 +21,12 @@
         <div class="board">
           <h3 data-collapsed="false">艦隊</h3>
           <template repeat="{{fleet in fleets}}">
-            <h4>第{{fleet.id}}艦隊: {{fleet.name}}</h4>
+            <h4>
+              第{{fleet.id}}艦隊: {{fleet.name}}
+              <template if="{{fleet.undertakingMission != null}}">
+                (遠征中: {{fleet.undertakingMission}})
+              </template>
+            </h4>
             <!-- TODO: This is mostly the same as ship list. How can I get rid
                  of this duplicate? -->
             <!-- TODO: How to customize columns? Sometimes I want to see other
