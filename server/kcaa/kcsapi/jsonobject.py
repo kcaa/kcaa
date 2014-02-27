@@ -90,6 +90,13 @@ class JSONSerializableObject(object):
         if (isinstance(value, dict) and
                 issubclass(value_type, JSONSerializableObject)):
             return value_type.parse(value, _ignore_unknown=_ignore_unknown)
+        elif (isinstance(value, dict) and value_type == dict and
+                issubclass(element_type, JSONSerializableObject)):
+            replaced_map = {}
+            for k, v in value.iteritems():
+                replaced_map[k] = JSONSerializableObject._replace_containers(
+                    v, element_type, None, _ignore_unknown=_ignore_unknown)
+            return replaced_map
         elif isinstance(value, list) and issubclass(value_type, list):
             # This way we can't define schema that contains a list of list of
             # some type. That should rarely happen, and we don't support such

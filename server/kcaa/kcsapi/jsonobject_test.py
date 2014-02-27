@@ -383,7 +383,24 @@ class TestJSONSerializableObject(object):
             bar = jsonobject.JSONProperty('bar', value_type=SomeObject)
 
         s = AnotherObject.parse_text('{"bar": {"foo": 123}}')
+        assert isinstance(s.bar, SomeObject)
         assert s.bar.foo == 123
+
+    def test_parse_dict(self):
+        class SomeObject(jsonobject.JSONSerializableObject):
+            foo = jsonobject.JSONProperty('foo', 123, value_type=int)
+
+        class AnotherObject(jsonobject.JSONSerializableObject):
+            bar = jsonobject.JSONProperty('bar', value_type=dict,
+                                          element_type=SomeObject)
+
+        s = AnotherObject.parse_text('{"bar": {"a": {"foo": 1}, '
+                                     '"b": {"foo": 2}}}')
+        assert len(s.bar) == 2
+        assert isinstance(s.bar['a'], SomeObject)
+        assert s.bar['a'].foo == 1
+        assert isinstance(s.bar['b'], SomeObject)
+        assert s.bar['b'].foo == 2
 
     def test_parse_list(self):
         class SomeObject(jsonobject.JSONSerializableObject):
@@ -395,7 +412,9 @@ class TestJSONSerializableObject(object):
 
         s = AnotherObject.parse_text('{"bar": [{"foo": 1}, {"foo": 2}]}')
         assert len(s.bar) == 2
+        assert isinstance(s.bar[0], SomeObject)
         assert s.bar[0].foo == 1
+        assert isinstance(s.bar[1], SomeObject)
         assert s.bar[1].foo == 2
         s.bar[0] = SomeObject(foo=3)
         assert s.bar[0].foo == 3
@@ -410,7 +429,9 @@ class TestJSONSerializableObject(object):
 
         s = AnotherObject.parse_text('{"bar": [{"foo": 1}, {"foo": 2}]}')
         assert len(s.bar) == 2
+        assert isinstance(s.bar[0], SomeObject)
         assert s.bar[0].foo == 1
+        assert isinstance(s.bar[1], SomeObject)
         assert s.bar[1].foo == 2
         # Tuple should not allow mutation.
         with pytest.raises(TypeError):
