@@ -100,8 +100,6 @@ class Ship {
       for (var ship in fleet.ships) {
         if (ship.id == id) {
           belongingFleet = fleet;
-          // If there is a means to notify the change in ObservableList, I would
-          // update the ship in fleet.ships as well...
         }
       }
     }
@@ -126,4 +124,5 @@ void handleShipList(Assistant assistant, Map<String, dynamic> data) {
     assistant.ships.add(ship);
     assistant.shipMap[ship.id] = ship;
   }
+  notifyFleetList(assistant);
 }

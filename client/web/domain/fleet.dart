@@ -32,6 +32,12 @@ class Fleet {
       this.collapsed = id != 1;
     }
   }
+
+  void updateShips(Map<int, Ship> shipMap) {
+    for (var i = 0; i < ships.length; ++i) {
+      ships[i] = shipMap[ships[i].id];
+    }
+  }
 }
 
 void handleFleetList(Assistant assistant, Map<String, dynamic> data) {
@@ -49,5 +55,14 @@ void handleFleetList(Assistant assistant, Map<String, dynamic> data) {
     }
   }
   // Wait for the DOM to be updated.
+  runLater(0, () => assistant.updateCollapsedSections());
+}
+
+void notifyFleetList(Assistant assistant) {
+  for (var i = 0; i < assistant.fleets.length; ++i) {
+    var fleet = assistant.fleets[i];
+    fleet.updateShips(assistant.shipMap);
+    assistant.fleets[i] = fleet;
+  }
   runLater(0, () => assistant.updateCollapsedSections());
 }
