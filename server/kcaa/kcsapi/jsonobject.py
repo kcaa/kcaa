@@ -98,6 +98,10 @@ class JSONSerializableObject(object):
             return [JSONSerializableObject._replace_containers(
                 v, element_type, None, _ignore_unknown=_ignore_unknown) for
                 v in value]
+        elif isinstance(value, list) and issubclass(value_type, tuple):
+            return tuple([JSONSerializableObject._replace_containers(
+                v, element_type, None, _ignore_unknown=_ignore_unknown) for
+                v in value])
         else:
             return value
 
