@@ -500,13 +500,15 @@ class JSONProperty(CustomizableJSONProperty):
                 raise TypeError('Given value {} of type {} is not {}'.format(
                     value, value.__class__.__name__,
                     self._value_type.__name__))
-            if (issubclass(self._value_type, list) and
+            elif ((issubclass(self._value_type, list) or
+                   issubclass(self._value_type, tuple)) and
                     self._element_type is not None):
                 bad_element = lambda e: not isinstance(e, self._element_type)
                 if any(map(bad_element, value)):
-                    raise TypeError('Given list {} should contain only '
+                    raise TypeError('Given {} {} should contain only '
                                     'elements of type {}'.format(
-                                        value, self._element_type.__name__))
+                                        value, self._value_type,
+                                        self._element_type.__name__))
 
 
 class ReadonlyJSONProperty(JSONProperty):
