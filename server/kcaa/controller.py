@@ -52,7 +52,7 @@ def control(args):
         while True:
             time.sleep(0.1)
             if to_exit.wait(0.0):
-                logger.error('Controller got an exit signal. Shutting down.')
+                logger.info('Controller got an exit signal. Shutting down.')
                 break
             while server_conn.poll():
                 data = server_conn.recv()
