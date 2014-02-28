@@ -17,7 +17,7 @@ DATETIME_MIN = datetime.datetime(
 
 class HarManager(object):
 
-    MAX_HAR_SIZE = 100 * 1024
+    MAX_HAR_SIZE = 1024 * 1024  # 1 MiB
 
     def __init__(self, args, timeout):
         self._logger = logging.getLogger('kcaa.proxy_util')
@@ -80,7 +80,7 @@ class HarManager(object):
                              timeout=self.timeout)
             r.raise_for_status()
         except:
-            self._logger.warn('Failed to get page {}.'.format(self.pageref))
+            self._logger.info('Failed to get page {}.'.format(self.pageref))
             return None, self.last_page_size
         fetch_span = datetime.datetime.now() - start
 
@@ -91,12 +91,12 @@ class HarManager(object):
         har = r.json(encoding='utf8')
         parse_span = datetime.datetime.now() - start
 
-        if (content_size >= HarManager.MAX_HAR_SIZE or
+        if (content_size >= 2 * HarManager.MAX_HAR_SIZE or
                 fetch_span.total_seconds() > 0.5 or
                 parse_span.total_seconds() > 0.5):
             self._logger.debug('HAR page {} ({:.1f} KiB), fetched in {:.2f} '
                                'sec, parsed in {:.2f} sec.'.format(
-                                   (self.pageref - 1),
+                                   self.pageref,
                                    (1.0 / 1024) * content_size,
                                    fetch_span.total_seconds(),
                                    parse_span.total_seconds()))
