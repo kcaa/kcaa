@@ -289,6 +289,9 @@ class ShipList(model.KCAAObject):
     ships = jsonobject.JSONProperty('ships', {}, value_type=dict,
                                     element_type=Ship)
     """Ships. Keyed by instance ID (string)."""
+    ship_order = jsonobject.JSONProperty('ship_order', [], value_type=list,
+                                         element_type=unicode)
+    """Order of ships. This perserves the sort order."""
 
     def update(self, api_name, request, response, objects, debug):
         super(ShipList, self).update(api_name, request, response, objects,
@@ -296,23 +299,27 @@ class ShipList(model.KCAAObject):
         updated_ids = set()
         if api_name == '/api_get_member/ship':
             ship_defs = objects['ShipDefinitionList'].ships
+            del self.ship_order[:]
             for data in response['api_data']:
                 ship_data = jsonobject.parse(data)
                 ship = ship_defs[str(ship_data.api_ship_id)].convert_to_dict()
                 ShipList.update_ship(ship, ship_data)
                 self.ships[str(ship['id'])] = Ship(**ship)
                 updated_ids.add(str(ship['id']))
+                self.ship_order.append(str(ship['id']))
         elif (api_name == '/api_get_member/ship2' or
               api_name == '/api_get_member/ship3'):
             ships_data = (response['api_data'] if
                           api_name == '/api_get_member/ship2' else
                           response['api_data']['api_ship_data'])
+            del self.ship_order[:]
             for data in ships_data:
                 ship_data = jsonobject.parse(data)
                 ship = self.ships[str(ship_data.api_id)].convert_to_dict()
                 ShipList.update_ship(ship, ship_data)
                 self.ships[str(ship['id'])] = Ship(**ship)
                 updated_ids.add(str(ship['id']))
+                self.ship_order.append(str(ship['id']))
         elif api_name == '/api_req_hensei/lock':
             ship = self.ships[str(request['api_ship_id'])]
             ship.locked = bool(response['api_data']['api_locked'])

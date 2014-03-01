@@ -119,18 +119,8 @@ class Ship {
 void handleShipList(Assistant assistant, Map<String, dynamic> data) {
   assistant.ships.clear();
   assistant.shipMap.clear();
-  var ships = new List.from(data["ships"].values, growable: false);
-  ships.sort((Map x, Map y) {
-    if (x["level"] != y["level"]) {
-      return -x["level"].compareTo(y["level"]);
-    } else if (x.containsKey("experience_gauge")) {
-      return -x["experience_gauge"].compareTo(y["experience_gauge"]);
-    } else {
-      return 0;
-    }
-  });
-  for (var shipData in ships) {
-    var ship = new Ship(shipData, assistant.fleets);
+  for (var shipId in data["ship_order"]) {
+    var ship = new Ship(data["ships"][shipId], assistant.fleets);
     assistant.ships.add(ship);
     assistant.shipMap[ship.id] = ship;
   }
