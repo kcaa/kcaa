@@ -19,6 +19,7 @@ class KcaaHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
     GET_NEW_OBJECTS = '/get_new_objects'
     GET_OBJECT = '/get_object'
     RELOAD_KCSAPI = '/reload_kcsapi'
+    RELOAD_MANIPULATORS = '/reload_manipulators'
     MANIPULATE = '/manipulate'
     CLIENT_PREFIX = '/client/'
 
@@ -42,6 +43,8 @@ class KcaaHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             self.handle_get_object(o)
         elif o.path == KcaaHTTPRequestHandler.RELOAD_KCSAPI:
             self.handle_reload_kcsapi(o)
+        elif o.path == KcaaHTTPRequestHandler.RELOAD_MANIPULATORS:
+            self.handle_reload_manipulators(o)
         elif o.path == KcaaHTTPRequestHandler.MANIPULATE:
             self.handle_manipulate(o)
         elif o.path.startswith(KcaaHTTPRequestHandler.CLIENT_PREFIX):
@@ -94,6 +97,14 @@ class KcaaHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
     def handle_reload_kcsapi(self, o):
         self.server.controller_conn.send((controller.COMMAND_RELOAD_KCSAPI,))
+        self.send_response(200)
+        self.send_header('Content-Type', 'text/plain')
+        self.end_headers()
+        self.wfile.write('success')
+
+    def handle_reload_manipulators(self, o):
+        self.server.controller_conn.send(
+            (controller.COMMAND_RELOAD_MANIPULATORS,))
         self.send_response(200)
         self.send_header('Content-Type', 'text/plain')
         self.end_headers()

@@ -46,6 +46,7 @@ class Assistant extends PolymerElement {
   Uri serverGetNewObjects;
   Uri serverGetObject;
   Uri serverReloadKCSAPIModules;
+  Uri serverReloadManipulatorModules;
 
   // Client status.
   @observable String screen;
@@ -83,6 +84,7 @@ class Assistant extends PolymerElement {
     serverGetNewObjects = serverRoot.resolve("get_new_objects");
     serverGetObject = serverRoot.resolve("get_object");
     serverReloadKCSAPIModules = serverRoot.resolve("reload_kcsapi");
+    serverReloadManipulatorModules = serverRoot.resolve("reload_manipulators");
 
     availableObjectsChecker =
         new Timer.periodic(MILLISECOND * 100, (Timer timer) {
@@ -192,6 +194,10 @@ class Assistant extends PolymerElement {
 
   void reloadKCSAPIModules() {
     HttpRequest.getString(serverReloadKCSAPIModules.toString());
+  }
+
+  void reloadManipulatorModules() {
+    HttpRequest.getString(serverReloadManipulatorModules.toString());
   }
 
   Future<Map<String, dynamic>> getObject(String type, bool debug) {

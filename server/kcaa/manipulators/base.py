@@ -19,6 +19,8 @@ class Screen(object):
             self.click(40, 40)
             print('Changed screen to {}'.format(screen_id))
             yield 2.0
+            self.click(40, 40)
+            print('Changed screen to {}??'.format(screen_id))
         return self.manager.add_task(do_task)
 
 

@@ -13,6 +13,7 @@ import server
 
 
 COMMAND_RELOAD_KCSAPI = 'reload_kcsapi'
+COMMAND_RELOAD_MANIPULATORS = 'reload_manipulators'
 COMMAND_MANIPULATE = 'manipulate'
 
 
@@ -58,19 +59,29 @@ def control(args):
                 break
             while server_conn.poll():
                 data = server_conn.recv()
-                command = data[0]
-                if command == COMMAND_RELOAD_KCSAPI:
+                command_type = data[0]
+                command_args = data[1:]
+                if command_type == COMMAND_RELOAD_KCSAPI:
                     serialized_objects = kcsapi_handler.serialize_objects()
                     reload(kcsapi_util)
                     kcsapi_handler = kcsapi_util.KCSAPIHandler(har_manager)
                     kcsapi_handler.reload_handlers()
                     kcsapi_handler.deserialize_objects(serialized_objects)
                     manipulator_manager.objects = kcsapi_handler.objects
-                elif command == COMMAND_MANIPULATE:
+                elif command_type == COMMAND_RELOAD_MANIPULATORS:
+                    reload(manipulator_util)
+                    manipulator_manager = manipulator_util.ManipulatorManager(
+                        click_queue, kcsapi_handler.objects, time.time())
+                    manipulator_manager.reload_manipulators()
+                elif command_type == COMMAND_MANIPULATE:
                     try:
-                        manipulator_manager.dispatch(data[1:])
+                        manipulator_manager.dispatch(command_args)
                     except:
                         traceback.print_exc()
+                else:
+                    raise ValueError(
+                        'Unknown controller command: type = {}, args = {}'
+                        .format(command_type, command_args))
             try:
                 for obj in kcsapi_handler.get_updated_objects():
                     server_conn.send((obj.object_type, obj.json()))

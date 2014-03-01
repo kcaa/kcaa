@@ -47,6 +47,12 @@ class ManipulatorManager(object):
             'Charge': manipulators.port.Charge,
         }
 
+    def reload_manipulators(self):
+        reload(manipulators)
+        manipulators.reload_modules()
+        self.define_manipulators()
+        self.screen_manager = ScreenManager(self)
+
     def add_manipulator(self, manipulator):
         if self.task_manager.empty:
             self.current_task = manipulator
