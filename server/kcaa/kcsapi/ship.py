@@ -301,6 +301,13 @@ class ShipList(model.KCAAObject):
             ship = self.ships[str(request['api_ship_id'])]
             ship.locked = bool(response['api_data']['api_locked'])
             return
+        elif api_name == '/api_req_hokyu/charge':
+            data = jsonobject.parse(response['api_data'])
+            for ship_data in data.api_ship:
+                ship = self.ships[str(ship_data.api_id)]
+                ship.loaded_resource.fuel = ship_data.api_fuel
+                ship.loaded_resource.ammo = ship_data.api_bull
+            return
         elif api_name == '/api_req_kaisou/remodeling':
             ship_defs = objects['ShipDefinitionList'].ships
             self.ships[str(request['api_data']['api_id'])] = (

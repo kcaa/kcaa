@@ -6,13 +6,13 @@ import jsonobject
 class Resource(jsonobject.JSONSerializableObject):
     """Resource amount."""
 
-    fuel = jsonobject.ReadonlyJSONProperty('fuel', value_type=int)
+    fuel = jsonobject.JSONProperty('fuel', value_type=int)
     """Fuel."""
-    ammo = jsonobject.ReadonlyJSONProperty('ammo', value_type=int)
+    ammo = jsonobject.JSONProperty('ammo', value_type=int)
     """Ammo."""
-    steel = jsonobject.ReadonlyJSONProperty('steel', value_type=int)
+    steel = jsonobject.JSONProperty('steel', value_type=int)
     """Steel."""
-    bauxite = jsonobject.ReadonlyJSONProperty('bauxite', value_type=int)
+    bauxite = jsonobject.JSONProperty('bauxite', value_type=int)
     """Bauxite."""
 
 
