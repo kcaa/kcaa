@@ -7,11 +7,13 @@ import traceback
 
 import browser
 import kcsapi_util
+import manipulator_util
 import proxy_util
 import server
 
 
 COMMAND_RELOAD_KCSAPI = 'reload_kcsapi'
+COMMAND_MANIPULATE = 'manipulate'
 
 
 class DummyProcess(object):
@@ -31,10 +33,9 @@ def control(args):
         logger = logging.getLogger('kcaa.controller')
         har_manager = proxy_util.HarManager(args, 3.0)
         controller_conn, server_conn = multiprocessing.Pipe()
-        browsers_server_conn, servers_browser_conn = multiprocessing.Pipe()
+        click_queue = multiprocessing.Queue()
         ps = multiprocessing.Process(target=server.handle_server,
-                                     args=(args, to_exit, controller_conn,
-                                           servers_browser_conn))
+                                     args=(args, to_exit, controller_conn))
         ps.start()
         if not server_conn.poll(3.0):
             logger.error('Server is not responding. Shutting down.')
@@ -42,13 +43,14 @@ def control(args):
             return
         root_url = server_conn.recv()
         pk = multiprocessing.Process(target=browser.setup_kancolle_browser,
-                                     args=(args, browsers_server_conn,
-                                           to_exit))
+                                     args=(args, click_queue, to_exit))
         pc = multiprocessing.Process(target=browser.setup_kcaa_browser,
                                      args=(args, root_url, to_exit))
         pk.start()
         pc.start()
         kcsapi_handler = kcsapi_util.KCSAPIHandler(har_manager)
+        manipulator_manager = manipulator_util.ManipulatorManager(
+            click_queue, kcsapi_handler.objects, time.time())
         while True:
             time.sleep(0.1)
             if to_exit.wait(0.0):
@@ -63,16 +65,23 @@ def control(args):
                     kcsapi_handler = kcsapi_util.KCSAPIHandler(har_manager)
                     kcsapi_handler.reload_handlers()
                     kcsapi_handler.deserialize_objects(serialized_objects)
+                    manipulator_manager.objects = kcsapi_handler.objects
+                elif command == COMMAND_MANIPULATE:
+                    try:
+                        manipulator_manager.dispatch(data[1:])
+                    except:
+                        traceback.print_exc()
             try:
                 for obj in kcsapi_handler.get_updated_objects():
                     server_conn.send((obj.object_type, obj.json()))
+                manipulator_manager.update(time.time())
             except:
-                # Permit an exception in KCSAPI handler -- it's very likely a
-                # bug in how a raw response is read.
-                # Do not reload modules because some objects like ShipList rely
-                # on other objects, and can work even if there is a bug in
-                # orthogonal modules. You can always reload modules explicitly
-                # with the reload button in the KCAA control window.
+                # Permit an exception in KCSAPI handler or manipulators -- it's
+                # very likely a bug in how a raw response is read, or how they
+                # are implemented.
+                # Do not reload modules automatically because the bug should be
+                # still there. You can always reload modules explicitly with
+                # the reload button in the KCAA control window.
                 traceback.print_exc()
     except:
         traceback.print_exc()

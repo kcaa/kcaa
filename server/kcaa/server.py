@@ -19,7 +19,7 @@ class KcaaHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
     GET_NEW_OBJECTS = '/get_new_objects'
     GET_OBJECT = '/get_object'
     RELOAD_KCSAPI = '/reload_kcsapi'
-    CLICK = '/click'
+    MANIPULATE = '/manipulate'
     CLIENT_PREFIX = '/client/'
 
     def do_HEAD(self):
@@ -42,8 +42,8 @@ class KcaaHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             self.handle_get_object(o)
         elif o.path == KcaaHTTPRequestHandler.RELOAD_KCSAPI:
             self.handle_reload_kcsapi(o)
-        elif o.path == KcaaHTTPRequestHandler.CLICK:
-            self.handle_click(o)
+        elif o.path == KcaaHTTPRequestHandler.MANIPULATE:
+            self.handle_manipulate(o)
         elif o.path.startswith(KcaaHTTPRequestHandler.CLIENT_PREFIX):
             self.handle_client(o)
         else:
@@ -99,21 +99,25 @@ class KcaaHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         self.end_headers()
         self.wfile.write('success')
 
-    def handle_click(self, o):
+    def handle_manipulate(self, o):
         if self.command != 'GET':
             self.send_error(501, 'Unknown method: {}'.format(self.command))
             return
         queries = urlparse.parse_qs(o.query)
         try:
-            x = int(queries['x'][0])
-            y = int(queries['y'][0])
+            command_type = queries['type'][0]
+            del queries['type']
         except KeyError:
-            self.send_error(400, 'Missing parameter: x or y')
+            self.send_error(400, 'Missing parameter: type')
             return
-        except ValueError:
-            self.send_error(400, 'Failed to parse: x or y')
-            return
-        self.server.browser_conn.send(('click', x, y))
+        command_args = {}
+        for key, values in queries.iteritems():
+            if len(values) == 1:
+                command_args[key] = values[0]
+            else:
+                command_args[key] = values
+        self.server.controller_conn.send((controller.COMMAND_MANIPULATE,
+                                          command_type, command_args))
         self.send_response(200)
         self.send_header('Content-Type', 'text/plain')
         self.end_headers()
@@ -161,14 +165,13 @@ def setup(args, logger):
     return httpd, root_url
 
 
-def handle_server(args, to_exit, controller_conn, browser_conn):
+def handle_server(args, to_exit, controller_conn):
     try:
         logger = logging.getLogger('kcaa.server')
         httpd, root_url = setup(args, logger)
         httpd.new_objects = set()
         httpd.objects = {}
         httpd.controller_conn = controller_conn
-        httpd.browser_conn = browser_conn
         controller_conn.send(root_url)
         httpd.timeout = 0.1
         while True:

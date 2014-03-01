@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import Queue
 import logging
 import time
 import traceback
@@ -9,6 +10,8 @@ from selenium.webdriver.common import action_chains
 
 
 KANCOLLE_URL = 'http://www.dmm.com/netgame/social/-/gadgets/=/app_id=854854/'
+
+COMMAND_CLICK = 'click'
 
 
 def get_desired_capabilities(args):
@@ -119,7 +122,7 @@ def add_digitizer(browser, game_area_width, game_area_height, dx, dy):
     ''')
 
 
-def setup_kancolle_browser(args, server_conn, to_exit):
+def setup_kancolle_browser(args, click_queue, to_exit):
     try:
         monitor = BrowserMonitor('Kancolle', open_kancolle_browser(args), 5)
         game_frame, dx, dy = None, None, None
@@ -134,17 +137,17 @@ def setup_kancolle_browser(args, server_conn, to_exit):
                 break
             game_frame, dx, dy = get_game_frame(browser, game_frame, dx, dy)
             if game_frame:
-                while server_conn.poll():
-                    request = server_conn.recv()
-                    event_type = request[0]
-                    if event_type == 'click':
-                        x, y = request[1:]
+                try:
+                    while True:
+                        x, y = click_queue.get_nowait()
                         x += dx
                         y += dy
                         actions = action_chains.ActionChains(browser)
                         actions.move_to_element_with_offset(game_frame, x, y)
                         actions.click(None)
                         actions.perform()
+                except Queue.Empty:
+                    pass
     except:
         traceback.print_exc()
     to_exit.set()

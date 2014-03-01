@@ -402,6 +402,11 @@ class TaskManager(object):
         self._tasks = filter(lambda task: task not in to_be_removed,
                              self._tasks)
 
+    @property
+    def empty(self):
+        # TODO: Add tests.
+        return not self._tasks
+
 
 if __name__ == "__main__":
     import task_test
