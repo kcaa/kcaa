@@ -129,7 +129,6 @@ class KCSAPIHandler(object):
             module = eval(module_name)
             cls = getattr(module, class_name)
             self.objects[key] = cls.parse_text(text)
-        print self.objects.keys()
 
     def get_kcsapi_responses(self, entries):
         for entry in entries:

@@ -59,7 +59,6 @@ def control(args):
                 command = data[0]
                 if command == COMMAND_RELOAD_KCSAPI:
                     serialized_objects = kcsapi_handler.serialize_objects()
-                    print serialized_objects.keys()
                     reload(kcsapi_util)
                     kcsapi_handler = kcsapi_util.KCSAPIHandler(har_manager)
                     kcsapi_handler.reload_handlers()
