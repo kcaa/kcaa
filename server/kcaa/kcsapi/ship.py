@@ -334,7 +334,7 @@ class ShipList(model.KCAAObject):
         elif api_name == '/api_req_kaisou/remodeling':
             ship_defs = objects['ShipDefinitionList'].ships
             self.ships[str(request['api_data']['api_id'])] = (
-                ship_defs[self.ships[str(request['api_id'])].upgrade_to])
+                ship_defs[str(self.ships[str(request['api_id'])].upgrade_to)])
             return
         elif api_name == '/api_req_kousyou/getship':
             ship_defs = objects['ShipDefinitionList'].ships
