@@ -62,11 +62,11 @@ class EventProxy(object):
 
         This method adds *handler* to the registered event handler list.
         Registered event handlers will be called in the order they were
-        registered.  If *handler* is not an instance of :class:`EventHandler`,
+        registered. If *handler* is not an instance of :class:`EventHandler`,
         a new :class:`EventHandler` is created with *handler*.
 
         If you do not have your customized event handler, it is encouraged that
-        you use '+=' operator or '<<=' operator instead.  See :meth:`__iadd__`
+        you use '+=' operator or '<<=' operator instead. See :meth:`__iadd__`
         or :meth:`__lshift__`.
         """
         if isinstance(handler, EventHandler):
@@ -83,7 +83,7 @@ class EventProxy(object):
 
         This method removes *handler* from the registered event handler list.
         *handler* can be either an instance of :class:`EventHandler` or a
-        callable object.  If more than one handler identical to *handler* is
+        callable object. If more than one handler identical to *handler* is
         registered, they are all removed.
 
         You can remove a handler also by using '-=' operator::
@@ -106,10 +106,10 @@ class EventProxy(object):
         :param args: positional arguments passed to event handlers
         :param kwargs: keyword arguments passed to event handlers
 
-        This method calls all the registered event handlers.  Registered event
+        This method calls all the registered event handlers. Registered event
         handlers will be called in the order they were registered.
 
-        The value of *args* and *kwargs*will propagate to each registered
+        The value of *args* and *kwargs* will propagate to each registered
         handler.
 
         You can call the event itself instead of this method::
@@ -127,10 +127,10 @@ class EventProxy(object):
         :param callable: callable
 
         This method creates an :class:`EventHandler` with *callable* and adds
-        it to the registered event handler list.  Registered event handlers
+        it to the registered event handler list. Registered event handlers
         will be called in the order they were registered.
 
-        Event handlers can be either a function or a method.  It have to have
+        Event handlers can be either a function or a method. It has to have
         at least one parameter *sender*, so handlers will take a form of::
 
             def function(sender):
@@ -149,7 +149,7 @@ class EventProxy(object):
 
         If the description of an event says that it has some parameters, event
         handlers also should have parameters to receive arguments passed for
-        raising the event.  For example, if an event has two parameters *foo*
+        raising the event. For example, if an event has two parameters *foo*
         and *bar* in this order, an event handler of it should be::
 
             def function(sender, foo, bar):
@@ -184,8 +184,8 @@ class EventProxy(object):
 
         This method creates a :class:`RunOnceEventHandler`, not an
         :class:`EventHandler`, with *callable* and adds it to the registered
-        event handler list.  For the rest part this method is the same as
-        :meth:`__add__`.  See :meth:`__add__` for details.
+        event handler list. For the rest part this method is the same as
+        :meth:`__add__`. See :meth:`__add__` for details.
 
         You can add a run-once handler also by '<<=' operator::
 

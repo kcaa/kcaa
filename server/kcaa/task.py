@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
+import abc
 import types
-from abc import *
 
 import event
 
@@ -14,7 +14,7 @@ class Task(object):
     :param kwargs: keyword arguments to be passed to :meth:`run` (optional)
     """
 
-    __metaclass__ = ABCMeta
+    __metaclass__ = abc.ABCMeta
 
     def __init__(self, *args, **kwargs):
         """
@@ -50,8 +50,8 @@ class Task(object):
         Whether this task is running or not.
 
         A task starts to run from the beginning, i.e., at the time of
-        initialization.  A task stop running when :meth:`suspend` is called or
-        finalized.  Stopped :attr:`alive` task may be resumed by calling
+        initialization. A task stop running when :meth:`suspend` is called or
+        finalized. Stopped :attr:`alive` task may be resumed by calling
         :meth:`resume`.
         """
         return self._running
@@ -59,7 +59,7 @@ class Task(object):
     @property
     def epoch(self):
         """
-        The epoch time of the task in seconds.  Internally used by the task
+        The epoch time of the task in seconds. Internally used by the task
         manager.
         """
         return self._epoch
@@ -96,15 +96,15 @@ class Task(object):
         The unit time.
 
         Return this unit time in :meth:`run` if you want it executed every
-        :meth:`update`.  Unlike returning 0, if you return :attr:`unit` the
+        :meth:`update`. Unlike returning 0, if you return :attr:`unit` the
         execution of :meth:`run` is suppressed until the next call of
-        :meth:`update`.  (In contrast, returning 0 makes multiple executions
+        :meth:`update`. (In contrast, returning 0 makes multiple executions
         of :meth:`run` provided accumulated delays do not reach the current
         time.)  This behavior is useful and effective for rendering tasks.
         """
         return -1
 
-    @abstractmethod
+    @abc.abstractmethod
     def run(self, *args, **kwargs):
         """
         The entry point for the task.
@@ -112,16 +112,16 @@ class Task(object):
         :param args: positional arguments passed to :meth:`__init__`
         :param kwargs: keyword arguments passed to :meth:`__init__`
 
-        This abstract method is the entry point for the task.  You can write
-        any code in it as far as it have at least one ``yield`` statement.
+        This abstract method is the entry point for the task. You can write
+        any code in it as far as it has at least one ``yield`` statement.
 
         The value of ``yield`` statement is treated as a delay; the code
         following the ``yield`` statement will be executed after the specified
-        delay in seconds.  All execution state including local variables are
+        delay in seconds. All execution state including local variables are
         kept until the next execution.
 
         This method can have any number of positional parameters and keyword
-        parameters.  They receive the values of arguments which were passed
+        parameters. They receive the values of arguments which were passed
         to :meth:`__init__`; that is, if you initialize a task with the
         following code::
 
@@ -150,11 +150,11 @@ class Task(object):
 
         This method is called right after the task is finished; that is, when
         no more code is left to run, or, when this task is removed via
-        :meth:`TaskManager.remove`.  You can omit to implement this method if
+        :meth:`TaskManager.remove`. You can omit to implement this method if
         you have nothing special to clean up explicitly.
 
         Note that this method receives the same arguments as those :meth:`run`
-        does.  Therefore you should use the same signature for both methods::
+        does. Therefore you should use the same signature for both methods::
 
             class TaskA(task.Task):
 
@@ -215,7 +215,7 @@ class Task(object):
 
     def update(self, current):
         """
-        Update the task.  Internally used by the task manager.
+        Update the task. Internally used by the task manager.
 
         :param current: current time in seconds
         :returns: task object which suspends this task; None otherwise
@@ -320,13 +320,13 @@ class TaskManager(object):
             (optional)
         :returns: task object
 
-        This method adds *task* to the collection of registered tasks.  When
+        This method adds *task* to the collection of registered tasks. When
         :meth:`update` is called, registered tasks are updated in the order
         they were added.
 
         The first parameter *task* may be a task object, a function object or
-        a method object.  If *task* is a function or method object, a new
-        :class:`FunctionTask` object will be created for it and added.  You
+        a method object. If *task* is a function or method object, a new
+        :class:`FunctionTask` object will be created for it and added. You
         can use the return value to remove the task from the manager::
 
             def do_task(task, a, b, c):
