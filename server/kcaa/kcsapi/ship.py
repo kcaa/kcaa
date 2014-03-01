@@ -260,6 +260,22 @@ class Ship(ShipDefinition):
     loaded_resource = jsonobject.ReadonlyJSONProperty(
         'loaded_resource', value_type=resource.Resource)
     """Currently loaded resource."""
+    @jsonobject.jsonproperty
+    def loaded_resource_percentage(self):
+        """Currently loaded resource percentage.
+
+        This property considers inaccurate fractions; for example, ship which
+        consumed 30% of fuel out of capacity 15 would report it has 11 fuel
+        units (it seems the server returns rounded number for 10.5). Assuming
+        that the smallest resource unit is always 10% of the capacity, this
+        property computes the nearest multiple of 10% given the
+        :attr:`loaded_resource` and :attr:`resource_capacity`.
+        """
+        loaded = self.loaded_resource
+        capacity = self.resource_capacity
+        return resource.ResourcePercentage(
+            fuel=round(float(loaded.fuel) / capacity.fuel, 1),
+            ammo=round(float(loaded.ammo) / capacity.ammo, 1))
     enhanced_ability = jsonobject.ReadonlyJSONProperty(
         'enhanced_ability', value_type=AbilityEnhancement)
     """Enhanced ability by rebuilding or growth."""

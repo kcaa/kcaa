@@ -86,8 +86,10 @@ class Ship {
         experienceGauge = "0" + experienceGauge;
       }
     }
-    fuelPercentage = (100.0 * fuel / fuelCapacity).toStringAsFixed(0);
-    ammoPercentage = (100.0 * ammo / ammoCapacity).toStringAsFixed(0);
+    fuelPercentage =
+        (100 * data["loaded_resource_percentage"]["fuel"]).toStringAsFixed(0);
+    ammoPercentage =
+        (100 * data["loaded_resource_percentage"]["ammo"]).toStringAsFixed(0);
     hpPercentage = (100.0 * hp / maxHp).toStringAsFixed(0);
     armorClass = enhancedArmor == maxArmor ? "fullyEnhanced" : "";
     firepowerClass = enhancedFirepower == maxFirepower ? "fullyEnhanced" : "";
