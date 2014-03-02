@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 
 import base
-import port
+import logistics
+import screen
+import special
 
 
 def reload_modules():
@@ -39,7 +41,9 @@ def reload_modules():
 def main():
     import doctest
     doctest.testmod(base)
-    doctest.testmod(port)
+    doctest.testmod(logistics)
+    doctest.testmod(screen)
+    doctest.testmod(special)
     import os.path
     import pytest
     pytest.main(args=[os.path.dirname(__file__)])
