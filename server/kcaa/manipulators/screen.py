@@ -133,4 +133,25 @@ class PortLogisticsScreen(PortOperationsScreen):
         return self.do_task(change_screen_task)
 
     def select_fleet(self, fleet_id):
-        return
+        def select_fleet_task(task):
+            self.click(120 + 30 * fleet_id, 120)
+            yield 1.0
+        return self.do_task(select_fleet_task)
+
+    def select_ship_list(self):
+        def select_ship_list_task(task):
+            self.click(270, 120)
+            yield 1.0
+        return self.do_task(select_ship_list_task)
+
+    def select_all_members(self):
+        def select_all_members_task(task):
+            self.click(120, 120)
+            yield 2.0
+        return self.do_task(select_all_members_task)
+
+    def charge_both(self):
+        def charge_both_task(task):
+            self.click(705, 445)
+            yield 5.0
+        return self.do_task(charge_both_task)

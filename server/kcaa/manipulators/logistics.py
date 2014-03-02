@@ -14,6 +14,9 @@ class FleetCharge(base.Manipulator):
     def run(self, fleet_id):
         logger.info('Charging fleet {}'.format(fleet_id))
         yield self.screen.change_screen(screens.PORT_LOGISTICS)
+        yield self.screen.select_fleet(fleet_id)
+        yield self.screen.select_all_members()
+        yield self.screen.charge_both()
 
 
 class AutoFleetCharge(base.AutoManipulator):
