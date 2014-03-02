@@ -13,7 +13,6 @@ class FleetCharge(base.Manipulator):
 
     def run(self, fleet_id):
         logger.info('Charging fleet {}'.format(fleet_id))
-        return
         yield self.screen.change_screen(screens.PORT_LOGISTICS)
 
 

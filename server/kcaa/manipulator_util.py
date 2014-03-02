@@ -21,8 +21,9 @@ class ScreenManager(object):
 
     def define_screens(self):
         self.screens = {
-            screens.PORT_MAIN: manipulators.screen.PortMainScreen,
             screens.SPECIAL_START: manipulators.screen.StartScreen,
+            screens.PORT: manipulators.screen.PortScreen,
+            screens.PORT_MAIN: manipulators.screen.PortMainScreen,
         }
 
     def click(self, x, y):
