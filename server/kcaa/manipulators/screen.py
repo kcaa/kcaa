@@ -45,6 +45,12 @@ class Screen(object):
                 'This operation cannot be done. Expected category: {}, '
                 'Current: {}'.format(screen_id, self.screen_id))
 
+    def transition_to(self, screen_id, delay=3.0):
+        def transition_to_task(task):
+            yield delay
+            self.update_screen_id(screen_id)
+        return self.do_task(transition_to_task)
+
     def wait_transition(self, screen_id, timeout=5.0, raise_on_timeout=True,
                         buffer_delay=1.0):
         """Wait until the screen transition."""
@@ -61,6 +67,9 @@ class Screen(object):
 
     def change_screen(self, screen_id):
         """Change the screen."""
+        self.raise_impossible_transition(screen_id)
+
+    def raise_impossible_transition(self, screen_id):
         raise TypeError('Cannot change screen from {} to {}'.format(
             self.screen_id, screen_id))
 
@@ -96,7 +105,12 @@ class PortMainScreen(PortScreen):
 
     def change_screen(self, screen_id):
         def change_screen_task(task):
-            print 'PortMainScreen', screen_id
-            yield 0.0
+            if screen_id == screens.PORT_MAIN:
+                return
+            elif screen_id == screens.PORT_LOGISTICS:
+                self.click(80, 225)
+                yield self.transition_to(screens.PORT_LOGISTICS)
+            else:
+                self.raise_impossible_transition(screen_id)
         self.assert_screen(screens.PORT_MAIN)
         return self.do_task(change_screen_task)
