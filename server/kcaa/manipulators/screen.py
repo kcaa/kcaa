@@ -49,6 +49,7 @@ class Screen(object):
         def transition_to_task(task):
             yield delay
             self.update_screen_id(screen_id)
+            yield task.unit
         return self.do_task(transition_to_task)
 
     def wait_transition(self, screen_id, timeout=5.0, raise_on_timeout=True,
@@ -106,7 +107,7 @@ class PortMainScreen(PortScreen):
     def change_screen(self, screen_id):
         def change_screen_task(task):
             if screen_id == screens.PORT_MAIN:
-                return
+                yield 0.0
             elif screen_id == screens.PORT_LOGISTICS:
                 self.click(80, 225)
                 yield self.transition_to(screens.PORT_LOGISTICS)
@@ -114,3 +115,22 @@ class PortMainScreen(PortScreen):
                 self.raise_impossible_transition(screen_id)
         self.assert_screen(screens.PORT_MAIN)
         return self.do_task(change_screen_task)
+
+
+class PortOperationsScreen(PortScreen):
+    pass
+
+
+class PortLogisticsScreen(PortOperationsScreen):
+
+    def change_screen(self, screen_id):
+        def change_screen_task(task):
+            if screen_id == screens.PORT_LOGISTICS:
+                yield 0.0
+            else:
+                self.raise_impossible_transition(screen_id)
+        self.assert_screen(screens.PORT_LOGISTICS)
+        return self.do_task(change_screen_task)
+
+    def select_fleet(self, fleet_id):
+        return
