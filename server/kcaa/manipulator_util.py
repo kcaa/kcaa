@@ -60,32 +60,52 @@ class ManipulatorManager(object):
         self.objects = objects
         # TODO: Use Queue.Queue?
         self.queue = []
-        self.task_manager = task.TaskManager(epoch)
+        self.running_auto_triggerer = []
         self.current_task = None
-        self.define_manipulators()
         self.updated_object_types = set()
+        self.task_manager = task.TaskManager(epoch)
         self.screen_manager = ScreenManager(self)
+        self.define_manipulators()
+        self.define_auto_manipulators()
+        self.add_initial_auto_manipulators()
 
     def define_manipulators(self):
         self.manipulators = {
             # Logistics
             'Charge': manipulators.logistics.Charge,
-            # Special
-            'StartGame': manipulators.special.StartGame,
         }
+
+    def define_auto_manipulators(self):
+        self.auto_manipulators = {
+            # Special
+            'AutoStartGame': manipulators.special.AutoStartGame,
+        }
+
+    def add_initial_auto_manipulators(self):
+        initial_auto_manipulators = [
+            'AutoStartGame',
+        ]
+        for name in initial_auto_manipulators:
+            self.add_auto_manipulator(self.auto_manipulators[name])
 
     def reload_manipulators(self):
         reload(manipulators)
         manipulators.reload_modules()
         self.define_manipulators()
+        self.define_auto_manipulators()
         self.screen_manager = ScreenManager(self)
 
     def add_manipulator(self, manipulator):
-        if self.task_manager.empty:
-            self.current_task = manipulator
-            self.task_manager.add(manipulator)
-        else:
-            self.queue.append(manipulator)
+        t = self.task_manager.add(manipulator)
+        t.suspend()
+        self.queue.append(t)
+        return t
+
+    def add_auto_manipulator(self, auto_manipulator):
+        t = self.task_manager.add(manipulators.base.AutoManipulatorTriggerer(
+            self, auto_manipulator))
+        self.running_auto_triggerer.append(t)
+        return t
 
     def update(self, current):
         """Update manipulators.
@@ -95,12 +115,24 @@ class ManipulatorManager(object):
         :rtype: :class:`class:`kcaa.kcsapi.model.KCAAObject`
         """
         self.screen_manager.update_screen()
+        if not self.current_task:
+            if self.queue:
+                t = self.queue[0]
+                del self.queue[0]
+                self.current_task = t
+                t.resume()
+                for t in self.running_auto_triggerer:
+                    t.suspend()
+            else:
+                self.current_task = None
+                for t in self.running_auto_triggerer:
+                    t.resume()
+        else:
+            for t in self.running_auto_triggerer:
+                t.suspend()
         self.task_manager.update(current)
-        if self.task_manager.empty and self.queue:
-            manipulator = self.queue[0]
-            del self.queue[0]
-            self.current_task = manipulator
-            self.task_manager.add(manipulator)
+        if self.current_task not in self.task_manager.tasks:
+            self.current_task = None
         updated_objects = [self.objects[object_type] for object_type in
                            self.updated_object_types]
         self.updated_object_types.clear()

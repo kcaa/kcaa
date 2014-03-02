@@ -294,6 +294,7 @@ class TaskManager(object):
         self._pending_tasks = []
         self._epoch = epoch
         self._time = epoch
+        self._running_count = 0
 
     @property
     def epoch(self):
@@ -308,6 +309,11 @@ class TaskManager(object):
         The elapsed time from the epoch.
         """
         return self._time
+
+    @property
+    def running_count(self):
+        # TODO: Test this
+        return self._running_count
 
     def add(self, task, *args, **kwargs):
         """
@@ -339,7 +345,8 @@ class TaskManager(object):
             manager.remove(t)
         """
         if task in self._tasks:
-            return
+            # TODO: Test this (returning task, not None)
+            return task
         if isinstance(task, (types.FunctionType, types.MethodType)):
             task = FunctionTask(task, *args, **kwargs)
         task.epoch = self._time
@@ -384,10 +391,12 @@ class TaskManager(object):
         self._time = current
         tasks = self._get_tasks()
         to_be_removed = []
+        running_count = 0
         while len(tasks) > 0:
             for task in tasks:
                 try:
                     blocking_task = task.update(current)
+                    running_count += 1 if task.alive and task.running else 0
                     if blocking_task:
                         def make_resume(task):
                             def resume(sender):
@@ -401,11 +410,22 @@ class TaskManager(object):
             tasks = self._get_pending()
         self._tasks = filter(lambda task: task not in to_be_removed,
                              self._tasks)
+        self._running_count = running_count
+
+    @property
+    def tasks(self):
+        # TODO: Test this
+        return self._tasks
 
     @property
     def empty(self):
         # TODO: Add tests.
         return not self._tasks
+
+    @property
+    def __len__(self):
+        # TODO: Test this
+        return len(self._tasks)
 
 
 if __name__ == "__main__":

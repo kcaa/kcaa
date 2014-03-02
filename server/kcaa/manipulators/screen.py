@@ -16,7 +16,7 @@ class Screen(object):
 
     @property
     def screen_id(self):
-        screen_object = self.manager.objects['Screen']
+        screen_object = self.manager.objects.get('Screen')
         if screen_object:
             return screen_object.screen
         else:
