@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
-from kcaa import task
+import kcaa.task
+
+task = kcaa.task
 
 
 class Manipulator(task.Task):
@@ -21,8 +23,13 @@ class Manipulator(task.Task):
     def screen(self):
         return self._screen_manager.current_screen
 
-    def add_manipulator(self, manipulator):
-        return self.manager.add_manipulator(manipulator)
+    def do_manipulator(self, manipulator, *args, **kwargs):
+        return self.manager.task_manager.add(
+            manipulator(self.manager, *args, **kwargs))
+
+    def add_manipulator(self, manipulator, *args, **kwargs):
+        return self.manager.add_manipulator(
+            manipulator(self.manager, *args, **kwargs))
 
 
 class AutoManipulatorTriggerer(Manipulator):
@@ -32,7 +39,7 @@ class AutoManipulatorTriggerer(Manipulator):
         while True:
             params = manipulator.can_trigger(self, *args, **kwargs)
             if params is not None:
-                self.add_manipulator(manipulator(self.manager, **params))
+                self.add_manipulator(manipulator, **params)
             yield interval
 
     @property

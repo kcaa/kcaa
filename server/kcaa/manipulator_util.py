@@ -72,17 +72,20 @@ class ManipulatorManager(object):
     def define_manipulators(self):
         self.manipulators = {
             # Logistics
-            'Charge': manipulators.logistics.Charge,
+            'FleetCharge': manipulators.logistics.FleetCharge,
         }
 
     def define_auto_manipulators(self):
         self.auto_manipulators = {
+            # Logistics
+            'AutoFleetCharge': manipulators.logistics.AutoFleetCharge,
             # Special
             'AutoStartGame': manipulators.special.AutoStartGame,
         }
 
     def add_initial_auto_manipulators(self):
         initial_auto_manipulators = [
+            'AutoFleetCharge',
             'AutoStartGame',
         ]
         for name in initial_auto_manipulators:
