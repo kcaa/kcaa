@@ -8,11 +8,15 @@ class Screen(object):
     def __init__(self, manager):
         self.manager = manager
 
-    def add_task(self, t):
-        self.manager.add_task(t)
+    def do_task(self, t, *args, **kwargs):
+        return self.manager.add_task(t, *args, **kwargs)
 
     def click(self, x, y):
         self.manager.click(x, y)
+
+    @property
+    def screen_id(self):
+        return self.manager.objects['Screen'].screen
 
     def update_screen_id(self, screen_id):
         """Update screen ID explicitly.
@@ -25,15 +29,22 @@ class Screen(object):
         self.manager.objects['Screen'].screen = screen_id
         self.manager.updated_object_types.add('Screen')
 
+    def wait_screen_transition(self, screen_id, buffer_delay=2.0):
+        def wait_screen_transition_task(task):
+            while self.screen_id != screen_id:
+                print 'Waiting for transition to {} (current: {})'.format(
+                    screen_id, self.screen_id)
+                yield 2.0
+            print 'Transitioned! Waiting for the buffer.'
+            yield buffer_delay
+        return self.do_task(wait_screen_transition_task)
+
     def change_screen(self, screen_id):
-        def do_task(task):
-            self.click(40, 40)
-            print('Changed screen to {}'.format(screen_id))
-            yield 2.0
-            self.click(40, 40)
-            self.update_screen_id(screen_id)
-            print('Changed screen to {}??'.format(screen_id))
-        return self.manager.add_task(do_task)
+        def change_screen_task(task):
+            self.click(560, 50)
+            print('Quest list button clicked')
+            yield self.wait_screen_transition(screen_id)
+        return self.do_task(change_screen_task)
 
 
 class Manipulator(task.Task):
