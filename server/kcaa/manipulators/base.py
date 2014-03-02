@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 
-import kcaa.task
-
-task = kcaa.task
+from kcaa import task
 
 
 class Manipulator(task.Task):

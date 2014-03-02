@@ -58,6 +58,9 @@ class ManipulatorManager(object):
     def __init__(self, click_queue, objects, epoch):
         self.click_queue = click_queue
         self.objects = objects
+        self.initialize(epoch)
+
+    def initialize(self, epoch):
         # TODO: Use Queue.Queue?
         self.queue = []
         self.running_auto_triggerer = []
@@ -92,11 +95,10 @@ class ManipulatorManager(object):
             self.add_auto_manipulator(self.auto_manipulators[name])
 
     def reload_manipulators(self):
+        self.task_manager.clear()
         reload(manipulators)
         manipulators.reload_modules()
-        self.define_manipulators()
-        self.define_auto_manipulators()
-        self.screen_manager = ScreenManager(self)
+        self.initialize(self.task_manager.epoch)
 
     def add_manipulator(self, manipulator):
         t = self.task_manager.add(manipulator)

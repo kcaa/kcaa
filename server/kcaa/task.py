@@ -367,6 +367,12 @@ class TaskManager(object):
         del self._tasks[index]
         task.call_finalizer()
 
+    def clear(self):
+        # TODO: Test this
+        for task in self._tasks:
+            task.call_finalizer()
+        del self._tasks[:]
+
     def _add_pending(self, task):
         self._pending_tasks.append(task)
 
