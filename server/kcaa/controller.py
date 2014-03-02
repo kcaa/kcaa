@@ -34,7 +34,6 @@ def control(args):
         logger = logging.getLogger('kcaa.controller')
         har_manager = proxy_util.HarManager(args, 3.0)
         controller_conn, server_conn = multiprocessing.Pipe()
-        click_queue = multiprocessing.Queue()
         ps = multiprocessing.Process(target=server.handle_server,
                                      args=(args, to_exit, controller_conn))
         ps.start()
@@ -43,6 +42,7 @@ def control(args):
             to_exit.set()
             return
         root_url = server_conn.recv()
+        click_queue = multiprocessing.Queue()
         pk = multiprocessing.Process(target=browser.setup_kancolle_browser,
                                      args=(args, click_queue, to_exit))
         pc = multiprocessing.Process(target=browser.setup_kcaa_browser,
@@ -85,7 +85,8 @@ def control(args):
             try:
                 for obj in kcsapi_handler.get_updated_objects():
                     server_conn.send((obj.object_type, obj.json()))
-                manipulator_manager.update(time.time())
+                for obj in manipulator_manager.update(time.time()):
+                    server_conn.send((obj.object_type, obj.json()))
             except:
                 # Permit an exception in KCSAPI handler or manipulators -- it's
                 # very likely a bug in how a raw response is read, or how they

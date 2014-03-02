@@ -8,6 +8,8 @@ import task
 class ScreenManager(object):
 
     def __init__(self, manipulator_manager):
+        self.objects = manipulator_manager.objects
+        self.updated_object_types = manipulator_manager.updated_object_types
         self.click_queue = manipulator_manager.click_queue
         self.task_manager = manipulator_manager.task_manager
         self._current_screen = manipulators.base.Screen(self)
@@ -40,6 +42,7 @@ class ManipulatorManager(object):
         self.task_manager = task.TaskManager(epoch)
         self.current_task = None
         self.define_manipulators()
+        self.updated_object_types = set()
         self.screen_manager = ScreenManager(self)
 
     def define_manipulators(self):
@@ -61,12 +64,22 @@ class ManipulatorManager(object):
             self.queue.append(manipulator)
 
     def update(self, current):
+        """Update manipulators.
+
+        :param float current: Current time in seconds
+        :returns: Updated KCSAPI objects
+        :rtype: :class:`class:`kcaa.kcsapi.model.KCAAObject`
+        """
         self.task_manager.update(current)
         if self.task_manager.empty and self.queue:
             manipulator = self.queue[0]
             del self.queue[0]
             self.current_task = manipulator
             self.task_manager.add(manipulator)
+        updated_objects = [self.objects[object_type] for object_type in
+                           self.updated_object_types]
+        self.updated_object_types.clear()
+        return updated_objects
 
     def dispatch(self, command):
         if len(command) != 2:
