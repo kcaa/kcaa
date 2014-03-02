@@ -173,6 +173,27 @@ tr.complete {
 tr.complete td {
   box-shadow: 2px 2px 3px hsla(150, 40%, 10%, 0.3) inset;
 }
+tr.fatal {
+  background: linear-gradient(
+    150deg,
+    hsla(0, 0%, 0%, 0.0),
+    hsla(0, 80%, 60%, 0.3));
+  color: hsl(0, 50%, 10%);
+}
+tr.dangerous {
+  background: linear-gradient(
+    150deg,
+    hsla(0, 0%, 0%, 0.0),
+    hsla(30, 80%, 70%, 0.3));
+  color: hsl(30, 50%, 10%);
+}
+tr.good {
+  background: linear-gradient(
+    150deg,
+    hsla(0, 0%, 0%, 0.0),
+    hsla(60, 80%, 80%, 0.3));
+  color: hsl(60, 50%, 10%);
+}
 td > div, .subordinate {
   font-size: 90%;
   opacity: 0.7;

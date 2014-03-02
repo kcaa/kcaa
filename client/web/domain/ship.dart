@@ -98,6 +98,7 @@ class Ship {
     antiAirClass = enhancedAntiAir == maxAntiAir ? "fullyEnhanced" : "";
     lockedClass = locked ? "locked" : "";
     updateBelongingFleet(fleets);
+    stateClass = getStateClass();
   }
 
   bool updateBelongingFleet(List<Fleet> fleets) {
@@ -113,6 +114,18 @@ class Ship {
     var changed = belongingFleet != null;
     belongingFleet = null;
     return changed;
+  }
+
+  String getStateClass() {
+    if (hp / maxHp <= 0.25 || vitality < 20) {
+      return "fatal";
+    } else if (hp / maxHp <= 0.5 || vitality < 30) {
+      return "dangerous";
+    } else if (vitality >= 50) {
+      return "good";
+    } else {
+      return "";
+    }
   }
 }
 
