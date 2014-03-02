@@ -22,7 +22,7 @@ class Screen(model.KCAAObject):
         '/api_get_master/mission': screens.PORT_MISSION,
         '/api_get_master/payitem': screens.PORT_ITEMSHOP,
         '/api_get_member/book2': screens.PORT_ENCYCLOPEDIA,
-        '/api_get_member/deck_port': screens.PORT_MAIN,
+        '/api_get_member/deck_port': screens.PORT,
         '/api_get_member/practice': screens.PORT_PRACTICE,
         '/api_get_member/questlist': screens.PORT_QUESTLIST,
         '/api_req_practice/battle': screens.PRACTICE_BATTLE,

@@ -4,6 +4,7 @@ class Screen {
   static final Map<int, String> SCREEN_MAP = <int, String>{
     0: "不明",
     101: "スタート画面",
+    2: "たぶん母港",
     200: "母港",
     201: "戦績",
     202: "図鑑",
