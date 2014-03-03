@@ -29,8 +29,7 @@ class AutoCheckMissionResult(base.AutoManipulator):
         now = int(1000 * time.time())
         count = 0
         for mission in mission_list.missions:
-            # Make sure the ETA has passed 10000 milliseconds ago.
-            if mission.eta and mission.eta + 10000 < now:
+            if mission.eta and mission.eta < now:
                 count += 1
         if count != 0:
             return {'count': count}
