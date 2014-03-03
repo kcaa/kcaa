@@ -79,6 +79,7 @@ class KCSAPIHandler(object):
             # Missions
             '/api_get_master/mission': [kcsapi.missionlist.MissionList],
             '/api_req_mission/start': [kcsapi.model.NullHandler()],
+            '/api_req_mission/result': [kcsapi.model.NullHandler()],
             # Items
             #'/api_get_member/useitem': [],
             # Furnitures
