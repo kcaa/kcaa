@@ -86,6 +86,9 @@ class ManipulatorManager(object):
             'AutoFleetCharge': manipulators.logistics.AutoFleetCharge,
             # Special
             'AutoStartGame': manipulators.special.AutoStartGame,
+            # Auto mission
+            'AutoCheckMissionResult':
+            manipulators.automission.AutoCheckMissionResult,
         }
 
     def add_initial_auto_manipulators(self):

@@ -101,6 +101,36 @@ class PortScreen(Screen):
         self.assert_screen_category(screens.PORT)
         return self.do_task(change_screen_task)
 
+    def check_mission_result(self):
+        def proceed_mission_result_screen_task(task):
+            while self.screen_id == screens.PORT_MISSION_RESULT:
+                self.click(700, 400)
+                yield 3.0
+            self.update_screen_id(screens.PORT_MAIN)
+            yield task.unit
+
+        def check_mission_result_task(task):
+            # If the current screen is PORT_MAIN, a click will trigger
+            # PORT_MISSION_RESULT screen.
+            self.click(50, 50)  # Possibly click the rotating 'Port' button
+            yield 5.0
+            if self.screen_id == screens.PORT_MISSION_RESULT:
+                yield self.do_task(proceed_mission_result_screen_task)
+            else:
+                # If not, the screen was not PORT_MAIN.
+                self.click(60, 450)  # Possibly click the 'Back' button
+                yield 5.0
+                if self.screen_id == screens.PORT:
+                    # Initially we were at the encyclopedia or furniture shop.
+                    # Restart the process, and we'll be done.
+                    yield self.change_mission_result_task()
+                elif self.screen_id == screens.PORT_MISSION_RESULT:
+                    # Initially we were at some PORT screen where there is the
+                    # rotating 'Port' button at the top left corner.
+                    yield self.do_task(proceed_mission_result_screen_task)
+
+        return self.do_task(check_mission_result_task)
+
 
 class PortMainScreen(PortScreen):
 
