@@ -1,6 +1,11 @@
 #!/usr/bin/env python
 
+import logging
+
 from kcaa import task
+
+
+logger = logging.getLogger('kcaa.manipulators.base')
 
 
 class Manipulator(task.Task):
@@ -37,6 +42,7 @@ class AutoManipulatorTriggerer(Manipulator):
         while True:
             params = manipulator.can_trigger(self, *args, **kwargs)
             if params is not None:
+                logger.info('Triggering {}'.format(manipulator.__name__))
                 self.add_manipulator(manipulator, **params)
             yield interval
 
