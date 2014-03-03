@@ -26,11 +26,6 @@ class AutoFleetCharge(base.AutoManipulator):
     def can_trigger(cls, owner):
         if not screens.in_category(owner.screen_id, screens.PORT):
             return
-        # Avoid conflict with AutoCheckMissionResult.
-        # Another workaround would be to wait some time and confirm the screen
-        # is stable.
-        if automission.AutoCheckMissionResult.can_trigger(owner) is not None:
-            return
         fleet_list = owner.objects.get('FleetList')
         if not fleet_list:
             return
