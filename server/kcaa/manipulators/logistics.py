@@ -2,6 +2,7 @@
 
 import logging
 
+import automission
 import base
 from kcaa import screens
 
@@ -24,6 +25,8 @@ class AutoFleetCharge(base.AutoManipulator):
     @classmethod
     def can_trigger(cls, owner):
         if not screens.in_category(owner.screen_id, screens.PORT):
+            return
+        if automission.AutoCheckMissionResult.can_trigger(owner) is not None:
             return
         fleet_list = owner.objects.get('FleetList')
         if not fleet_list:
