@@ -123,7 +123,7 @@ class PortScreen(Screen):
                 if self.screen_id == screens.PORT:
                     # Initially we were at the encyclopedia or furniture shop.
                     # Restart the process, and we'll be done.
-                    yield self.change_mission_result_task()
+                    yield self.check_mission_result_task()
                 elif self.screen_id == screens.PORT_MISSION_RESULT:
                     # Initially we were at some PORT screen where there is the
                     # rotating 'Port' button at the top left corner.
