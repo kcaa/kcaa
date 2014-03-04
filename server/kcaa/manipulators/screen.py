@@ -1,11 +1,14 @@
 #!/usr/bin/env python
 
+import logging
+
 from kcaa import screens
 
 
 class Screen(object):
 
     def __init__(self, manager):
+        self._logger = logging.getLogger('kcaa.manipulators.screen')
         self.manager = manager
 
     def do_task(self, t, *args, **kwargs):
@@ -116,18 +119,18 @@ class PortScreen(Screen):
             yield 5.0
             if self.screen_id == screens.PORT_MISSION_RESULT:
                 yield self.do_task(proceed_mission_result_screen_task)
+            elif self.screen_id == screens.PORT:
+                # Initially we were at some PORT screen where there is the
+                # rotating 'Port' button at the top left corner.
+                yield self.check_mission_result()
             else:
-                # If not, the screen was not PORT_MAIN.
+                # If not, initially we were at the encyclopedia or furniture
+                # shop. Click the 'Back' button and restart the process.
                 self.click(60, 450)  # Possibly click the 'Back' button
                 yield 5.0
                 if self.screen_id == screens.PORT:
-                    # Initially we were at the encyclopedia or furniture shop.
-                    # Restart the process, and we'll be done.
-                    yield self.check_mission_result_task()
-                elif self.screen_id == screens.PORT_MISSION_RESULT:
-                    # Initially we were at some PORT screen where there is the
-                    # rotating 'Port' button at the top left corner.
-                    yield self.do_task(proceed_mission_result_screen_task)
+                    yield self.check_mission_result()
+            self._logger.info('Failed to detect the current screen.')
 
         return self.do_task(check_mission_result_task)
 
