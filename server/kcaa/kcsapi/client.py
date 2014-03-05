@@ -15,7 +15,13 @@ class Screen(model.KCAAObject):
     screen = jsonobject.JSONProperty('screen', screens.UNKNOWN, value_type=int)
     """Current screen."""
 
-    API_SCREEN_TO_SCREEN_MAP = {
+    api_sequence = []
+    max_sequence_length = 10
+
+    # This is best represented with TRIE. Rewrite if needed.
+    API_SEQUENCE_TO_SCREEN_MAP = {
+        ('/api_req_mission/result',
+         '/api_get_member/deck_port'): screens.PORT_MISSION_RESULT,
     }
     API_TO_SCREEN_MAP = {
         '/api_get_master/mapinfo': screens.PORT_EXPEDITION,
@@ -33,12 +39,13 @@ class Screen(model.KCAAObject):
 
     def update(self, api_name, request, response, objects, debug):
         super(Screen, self).update(api_name, request, response, objects, debug)
-        # Use the previous screen and API name to guess the current screen.
-        if api_name in Screen.API_SCREEN_TO_SCREEN_MAP:
-            for transition_rule in Screen.API_SCREEN_TO_SCREEN_MAP[api_name]:
-                if screens.in_category(self.screen, transition_rule[0]):
-                    self.screen = transition_rule[1]
-                    break
+        self.api_sequence.append(api_name)
+        del self.api_sequence[:-self.max_sequence_length]
+        # Use the API sequence to guess the current screen.
+        for sequence, screen in Screen.API_SEQUENCE_TO_SCREEN_MAP.iteritems():
+            if self.api_sequence[-len(sequence):] == sequence:
+                self.screen = screen
+                return
         # Some API names are unique enough to identify the current screen.
-        elif api_name in Screen.API_TO_SCREEN_MAP:
+        if api_name in Screen.API_TO_SCREEN_MAP:
             self.screen = Screen.API_TO_SCREEN_MAP[api_name]
