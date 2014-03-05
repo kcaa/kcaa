@@ -106,10 +106,11 @@ class PortScreen(Screen):
 
     def check_mission_result(self):
         def proceed_mission_result_screen_task(task):
-            while self.screen_id == screens.PORT_MISSION_RESULT:
-                self._logger.debug('This is mission result screen; clicking.')
-                self.click(700, 400)
-                yield 3.0
+            self.assert_screen(screens.PORT_MISSION_RESULT)
+            self._logger.debug('This is mission result screen; clicking.')
+            yield 5.0
+            self.click(700, 400)
+            yield 2.0
             self.update_screen_id(screens.PORT_MAIN)
             yield task.unit
 
