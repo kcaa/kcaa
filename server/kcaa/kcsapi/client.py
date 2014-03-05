@@ -49,3 +49,8 @@ class Screen(model.KCAAObject):
         # Some API names are unique enough to identify the current screen.
         if api_name in Screen.API_TO_SCREEN_MAP:
             self.screen = Screen.API_TO_SCREEN_MAP[api_name]
+
+
+if __name__ == '__main__':
+    import client_test
+    client_test.main()
