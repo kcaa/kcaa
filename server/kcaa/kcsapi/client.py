@@ -19,10 +19,10 @@ class Screen(model.KCAAObject):
     max_sequence_length = 10
 
     # This is best represented with TRIE. Rewrite if needed.
-    API_SEQUENCE_TO_SCREEN_MAP = {
-        ('/api_req_mission/result',
-         '/api_get_member/deck_port'): screens.PORT_MISSION_RESULT,
-    }
+    API_SEQUENCE_TO_SCREEN_LIST = [
+        (['/api_req_mission/result',
+          '/api_get_member/deck_port'], screens.PORT_MISSION_RESULT),
+    ]
     API_TO_SCREEN_MAP = {
         '/api_get_master/mapinfo': screens.PORT_EXPEDITION,
         '/api_get_master/mission': screens.PORT_MISSION,
@@ -42,7 +42,7 @@ class Screen(model.KCAAObject):
         self.api_sequence.append(api_name)
         del self.api_sequence[:-self.max_sequence_length]
         # Use the API sequence to guess the current screen.
-        for sequence, screen in Screen.API_SEQUENCE_TO_SCREEN_MAP.iteritems():
+        for sequence, screen in Screen.API_SEQUENCE_TO_SCREEN_LIST:
             if self.api_sequence[-len(sequence):] == sequence:
                 self.screen = screen
                 return

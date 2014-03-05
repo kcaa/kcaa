@@ -3,12 +3,20 @@
 import pytest
 
 import client
+from kcaa import screens
 
 
 class TestScreen(object):
 
-    def test_foo(self):
-        pass
+    def test_mission_result(self):
+        screen = client.Screen()
+        assert screen.screen == screens.UNKNOWN
+        screen.update('/api_get_member/deck_port', None, None, None, False)
+        assert screen.screen == screens.PORT
+        screen.update('/api_req_mission/result', None, None, None, False)
+        assert screen.screen == screens.PORT_MISSION_RESULT
+        screen.update('/api_get_member/deck_port', None, None, None, False)
+        assert screen.screen == screens.PORT_MISSION_RESULT
 
 
 def main():
