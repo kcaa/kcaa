@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-import automission
 import base
 import logistics
+import mission
 import screen
 import special
 
@@ -41,9 +41,9 @@ def reload_modules():
 
 def main():
     import doctest
-    doctest.testmod(automission)
     doctest.testmod(base)
     doctest.testmod(logistics)
+    doctest.testmod(mission)
     doctest.testmod(screen)
     doctest.testmod(special)
     import os.path

@@ -88,7 +88,7 @@ class ManipulatorManager(object):
             'AutoStartGame': manipulators.special.AutoStartGame,
             # Auto mission
             'AutoCheckMissionResult':
-            manipulators.automission.AutoCheckMissionResult,
+            manipulators.mission.AutoCheckMissionResult,
         }
 
     def add_initial_auto_manipulators(self):
