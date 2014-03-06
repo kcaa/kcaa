@@ -107,7 +107,9 @@ class PortScreen(Screen):
     def check_mission_result(self):
         def check_mission_result_task(task):
             # First, ensure we are at the port main screen.
+            self._logger.debug('Changing to the port main screen.')
             yield self.change_screen(screens.PORT_MAIN)
+            self._logger.debug('Tried to change screen to port main.')
             yield 5.0
             # It's possible we reach the mission result screen at this stage:
             # if we are actually at the port main screen but not sure if it is.
@@ -130,10 +132,13 @@ class PortScreen(Screen):
                     yield (self.manager.current_screen.
                            proceed_mission_result_screen())
                 else:
+                    self._logger.debug('Now we should be at attack selection'
+                                       'screen. Getting back to the main.')
                     self.click(50, 50)  # Possibly click the 'Port' button
                     yield 2.0
                     self.click(700, 400)
                     yield 5.0
+                    self._logger.debug('Clicked twice...')
                     if self.screen_id == screens.PORT_MISSION_RESULT:
                         self._logger.debug('Finally we are aware.')
                         yield (self.manager.current_screen.
