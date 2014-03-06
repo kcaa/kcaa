@@ -86,10 +86,17 @@ class ManipulatorManager(object):
             'AutoFleetCharge': manipulators.logistics.AutoFleetCharge,
             # Special
             'AutoStartGame': manipulators.special.AutoStartGame,
+            # Auto mission
+            'AutoCheckMissionResult':
+            manipulators.mission.AutoCheckMissionResult,
         }
 
     def add_initial_auto_manipulators(self):
+        # The order matters. Be sure to start from preferred auto manipulators.
+        # If there is at least 1 pending manipulator in the queue, the
+        # triggerer won't add another one.
         initial_auto_manipulators = [
+            'AutoCheckMissionResult',
             'AutoFleetCharge',
             'AutoStartGame',
         ]
