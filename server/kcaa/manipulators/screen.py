@@ -110,7 +110,10 @@ class PortScreen(Screen):
         # and then move to the target screen.
         def change_screen_task(task):
             self.click_port_button()
-            yield 1.0
+            yield 2.0
+            # TODO: Check if we updated the Screen object after clicking port
+            # button. That's a signal that if we were not at the port main
+            # screen.
             self.click_back_button()
             yield self.wait_transition(screens.PORT)
             self.update_screen_id(screens.PORT_MAIN)
@@ -124,47 +127,47 @@ class PortScreen(Screen):
             # First, ensure we are at the port main screen.
             self._logger.debug('Changing to the port main screen.')
             if self.screen_id == screens.PORT:
+                self._logger.debug(
+                    'This is port screen. Clicking port and back buttons.')
                 self.click_port_button()
-                yield 1.0
+                yield 2.0
                 self.click_back_button()
+                yield 5.0
+                if self.screen_id == screens.PORT_MISSION_RESULT:
+                    self._logger.debug('Changed to the mission result screen.')
+                    yield (self.manager.current_screen.
+                           proceed_mission_result_screen())
+                self._logger.debug('Are we still at the port main screen?')
             else:
+                self._logger.debug('Trying to change screen to port main.')
                 yield self.change_screen(screens.PORT_MAIN)
-            self._logger.debug('Tried to change screen to port main.')
+                self._logger.debug('We should be at the port main screen.')
+            # If not, there are 2 possibilities:
+            # - currently the client is at the port main screen and aware
+            #   of the completed mission.
+            # - the client has been at the port main screen without knowing
+            #   there is a completed mission.
+            self._logger.debug('Now at the port main screen, clicking.')
+            self.click_attack_button()
             yield 5.0
-            # It's possible we reach the mission result screen at this stage:
-            # if we are actually at the port main screen but not sure if it is.
-            # This happens after returning back from expedition or practice.
             if self.screen_id == screens.PORT_MISSION_RESULT:
-                self._logger.debug('Changed to the mission result screen.')
+                self._logger.debug('Reached mission result screen.')
                 yield (self.manager.current_screen.
                        proceed_mission_result_screen())
             else:
-                # If not, there are 2 possibilities:
-                # - currently the client is at the port main screen and aware
-                #   of the completed mission.
-                # - the client has been at the port main screen without knowing
-                #   there is a completed mission.
-                self._logger.debug('Are we still at the port main screen?')
-                self.click_attack_button()
+                self._logger.debug('Now we should be at attack selection '
+                                   'screen. Getting back to the main.')
+                self.click_port_button()
+                yield 2.0
+                self.click_somewhere()
                 yield 5.0
+                self._logger.debug('Clicked twice...')
                 if self.screen_id == screens.PORT_MISSION_RESULT:
-                    self._logger.debug('Changed. We now are aware.')
+                    self._logger.debug('Finally we are aware.')
                     yield (self.manager.current_screen.
                            proceed_mission_result_screen())
                 else:
-                    self._logger.debug('Now we should be at attack selection'
-                                       'screen. Getting back to the main.')
-                    self.click_port_button()
-                    yield 2.0
-                    self.click_somewhere()
-                    yield 5.0
-                    self._logger.debug('Clicked twice...')
-                    if self.screen_id == screens.PORT_MISSION_RESULT:
-                        self._logger.debug('Finally we are aware.')
-                        yield (self.manager.current_screen.
-                               proceed_mission_result_screen())
-                    else:
-                        self._logger.info('Failed to detect the screen.')
+                    self._logger.info('Failed to detect the screen.')
         return self.do_task(check_mission_result_task)
 
 
