@@ -146,6 +146,7 @@ class PortScreen(Screen):
                     self._logger.debug('Changed to the mission result screen.')
                     yield (self.manager.current_screen.
                            proceed_mission_result_screen())
+                    return
                 self._logger.debug('Are we still at the port main screen?')
             else:
                 self._logger.debug('Trying to change screen to port main.')
@@ -163,6 +164,7 @@ class PortScreen(Screen):
                 self._logger.debug('Reached mission result screen.')
                 yield (self.manager.current_screen.
                        proceed_mission_result_screen())
+                return
             else:
                 self._logger.debug('Now we should be at attack selection '
                                    'screen. Getting back to the main.')
@@ -175,6 +177,7 @@ class PortScreen(Screen):
                     self._logger.debug('Finally we are aware.')
                     yield (self.manager.current_screen.
                            proceed_mission_result_screen())
+                    return
                 else:
                     self._logger.info('Failed to detect the screen.')
         return self.do_task(check_mission_result_task)
