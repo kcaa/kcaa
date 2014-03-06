@@ -2,7 +2,6 @@
 
 import logging
 
-import automission
 import base
 from kcaa import screens
 
