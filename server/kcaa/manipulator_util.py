@@ -7,6 +7,11 @@ import screens
 import task
 
 
+def reload_modules():
+    reload(manipulators)
+    manipulators.reload_modules()
+
+
 class ScreenManager(object):
 
     def __init__(self, manipulator_manager):
@@ -104,12 +109,6 @@ class ManipulatorManager(object):
         ]
         for name in initial_auto_manipulators:
             self.add_auto_manipulator(self.auto_manipulators[name])
-
-    def reload_manipulators(self):
-        self.task_manager.clear()
-        reload(manipulators)
-        manipulators.reload_modules()
-        self.initialize(self.task_manager.epoch)
 
     def add_manipulator(self, manipulator):
         t = self.task_manager.add(manipulator)

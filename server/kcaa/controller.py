@@ -64,15 +64,15 @@ def control(args):
                 if command_type == COMMAND_RELOAD_KCSAPI:
                     serialized_objects = kcsapi_handler.serialize_objects()
                     reload(kcsapi_util)
+                    kcsapi_util.reload_modules()
                     kcsapi_handler = kcsapi_util.KCSAPIHandler(har_manager)
-                    kcsapi_handler.reload_handlers()
                     kcsapi_handler.deserialize_objects(serialized_objects)
                     manipulator_manager.objects = kcsapi_handler.objects
                 elif command_type == COMMAND_RELOAD_MANIPULATORS:
                     reload(manipulator_util)
+                    manipulator_util.reload_modules()
                     manipulator_manager = manipulator_util.ManipulatorManager(
                         click_queue, kcsapi_handler.objects, time.time())
-                    manipulator_manager.reload_manipulators()
                 elif command_type == COMMAND_MANIPULATE:
                     try:
                         manipulator_manager.dispatch(command_args)

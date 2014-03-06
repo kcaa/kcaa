@@ -9,6 +9,11 @@ import urlparse
 import kcsapi
 
 
+def reload_modules():
+    reload(kcsapi)
+    kcsapi.reload_modules()
+
+
 KCSAPI_PATH_REGEX = re.compile(r'/kcsapi(?P<api_name>/.*)')
 KCSAPI_PREFIX = 'svdata='
 
@@ -97,16 +102,6 @@ class KCSAPIHandler(object):
         self.kcsapi_eager_handlers = [
             kcsapi.client.Screen,
         ]
-
-    def reload_handlers(self):
-        """Reload KCSAPI handler modules to reflect possible bug fixes in
-        source files."""
-        reload(kcsapi)
-        kcsapi.reload_modules()
-        # As all models are reloaded, there is no compatibility between old
-        # objects and the new objects. Old ones need to be disposed.
-        self.objects.clear()
-        self.define_handlers()
 
     def serialize_objects(self):
         """Serialize objects so that the client can deserialize and restore the
