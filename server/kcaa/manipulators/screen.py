@@ -23,7 +23,15 @@ class Screen(object):
         if screen_object:
             return screen_object.screen
         else:
-            None
+            return None
+
+    @property
+    def screen_generation(self):
+        screen_object = self.manager.objects.get('Screen')
+        if screen_object:
+            return screen_object.generation
+        else:
+            return 0
 
     def update_screen_id(self, screen_id):
         """Update screen ID explicitly.
@@ -109,12 +117,13 @@ class PortScreen(Screen):
         # If the current screen is unknown, go first to the port main screen,
         # and then move to the target screen.
         def change_screen_task(task):
+            last_generation = self.screen_generation
             self.click_port_button()
             yield 2.0
-            # TODO: Check if we updated the Screen object after clicking port
-            # button. That's a signal that if we were not at the port main
-            # screen.
-            self.click_back_button()
+            if self.screen_generation == last_generation:
+                # If this is the case, we were at the port main screen or at
+                # some undetectable screen missing 'Port' button.
+                self.click_back_button()
             yield self.wait_transition(screens.PORT)
             self.update_screen_id(screens.PORT_MAIN)
             yield task.unit
