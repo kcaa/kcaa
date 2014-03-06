@@ -297,25 +297,16 @@ class ShipList(model.KCAAObject):
         super(ShipList, self).update(api_name, request, response, objects,
                                      debug)
         updated_ids = set()
-        if api_name == '/api_get_member/ship':
-            ship_defs = objects['ShipDefinitionList'].ships
+        if (api_name == '/api_get_member/ship' or
+                api_name == '/api_get_member/ship2' or
+                api_name == '/api_get_member/ship3'):
             del self.ship_order[:]
-            for data in response['api_data']:
-                ship_data = jsonobject.parse(data)
-                ship = ship_defs[str(ship_data.api_ship_id)].convert_to_dict()
-                ShipList.update_ship(ship, ship_data)
-                self.ships[str(ship['id'])] = Ship(**ship)
-                updated_ids.add(str(ship['id']))
-                self.ship_order.append(str(ship['id']))
-        elif (api_name == '/api_get_member/ship2' or
-              api_name == '/api_get_member/ship3'):
-            ships_data = (response['api_data'] if
-                          api_name == '/api_get_member/ship2' else
-                          response['api_data']['api_ship_data'])
-            del self.ship_order[:]
+            ships_data = (response['api_data']['api_ship_data'] if
+                          api_name == '/api_get_member/ship3' else
+                          response['api_data'])
             for data in ships_data:
                 ship_data = jsonobject.parse(data)
-                ship = self.ships[str(ship_data.api_id)].convert_to_dict()
+                ship = self.get_ship(ship_data, objects).convert_to_dict()
                 ShipList.update_ship(ship, ship_data)
                 self.ships[str(ship['id'])] = Ship(**ship)
                 updated_ids.add(str(ship['id']))
@@ -344,6 +335,13 @@ class ShipList(model.KCAAObject):
         # Remove ships that have gone.
         for not_updated_id in set(self.ships.iterkeys()) - updated_ids:
             del self.ships[not_updated_id]
+
+    def get_ship(self, ship_data, objects):
+        try:
+            return self.ships[str(ship_data.api_id)]
+        except KeyError:
+            ship_defs = objects['ShipDefinitionList'].ships
+            return ship_defs[str(ship_data.api_ship_id)]
 
     @staticmethod
     def update_ship(ship, ship_data):
