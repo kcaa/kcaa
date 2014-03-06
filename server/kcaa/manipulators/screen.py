@@ -105,15 +105,6 @@ class PortScreen(Screen):
         return self.do_task(change_screen_task)
 
     def check_mission_result(self):
-        def proceed_mission_result_screen_task(task):
-            self.assert_screen(screens.PORT_MISSION_RESULT)
-            self._logger.debug('This is mission result screen; clicking.')
-            yield 5.0
-            self.click(700, 400)
-            yield 2.0
-            self.update_screen_id(screens.PORT_MAIN)
-            yield task.unit
-
         def check_mission_result_task(task):
             # First, ensure we are at the port main screen.
             yield self.change_screen(screens.PORT_MAIN)
@@ -123,7 +114,8 @@ class PortScreen(Screen):
             # This happens after returning back from expedition or practice.
             if self.screen_id == screens.PORT_MISSION_RESULT:
                 self._logger.debug('Changed to the mission result screen.')
-                yield self.do_task(proceed_mission_result_screen_task)
+                yield (self.manager.current_screen.
+                       proceed_mission_result_screen())
             else:
                 # If not, there are 2 possibilities:
                 # - currently the client is at the port main screen and aware
@@ -135,7 +127,8 @@ class PortScreen(Screen):
                 yield 5.0
                 if self.screen_id == screens.PORT_MISSION_RESULT:
                     self._logger.debug('Changed. We now are aware.')
-                    yield self.do_task(proceed_mission_result_screen_task)
+                    yield (self.manager.current_screen.
+                           proceed_mission_result_screen())
                 else:
                     self.click(50, 50)  # Possibly click the 'Port' button
                     yield 2.0
@@ -143,10 +136,10 @@ class PortScreen(Screen):
                     yield 5.0
                     if self.screen_id == screens.PORT_MISSION_RESULT:
                         self._logger.debug('Finally we are aware.')
-                        yield self.do_task(proceed_mission_result_screen_task)
+                        yield (self.manager.current_screen.
+                               proceed_mission_result_screen())
                     else:
                         self._logger.info('Failed to detect the screen.')
-
         return self.do_task(check_mission_result_task)
 
 
@@ -163,6 +156,20 @@ class PortMainScreen(PortScreen):
                 self.raise_impossible_transition(screen_id)
         self.assert_screen(screens.PORT_MAIN)
         return self.do_task(change_screen_task)
+
+
+class PortMissionResultScreen(PortScreen):
+
+    def proceed_mission_result_screen(self):
+        def proceed_mission_result_screen_task(task):
+            self.assert_screen(screens.PORT_MISSION_RESULT)
+            self._logger.debug('This is mission result screen; clicking.')
+            yield 5.0
+            self.click(700, 400)
+            yield 2.0
+            self.update_screen_id(screens.PORT_MAIN)
+            yield task.unit
+        return self.do_task(proceed_mission_result_screen_task)
 
 
 class PortOperationsScreen(PortScreen):
