@@ -110,7 +110,7 @@ class PortScreen(Screen):
         # and then move to the target screen.
         def change_screen_task(task):
             self.click_port_button()
-            yield 2.0
+            yield 1.0
             self.click_back_button()
             yield self.wait_transition(screens.PORT)
             self.update_screen_id(screens.PORT_MAIN)
@@ -123,7 +123,12 @@ class PortScreen(Screen):
         def check_mission_result_task(task):
             # First, ensure we are at the port main screen.
             self._logger.debug('Changing to the port main screen.')
-            yield self.change_screen(screens.PORT_MAIN)
+            if self.screen_id == screens.PORT:
+                self.click_port_button()
+                yield 1.0
+                self.click_back_button()
+            else:
+                yield self.change_screen(screens.PORT_MAIN)
             self._logger.debug('Tried to change screen to port main.')
             yield 5.0
             # It's possible we reach the mission result screen at this stage:
