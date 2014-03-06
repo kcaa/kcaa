@@ -63,7 +63,8 @@ class Screen(object):
                 if task.time > timeout:
                     if raise_on_timeout:
                         raise ValueError(
-                            'Cannot transition to screen {}'.format(screen_id))
+                            'Cannot transition from screen {} to screen {}'.
+                            format(self.screen_id, screen_id))
                     return
                 yield task.unit
             yield buffer_delay
