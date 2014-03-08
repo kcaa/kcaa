@@ -207,9 +207,9 @@ class PortMissionResultScreen(PortScreen):
         def proceed_mission_result_screen_task(task):
             self.assert_screen(screens.PORT_MISSION_RESULT)
             self._logger.debug('This is mission result screen; clicking.')
-            yield 5.0
+            yield 10.0
             self.click_somewhere()
-            yield 2.0
+            yield 3.0
             self.update_screen_id(screens.PORT_MAIN)
             yield task.unit
         return self.do_task(proceed_mission_result_screen_task)
