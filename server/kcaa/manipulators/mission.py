@@ -37,3 +37,4 @@ class AutoCheckMissionResult(base.AutoManipulator):
     def run(self, count):
         for _ in xrange(count):
             yield self.do_manipulator(CheckMissionResult)
+        yield self.screen.leave_port()

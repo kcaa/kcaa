@@ -132,6 +132,12 @@ class PortScreen(Screen):
         self.assert_screen_category(screens.PORT)
         return self.do_task(change_screen_task)
 
+    def leave_port(self):
+        def leave_port_task(task):
+            self.update_screen_id(screens.PORT)
+            yield task.unit
+        return self.do_task(leave_port_task)
+
     def check_mission_result(self):
         def check_mission_result_task(task):
             # First, ensure we are at the port main screen.

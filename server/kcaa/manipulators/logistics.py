@@ -48,3 +48,4 @@ class AutoFleetCharge(base.AutoManipulator):
     def run(self, fleet_ids):
         for fleet_id in fleet_ids:
             yield self.do_manipulator(FleetCharge, fleet_id)
+        yield self.screen.leave_port()
