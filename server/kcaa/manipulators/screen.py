@@ -225,6 +225,8 @@ class PortOperationsScreen(PortScreen):
             if screen_id == screens.PORT_MAIN:
                 self.click_port_button()
                 yield self.wait_transition(screens.PORT)
+                self.update_screen_id(screens.PORT_MAIN)
+                yield task.unit
                 return
             if screen_id in screen_map:
                 self.click_organizing_button()
