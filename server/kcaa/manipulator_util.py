@@ -138,10 +138,16 @@ class ManipulatorManager(object):
                 t.resume()
                 for t in self.running_auto_triggerer:
                     t.suspend()
+                self.browser_conn.send((browser.COMMAND_COVER, (True,)))
             else:
                 self.current_task = None
+                previously_run = False
                 for t in self.running_auto_triggerer:
-                    t.resume()
+                    if not t.running:
+                        t.resume()
+                        previously_run = True
+                if previously_run:
+                    self.browser_conn.send((browser.COMMAND_COVER, (False,)))
         else:
             for t in self.running_auto_triggerer:
                 t.suspend()
