@@ -8,9 +8,8 @@ def main():
     import doctest
     doctest.testmod(kcaa)
     doctest.testmod(server_main)
-    import os.path
     import pytest
-    pytest.main(args=[os.path.dirname(__file__)])
+    pytest.main()
 
 
 if __name__ == '__main__':

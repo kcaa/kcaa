@@ -14,9 +14,9 @@ class TestScreen(object):
         screen.update('/api_get_member/deck_port', None, None, None, False)
         assert screen.screen == screens.PORT
         screen.update('/api_req_mission/result', None, None, None, False)
-        assert screen.screen == screens.PORT_MISSION_RESULT
+        assert screen.screen == screens.MISSION_RESULT
         screen.update('/api_get_member/deck_port', None, None, None, False)
-        assert screen.screen == screens.PORT_MISSION_RESULT
+        assert screen.screen == screens.MISSION_RESULT
 
 
 def main():

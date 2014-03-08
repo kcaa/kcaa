@@ -142,7 +142,7 @@ class PortScreen(Screen):
                 yield 2.0
                 self.click_back_button()
                 yield 5.0
-                if self.screen_id == screens.PORT_MISSION_RESULT:
+                if self.screen_id == screens.MISSION_RESULT:
                     self._logger.debug('Changed to the mission result screen.')
                     yield (self.manager.current_screen.
                            proceed_mission_result_screen())
@@ -160,7 +160,7 @@ class PortScreen(Screen):
             self._logger.debug('Now at the port main screen, clicking.')
             self.click_attack_button()
             yield 5.0
-            if self.screen_id == screens.PORT_MISSION_RESULT:
+            if self.screen_id == screens.MISSION_RESULT:
                 self._logger.debug('Reached mission result screen.')
                 yield (self.manager.current_screen.
                        proceed_mission_result_screen())
@@ -173,7 +173,7 @@ class PortScreen(Screen):
                 self.click_somewhere()
                 yield 5.0
                 self._logger.debug('Clicked twice...')
-                if self.screen_id == screens.PORT_MISSION_RESULT:
+                if self.screen_id == screens.MISSION_RESULT:
                     self._logger.debug('Finally we are aware.')
                     yield (self.manager.current_screen.
                            proceed_mission_result_screen())
@@ -205,7 +205,7 @@ class PortMissionResultScreen(PortScreen):
 
     def proceed_mission_result_screen(self):
         def proceed_mission_result_screen_task(task):
-            self.assert_screen(screens.PORT_MISSION_RESULT)
+            self.assert_screen(screens.MISSION_RESULT)
             self._logger.debug('This is mission result screen.')
             yield 7.0
             self.click_somewhere()

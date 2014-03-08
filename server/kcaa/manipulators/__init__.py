@@ -46,9 +46,8 @@ def main():
     doctest.testmod(mission)
     doctest.testmod(screen)
     doctest.testmod(special)
-    import os.path
     import pytest
-    pytest.main(args=[os.path.dirname(__file__)])
+    pytest.main()
 
 
 if __name__ == '__main__':

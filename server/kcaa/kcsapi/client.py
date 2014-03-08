@@ -30,7 +30,7 @@ class Screen(model.KCAAObject):
     # This is best represented with TRIE. Rewrite if needed.
     API_SEQUENCE_TO_SCREEN_LIST = [
         (['/api_req_mission/result',
-          '/api_get_member/deck_port'], screens.PORT_MISSION_RESULT),
+          '/api_get_member/deck_port'], screens.MISSION_RESULT),
     ]
     API_TO_SCREEN_MAP = {
         '/api_get_master/mapinfo': screens.PORT_EXPEDITION,
@@ -40,7 +40,7 @@ class Screen(model.KCAAObject):
         '/api_get_member/deck_port': screens.PORT,
         '/api_get_member/practice': screens.PORT_PRACTICE,
         '/api_get_member/questlist': screens.PORT_QUESTLIST,
-        '/api_req_mission/result': screens.PORT_MISSION_RESULT,
+        '/api_req_mission/result': screens.MISSION_RESULT,
         '/api_req_practice/battle': screens.PRACTICE_BATTLE,
         '/api_req_practice/battle_result': screens.PRACTICE_BATTLERESULT,
         '/api_start': screens.SPECIAL_START,
