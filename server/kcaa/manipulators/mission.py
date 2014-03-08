@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import datetime
 import logging
 import time
 
@@ -19,6 +20,11 @@ class CheckMissionResult(base.Manipulator):
 
 class AutoCheckMissionResult(base.AutoManipulator):
 
+    verbose = False
+    datetime_pattern = '%Y-%m-%d %H:%M:%S'
+    interval = 10000
+    last_updated = 0
+
     @classmethod
     def can_trigger(cls, owner):
         if not screens.in_category(owner.screen_id, screens.PORT):
@@ -31,6 +37,22 @@ class AutoCheckMissionResult(base.AutoManipulator):
         for mission in mission_list.missions:
             if mission.eta and mission.eta < now:
                 count += 1
+        if cls.verbose and count > 0 or now - cls.interval > cls.last_updated:
+            cls.last_updated = now
+            mission_num = 0
+            etas = []
+            for mission in mission_list.missions:
+                if mission.eta:
+                    mission_num += 1
+                    etas.append(mission.eta)
+                    logger.debug('ETA{}: {}'.format(
+                        mission_num,
+                        datetime.datetime.fromtimestamp(mission.eta / 1000)
+                        .strftime(cls.datetime_pattern)))
+            if etas:
+                min_eta = min(etas)
+                logger.debug('Left: {:.0f} seconds'.format(
+                    (min_eta - now) / 1000))
         if count != 0:
             return {'count': count}
 
