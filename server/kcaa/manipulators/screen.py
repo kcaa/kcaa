@@ -291,7 +291,7 @@ class MissionResultScreen(Screen):
         def proceed_mission_result_screen_task(task):
             self.assert_screen(screens.MISSION_RESULT)
             self._logger.debug('This is mission result screen.')
-            yield 7.0
+            yield 5.0
             self.click_somewhere()
             yield 3.0
             self.click_somewhere()
