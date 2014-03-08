@@ -90,8 +90,8 @@ def get_game_frame(browser, click_url, game_frame, dx, dy):
 def add_digitizer(browser, click_url, game_area_width, game_area_height, dx,
                   dy):
     browser.execute_script('''
-        var game_frame = document.getElementById("game_frame");
-        var frameRect = game_frame.getBoundingClientRect();
+        var gameFrame = document.getElementById("game_frame");
+        var frameRect = gameFrame.getBoundingClientRect();
         var digitizer = document.createElement("div");
         digitizer.id = "digitizer";
         digitizer.style.backgroundColor = "hsla(0, 50%, 50%, 0.3)";
