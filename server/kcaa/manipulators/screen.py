@@ -15,6 +15,7 @@ class Screen(object):
         return self.manager.add_task(t, *args, **kwargs)
 
     def click(self, x, y):
+        self._logger.debug('Click {}, {}'.format(x, y))
         self.manager.click(x, y)
 
     @property
@@ -151,7 +152,7 @@ class PortScreen(Screen):
                 self._logger.debug('Trying to change screen to port main.')
                 yield self.change_screen(screens.PORT_MAIN)
                 self._logger.debug('We should be at the port main screen.')
-            # If not, there are 2 possibilities:
+            # If we reach here, there are 2 possibilities:
             # - currently the client is at the port main screen and aware
             #   of the completed mission.
             # - the client has been at the port main screen without knowing
@@ -206,15 +207,14 @@ class PortMissionResultScreen(PortScreen):
         def proceed_mission_result_screen_task(task):
             self.assert_screen(screens.PORT_MISSION_RESULT)
             self._logger.debug('This is mission result screen.')
-            yield 10.0
-            self._logger.debug('Clicking.')
+            yield 7.0
             self.click_somewhere()
             yield 3.0
-            self._logger.debug('Clicking.')
             self.click_somewhere()
-            self._logger.debug('And now we are at the port main.')
-            self.update_screen_id(screens.PORT_MAIN)
-            yield task.unit
+            self._logger.debug(
+                'And now we are at the port main, but mark it as PORT.')
+            self.update_screen_id(screens.PORT)
+            yield 2.0
         return self.do_task(proceed_mission_result_screen_task)
 
 
