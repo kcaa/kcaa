@@ -219,15 +219,59 @@ class PortMissionResultScreen(PortScreen):
 
 
 class PortOperationsScreen(PortScreen):
-    pass
+
+    def change_screen(self, screen_id):
+        screen_map = {
+            screens.PORT_ORGANIZING: self.click_organizing_button,
+            screens.PORT_LOGISTICS: self.click_logistics_button,
+            screens.PORT_REBUILDING: self.click_rebuilding_button,
+            screens.PORT_REPAIR: self.click_repair_button,
+            screens.PORT_SHIPYARD: self.click_shipyard_button,
+        }
+
+        def change_screen_task(task):
+            if self.screen_id == screen_id:
+                yield 0.0
+                return
+            if screen_id == screens.PORT_MAIN:
+                self.click_port_button()
+                yield self.wait_transition(screens.PORT)
+                return
+            if screen_id in screen_map:
+                self.click_organizing_button()
+                yield 2.0
+                self.update_screen_id(screen_id)
+                return
+            yield super(PortOperationsScreen, self).change_screen(screen_id)
+            if self.screen_id == screen_id:
+                return
+            else:
+                self.raise_impossible_transition(screen_id)
+        return self.do_task(change_screen_task)
+
+    def click_organizing_button(self):
+        self.click(20, 155)
+
+    def click_logistics_button(self):
+        self.click(20, 210)
+
+    def click_rebuilding_button(self):
+        self.click(20, 265)
+
+    def click_repair_button(self):
+        self.click(20, 320)
+
+    def click_shipyard_button(self):
+        self.click(20, 375)
 
 
 class PortLogisticsScreen(PortOperationsScreen):
 
     def change_screen(self, screen_id):
         def change_screen_task(task):
-            if screen_id == screens.PORT_LOGISTICS:
-                yield 0.0
+            yield super(PortLogisticsScreen, self).change_screen(screen_id)
+            if self.screen_id == screen_id:
+                return
             else:
                 self.raise_impossible_transition(screen_id)
         self.assert_screen(screens.PORT_LOGISTICS)
