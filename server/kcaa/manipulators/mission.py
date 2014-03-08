@@ -20,6 +20,10 @@ class CheckMissionResult(base.Manipulator):
 
 class AutoCheckMissionResult(base.AutoManipulator):
 
+    # Missions can be completed 60 seconds earlier than the reported ETA?
+    precursor_duration = 60000
+
+    # Verbose logging.
     verbose = False
     datetime_pattern = '%Y-%m-%d %H:%M:%S'
     interval = 10000
@@ -35,9 +39,10 @@ class AutoCheckMissionResult(base.AutoManipulator):
         now = int(1000 * time.time())
         count = 0
         for mission in mission_list.missions:
-            if mission.eta and mission.eta < now:
+            if mission.eta and mission.eta - cls.precursor_duration < now:
                 count += 1
-        if cls.verbose and count > 0 or now - cls.interval > cls.last_updated:
+        if cls.verbose and (count > 0 or
+                            now - cls.interval > cls.last_updated):
             cls.last_updated = now
             mission_num = 0
             etas = []
