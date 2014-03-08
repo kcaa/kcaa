@@ -134,7 +134,6 @@ class PortScreen(Screen):
     def check_mission_result(self):
         def check_mission_result_task(task):
             # First, ensure we are at the port main screen.
-            self._logger.debug('Changing to the port main screen.')
             if self.screen_id == screens.PORT:
                 self._logger.debug(
                     'This is port screen. Clicking port and back buttons.')
@@ -206,11 +205,14 @@ class PortMissionResultScreen(PortScreen):
     def proceed_mission_result_screen(self):
         def proceed_mission_result_screen_task(task):
             self.assert_screen(screens.PORT_MISSION_RESULT)
-            self._logger.debug('This is mission result screen; clicking.')
+            self._logger.debug('This is mission result screen.')
             yield 10.0
+            self._logger.debug('Clicking.')
             self.click_somewhere()
             yield 3.0
+            self._logger.debug('Clicking.')
             self.click_somewhere()
+            self._logger.debug('And now we are at the port main.')
             self.update_screen_id(screens.PORT_MAIN)
             yield task.unit
         return self.do_task(proceed_mission_result_screen_task)
