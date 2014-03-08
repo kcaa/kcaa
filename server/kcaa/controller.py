@@ -64,8 +64,6 @@ def control(args):
                 if command_type == COMMAND_CLICK:
                     # TODO: Propagate to manipulator_manager. Eventually it
                     # takes this command as an input to the fake client.
-                    print('CONTROLLER: Sending {} with args {}'.format(
-                        browser.COMMAND_CLICK, command_args))
                     browser_conn.send((browser.COMMAND_CLICK, command_args))
                 elif command_type == COMMAND_RELOAD_KCSAPI:
                     serialized_objects = kcsapi_handler.serialize_objects()

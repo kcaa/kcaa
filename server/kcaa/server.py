@@ -110,8 +110,6 @@ class KCAAHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         except KeyError:
             self.send_error(400, 'Missing parameter: x or y')
             return
-        print 'SERVER: Sending {} with {}'.format(
-            controller.COMMAND_CLICK, (x, y, click))
         self.server.controller_conn.send((controller.COMMAND_CLICK,
                                           (x, y, click)))
         self.send_response(200)

@@ -94,6 +94,7 @@ def add_digitizer(browser, click_url, game_area_width, game_area_height, dx,
         var frameRect = gameFrame.getBoundingClientRect();
         var digitizer = document.createElement("div");
         digitizer.id = "digitizer";
+        digitizer.style.display = "none";
         digitizer.style.backgroundColor = "hsla(0, 50%, 50%, 0.3)";
         digitizer.style.height = ''' + str(game_area_height) + ''' + "px";
         digitizer.style.left =
@@ -108,10 +109,12 @@ def add_digitizer(browser, click_url, game_area_width, game_area_height, dx,
             var x = e.clientX - rect.left;
             var y = e.clientY - rect.top;
             window.location.hash = x + "," + y;
+            /*
             var request = new XMLHttpRequest();
             request.open("GET", "''' + click_url + '''?x=" + x + "&y=" + y +
                          "&click=false");
             request.send();
+            */
         }
         digitizer.onclick = function (e) {
             var rect = digitizer.getBoundingClientRect();
@@ -121,6 +124,7 @@ def add_digitizer(browser, click_url, game_area_width, game_area_height, dx,
             request.open("GET", "''' + click_url + '''?x=" + x + "&y=" + y +
                          "&click=true");
             request.send();
+            digitizer.style.display = "none";
         }
         document.body.appendChild(digitizer);
         var show_digitizer = document.createElement("button");
@@ -159,8 +163,6 @@ def setup_kancolle_browser(args, controller_conn, click_url, to_exit):
             if game_frame:
                 while controller_conn.poll(1.0):
                     command_type, command_args = controller_conn.recv()
-                    print 'BROWSER: Got command {} with args {}'.format(
-                        command_type, command_args)
                     if command_type == COMMAND_CLICK:
                         if len(command_args) == 2:
                             x, y, click = command_args + (True,)
@@ -172,9 +174,9 @@ def setup_kancolle_browser(args, controller_conn, click_url, to_exit):
                         actions.move_to_element_with_offset(game_frame, x, y)
                         if click == 'true':
                             actions.click(None)
-                        show_digitizer(browser, False)
+                        #show_digitizer(browser, False)
                         actions.perform()
-                        show_digitizer(browser, True)
+                        #show_digitizer(browser, True)
                     else:
                         raise ValueError(
                             'Unknown browser command: type = {}, args = {}'
