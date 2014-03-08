@@ -13,7 +13,7 @@ DEPLOYED_PACKAGE = 'build'
 DEVELOPMENT_PACKAGE = 'web'
 
 
-class KcaaHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
+class KCAAHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
     GET_OBJECTS = '/get_objects'
     GET_NEW_OBJECTS = '/get_new_objects'
@@ -36,21 +36,21 @@ class KcaaHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
     def dispatch(self):
         o = urlparse.urlparse(self.path)
-        if o.path == KcaaHTTPRequestHandler.GET_OBJECTS:
+        if o.path == KCAAHTTPRequestHandler.GET_OBJECTS:
             self.handle_get_objects(o)
-        elif o.path == KcaaHTTPRequestHandler.GET_NEW_OBJECTS:
+        elif o.path == KCAAHTTPRequestHandler.GET_NEW_OBJECTS:
             self.handle_get_new_objects(o)
-        elif o.path == KcaaHTTPRequestHandler.GET_OBJECT:
+        elif o.path == KCAAHTTPRequestHandler.GET_OBJECT:
             self.handle_get_object(o)
-        elif o.path == KcaaHTTPRequestHandler.CLICK:
+        elif o.path == KCAAHTTPRequestHandler.CLICK:
             self.handle_click(o)
-        elif o.path == KcaaHTTPRequestHandler.RELOAD_KCSAPI:
+        elif o.path == KCAAHTTPRequestHandler.RELOAD_KCSAPI:
             self.handle_reload_kcsapi(o)
-        elif o.path == KcaaHTTPRequestHandler.RELOAD_MANIPULATORS:
+        elif o.path == KCAAHTTPRequestHandler.RELOAD_MANIPULATORS:
             self.handle_reload_manipulators(o)
-        elif o.path == KcaaHTTPRequestHandler.MANIPULATE:
+        elif o.path == KCAAHTTPRequestHandler.MANIPULATE:
             self.handle_manipulate(o)
-        elif o.path.startswith(KcaaHTTPRequestHandler.CLIENT_PREFIX):
+        elif o.path.startswith(KCAAHTTPRequestHandler.CLIENT_PREFIX):
             self.handle_client(o)
         else:
             self.send_error(404, 'Unknown handler: {}'.format(self.path))
@@ -160,7 +160,7 @@ class KcaaHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         self.wfile.write('success')
 
     def handle_client(self, o):
-        self.path = '/' + o.path[len(KcaaHTTPRequestHandler.CLIENT_PREFIX):]
+        self.path = '/' + o.path[len(KCAAHTTPRequestHandler.CLIENT_PREFIX):]
         # Note: HTTP request handlers are not new-style classes.
         # super() cannot be used.
         if self.command == 'HEAD':
@@ -192,13 +192,13 @@ def move_to_client_dir():
 def setup(args, logger):
     move_to_client_dir()
     httpd = SocketServer.TCPServer(('', args.server_port),
-                                   KcaaHTTPRequestHandler)
+                                   KCAAHTTPRequestHandler)
     _, port = httpd.server_address
     # Don't use query (something like ?key=value). Kancolle widget detects it
     # from referer and rejects to respond.
     root_url = 'http://localhost:{}/client/'.format(port)
     click_url = 'http://localhost:{}{}'.format(port,
-                                               KcaaHTTPRequestHandler.CLICK)
+                                               KCAAHTTPRequestHandler.CLICK)
     logger.info('KCAA server ready at {}'.format(root_url))
     return httpd, root_url, click_url
 
