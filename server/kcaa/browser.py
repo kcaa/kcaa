@@ -99,7 +99,7 @@ def add_digitizer(browser, click_url):
             var y = e.clientY - frameRect.top;
             digitizer.textContent = "(" + x + "," + y + ")";
         }
-        gameFrame.onclick = function (e) {
+        gameFrame.onmousedown = function (e) {
             var frameRect = gameFrame.getBoundingClientRect();
             var x = e.clientX - frameRect.left;
             var y = e.clientY - frameRect.top;
