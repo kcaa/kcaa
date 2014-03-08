@@ -54,10 +54,10 @@
                     <th>弾薬</th>
                     <th>戦意</th>
                     <th>HP</th>
-                    <th>装甲</th>
                     <th>火力</th>
                     <th>雷装</th>
                     <th>対空</th>
+                    <th>装甲</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -89,10 +89,6 @@
                       <div>{{ship.hpPercentage}}%</div>
                       <div>{{ship.hp}}/{{ship.maxHp}}</div>
                     </td>
-                    <td class="numberColumn {{ship.armorClass}}">
-                      <div>{{ship.armor}}</div>
-                      <div>{{ship.enhancedArmor}}/{{ship.maxArmor}}</div>
-                    </td>
                     <td class="numberColumn {{ship.firepowerClass}}">
                       <div>{{ship.firepower}}</div>
                       <div>{{ship.enhancedFirepower}}/{{ship.maxFirepower}}</div>
@@ -106,6 +102,10 @@
                     <td class="numberColumn {{ship.antiAirClass}}">
                       <div>{{ship.antiAir}}</div>
                       <div>{{ship.enhancedAntiAir}}/{{ship.maxAntiAir}}</div>
+                    </td>
+                    <td class="numberColumn {{ship.armorClass}}">
+                      <div>{{ship.armor}}</div>
+                      <div>{{ship.enhancedArmor}}/{{ship.maxArmor}}</div>
                     </td>
                   </tr>
                 </tbody>
@@ -137,10 +137,10 @@
                 <th>弾薬</th>
                 <th>戦意</th>
                 <th>HP</th>
-                <th>装甲</th>
                 <th>火力</th>
                 <th>雷装</th>
                 <th>対空</th>
+                <th>装甲</th>
                 <th>所属</th>
               </tr>
             </thead>
@@ -173,10 +173,6 @@
                   <div>{{ship.hpPercentage}}%</div>
                   <div>{{ship.hp}}/{{ship.maxHp}}</div>
                 </td>
-                <td class="numberColumn {{ship.armorClass}}">
-                  <div>{{ship.armor}}</div>
-                  <div>{{ship.enhancedArmor}}/{{ship.maxArmor}}</div>
-                </td>
                 <td class="numberColumn {{ship.firepowerClass}}">
                   <div>{{ship.firepower}}</div>
                   <div>{{ship.enhancedFirepower}}/{{ship.maxFirepower}}</div>
@@ -190,6 +186,10 @@
                 <td class="numberColumn {{ship.antiAirClass}}">
                   <div>{{ship.antiAir}}</div>
                   <div>{{ship.enhancedAntiAir}}/{{ship.maxAntiAir}}</div>
+                </td>
+                <td class="numberColumn {{ship.armorClass}}">
+                  <div>{{ship.armor}}</div>
+                  <div>{{ship.enhancedArmor}}/{{ship.maxArmor}}</div>
                 </td>
                 <td class="labelColumn">
                   <template if="{{ship.belongingFleet != null}}">
