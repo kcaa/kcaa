@@ -2,6 +2,7 @@
 
 import logging
 
+import browser
 import manipulators
 import screens
 import task
@@ -18,7 +19,7 @@ class ScreenManager(object):
         self._logger = logging.getLogger('kcaa.manipulator_util')
         self.objects = manipulator_manager.objects
         self.updated_object_types = manipulator_manager.updated_object_types
-        self.click_queue = manipulator_manager.click_queue
+        self.browser_conn = manipulator_manager.browser_conn
         self.task_manager = manipulator_manager.task_manager
         self._last_screen_id = screens.UNKNOWN
         self._current_screen = manipulators.screen.Screen(self)
@@ -35,7 +36,7 @@ class ScreenManager(object):
         }
 
     def click(self, x, y):
-        self.click_queue.put((x, y))
+        self.browser_conn.send((browser.COMMAND_CLICK, (x, y)))
 
     def add_task(self, t):
         return self.task_manager.add(t)
@@ -64,8 +65,8 @@ class ManipulatorManager(object):
     """Creates Kancolle manipulator, which assists user interaction by
     manipulating the Kancolle player (Flash) programatically."""
 
-    def __init__(self, click_queue, objects, epoch):
-        self.click_queue = click_queue
+    def __init__(self, browser_conn, objects, epoch):
+        self.browser_conn = browser_conn
         self.objects = objects
         self.initialize(epoch)
 

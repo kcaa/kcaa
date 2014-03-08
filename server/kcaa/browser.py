@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-import Queue
 import logging
 import time
 import traceback
@@ -69,7 +68,7 @@ def open_kancolle_browser(args):
     return browser
 
 
-def get_game_frame(browser, game_frame, dx, dy):
+def get_game_frame(browser, click_url, game_frame, dx, dy):
     if game_frame:
         return game_frame, dx, dy
     # Is there a better way to get this? Currently these are read from the
@@ -83,17 +82,19 @@ def get_game_frame(browser, game_frame, dx, dy):
         return None, None, None
     dx = (game_frame.size['width'] - game_area_width) / 2
     dy = game_area_top
-    add_digitizer(browser, game_area_width, game_area_height, dx, dy)
+    add_digitizer(browser, click_url, game_area_width, game_area_height, dx,
+                  dy)
     return game_frame, dx, dy
 
 
-def add_digitizer(browser, game_area_width, game_area_height, dx, dy):
+def add_digitizer(browser, click_url, game_area_width, game_area_height, dx,
+                  dy):
     browser.execute_script('''
         var game_frame = document.getElementById("game_frame");
         var frameRect = game_frame.getBoundingClientRect();
         var digitizer = document.createElement("div");
-        digitizer.style.backgroundColor = "hsla(0, 50%, 50%, 0.5)";
-        digitizer.style.display = "none";
+        digitizer.id = "digitizer";
+        digitizer.style.backgroundColor = "hsla(0, 50%, 50%, 0.3)";
         digitizer.style.height = ''' + str(game_area_height) + ''' + "px";
         digitizer.style.left =
             Math.floor(frameRect.left + ''' + str(dx) + ''') + "px";
@@ -104,11 +105,22 @@ def add_digitizer(browser, game_area_width, game_area_height, dx, dy):
         digitizer.style.zIndex = "1";
         digitizer.onmousemove = function (e) {
             var rect = digitizer.getBoundingClientRect();
-            window.location.hash = (e.clientX - rect.left) + "," +
-                (e.clientY - rect.top);
+            var x = e.clientX - rect.left;
+            var y = e.clientY - rect.top;
+            window.location.hash = x + "," + y;
+            var request = new XMLHttpRequest();
+            request.open("GET", "''' + click_url + '''?x=" + x + "&y=" + y +
+                         "&click=false");
+            request.send();
         }
         digitizer.onclick = function (e) {
-            digitizer.style.display = "none";
+            var rect = digitizer.getBoundingClientRect();
+            var x = e.clientX - rect.left;
+            var y = e.clientY - rect.top;
+            var request = new XMLHttpRequest();
+            request.open("GET", "''' + click_url + '''?x=" + x + "&y=" + y +
+                         "&click=true");
+            request.send();
         }
         document.body.appendChild(digitizer);
         var show_digitizer = document.createElement("button");
@@ -122,32 +134,53 @@ def add_digitizer(browser, game_area_width, game_area_height, dx, dy):
     ''')
 
 
-def setup_kancolle_browser(args, click_queue, to_exit):
+def show_digitizer(browser, is_shown):
+    display = 'block' if is_shown else 'none'
+    browser.execute_script('''
+        var digitizer = document.getElementById("digitizer");
+        digitizer.style.display = "''' + display + '''";
+    ''')
+
+
+def setup_kancolle_browser(args, controller_conn, click_url, to_exit):
     try:
         monitor = BrowserMonitor('Kancolle', open_kancolle_browser(args), 5)
         game_frame, dx, dy = None, None, None
         while True:
             browser = monitor.browser
-            time.sleep(1.0)
             if to_exit.wait(0.0):
                 break
             if not monitor.is_alive():
                 # If a user closes the Kancolle browser, it should be a signal
                 # that the user wants to exit the game.
                 break
-            game_frame, dx, dy = get_game_frame(browser, game_frame, dx, dy)
+            game_frame, dx, dy = get_game_frame(browser, click_url, game_frame,
+                                                dx, dy)
             if game_frame:
-                try:
-                    while True:
-                        x, y = click_queue.get_nowait()
+                while controller_conn.poll(1.0):
+                    command_type, command_args = controller_conn.recv()
+                    print 'BROWSER: Got command {} with args {}'.format(
+                        command_type, command_args)
+                    if command_type == COMMAND_CLICK:
+                        if len(command_args) == 2:
+                            x, y, click = command_args + (True,)
+                        else:
+                            x, y, click = command_args
                         x += dx
                         y += dy
                         actions = action_chains.ActionChains(browser)
                         actions.move_to_element_with_offset(game_frame, x, y)
-                        actions.click(None)
+                        if click == 'true':
+                            actions.click(None)
+                        show_digitizer(browser, False)
                         actions.perform()
-                except Queue.Empty:
-                    pass
+                        show_digitizer(browser, True)
+                    else:
+                        raise ValueError(
+                            'Unknown browser command: type = {}, args = {}'
+                            .format(command_type, command_args))
+            else:
+                time.sleep(1.0)
     except:
         traceback.print_exc()
     to_exit.set()

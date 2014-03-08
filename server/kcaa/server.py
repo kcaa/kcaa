@@ -18,6 +18,7 @@ class KcaaHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
     GET_OBJECTS = '/get_objects'
     GET_NEW_OBJECTS = '/get_new_objects'
     GET_OBJECT = '/get_object'
+    CLICK = '/click'
     RELOAD_KCSAPI = '/reload_kcsapi'
     RELOAD_MANIPULATORS = '/reload_manipulators'
     MANIPULATE = '/manipulate'
@@ -41,6 +42,8 @@ class KcaaHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             self.handle_get_new_objects(o)
         elif o.path == KcaaHTTPRequestHandler.GET_OBJECT:
             self.handle_get_object(o)
+        elif o.path == KcaaHTTPRequestHandler.CLICK:
+            self.handle_click(o)
         elif o.path == KcaaHTTPRequestHandler.RELOAD_KCSAPI:
             self.handle_reload_kcsapi(o)
         elif o.path == KcaaHTTPRequestHandler.RELOAD_MANIPULATORS:
@@ -95,8 +98,30 @@ class KcaaHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         except KeyError:
             self.send_error(404)
 
+    def handle_click(self, o):
+        if self.command != 'GET':
+            self.send_error(501, 'Unknown method: {}'.format(self.command))
+            return
+        queries = urlparse.parse_qs(o.query)
+        try:
+            x = int(queries['x'][0])
+            y = int(queries['y'][0])
+            click = queries['click'][0]
+        except KeyError:
+            self.send_error(400, 'Missing parameter: x or y')
+            return
+        print 'SERVER: Sending {} with {}'.format(
+            controller.COMMAND_CLICK, (x, y, click))
+        self.server.controller_conn.send((controller.COMMAND_CLICK,
+                                          (x, y, click)))
+        self.send_response(200)
+        self.send_header('Content-Type', 'text/plain')
+        self.end_headers()
+        self.wfile.write('success')
+
     def handle_reload_kcsapi(self, o):
-        self.server.controller_conn.send((controller.COMMAND_RELOAD_KCSAPI,))
+        self.server.controller_conn.send(
+            (controller.COMMAND_RELOAD_KCSAPI, None))
         self.send_response(200)
         self.send_header('Content-Type', 'text/plain')
         self.end_headers()
@@ -104,7 +129,7 @@ class KcaaHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
     def handle_reload_manipulators(self, o):
         self.server.controller_conn.send(
-            (controller.COMMAND_RELOAD_MANIPULATORS,))
+            (controller.COMMAND_RELOAD_MANIPULATORS, None))
         self.send_response(200)
         self.send_header('Content-Type', 'text/plain')
         self.end_headers()
@@ -128,7 +153,7 @@ class KcaaHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             else:
                 command_args[key] = values
         self.server.controller_conn.send((controller.COMMAND_MANIPULATE,
-                                          command_type, command_args))
+                                          (command_type, command_args)))
         self.send_response(200)
         self.send_header('Content-Type', 'text/plain')
         self.end_headers()
@@ -172,18 +197,20 @@ def setup(args, logger):
     # Don't use query (something like ?key=value). Kancolle widget detects it
     # from referer and rejects to respond.
     root_url = 'http://localhost:{}/client/'.format(port)
+    click_url = 'http://localhost:{}{}'.format(port,
+                                               KcaaHTTPRequestHandler.CLICK)
     logger.info('KCAA server ready at {}'.format(root_url))
-    return httpd, root_url
+    return httpd, root_url, click_url
 
 
 def handle_server(args, to_exit, controller_conn):
     try:
         logger = logging.getLogger('kcaa.server')
-        httpd, root_url = setup(args, logger)
+        httpd, root_url, click_url = setup(args, logger)
         httpd.new_objects = set()
         httpd.objects = {}
         httpd.controller_conn = controller_conn
-        controller_conn.send(root_url)
+        controller_conn.send((root_url, click_url))
         httpd.timeout = 0.1
         while True:
             httpd.handle_request()

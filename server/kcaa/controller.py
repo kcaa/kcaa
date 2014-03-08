@@ -12,6 +12,7 @@ import proxy_util
 import server
 
 
+COMMAND_CLICK = 'click'
 COMMAND_RELOAD_KCSAPI = 'reload_kcsapi'
 COMMAND_RELOAD_MANIPULATORS = 'reload_manipulators'
 COMMAND_MANIPULATE = 'manipulate'
@@ -41,27 +42,32 @@ def control(args):
             logger.error('Server is not responding. Shutting down.')
             to_exit.set()
             return
-        root_url = server_conn.recv()
-        click_queue = multiprocessing.Queue()
+        root_url, click_url = server_conn.recv()
+        controller_conn_for_browser, browser_conn = multiprocessing.Pipe()
         pk = multiprocessing.Process(target=browser.setup_kancolle_browser,
-                                     args=(args, click_queue, to_exit))
+                                     args=(args, controller_conn_for_browser,
+                                           click_url, to_exit))
         pc = multiprocessing.Process(target=browser.setup_kcaa_browser,
                                      args=(args, root_url, to_exit))
         pk.start()
         pc.start()
         kcsapi_handler = kcsapi_util.KCSAPIHandler(har_manager)
         manipulator_manager = manipulator_util.ManipulatorManager(
-            click_queue, kcsapi_handler.objects, time.time())
+            browser_conn, kcsapi_handler.objects, time.time())
         while True:
             time.sleep(0.1)
             if to_exit.wait(0.0):
                 logger.info('Controller got an exit signal. Shutting down.')
                 break
             while server_conn.poll():
-                data = server_conn.recv()
-                command_type = data[0]
-                command_args = data[1:]
-                if command_type == COMMAND_RELOAD_KCSAPI:
+                command_type, command_args = server_conn.recv()
+                if command_type == COMMAND_CLICK:
+                    # TODO: Propagate to manipulator_manager. Eventually it
+                    # takes this command as an input to the fake client.
+                    print('CONTROLLER: Sending {} with args {}'.format(
+                        browser.COMMAND_CLICK, command_args))
+                    browser_conn.send((browser.COMMAND_CLICK, command_args))
+                elif command_type == COMMAND_RELOAD_KCSAPI:
                     serialized_objects = kcsapi_handler.serialize_objects()
                     reload(kcsapi_util)
                     kcsapi_util.reload_modules()
@@ -72,7 +78,7 @@ def control(args):
                     reload(manipulator_util)
                     manipulator_util.reload_modules()
                     manipulator_manager = manipulator_util.ManipulatorManager(
-                        click_queue, kcsapi_handler.objects, time.time())
+                        browser_conn, kcsapi_handler.objects, time.time())
                 elif command_type == COMMAND_MANIPULATE:
                     try:
                         manipulator_manager.dispatch(command_args)
