@@ -177,22 +177,22 @@ tr.fatal {
   background: linear-gradient(
     150deg,
     hsla(0, 0%, 0%, 0.0),
-    hsla(0, 80%, 60%, 0.3));
-  color: hsl(0, 50%, 10%);
+    hsla(0, 80%, 60%, 0.5));
+  color: hsl(0, 50%, 20%);
 }
 tr.dangerous {
   background: linear-gradient(
     150deg,
     hsla(0, 0%, 0%, 0.0),
-    hsla(30, 80%, 70%, 0.3));
-  color: hsl(30, 50%, 10%);
+    hsla(30, 80%, 70%, 0.5));
+  color: hsl(30, 50%, 20%);
 }
 tr.good {
   background: linear-gradient(
     150deg,
     hsla(0, 0%, 0%, 0.0),
-    hsla(60, 80%, 80%, 0.3));
-  color: hsl(60, 50%, 10%);
+    hsla(60, 80%, 80%, 0.5));
+  color: hsl(60, 50%, 20%);
 }
 td > div, .subordinate {
   font-size: 90%;
