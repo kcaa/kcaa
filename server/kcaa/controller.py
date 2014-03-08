@@ -42,11 +42,11 @@ def control(args):
             logger.error('Server is not responding. Shutting down.')
             to_exit.set()
             return
-        root_url, click_url = server_conn.recv()
+        root_url = server_conn.recv()
         controller_conn_for_browser, browser_conn = multiprocessing.Pipe()
         pk = multiprocessing.Process(target=browser.setup_kancolle_browser,
                                      args=(args, controller_conn_for_browser,
-                                           click_url, to_exit))
+                                           to_exit))
         pc = multiprocessing.Process(target=browser.setup_kcaa_browser,
                                      args=(args, root_url, to_exit))
         pk.start()
@@ -62,8 +62,11 @@ def control(args):
             while server_conn.poll():
                 command_type, command_args = server_conn.recv()
                 if command_type == COMMAND_CLICK:
-                    # TODO: Propagate to manipulator_manager. Eventually it
-                    # takes this command as an input to the fake client.
+                    # This command is currently dead. If there is a reasonable
+                    # means to get the clicked position in the client, this is
+                    # supposed to feed that information to the fake client
+                    # owned by the controller to better guess the current
+                    # screen.
                     browser_conn.send((browser.COMMAND_CLICK, command_args))
                 elif command_type == COMMAND_RELOAD_KCSAPI:
                     serialized_objects = kcsapi_handler.serialize_objects()

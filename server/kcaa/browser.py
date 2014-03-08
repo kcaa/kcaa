@@ -68,71 +68,77 @@ def open_kancolle_browser(args):
     return browser
 
 
-def get_game_frame(browser, click_url):
+def get_game_frame(browser):
+    # Is there a better way to get this? Currently these are read from the
+    # iframe source.
+    game_area_width = 800
+    game_area_height = 480
+    game_area_top = 16
     try:
-        outer_game_frame = browser.find_element_by_id('game_frame')
-        game_url = outer_game_frame.get_attribute('src')
-        browser.get(game_url)
-        return None, None, None
-    except:
-        pass
-    try:
-        game_frame = browser.find_element_by_id('externalswf')
+        game_frame = browser.find_element_by_id('game_frame')
     except:
         return None, None, None
-    add_digitizer(browser, click_url)
-    add_game_frame_cover(browser)
-    return game_frame, 0, 0
+    dx = (game_frame.size['width'] - game_area_width) / 2
+    dy = game_area_top
+    add_game_frame_cover(browser, game_area_width, game_area_height, dx, dy)
+    # If in the debug mode, show the digitizer tools.
+    add_digitizer(browser)
+    return game_frame, dx, dy
 
 
-def add_digitizer(browser, click_url):
+def add_game_frame_cover(browser, game_area_width, game_area_height, dx, dy):
     browser.execute_script('''
-        var digitizer = document.createElement("div");
-        digitizer.style.position = "absolute";
-        var spacingTop = document.querySelector("#spacing_top");
-        spacingTop.appendChild(digitizer);
-
-        var gameFrame = document.querySelector("#externalswf");
-        gameFrame.onmousemove = function (e) {
-            var frameRect = gameFrame.getBoundingClientRect();
-            var x = e.clientX - frameRect.left;
-            var y = e.clientY - frameRect.top;
-            digitizer.textContent = "(" + x + "," + y + ")";
-        }
-        gameFrame.onmousedown = function (e) {
-            var frameRect = gameFrame.getBoundingClientRect();
-            var x = e.clientX - frameRect.left;
-            var y = e.clientY - frameRect.top;
-            var request = new XMLHttpRequest();
-            request.open("GET", "''' + click_url + '''?x=" + x + "&y=" + y +
-                         "&click=true");
-            request.send();
-        }
-    ''')
-
-
-def add_game_frame_cover(browser):
-    browser.execute_script('''
-        var gameFrame = document.querySelector("#flashWrap");
+        var gameFrame = document.querySelector("#game_frame");
         var frameRect = gameFrame.getBoundingClientRect();
         var gameFrameCover = document.createElement("div");
-        gameFrameCover.id = "frame_cover";
+        gameFrameCover.id = "game_frame_cover";
         gameFrameCover.style.boxShadow =
             "0 0 30px 20px hsla(240, 80%, 20%, 0.5) inset";
         gameFrameCover.style.boxSizing = "border-box";
         gameFrameCover.style.color = "white";
         gameFrameCover.style.display = "none";
         gameFrameCover.style.fontSize = "30px";
-        gameFrameCover.style.height = frameRect.height + "px";
-        gameFrameCover.style.left = frameRect.left + "px";
+        gameFrameCover.style.height = ''' + str(game_area_height) + ''' + "px";
+        gameFrameCover.style.left =
+            Math.floor(frameRect.left + ''' + str(dx) + ''') + "px";
         gameFrameCover.style.padding = "20px";
         gameFrameCover.style.position = "absolute";
         gameFrameCover.style.textAlign = "right";
-        gameFrameCover.style.top = frameRect.top + "px";
-        gameFrameCover.style.width = frameRect.width + "px";
+        gameFrameCover.style.top =
+            Math.floor(frameRect.top + ''' + str(dy) + ''') + "px";
+        gameFrameCover.style.width = ''' + str(game_area_width) + ''' + "px";
         gameFrameCover.style.zIndex = "1";
         gameFrameCover.textContent = "Being automatically manipulated";
         document.body.appendChild(gameFrameCover);
+    ''')
+
+
+def add_digitizer(browser):
+    browser.execute_script('''
+        var gameFrameCover = document.querySelector("#game_frame_cover");
+
+        var digitizerDisplay = document.createElement("div");
+        digitizerDisplay.style.fontSize = "16px";
+        digitizerDisplay.style.position = "absolute";
+        var toggleButton = document.createElement("button");
+        toggleButton.textContent = "Toggle Cover";
+        toggleButton.onclick = function (e) {
+            var isCurrentlyShown = gameFrameCover.style.display != "none";
+            gameFrameCover.style.display = isCurrentlyShown ? "none" : "block";
+        }
+        digitizerDisplay.appendChild(toggleButton);
+        var coordinates = document.createElement("span");
+        coordinates.style.marginLeft = "10px";
+        digitizerDisplay.appendChild(coordinates);
+        var w = document.querySelector("#w");
+        w.insertBefore(digitizerDisplay, w.children[0]);
+
+        gameFrameCover.onmousemove = function (e) {
+            var frameRect = gameFrameCover.getBoundingClientRect();
+            var x = e.clientX - frameRect.left;
+            var y = e.clientY - frameRect.top;
+            coordinates.textContent = "(" + x + "," + y + ")";
+        }
     ''')
 
 
@@ -144,7 +150,7 @@ def show_game_frame_cover(browser, is_shown):
     ''')
 
 
-def setup_kancolle_browser(args, controller_conn, click_url, to_exit):
+def setup_kancolle_browser(args, controller_conn, to_exit):
     try:
         monitor = BrowserMonitor('Kancolle', open_kancolle_browser(args), 5)
         game_frame, dx, dy = None, None, None
@@ -160,25 +166,21 @@ def setup_kancolle_browser(args, controller_conn, click_url, to_exit):
                 while controller_conn.poll(1.0):
                     command_type, command_args = controller_conn.recv()
                     if command_type == COMMAND_CLICK:
-                        if len(command_args) == 2:
-                            x, y, click = command_args + ('true',)
-                        else:
-                            x, y, click = command_args
+                        x, y = command_args
                         x += dx
                         y += dy
                         actions = action_chains.ActionChains(browser)
                         actions.move_to_element_with_offset(game_frame, x, y)
-                        if click == 'true':
-                            actions.click(None)
-                        #show_digitizer(browser, False)
+                        actions.click(None)
+                        #show_game_frame_cover(browser, False)
                         actions.perform()
-                        #show_digitizer(browser, True)
+                        #show_game_frame_cover(browser, True)
                     else:
                         raise ValueError(
                             'Unknown browser command: type = {}, args = {}'
                             .format(command_type, command_args))
             else:
-                game_frame, dx, dy = get_game_frame(browser, click_url)
+                game_frame, dx, dy = get_game_frame(browser)
                 time.sleep(1.0)
     except:
         traceback.print_exc()

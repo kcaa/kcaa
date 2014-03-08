@@ -106,12 +106,10 @@ class KCAAHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         try:
             x = int(queries['x'][0])
             y = int(queries['y'][0])
-            click = queries['click'][0]
         except KeyError:
             self.send_error(400, 'Missing parameter: x or y')
             return
-        self.server.controller_conn.send((controller.COMMAND_CLICK,
-                                          (x, y, click)))
+        self.server.controller_conn.send((controller.COMMAND_CLICK, (x, y)))
         self.send_response(200)
         self.send_header('Content-Type', 'text/plain')
         self.end_headers()
@@ -195,20 +193,18 @@ def setup(args, logger):
     # Don't use query (something like ?key=value). Kancolle widget detects it
     # from referer and rejects to respond.
     root_url = 'http://localhost:{}/client/'.format(port)
-    click_url = 'http://localhost:{}{}'.format(port,
-                                               KCAAHTTPRequestHandler.CLICK)
     logger.info('KCAA server ready at {}'.format(root_url))
-    return httpd, root_url, click_url
+    return httpd, root_url
 
 
 def handle_server(args, to_exit, controller_conn):
     try:
         logger = logging.getLogger('kcaa.server')
-        httpd, root_url, click_url = setup(args, logger)
+        httpd, root_url = setup(args, logger)
         httpd.new_objects = set()
         httpd.objects = {}
         httpd.controller_conn = controller_conn
-        controller_conn.send((root_url, click_url))
+        controller_conn.send(root_url)
         httpd.timeout = 0.1
         while True:
             httpd.handle_request()
