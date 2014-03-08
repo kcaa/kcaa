@@ -30,9 +30,8 @@ class ScreenManager(object):
             screens.SPECIAL_START: manipulators.screen.StartScreen,
             screens.PORT: manipulators.screen.PortScreen,
             screens.PORT_MAIN: manipulators.screen.PortMainScreen,
-            screens.PORT_MISSION_RESULT:
-            manipulators.screen.PortMissionResultScreen,
             screens.PORT_LOGISTICS: manipulators.screen.PortLogisticsScreen,
+            screens.MISSION_RESULT: manipulators.screen.MissionResultScreen,
         }
 
     def click(self, x, y):

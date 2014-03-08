@@ -262,6 +262,6 @@ class RunOnceEventHandler(EventHandler):
         return None
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     import event_test
     event_test.main()

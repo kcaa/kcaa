@@ -87,6 +87,9 @@ class Screen(object):
         raise TypeError('Cannot change screen from {} to {}'.format(
             self.screen_id, screen_id))
 
+    def click_somewhere(self):
+        self.click(790, 10)
+
 
 class StartScreen(Screen):
 
@@ -110,9 +113,6 @@ class PortScreen(Screen):
         # TODO: Move this to PortMainScreen. Use some other button (record?)
         # instead in check_mission_result.
         self.click(200, 270)
-
-    def click_somewhere(self):
-        self.click(790, 10)
 
     def change_screen(self, screen_id):
         # If the current screen is unknown, go first to the port main screen,
@@ -142,7 +142,7 @@ class PortScreen(Screen):
                 yield 2.0
                 self.click_back_button()
                 yield 5.0
-                if self.screen_id == screens.PORT_MISSION_RESULT:
+                if self.screen_id == screens.MISSION_RESULT:
                     self._logger.debug('Changed to the mission result screen.')
                     yield (self.manager.current_screen.
                            proceed_mission_result_screen())
@@ -160,7 +160,7 @@ class PortScreen(Screen):
             self._logger.debug('Now at the port main screen, clicking.')
             self.click_attack_button()
             yield 5.0
-            if self.screen_id == screens.PORT_MISSION_RESULT:
+            if self.screen_id == screens.MISSION_RESULT:
                 self._logger.debug('Reached mission result screen.')
                 yield (self.manager.current_screen.
                        proceed_mission_result_screen())
@@ -173,7 +173,7 @@ class PortScreen(Screen):
                 self.click_somewhere()
                 yield 5.0
                 self._logger.debug('Clicked twice...')
-                if self.screen_id == screens.PORT_MISSION_RESULT:
+                if self.screen_id == screens.MISSION_RESULT:
                     self._logger.debug('Finally we are aware.')
                     yield (self.manager.current_screen.
                            proceed_mission_result_screen())
@@ -199,23 +199,6 @@ class PortMainScreen(PortScreen):
                 self.raise_impossible_transition(screen_id)
         self.assert_screen(screens.PORT_MAIN)
         return self.do_task(change_screen_task)
-
-
-class PortMissionResultScreen(PortScreen):
-
-    def proceed_mission_result_screen(self):
-        def proceed_mission_result_screen_task(task):
-            self.assert_screen(screens.PORT_MISSION_RESULT)
-            self._logger.debug('This is mission result screen.')
-            yield 7.0
-            self.click_somewhere()
-            yield 3.0
-            self.click_somewhere()
-            self._logger.debug(
-                'And now we are at the port main, but mark it as PORT.')
-            self.update_screen_id(screens.PORT)
-            yield 2.0
-        return self.do_task(proceed_mission_result_screen_task)
 
 
 class PortOperationsScreen(PortScreen):
@@ -300,3 +283,20 @@ class PortLogisticsScreen(PortOperationsScreen):
             self.click(705, 445)
             yield 5.0
         return self.do_task(charge_both_task)
+
+
+class MissionResultScreen(Screen):
+
+    def proceed_mission_result_screen(self):
+        def proceed_mission_result_screen_task(task):
+            self.assert_screen(screens.MISSION_RESULT)
+            self._logger.debug('This is mission result screen.')
+            yield 7.0
+            self.click_somewhere()
+            yield 3.0
+            self.click_somewhere()
+            self._logger.debug(
+                'And now we are at the port main, but mark it as PORT.')
+            self.update_screen_id(screens.PORT)
+            yield 2.0
+        return self.do_task(proceed_mission_result_screen_task)

@@ -26,9 +26,8 @@ def main():
     doctest.testmod(proxy_util)
     doctest.testmod(server)
     doctest.testmod(task)
-    import os.path
     import pytest
-    pytest.main(args=[os.path.dirname(__file__)])
+    pytest.main()
 
 
 if __name__ == '__main__':

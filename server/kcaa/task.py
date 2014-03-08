@@ -434,6 +434,6 @@ class TaskManager(object):
         return len(self._tasks)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     import task_test
     task_test.main()

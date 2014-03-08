@@ -72,9 +72,8 @@ def main():
     doctest.testmod(questlist)
     doctest.testmod(resource)
     doctest.testmod(ship)
-    import os.path
     import pytest
-    pytest.main(args=[os.path.dirname(__file__)])
+    pytest.main()
 
 
 if __name__ == '__main__':
