@@ -210,6 +210,7 @@ class PortMissionResultScreen(PortScreen):
             yield 10.0
             self.click_somewhere()
             yield 3.0
+            self.click_somewhere()
             self.update_screen_id(screens.PORT_MAIN)
             yield task.unit
         return self.do_task(proceed_mission_result_screen_task)
