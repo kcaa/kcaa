@@ -40,10 +40,13 @@ class Screen(model.KCAAObject):
         '/api_get_member/deck_port': screens.PORT,
         '/api_get_member/practice': screens.PORT_PRACTICE,
         '/api_get_member/questlist': screens.PORT_QUESTLIST,
-        '/api_req_map/start': screens.EXPEDITION,
+        '/api_req_map/next': screens.EXPEDITION,  # TODO: special handler
+        '/api_req_map/start': screens.EXPEDITION,  # TODO: special handler
         '/api_req_mission/result': screens.MISSION_RESULT,
         '/api_req_practice/battle': screens.PRACTICE_COMBAT,
         '/api_req_practice/battle_result': screens.PRACTICE_RESULT,
+        '/api_req_sortie/battle': screens.EXPEDITION_COMBAT,
+        '/api_req_sortie/battleresult': screens.EXPEDITION_RESULT,
         '/api_start': screens.SPECIAL_START,
     }
 
