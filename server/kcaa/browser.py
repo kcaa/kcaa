@@ -94,7 +94,7 @@ def add_game_frame_cover(browser, game_area_width, game_area_height, dx, dy):
         var gameFrameCover = document.createElement("div");
         gameFrameCover.id = "game_frame_cover";
         gameFrameCover.style.boxShadow =
-            "0 0 30px 20px hsla(240, 80%, 20%, 0.5) inset";
+            "0 0 50px 50px hsla(240, 80%, 20%, 0.5) inset";
         gameFrameCover.style.boxSizing = "border-box";
         gameFrameCover.style.color = "white";
         gameFrameCover.style.display = "none";
@@ -105,6 +105,7 @@ def add_game_frame_cover(browser, game_area_width, game_area_height, dx, dy):
         gameFrameCover.style.padding = "20px";
         gameFrameCover.style.position = "absolute";
         gameFrameCover.style.textAlign = "right";
+        gameFrameCover.style.textShadow = "0 0 5px black";
         gameFrameCover.style.top =
             Math.floor(frameRect.top + ''' + str(dy) + ''') + "px";
         gameFrameCover.style.width = ''' + str(game_area_width) + ''' + "px";
