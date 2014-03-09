@@ -42,6 +42,7 @@ class AutoManipulatorTriggerer(Manipulator):
         while True:
             if self.manager.queue:
                 yield interval
+                continue
             params = manipulator.can_trigger(self, *args, **kwargs)
             if params is not None:
                 logger.info('Triggering {}'.format(manipulator.__name__))
