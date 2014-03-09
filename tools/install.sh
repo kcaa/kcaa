@@ -68,14 +68,16 @@ function install_chromedriver() {
 }
 
 function install_browsermob_proxy() {
-  if [ -x ${INSTALL_DIR}/browsermob-proxy ]; then
+  if [ -d ${INSTALL_DIR}/browsermob-proxy ]; then
     echo "Browsermob Proxy is already installed at " \
       "${INSTALL_DIR}/browsermob-proxy. Skipping."
     return
   fi
 
   echo "Installing Browsermob Proxy..."
-  cp -f ${SCRIPT_DIR}/../thirdparty/browsermob-proxy ${INSTALL_DIR}
+  local filename=browsermob-proxy-2.0-beta-10-SNAPSHOT
+  unzip -q -d ${INSTALL_DIR} ${SCRIPT_DIR}/../thirdparty/${filename}-bin.zip
+  ln -s ${INSTALL_DIR}/${filename} ${INSTALL_DIR}/browsermob-proxy
 }
 
 function install_dartium() {

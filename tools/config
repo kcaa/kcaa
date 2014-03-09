@@ -13,7 +13,7 @@ INSTALL_DIR=${HOME}/opt/kcaa
 # Proxy
 # ============================================================================
 
-PROXY_CONTROLLER_BIN=${INSTALL_DIR}/browsermob-proxy
+PROXY_CONTROLLER_BIN=${INSTALL_DIR}/browsermob-proxy/bin/browsermob-proxy
 PROXY_CONTROLLER_HOST=localhost
 PROXY_CONTROLLER_PORT=9090
 PROXY_PORT=9091
