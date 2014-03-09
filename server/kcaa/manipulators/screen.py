@@ -201,6 +201,12 @@ class PortMainScreen(PortScreen):
         def change_screen_task(task):
             if screen_id == screens.PORT_MAIN:
                 yield 0.0
+                return
+            elif screen_id == screens.PORT_MISSION:
+                self.click_attack_button()
+                yield 2.0
+                self.click_mission_button()
+                yield self.transition_to(screens.PORT_MISSION)
             elif screen_id == screens.PORT_LOGISTICS:
                 self.click_logistics_button()
                 yield self.transition_to(screens.PORT_LOGISTICS)
@@ -208,6 +214,55 @@ class PortMainScreen(PortScreen):
                 self.raise_impossible_transition(screen_id)
         self.assert_screen(screens.PORT_MAIN)
         return self.do_task(change_screen_task)
+
+    def click_mission_button(self):
+        self.click(680, 230)
+
+
+class PortMissionScreen(PortScreen):
+
+    def change_screen(self, screen_id):
+        def change_screen_task(task):
+            if screen_id == screens.PORT_MISSION:
+                yield 0.0
+                return
+            yield super(PortMissionScreen, self).change_screen(screen_id)
+            # TODO: This is a boilerplate. Consider to extract as a method.
+            if self.screen_id == screen_id:
+                return
+            else:
+                self.raise_impossible_transition(screen_id)
+        return self.do_task(change_screen_task)
+
+    def select_maparea(self, maparea_id):
+        def select_maparea_task(task):
+            self.click(85 + 65 * maparea_id, 435)
+            yield 1.0
+        return self.do_task(select_maparea_task)
+
+    def select_mission(self, mission_index):
+        def select_mission_task(task):
+            self.click(300, 175 + 30 * mission_index)
+            yield 1.0
+        return self.do_task(select_mission_task)
+
+    def confirm(self):
+        def confirm_task(task):
+            self.click(680, 450)
+            yield 2.0
+        return self.do_task(confirm_task)
+
+    def select_fleet(self, fleet_id):
+        def select_fleet_task(task):
+            self.click(340 + 30 * fleet_id, 135)
+            yield 1.0
+        return self.do_task(select_fleet_task)
+
+    def finalize(self):
+        def finalize_task(task):
+            self.click(630, 450)
+            yield 5.0
+        return self.do_task(finalize_task)
 
 
 class PortOperationsScreen(PortScreen):

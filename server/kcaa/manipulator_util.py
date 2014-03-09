@@ -30,6 +30,7 @@ class ScreenManager(object):
             screens.SPECIAL_START: manipulators.screen.StartScreen,
             screens.PORT: manipulators.screen.PortScreen,
             screens.PORT_MAIN: manipulators.screen.PortMainScreen,
+            screens.PORT_MISSION: manipulators.screen.PortMissionScreen,
             screens.PORT_LOGISTICS: manipulators.screen.PortLogisticsScreen,
             screens.MISSION_RESULT: manipulators.screen.MissionResultScreen,
         }
@@ -84,6 +85,8 @@ class ManipulatorManager(object):
 
     def define_manipulators(self):
         self.manipulators = {
+            # Mission
+            'GoOnMission': manipulators.mission.GoOnMission,
             # Logistics
             'FleetCharge': manipulators.logistics.FleetCharge,
         }

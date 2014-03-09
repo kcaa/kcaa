@@ -65,3 +65,30 @@ class AutoCheckMissionResult(base.AutoManipulator):
         for _ in xrange(count):
             yield self.do_manipulator(CheckMissionResult)
         yield self.screen.leave_port()
+
+
+class GoOnMission(base.Manipulator):
+
+    def run(self, fleet_id, mission_id):
+        fleet_id = int(fleet_id)
+        mission_id = int(mission_id)
+        logger.info('Making the fleet {} go on the mission {}'.format(
+            fleet_id, mission_id))
+        mission_list = self.objects.get('MissionList')
+        if not mission_list:
+            logger.info('No mission list was found. Giving up.')
+            return
+        yield self.screen.change_screen(screens.PORT_MISSION)
+        mission = mission_list.get_mission(mission_id)
+        if mission:
+            yield self.screen.select_maparea(mission.maparea)
+        else:
+            logger.info('Mission {} is unknown. Searching for it...'.format(
+                mission_id))
+            return
+        mission_index = mission_list.get_index_in_maparea(mission)
+        yield self.screen.select_mission(mission_index)
+        yield self.screen.confirm()
+        yield self.screen.select_fleet(fleet_id)
+        yield self.screen.finalize()
+        yield self.screen.leave_port()
