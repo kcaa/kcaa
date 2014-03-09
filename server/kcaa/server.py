@@ -9,7 +9,7 @@ import urlparse
 import controller
 
 
-DEPLOYED_PACKAGE = 'build'
+DEPLOYED_PACKAGE = 'build/web'
 DEVELOPMENT_PACKAGE = 'web'
 
 
