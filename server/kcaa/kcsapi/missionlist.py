@@ -58,6 +58,16 @@ class MissionList(model.KCAAObject):
                                        element_type=Mission)
     """Mission instances."""
 
+    def get_mission(self, mission_id):
+        missions = filter(lambda mission: mission.id == mission_id,
+                          self.missions)
+        return missions[0] if missions else None
+
+    def get_index_in_maparea(self, mission):
+        missions_in_maparea = filter(lambda m: m.maparea == mission.maparea,
+                                     self.missions)
+        return missions_in_maparea.index(mission)
+
     def update(self, api_name, request, response, objects, debug):
         super(MissionList, self).update(api_name, request, response, objects,
                                         debug)
