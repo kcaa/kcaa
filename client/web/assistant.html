@@ -117,6 +117,19 @@
                         on-click="{{toggleCollapseFleet}}"
                         data-fleet-id="{{fleet.id}}"></button>
               </h4>
+              <template if="{{fleet.id > 1}}">
+                <div>
+                  <template repeat="{{mission in missions}}">
+                    <template if="{{mission.undertakingFleetId == -1}}">
+                      <button on-click="{{goOnMission}}"
+                              data-fleet-id="{{fleet.id}}"
+                              data-mission-id="{{mission.id}}">
+                        {{mission.id}}: {{mission.name}}
+                      </button>
+                    </template>
+                  </template>
+                </div>
+              </template>
               <template ref="shiplist" bind="{{fleet}}"></template>
             </section>
           </template>

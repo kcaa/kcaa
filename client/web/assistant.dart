@@ -47,6 +47,7 @@ class Assistant extends PolymerElement {
   Uri serverGetObject;
   Uri serverReloadKCSAPIModules;
   Uri serverReloadManipulatorModules;
+  Uri serverManipulate;
 
   // Client status.
   @observable String screen;
@@ -87,6 +88,7 @@ class Assistant extends PolymerElement {
     serverGetObject = serverRoot.resolve("get_object");
     serverReloadKCSAPIModules = serverRoot.resolve("reload_kcsapi");
     serverReloadManipulatorModules = serverRoot.resolve("reload_manipulators");
+    serverManipulate = serverRoot.resolve("manipulate");
 
     availableObjectsChecker =
         new Timer.periodic(MILLISECOND * 100, (Timer timer) {
@@ -218,5 +220,17 @@ class Assistant extends PolymerElement {
 
   void getObjectFromName(Event e, var detail, Element target) {
     getObject(target.text, true);
+  }
+
+  void goOnMission(MouseEvent e) {
+    var button = e.target as HtmlElement;
+    var fleetId = button.dataset["fleetId"];
+    var missionId = button.dataset["missionId"];
+    Uri request = serverManipulate.resolveUri(new Uri(queryParameters: {
+      "type": "GoOnMission",
+      "fleet": fleetId,
+      "mission": missionId,
+    }));
+    HttpRequest.getString(request.toString());
   }
 }
