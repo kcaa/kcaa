@@ -83,8 +83,8 @@ class GoOnMission(base.Manipulator):
         if mission:
             yield self.screen.select_maparea(mission.maparea)
         else:
-            logger.info('Mission {} is unknown. Searching for it...'.format(
-                mission_id))
+            logger.info('Mission {} is unknown. Giving up.'.format(mission_id))
+            # TODO: Add logic to find this by clicking maparea pages?
             return
         mission_index = mission_list.get_index_in_maparea(mission)
         yield self.screen.select_mission(mission_index)

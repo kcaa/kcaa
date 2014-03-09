@@ -119,6 +119,8 @@
               </h4>
               <template if="{{fleet.id > 1 &&
                               fleet.undertakingMission == null}}">
+                <!-- TODO: More compact UI. Possibly better to show a modal
+                     dialog. -->
                 <div>
                   <template repeat="{{mission in missions}}">
                     <template if="{{mission.undertakingFleetId == -1}}">
