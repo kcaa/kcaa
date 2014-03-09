@@ -22,7 +22,7 @@ class CollapsedSectionInfo {
   CollapsedSectionInfo(this.header, this.collapseButton, this.collapsed);
 }
 
-@CustomTag('eplusx-kancolle-assistant')
+@CustomTag('kcaa-assistant')
 class Assistant extends PolymerElement {
   // Ships.
   final List<Ship> ships = new ObservableList<Ship>();

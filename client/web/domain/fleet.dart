@@ -6,7 +6,7 @@ class Fleet {
   List<Ship> ships = new List<Ship>();
   String undertakingMission;
   bool collapsed;
-  String defaultHiddenClass;
+  String defaultClass;
 
   Fleet(Map<String, dynamic> data, Map<int, Ship> shipMap,
         List<Mission> missions, {bool collapsed: null})
@@ -30,7 +30,7 @@ class Fleet {
     } else {
       this.collapsed = id != 1;
     }
-    defaultHiddenClass = this.collapsed ? "hidden": "";
+    defaultClass = this.collapsed ? "hidden": "";
   }
 
   void updateShips(Map<int, Ship> shipMap) {

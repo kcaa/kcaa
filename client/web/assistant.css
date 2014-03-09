@@ -173,27 +173,6 @@ tr.complete {
 tr.complete td {
   box-shadow: 2px 2px 3px hsla(150, 40%, 10%, 0.3) inset;
 }
-tr.fatal {
-  background: linear-gradient(
-    150deg,
-    hsla(0, 0%, 0%, 0.0),
-    hsla(0, 80%, 60%, 0.5));
-  color: hsl(0, 50%, 20%);
-}
-tr.dangerous {
-  background: linear-gradient(
-    150deg,
-    hsla(0, 0%, 0%, 0.0),
-    hsla(30, 80%, 70%, 0.5));
-  color: hsl(30, 50%, 20%);
-}
-tr.good {
-  background: linear-gradient(
-    150deg,
-    hsla(0, 0%, 0%, 0.0),
-    hsla(60, 80%, 80%, 0.5));
-  color: hsl(60, 50%, 20%);
-}
 td > div, .subordinate {
   font-size: 90%;
   opacity: 0.7;
@@ -204,18 +183,6 @@ td > div:first-child {
 }
 td.labelColumn, td.labelColumn div, td.numberColumn, td.numberColumn div {
   text-align: center;
-}
-td.labelColumn div, td.numberColumn div {
-  width: 100%;
-}
-td.upgradable, td.fullyEnhanced {
-  font-weight: bold;
-}
-td.upgradable div:first-child:after, td.fullyEnhanced div:first-child:after {
-  content: "✓";
-}
-div.locked:after {
-  content: "✓";
 }
 .debugInfo {
   font-family: monospace;
