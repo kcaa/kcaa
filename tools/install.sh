@@ -69,7 +69,30 @@ function install_browsermob_proxy() {
   cp -f ${SCRIPT_DIR}/../thirdparty/browsermob-proxy ${INSTALL_DIR}
 }
 
+function install_dartium() {
+  if [ -d ${INSTALL_DIR}/dartium ]; then
+    echo "Dartium is already installed at ${INSTALL_DIR}/dartium. Skipping."
+    return
+  fi
+
+  local storage_base='http://storage.googleapis.com/dart-archive/channels/'\
+'stable/release/latest/dartium'
+  local filename='dartium-linux-x64-release.zip'
+  echo "Installing the latest Dartium..."
+  wget -q -O ${INSTALL_DIR}/${filename} ${storage_base}/${filename}
+  echo "Unzipping..."
+  unzip -d ${INSTALL_DIR} ${INSTALL_DIR}/${filename}
+  local dart_dir=$(unzip -l -qq ${INSTALL_DIR}/${filename} \
+    | awk '{print $NF}' \
+    | head -n 1 \
+    | sed -e 's|/$||')
+  ln -s ${INSTALL_DIR}/${dart_dir} ${INSTALL_DIR}/dartium
+}
+
 create_install_directory
 install_python_server_prerequisites
 install_chromedriver
 install_browsermob_proxy
+install_dartium
+
+echo "Installation finished."

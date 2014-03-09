@@ -35,7 +35,7 @@ BROWSER=chrome
 # Chrome-specific
 # ============================================================================
 
-CHROME_BIN=${INSTALL_DIR}/dart/chromium/chrome
+CHROME_BIN=${INSTALL_DIR}/dart/chrome
 CHROMEDRIVER_BIN=${INSTALL_DIR}/chromedriver
 
 # ============================================================================
