@@ -3,6 +3,15 @@
 SCRIPT_DIR=$(dirname $0)
 source ${SCRIPT_DIR}/config
 
+function confirm_install_prerequisites() {
+  which pip &> /dev/null
+  if [ $? -ne 0 ]; then
+    echo "Cannot find 'pip' (Python package installer/manager)."
+    echo "Possibly you can install it by 'sudo apt-get install python-pip'."
+    exit 1
+  fi
+}
+
 function create_install_directory() {
   echo "Creating INSTALL_DIR: ${INSTALL_DIR}"
   mkdir -p ${INSTALL_DIR}
@@ -89,6 +98,7 @@ function install_dartium() {
   ln -s ${INSTALL_DIR}/${dart_dir} ${INSTALL_DIR}/dartium
 }
 
+confirm_install_prerequisites
 create_install_directory
 install_python_server_prerequisites
 install_chromedriver
