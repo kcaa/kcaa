@@ -68,7 +68,9 @@ class Assistant extends PolymerElement {
   // Referenced objects. If the object list contains these object types, the
   // client processes them first so that other object handlers can reference the
   // contents of them.
-  static final List<String> REFERENCED_OBJECTS = <String>["ShipList"];
+  static final List<String> REFERENCED_OBJECTS = <String>[
+      "ShipList", "MissionList",
+  ];
 
   Assistant.created() : super.created() {
     // Theoretically this is not safe, as some data requiring ja_JP date format
