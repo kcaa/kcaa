@@ -117,7 +117,8 @@
                         on-click="{{toggleCollapseFleet}}"
                         data-fleet-id="{{fleet.id}}"></button>
               </h4>
-              <template if="{{fleet.id > 1}}">
+              <template if="{{fleet.id > 1 &&
+                              fleet.undertakingMission == null}}">
                 <div>
                   <template repeat="{{mission in missions}}">
                     <template if="{{mission.undertakingFleetId == -1}}">

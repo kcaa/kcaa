@@ -228,8 +228,8 @@ class Assistant extends PolymerElement {
     var missionId = button.dataset["missionId"];
     Uri request = serverManipulate.resolveUri(new Uri(queryParameters: {
       "type": "GoOnMission",
-      "fleet": fleetId,
-      "mission": missionId,
+      "fleet_id": fleetId,
+      "mission_id": missionId,
     }));
     HttpRequest.getString(request.toString());
   }
