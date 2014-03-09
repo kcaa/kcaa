@@ -12,6 +12,7 @@ logger = logging.getLogger('kcaa.manipulators.logistics')
 class FleetCharge(base.Manipulator):
 
     def run(self, fleet_id):
+        fleet_id = int(fleet_id)
         logger.info('Charging fleet {}'.format(fleet_id))
         yield self.screen.change_screen(screens.PORT_LOGISTICS)
         yield self.screen.select_fleet(fleet_id)

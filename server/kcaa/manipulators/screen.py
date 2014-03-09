@@ -194,9 +194,6 @@ class PortScreen(Screen):
 
 class PortMainScreen(PortScreen):
 
-    def click_logistics_button(self):
-        self.click(80, 225)
-
     def change_screen(self, screen_id):
         def change_screen_task(task):
             if screen_id == screens.PORT_MAIN:
@@ -217,6 +214,9 @@ class PortMainScreen(PortScreen):
 
     def click_mission_button(self):
         self.click(680, 230)
+
+    def click_logistics_button(self):
+        self.click(80, 225)
 
 
 class PortMissionScreen(PortScreen):
@@ -318,6 +318,9 @@ class PortLogisticsScreen(PortOperationsScreen):
 
     def change_screen(self, screen_id):
         def change_screen_task(task):
+            if screen_id == screens.PORT_LOGISTICS:
+                yield 0.0
+                return
             yield super(PortLogisticsScreen, self).change_screen(screen_id)
             if self.screen_id == screen_id:
                 return
