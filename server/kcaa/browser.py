@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import logging
+import os.path
 import time
 import traceback
 
@@ -56,7 +57,7 @@ def open_kancolle_browser(args):
     browser.set_window_size(980, 780)
     browser.set_window_position(0, 0)
     browser.get(KANCOLLE_URL)
-    if args.credentials:
+    if args.credentials and os.path.isfile(args.credentials):
         with open(args.credentials, 'r') as credentials_file:
             user, passwd = credentials_file.read().strip().split(':')
             login_id = browser.find_element_by_id('login_id')
