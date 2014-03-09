@@ -53,6 +53,7 @@ class ScreenManager(object):
             screen = self.screens.get(screen_id)
             if screen:
                 self._current_screen = screen(self)
+                self._logger.debug('Current screen is {}'.format(screen_id))
             else:
                 self._logger.warn('Current screen {} is not manipulatable.'
                     .format(screen_id))

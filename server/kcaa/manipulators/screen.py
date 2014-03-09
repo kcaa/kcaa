@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import logging
+import traceback
 
 from kcaa import screens
 
@@ -15,7 +16,9 @@ class Screen(object):
         return self.manager.add_task(t, *args, **kwargs)
 
     def click(self, x, y):
-        self._logger.debug('Click {}, {}'.format(x, y))
+        callsite_info = traceback.extract_stack()[-2]
+        caller_name = callsite_info[2]
+        self._logger.debug('Click {}, {} ({})'.format(x, y, caller_name))
         self.manager.click(x, y)
 
     @property
