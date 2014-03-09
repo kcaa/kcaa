@@ -55,7 +55,7 @@ function install_chromedriver() {
   wget -q -O ${INSTALL_DIR}/${filename} \
     ${storage_base}/${latest_version}/${filename}
   echo "Unzipping..."
-  unzip -d ${INSTALL_DIR} ${INSTALL_DIR}/${filename}
+  unzip -q -d ${INSTALL_DIR} ${INSTALL_DIR}/${filename}
 }
 
 function install_browsermob_proxy() {
@@ -81,7 +81,7 @@ function install_dartium() {
   echo "Installing the latest Dartium..."
   wget -q -O ${INSTALL_DIR}/${filename} ${storage_base}/${filename}
   echo "Unzipping..."
-  unzip -d ${INSTALL_DIR} ${INSTALL_DIR}/${filename}
+  unzip -q -d ${INSTALL_DIR} ${INSTALL_DIR}/${filename}
   local dart_dir=$(unzip -l -qq ${INSTALL_DIR}/${filename} \
     | awk '{print $NF}' \
     | head -n 1 \
