@@ -7,13 +7,13 @@
 # General
 # ============================================================================
 
-INSTALL_PATH=${HOME}/opt/kcaa
+INSTALL_DIR=${HOME}/opt/kcaa
 
 # ============================================================================
 # Proxy
 # ============================================================================
 
-PROXY_CONTROLLER_BIN=${INSTALL_PATH}/browsermob-proxy/bin/browsermob-proxy
+PROXY_CONTROLLER_BIN=${INSTALL_DIR}/browsermob-proxy/bin/browsermob-proxy
 PROXY_CONTROLLER_HOST=localhost
 PROXY_CONTROLLER_PORT=9090
 PROXY_PORT=9091
@@ -35,8 +35,8 @@ BROWSER=chrome
 # Chrome-specific
 # ============================================================================
 
-CHROME_BIN=${INSTALL_PATH}/dart/chromium/chrome
-CHROMEDRIVER_BIN=${INSTALL_PATH}/chromedriver
+CHROME_BIN=${INSTALL_DIR}/dart/chromium/chrome
+CHROMEDRIVER_BIN=${INSTALL_DIR}/chromedriver
 
 # ============================================================================
 # Login

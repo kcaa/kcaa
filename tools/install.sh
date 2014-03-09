@@ -1,12 +1,13 @@
 #!/bin/bash
 
-source $(dirname $0)/config
+SCRIPT_DIR=$(dirname $0)
+source ${SCRIPT_DIR}/config
 
 function create_install_directory() {
-  echo "Creating INSTALL_PATH: ${INSTALL_PATH}"
-  mkdir -p ${INSTALL_PATH}
+  echo "Creating INSTALL_DIR: ${INSTALL_DIR}"
+  mkdir -p ${INSTALL_DIR}
   if [ $? -ne 0 ]; then
-    echo "Failed to create the install path: ${INSTALL_PATH}"
+    echo "Failed to create the install path: ${INSTALL_DIR}"
     exit 1
   fi
 }
@@ -40,8 +41,9 @@ function install_python_server_testing_prerequisites() {
 }
 
 function install_chromedriver() {
-  if [ -x chromedriver ]; then
-    echo "Chromedrive is already installed at ${PWD}/chromedriver. Skipping."
+  if [ -x ${INSTALL_DIR}/chromedriver ]; then
+    echo "Chromedrive is already installed at ${INSTALL_DIR}/chromedriver." \
+      "Skipping."
     return
   fi
 
@@ -50,12 +52,24 @@ function install_chromedriver() {
   echo "Installing the latest Chromedriver..."
   local latest_version=$(wget -q -O - ${storage_base}/LATEST_RELEASE)
   echo "Latest version of Chromedriver is ${latest_version}. Downloading..."
-  wget -q ${storage_base}/${latest_version}/${filename}
+  wget -q -O ${INSTALL_DIR}/${filename} \
+    ${storage_base}/${latest_version}/${filename}
   echo "Unzipping..."
-  unzip ${filename}
+  unzip -d ${INSTALL_DIR} ${INSTALL_DIR}/${filename}
+}
+
+function install_browsermob_proxy() {
+  if [ -x ${INSTALL_DIR}/browsermob-proxy ]; then
+    echo "Browsermob Proxy is already installed at " \
+      "${INSTALL_DIR}/browsermob-proxy. Skipping."
+    return
+  fi
+
+  echo "Installing Browsermob Proxy..."
+  cp -f ${SCRIPT_DIR}/../thirdparty/browsermob-proxy ${INSTALL_DIR}
 }
 
 create_install_directory
-cd ${INSTALL_PATH}
 install_python_server_prerequisites
 install_chromedriver
+install_browsermob_proxy
