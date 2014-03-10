@@ -29,7 +29,8 @@ SERVER_PORT=0
 # Browser
 # ============================================================================
 
-BROWSER=chrome
+KANCOLLE_BROWSER=chrome
+KCAA_BROWSER=chrome
 
 # ============================================================================
 # Chrome-specific

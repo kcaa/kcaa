@@ -11,9 +11,14 @@ def parse_args(argv):
                         help='Proxy address.')
     parser.add_argument('--server_port', default=0, type=int,
                         help='Server port to use.')
-    parser.add_argument('--browser', default='chrome',
+    parser.add_argument('--kancolle_browser', default='chrome',
                         choices=['chrome', 'firefox'],
-                        help='Browser to use.')
+                        help='Browser to open Kancolle player.')
+    parser.add_argument('--kcaa_browser', default='chrome',
+                        choices=['chrome', 'firefox', ''],
+                        help='Browser to open KCAA client. You can leave this '
+                             'empty if you want to open the KCAA client from '
+                             'a different machine.')
     parser.add_argument('--chrome_binary', default='/usr/bin/google-chrome',
                         help='Chrome binary to use. Useful especially when '
                         'you want to use Chromium or Dartium.')

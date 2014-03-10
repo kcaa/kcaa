@@ -15,6 +15,9 @@ COMMAND_CLICK = 'click'
 COMMAND_COVER = 'cover'
 
 
+logger = logging.getLogger('kcaa.browser')
+
+
 def get_desired_capabilities(args):
     capabilities = {}
     capabilities['proxy'] = {'httpProxy': args.proxy,
@@ -39,21 +42,21 @@ def setup_firefox(args, desired_capabilities):
     return webdriver.Firefox(capabilities=desired_capabilities)
 
 
-def open_browser(args):
+def open_browser(browser_type, args):
     desired_capabilities = get_desired_capabilities(args)
     browser = None
-    if args.browser == 'chrome':
+    if browser_type == 'chrome':
         browser = setup_chrome(args, desired_capabilities)
-    elif args.browser == 'firefox':
+    elif browser_type == 'firefox':
         browser = setup_firefox(args, desired_capabilities)
     else:
         raise ValueError('Unrecognized browser: {browser}'.format(
-            browser=args.browser))
+            browser=browser_type))
     return browser
 
 
 def open_kancolle_browser(args):
-    browser = open_browser(args)
+    browser = open_browser(args.kancolle_browser, args)
     browser.set_window_size(980, 780)
     browser.set_window_position(0, 0)
     browser.get(KANCOLLE_URL)
@@ -198,7 +201,12 @@ def setup_kancolle_browser(args, controller_conn, to_exit):
 
 
 def open_kcaa_browser(args, root_url):
-    browser = open_browser(args)
+    if not args.kcaa_browser:
+        logger.info('Flag --kcaa_browser is set to be empty. Do not start up '
+                    'one for KCAA. You can still open a KCAA Web UI with {}.'
+                    .format(root_url))
+        return None
+    browser = open_browser(args.kcaa_browser, args)
     browser.set_window_size(700, 1050)
     browser.set_window_position(980, 0)
     browser.get(root_url)
@@ -207,7 +215,10 @@ def open_kcaa_browser(args, root_url):
 
 def setup_kcaa_browser(args, root_url, to_exit):
     try:
-        monitor = BrowserMonitor('KCAA', open_kcaa_browser(args, root_url), 5)
+        kcaa_browser = open_kcaa_browser(args, root_url)
+        if not kcaa_browser:
+            return
+        monitor = BrowserMonitor('KCAA', kcaa_browser, 5)
         while True:
             time.sleep(1.0)
             if to_exit.wait(0.0):
@@ -230,7 +241,6 @@ def setup_kcaa_browser(args, root_url, to_exit):
 class BrowserMonitor(object):
 
     def __init__(self, name, browser, max_credit):
-        self._logger = logging.getLogger('kcaa.browser')
         self.name = name
         self.browser = browser
         self.max_credit = max_credit
@@ -254,10 +264,10 @@ class BrowserMonitor(object):
                 raise RuntimeError()
         except Exception:
             # Browser exited, or didn't respond.
-            self._logger.debug('Browser {} not responding.'.format(self.name))
+            logger.debug('Browser {} not responding.'.format(self.name))
             self.credit -= 1
             alive = False
         if alive and self.credit < self.max_credit:
-            self._logger.info('Browser recovered.')
+            logger.info('Browser recovered.')
             self.credit = self.max_credit
         return self.credit > 0
