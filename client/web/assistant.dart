@@ -82,6 +82,8 @@ class Assistant extends PolymerElement {
   @override
   void enteredView() {
     clientRoot = Uri.parse(window.location.href);
+    var interval = clientRoot.queryParameters["interval"];
+    interval = interval != null ? double.parse(interval) : 0.1;
     serverRoot = clientRoot.resolve("/");
     serverGetObjects = serverRoot.resolve("get_objects");
     serverGetNewObjects = serverRoot.resolve("get_new_objects");
@@ -91,7 +93,7 @@ class Assistant extends PolymerElement {
     serverManipulate = serverRoot.resolve("manipulate");
 
     availableObjectsChecker =
-        new Timer.periodic(MILLISECOND * 100, (Timer timer) {
+        new Timer.periodic(MILLISECOND * (1000 * interval), (Timer timer) {
       updateAvailableObjects();
     });
     addCollapseButtons();

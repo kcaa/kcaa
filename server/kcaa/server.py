@@ -197,9 +197,8 @@ def setup(args):
     httpd = SocketServer.TCPServer(('', args.server_port),
                                    KCAAHTTPRequestHandler)
     _, port = httpd.server_address
-    # Don't use query (something like ?key=value). Kancolle widget detects it
-    # from referer and rejects to respond.
-    root_url = 'http://localhost:{}/client/'.format(port)
+    root_url = 'http://localhost:{}/client/?interval={}'.format(
+        port, args.frontend_update_interval)
     logger.info('KCAA client ready at {}'.format(root_url))
     return httpd, root_url
 
@@ -211,7 +210,7 @@ def handle_server(args, to_exit, controller_conn):
         httpd.objects = {}
         httpd.controller_conn = controller_conn
         controller_conn.send(root_url)
-        httpd.timeout = 0.1
+        httpd.timeout = args.backend_update_interval
         while True:
             httpd.handle_request()
             if to_exit.wait(0.0):

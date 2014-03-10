@@ -24,6 +24,12 @@ def parse_args(argv):
                         'you want to use Chromium or Dartium.')
     parser.add_argument('--chromedriver_binary', default='chromedriver',
                         help='Chromedriver binary to use.')
+    parser.add_argument('--backend_update_interval', default=0.1, type=float,
+                        help='Update interval for backend processes, '
+                             'including the controller and server.')
+    parser.add_argument('--frontend_update_interval', default=0.1, type=float,
+                        help='Update interval for frontend processes, '
+                             'including the client.')
     parser.add_argument('--credentials', default='',
                         help='Credentials file to auto-login. The file should '
                         'contain the login ID and password separated by '

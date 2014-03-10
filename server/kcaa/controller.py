@@ -55,7 +55,7 @@ def control(args):
         manipulator_manager = manipulator_util.ManipulatorManager(
             browser_conn, kcsapi_handler.objects, time.time())
         while True:
-            time.sleep(0.1)
+            time.sleep(args.backend_update_interval)
             if to_exit.wait(0.0):
                 logger.info('Controller got an exit signal. Shutting down.')
                 break

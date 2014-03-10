@@ -24,6 +24,7 @@ PROXY_CONTROLLER_DAEMON=1
 # ============================================================================
 
 SERVER_PORT=0
+BACKEND_UPDATE_INTERVAL=0.1
 
 # ============================================================================
 # Browser
@@ -31,6 +32,7 @@ SERVER_PORT=0
 
 KANCOLLE_BROWSER=chrome
 KCAA_BROWSER=chrome
+FRONTEND_UPDATE_INTERVAL=0.1
 
 # ============================================================================
 # Chrome-specific
