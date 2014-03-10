@@ -23,8 +23,10 @@ ${SERVER_BIN} \
   --proxy_controller=${PROXY_CONTROLLER_HOST}:${PROXY_CONTROLLER_PORT} \
   --proxy=${PROXY_CONTROLLER_HOST}:${PROXY_PORT} \
   --server_port=${SERVER_PORT} \
+  --backend_update_interval=${BACKEND_UPDATE_INTERVAL} \
   --kancolle_browser=${KANCOLLE_BROWSER} \
   --kcaa_browser=${KCAA_BROWSER} \
+  --frontend_update_interval=${FRONTEND_UPDATE_INTERVAL} \
   --chrome_binary=${CHROME_BIN} \
   --chromedriver_binary=${CHROMEDRIVER_BIN} \
   --credentials=${CREDENTIALS}
