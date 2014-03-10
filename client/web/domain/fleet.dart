@@ -1,12 +1,12 @@
 part of kcaa;
 
-class Fleet {
-  int id;
-  String name;
-  List<Ship> ships = new List<Ship>();
-  String undertakingMission;
-  bool collapsed;
-  String defaultClass;
+class Fleet extends Observable {
+  @observable int id;
+  @observable String name;
+  @observable List<Ship> ships = new List<Ship>();
+  @observable String undertakingMission;
+  @observable bool collapsed;
+  @observable String defaultClass;
 
   Fleet(Map<String, dynamic> data, Map<int, Ship> shipMap,
         List<Mission> missions, {bool collapsed: null})

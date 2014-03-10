@@ -1,6 +1,6 @@
 part of kcaa;
 
-class Ship {
+class Ship extends Observable {
   static final Map<int, String> SHIP_TYPE_MAP = <int, String>{
     1: "海防艦",
     2: "駆逐艦",
@@ -22,28 +22,29 @@ class Ship {
     18: "装甲空母",
   };
 
-  int id;
-  String name;
-  String shipType;
-  int level, upgradeLevel;
-  String levelClass;
-  int experienceGaugeValue;
-  String experienceGauge;
-  int fuel, fuelCapacity;
-  int ammo, ammoCapacity;
-  String fuelPercentage, ammoPercentage;
-  int vitality;
-  int hp, maxHp;
-  String hpPercentage;
-  int armor, enhancedArmor, maxArmor;
-  int firepower, enhancedFirepower, maxFirepower;
-  int thunderstroke, enhancedThunderstroke, maxThunderstroke;
-  int antiAir, enhancedAntiAir, maxAntiAir;
-  String armorClass, firepowerClass, thunderstrokeClass, antiAirClass;
-  bool locked;
-  String lockedClass;
-  Fleet belongingFleet;
-  String stateClass;
+  @observable int id;
+  @observable String name;
+  @observable String shipType;
+  @observable int level, upgradeLevel;
+  @observable String levelClass;
+  @observable int experienceGaugeValue;
+  @observable String experienceGauge;
+  @observable int fuel, fuelCapacity;
+  @observable int ammo, ammoCapacity;
+  @observable String fuelPercentage, ammoPercentage;
+  @observable int vitality;
+  @observable int hp, maxHp;
+  @observable String hpPercentage;
+  @observable int armor, enhancedArmor, maxArmor;
+  @observable int firepower, enhancedFirepower, maxFirepower;
+  @observable int thunderstroke, enhancedThunderstroke, maxThunderstroke;
+  @observable int antiAir, enhancedAntiAir, maxAntiAir;
+  @observable String armorClass, firepowerClass, thunderstrokeClass,
+                     antiAirClass;
+  @observable bool locked;
+  @observable String lockedClass;
+  @observable Fleet belongingFleet;
+  @observable String stateClass;
 
   Ship(Map<String, dynamic> data, List<Fleet> fleets)
       : id = data["id"],

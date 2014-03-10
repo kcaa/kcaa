@@ -1,6 +1,6 @@
 part of kcaa;
 
-class Mission {
+class Mission extends Observable {
   static final Map<int, String> DIFFICULTY_MAP = <int, String>{
     1: "E",
     2: "D",
@@ -24,20 +24,20 @@ class Mission {
     2: "",
   };
 
-  int id;
-  String name;
-  String description;
-  String difficulty;
-  String maparea;
-  int state;
-  String stateClass;
-  int time;
-  int fuelConsumption;
-  int ammoConsumption;
-  int undertakingFleetId;
-  String undertakingFleetName;
-  DateTime eta;
-  String etaDatetimeString;
+  @observable int id;
+  @observable String name;
+  @observable String description;
+  @observable String difficulty;
+  @observable String maparea;
+  @observable int state;
+  @observable String stateClass;
+  @observable int time;
+  @observable int fuelConsumption;
+  @observable int ammoConsumption;
+  @observable int undertakingFleetId;
+  @observable String undertakingFleetName;
+  @observable DateTime eta;
+  @observable String etaDatetimeString;
 
   Mission(Map<String, dynamic> data)
       : id = data["id"],
