@@ -66,7 +66,11 @@ class MissionList(model.KCAAObject):
     def get_index_in_maparea(self, mission):
         missions_in_maparea = filter(lambda m: m.maparea == mission.maparea,
                                      self.missions)
-        return missions_in_maparea.index(mission)
+        # I can't use list.index() as a /api_get_master/mission response will
+        # be interleaved if the page is changed.
+        # Here I assume the missions are sorted in ascending order of mission
+        # ID, and they are contiguous.
+        return mission.id - missions_in_maparea[0].id
 
     def update(self, api_name, request, response, objects, debug):
         super(MissionList, self).update(api_name, request, response, objects,
