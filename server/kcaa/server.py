@@ -13,6 +13,9 @@ DEPLOYED_PACKAGE = 'build/web'
 DEVELOPMENT_PACKAGE = 'web'
 
 
+logger = logging.getLogger('kcaa.server')
+
+
 class KCAAHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
     GET_OBJECTS = '/get_objects'
@@ -177,15 +180,19 @@ def move_to_client_dir():
     os.chdir(client_dir)
     # Use 'build' subdirectory when deployed, or 'web' when being developed.
     if os.path.isdir(DEPLOYED_PACKAGE):
+        logger.info(
+            'Deployed package found. Using {}.'.format(DEPLOYED_PACKAGE))
         os.chdir(DEPLOYED_PACKAGE)
     elif os.path.isdir(DEVELOPMENT_PACKAGE):
+        logger.info(
+            'Development package found. Using {}.'.format(DEVELOPMENT_PACKAGE))
         os.chdir(DEVELOPMENT_PACKAGE)
     else:
         raise IOError('No client package directories found under {}.'.format(
             client_dir))
 
 
-def setup(args, logger):
+def setup(args):
     move_to_client_dir()
     httpd = SocketServer.TCPServer(('', args.server_port),
                                    KCAAHTTPRequestHandler)
@@ -199,8 +206,7 @@ def setup(args, logger):
 
 def handle_server(args, to_exit, controller_conn):
     try:
-        logger = logging.getLogger('kcaa.server')
-        httpd, root_url = setup(args, logger)
+        httpd, root_url = setup(args)
         httpd.new_objects = set()
         httpd.objects = {}
         httpd.controller_conn = controller_conn
