@@ -200,7 +200,7 @@ def setup(args):
     # Don't use query (something like ?key=value). Kancolle widget detects it
     # from referer and rejects to respond.
     root_url = 'http://localhost:{}/client/'.format(port)
-    logger.info('KCAA server ready at {}'.format(root_url))
+    logger.info('KCAA client ready at {}'.format(root_url))
     return httpd, root_url
 
 
