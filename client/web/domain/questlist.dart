@@ -1,6 +1,6 @@
 part of kcaa;
 
-class Quest {
+class Quest extends Observable {
   static final Map<int, String> CATEGORY_MAP = <int, String>{
     1: "編成",
     2: "出撃",
@@ -21,15 +21,15 @@ class Quest {
     3: "週毎",
   };
 
-  int id;
-  String name;
-  String description;
-  String category;
-  int state;
-  String stateClass;
-  int fuel, ammo, steel, bauxite;
-  int progress;
-  String cycle;
+  @observable int id;
+  @observable String name;
+  @observable String description;
+  @observable String category;
+  @observable int state;
+  @observable String stateClass;
+  @observable int fuel, ammo, steel, bauxite;
+  @observable int progress;
+  @observable String cycle;
 
   Quest(Map<String, dynamic> data)
       : id = data["id"],
