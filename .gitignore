@@ -5,8 +5,8 @@
 client/build/
 client/packages
 client/pubspec.lock
+client/web/model/packages
 client/web/packages
-client/web/domain/packages
 docs/_build/
 docs/_static/
 docs/_templates/

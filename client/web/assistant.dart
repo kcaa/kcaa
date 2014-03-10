@@ -7,11 +7,11 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:polymer/polymer.dart';
 
-part 'domain/fleet.dart';
-part 'domain/missionlist.dart';
-part 'domain/questlist.dart';
-part 'domain/screen.dart';
-part 'domain/ship.dart';
+part 'model/fleet.dart';
+part 'model/missionlist.dart';
+part 'model/questlist.dart';
+part 'model/screen.dart';
+part 'model/ship.dart';
 part 'util.dart';
 
 class CollapsedSectionInfo {
