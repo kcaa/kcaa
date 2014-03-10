@@ -151,6 +151,8 @@ class Assistant extends PolymerElement {
       return getObject(objectType, false).then((Map<String, dynamic> data) {
         handler(this, data);
       });
+    } else {
+      return new Future.value(null);
     }
   }
 
