@@ -83,7 +83,7 @@ class Assistant extends PolymerElement {
   void enteredView() {
     clientRoot = Uri.parse(window.location.href);
     var interval = clientRoot.queryParameters["interval"];
-    interval = interval != null ? double.parse(interval) : 0.1;
+    interval = interval != null ? double.parse(interval) : 1.0;
     serverRoot = clientRoot.resolve("/");
     serverGetObjects = serverRoot.resolve("get_objects");
     serverGetNewObjects = serverRoot.resolve("get_new_objects");
