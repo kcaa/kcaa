@@ -3,6 +3,8 @@
 SCRIPT_DIR=$(dirname $0)
 source ${SCRIPT_DIR}/config
 
+THIRDPARTY_DIR=${SCRIPT_DIR}/../thirdparty
+
 function confirm_install_prerequisites() {
   which pip &> /dev/null
   if [ $? -ne 0 ]; then
@@ -67,6 +69,19 @@ function install_chromedriver() {
   unzip -q -d ${INSTALL_DIR} ${INSTALL_DIR}/${filename}
 }
 
+function install_phantomjs() {
+  if [ -x ${INSTALL_DIR}/phantomjs ]; then
+    echo "PhantomJS is already installed at ${INSTALL_DIR}/phantomjs. " \
+      "Skipping."
+    return
+  fi
+
+  echo "Installing PhantomJS..."
+  local filename=phantomjs--linux-x86_64
+  tar xf ${THIRDPARTY_DIR}/${filename}.tar.bz2 --directory=${INSTALL_DIR}
+  ln -s ${INSTALL_DIR}/${filename}/bin/phantomjs ${INSTALL_DIR}/phantomjs
+}
+
 function install_browsermob_proxy() {
   if [ -d ${INSTALL_DIR}/browsermob-proxy ]; then
     echo "Browsermob Proxy is already installed at " \
@@ -76,7 +91,7 @@ function install_browsermob_proxy() {
 
   echo "Installing Browsermob Proxy..."
   local filename=browsermob-proxy-2.0-beta-10-SNAPSHOT
-  unzip -q -d ${INSTALL_DIR} ${SCRIPT_DIR}/../thirdparty/${filename}-bin.zip
+  unzip -q -d ${INSTALL_DIR} ${THIRDPARTY_DIR}/${filename}-bin.zip
   ln -s ${INSTALL_DIR}/${filename} ${INSTALL_DIR}/browsermob-proxy
 }
 
@@ -104,6 +119,7 @@ confirm_install_prerequisites
 create_install_directory
 install_python_server_prerequisites
 install_chromedriver
+install_phantomjs
 install_browsermob_proxy
 install_dartium
 

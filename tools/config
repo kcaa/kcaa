@@ -45,7 +45,7 @@ CHROMEDRIVER_BIN=${INSTALL_DIR}/chromedriver
 # PhantomJS-specific
 # ============================================================================
 
-PHANTOMJS_BIN=phantomjs
+PHANTOMJS_BIN=${INSTALL_DIR}/phantomjs
 
 # ============================================================================
 # Login
