@@ -279,6 +279,15 @@
           <div class="debugInfo">{{debugInfo}}</div>
         </div>
       </div>
+      <div class="row horizontal">
+        <div class="board">
+          <h3 data-collapsed="true">画面</h3>
+          <div>
+            <button on-click="{{reloadScreenshot}}">更新</button>
+            <img id="screenshot">
+          </div>
+        </div>
+      </div>
     </div>
   </template>
   <script type="application/dart" src="assistant.dart"></script>

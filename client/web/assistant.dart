@@ -48,6 +48,7 @@ class Assistant extends PolymerElement {
   Uri serverReloadKCSAPIModules;
   Uri serverReloadManipulatorModules;
   Uri serverManipulate;
+  Uri serverTakeScreenshot;
 
   // Client status.
   @observable String screen;
@@ -91,6 +92,7 @@ class Assistant extends PolymerElement {
     serverReloadKCSAPIModules = serverRoot.resolve("reload_kcsapi");
     serverReloadManipulatorModules = serverRoot.resolve("reload_manipulators");
     serverManipulate = serverRoot.resolve("manipulate");
+    serverTakeScreenshot = serverRoot.resolve("take_screenshot");
 
     availableObjectsChecker =
         new Timer.periodic(MILLISECOND * (1000 * interval), (Timer timer) {
@@ -224,6 +226,13 @@ class Assistant extends PolymerElement {
 
   void getObjectFromName(Event e, var detail, Element target) {
     getObject(target.text, true);
+  }
+
+  void reloadScreenshot() {
+    ($["screenshot"] as ImageElement).src = serverTakeScreenshot.resolveUri(
+        new Uri(queryParameters: {
+            "time": new DateTime.now().millisecondsSinceEpoch.toString(),
+        })).toString();
   }
 
   void goOnMission(MouseEvent e) {

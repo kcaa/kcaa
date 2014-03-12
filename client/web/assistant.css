@@ -189,3 +189,6 @@ td.labelColumn, td.labelColumn div, td.numberColumn, td.numberColumn div {
   margin-top: 10px;
   white-space: pre-wrap;
 }
+img#screenshot {
+  width: 100%;
+}
