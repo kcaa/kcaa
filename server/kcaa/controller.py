@@ -16,6 +16,7 @@ COMMAND_CLICK = 'click'
 COMMAND_RELOAD_KCSAPI = 'reload_kcsapi'
 COMMAND_RELOAD_MANIPULATORS = 'reload_manipulators'
 COMMAND_MANIPULATE = 'manipulate'
+COMMAND_TAKE_SCREENSHOT = 'take_screenshot'
 
 
 class DummyProcess(object):
@@ -85,6 +86,9 @@ def control(args):
                         manipulator_manager.dispatch(command_args)
                     except:
                         traceback.print_exc()
+                elif command_type == COMMAND_TAKE_SCREENSHOT:
+                    browser_conn.send((browser.COMMAND_TAKE_SCREENSHOT, None))
+                    server_conn.send(browser_conn.recv())
                 else:
                     raise ValueError(
                         'Unknown controller command: type = {}, args = {}'

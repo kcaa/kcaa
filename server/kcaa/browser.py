@@ -14,6 +14,7 @@ KANCOLLE_URL = 'http://www.dmm.com/netgame/social/-/gadgets/=/app_id=854854/'
 
 COMMAND_CLICK = 'click'
 COMMAND_COVER = 'cover'
+COMMAND_TAKE_SCREENSHOT = 'take_screenshot'
 
 
 logger = logging.getLogger('kcaa.browser')
@@ -212,6 +213,9 @@ def setup_kancolle_browser(args, controller_conn, to_exit):
                     elif command_type == COMMAND_COVER:
                         is_shown = command_args[0]
                         show_game_frame_cover(browser, is_shown)
+                    elif command_type == COMMAND_TAKE_SCREENSHOT:
+                        controller_conn.send(
+                            browser.get_screenshot_as_png())
                     else:
                         raise ValueError(
                             'Unknown browser command: type = {}, args = {}'

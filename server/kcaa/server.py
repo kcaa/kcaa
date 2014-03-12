@@ -25,6 +25,7 @@ class KCAAHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
     RELOAD_KCSAPI = '/reload_kcsapi'
     RELOAD_MANIPULATORS = '/reload_manipulators'
     MANIPULATE = '/manipulate'
+    TAKE_SCREENSHOT = '/take_screenshot'
     CLIENT_PREFIX = '/client/'
 
     def do_HEAD(self):
@@ -53,6 +54,8 @@ class KCAAHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             self.handle_reload_manipulators(o)
         elif o.path == KCAAHTTPRequestHandler.MANIPULATE:
             self.handle_manipulate(o)
+        elif o.path == KCAAHTTPRequestHandler.TAKE_SCREENSHOT:
+            self.handle_take_screenshot(o)
         elif o.path.startswith(KCAAHTTPRequestHandler.CLIENT_PREFIX):
             self.handle_client(o)
         else:
@@ -157,6 +160,14 @@ class KCAAHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         self.send_header('Content-Type', 'text/plain')
         self.end_headers()
         self.wfile.write('success')
+
+    def handle_take_screenshot(self, o):
+        self.server.controller_conn.send(
+            (controller.COMMAND_TAKE_SCREENSHOT, None))
+        self.send_response(200)
+        self.send_header('Content-Type', 'image/png')
+        self.end_headers()
+        self.wfile.write(self.server.controller_conn.recv())
 
     def handle_client(self, o):
         self.path = '/' + o.path[len(KCAAHTTPRequestHandler.CLIENT_PREFIX):]
