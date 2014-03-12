@@ -226,8 +226,7 @@ def setup_kancolle_browser(args, controller_conn, to_exit):
                         is_shown = command_args[0]
                         show_game_frame_cover(browser, is_shown)
                     elif command_type == COMMAND_TAKE_SCREENSHOT:
-                        controller_conn.send(
-                            browser.get_screenshot_as_png())
+                        controller_conn.send(browser.get_screenshot_as_png())
                     else:
                         raise ValueError(
                             'Unknown browser command: type = {}, args = {}'

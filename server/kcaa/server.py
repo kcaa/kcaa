@@ -214,7 +214,7 @@ def setup(args):
     return httpd, root_url
 
 
-def handle_server(args, to_exit, controller_conn):
+def handle_server(args, to_exit, controller_conn, object_queue):
     try:
         httpd, root_url = setup(args)
         httpd.new_objects = set()
@@ -227,8 +227,8 @@ def handle_server(args, to_exit, controller_conn):
             if to_exit.wait(0.0):
                 logger.info('Server got an exit signal. Shutting down.')
                 break
-            while controller_conn.poll():
-                object_type, data = controller_conn.recv()
+            while not object_queue.empty():
+                object_type, data = object_queue.get()
                 httpd.new_objects.add(object_type)
                 httpd.objects[object_type] = data
     except:

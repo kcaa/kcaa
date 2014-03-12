@@ -36,8 +36,10 @@ def control(args):
         logger = logging.getLogger('kcaa.controller')
         har_manager = proxy_util.HarManager(args, 3.0)
         controller_conn, server_conn = multiprocessing.Pipe()
+        object_queue = multiprocessing.Queue()
         ps = multiprocessing.Process(target=server.handle_server,
-                                     args=(args, to_exit, controller_conn))
+                                     args=(args, to_exit, controller_conn,
+                                           object_queue))
         ps.start()
         if not server_conn.poll(3.0):
             logger.error('Server is not responding. Shutting down.')
@@ -88,16 +90,17 @@ def control(args):
                         traceback.print_exc()
                 elif command_type == COMMAND_TAKE_SCREENSHOT:
                     browser_conn.send((browser.COMMAND_TAKE_SCREENSHOT, None))
-                    server_conn.send(browser_conn.recv())
+                    screenshot = browser_conn.recv()
+                    server_conn.send(screenshot)
                 else:
                     raise ValueError(
                         'Unknown controller command: type = {}, args = {}'
                         .format(command_type, command_args))
             try:
                 for obj in kcsapi_handler.get_updated_objects():
-                    server_conn.send((obj.object_type, obj.json()))
+                    object_queue.put((obj.object_type, obj.json()))
                 for obj in manipulator_manager.update(time.time()):
-                    server_conn.send((obj.object_type, obj.json()))
+                    object_queue.put((obj.object_type, obj.json()))
             except:
                 # Permit an exception in KCSAPI handler or manipulators -- it's
                 # very likely a bug in how a raw response is read, or how they
