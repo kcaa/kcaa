@@ -6,6 +6,7 @@ import time
 import traceback
 
 from selenium import webdriver
+from selenium.common import exceptions
 from selenium.webdriver.common import action_chains
 
 
@@ -74,27 +75,29 @@ def open_kancolle_browser(args):
             login_id.send_keys(user)
             password = browser.find_element_by_id('password')
             password.send_keys(passwd)
-            # Wait 1 second to reduce the chance to get an exception,
-            # especially with PhantomJS.
-            time.sleep(1.0)
             browser.get_screenshot_as_file('screen.png')
+            last_exception = None
             for _ in xrange(5):
                 try:
                     login_button = browser.find_element_by_xpath(
                         '//div[@class="box-btn-login"]//input[@type="submit"]')
                     login_button.click()
-                except:
-                    traceback.print_exc()
+                    break
+                except exceptions.NoSuchElementException:
+                    logger.info('The page must have transitioned. Continuing.')
+                    break
+                except exceptions.WebDriverException as e:
+                    last_exception = e
                     logger.warning(
-                        'Click failed. This may be just a transient error, so '
-                        'retrying.')
+                        'Seems like page loading failed. This may be just a '
+                        'transient error, so retrying.')
                     time.sleep(1.0)
-                break
             else:
                 browser.get_screenshot_as_file('screen.png')
-                raise ValueError(
+                logger.fatal(
                     'Login failed. Check the generated screenshot '
                     '(screen.png) to see if there is any visible error.')
+                raise last_exception
     return browser
 
 
