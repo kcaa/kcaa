@@ -45,8 +45,21 @@ def setup_firefox(args, desired_capabilities):
 
 
 def setup_phantomjs(args, desired_capabilities):
-    return webdriver.PhantomJS(args.phantomjs_binary,
-                               desired_capabilities=desired_capabilities)
+    # Use PhantomJS with caution: it doesn't support proxying only HTTP
+    # transactions (= bypassing HTTPS ones). This may reveal your username and
+    # password to anyone who can access the proxy server, or anyone who can run
+    # a malicious process on the machine where KCAA runs.
+    # TODO: Support 'https' in --proxy-type in PhantomJS, and make it
+    # distinguishable from 'http'
+    service_args = [
+        '--proxy={}'.format(args.proxy),
+        '--proxy-type=http',
+        '--ignore-ssl-errors=true',
+    ]
+    browser = webdriver.PhantomJS(args.phantomjs_binary,
+                                  service_args=service_args,
+                                  desired_capabilities=desired_capabilities)
+    return browser
 
 
 def open_browser(browser_type, args):
@@ -76,7 +89,6 @@ def open_kancolle_browser(args):
             login_id.send_keys(user)
             password = browser.find_element_by_id('password')
             password.send_keys(passwd)
-            browser.get_screenshot_as_file('screen.png')
             last_exception = None
             for _ in xrange(5):
                 try:
