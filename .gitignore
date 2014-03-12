@@ -10,6 +10,7 @@ client/web/packages
 docs/_build/
 docs/_static/
 docs/_templates/
+ghostdriver.log
 htmlcov/
 __pycache__/
 

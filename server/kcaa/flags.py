@@ -15,7 +15,7 @@ def parse_args(argv):
                         help='Update interval for backend processes, '
                              'including the controller and server.')
     parser.add_argument('--kancolle_browser', default='chrome',
-                        choices=['chrome', 'firefox'],
+                        choices=['chrome', 'firefox', 'phantomjs'],
                         help='Browser to open Kancolle player.')
     parser.add_argument('--kcaa_browser', default='chrome',
                         choices=['chrome', 'firefox', ''],
@@ -27,6 +27,8 @@ def parse_args(argv):
                              'you want to use Chromium or Dartium.')
     parser.add_argument('--chromedriver_binary', default='chromedriver',
                         help='Chromedriver binary to use.')
+    parser.add_argument('--phantomjs_binary', default='phantomjs',
+                        help='PhantomJS binary to use.')
     parser.add_argument('--frontend_update_interval', default=0.1, type=float,
                         help='Update interval for frontend processes, '
                              'including the client.')

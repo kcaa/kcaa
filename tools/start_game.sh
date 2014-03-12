@@ -29,4 +29,5 @@ ${SERVER_BIN} \
   --frontend_update_interval=${FRONTEND_UPDATE_INTERVAL} \
   --chrome_binary=${CHROME_BIN} \
   --chromedriver_binary=${CHROMEDRIVER_BIN} \
+  --phantomjs_binary=${PHANTOMJS_BIN} \
   --credentials=${CREDENTIALS}

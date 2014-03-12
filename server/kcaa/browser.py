@@ -42,6 +42,11 @@ def setup_firefox(args, desired_capabilities):
     return webdriver.Firefox(capabilities=desired_capabilities)
 
 
+def setup_phantomjs(args, desired_capabilities):
+    return webdriver.PhantomJS(args.phantomjs_binary,
+                               desired_capabilities=desired_capabilities)
+
+
 def open_browser(browser_type, args):
     desired_capabilities = get_desired_capabilities(args)
     browser = None
@@ -49,6 +54,8 @@ def open_browser(browser_type, args):
         browser = setup_chrome(args, desired_capabilities)
     elif browser_type == 'firefox':
         browser = setup_firefox(args, desired_capabilities)
+    elif browser_type == 'phantomjs':
+        browser = setup_phantomjs(args, desired_capabilities)
     else:
         raise ValueError('Unrecognized browser: {browser}'.format(
             browser=browser_type))
@@ -67,9 +74,27 @@ def open_kancolle_browser(args):
             login_id.send_keys(user)
             password = browser.find_element_by_id('password')
             password.send_keys(passwd)
-            login_button = browser.find_element_by_xpath(
-                '//div[@class="box-btn-login"]//input[@type="submit"]')
-            login_button.click()
+            # Wait 1 second to reduce the chance to get an exception,
+            # especially with PhantomJS.
+            time.sleep(1.0)
+            browser.get_screenshot_as_file('screen.png')
+            for _ in xrange(5):
+                try:
+                    login_button = browser.find_element_by_xpath(
+                        '//div[@class="box-btn-login"]//input[@type="submit"]')
+                    login_button.click()
+                except:
+                    traceback.print_exc()
+                    logger.warning(
+                        'Click failed. This may be just a transient error, so '
+                        'retrying.')
+                    time.sleep(1.0)
+                break
+            else:
+                browser.get_screenshot_as_file('screen.png')
+                raise ValueError(
+                    'Login failed. Check the generated screenshot '
+                    '(screen.png) to see if there is any visible error.')
     return browser
 
 
