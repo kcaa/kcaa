@@ -49,6 +49,7 @@ class Assistant extends PolymerElement {
   Uri serverReloadManipulatorModules;
   Uri serverManipulate;
   Uri serverTakeScreenshot;
+  Uri serverClick;
 
   // Client status.
   @observable String screen;
@@ -95,6 +96,7 @@ class Assistant extends PolymerElement {
     serverReloadManipulatorModules = serverRoot.resolve("reload_manipulators");
     serverManipulate = serverRoot.resolve("manipulate");
     serverTakeScreenshot = serverRoot.resolve("take_screenshot");
+    serverClick = serverRoot.resolve("click");
 
     runLater(updateAvailableObjectsIntervalMs,
         updateAvailableObjectsPeriodically);
@@ -217,7 +219,7 @@ class Assistant extends PolymerElement {
   }
 
   Future<Map<String, dynamic>> getObject(String type, bool debug) {
-    Uri request = serverGetObject.resolveUri(new Uri(queryParameters: {
+    var request = serverGetObject.resolveUri(new Uri(queryParameters: {
       "type": type,
     }));
     return HttpRequest.getString(request.toString())
@@ -239,6 +241,19 @@ class Assistant extends PolymerElement {
         new Uri(queryParameters: {
             "time": new DateTime.now().millisecondsSinceEpoch.toString(),
         })).toString();
+  }
+
+  void clickScreen(MouseEvent e, var detail, Element target) {
+    const int GAME_AREA_WIDTH = 800;
+    const int GAME_AREA_HEIGHT = 480;
+    var request = serverClick.resolveUri(new Uri(queryParameters: {
+      "x": (GAME_AREA_WIDTH * (e.offset.x / target.client.width))
+          .toStringAsFixed(0),
+      "y": (GAME_AREA_HEIGHT * (e.offset.y / target.client.height))
+          .toStringAsFixed(0),
+    }));
+    HttpRequest.getString(request.toString());
+    runLater(3000, reloadScreenshot);
   }
 
   void goOnMission(MouseEvent e) {
