@@ -207,6 +207,7 @@ def setup_kancolle_browser(args, controller_conn, to_exit):
     try:
         monitor = BrowserMonitor('Kancolle', open_kancolle_browser(args), 5)
         game_frame, dx, dy, game_area_rect = None, None, None, None
+        covered = False
         while True:
             browser = monitor.browser
             if to_exit.wait(0.0):
@@ -225,12 +226,15 @@ def setup_kancolle_browser(args, controller_conn, to_exit):
                         actions = action_chains.ActionChains(browser)
                         actions.move_to_element_with_offset(game_frame, x, y)
                         actions.click(None)
-                        show_game_frame_cover(browser, False)
+                        if covered:
+                            show_game_frame_cover(browser, False)
                         actions.perform()
-                        show_game_frame_cover(browser, True)
+                        if covered:
+                            show_game_frame_cover(browser, True)
                     elif command_type == COMMAND_COVER:
                         is_shown = command_args[0]
                         show_game_frame_cover(browser, is_shown)
+                        covered = is_shown
                     elif command_type == COMMAND_TAKE_SCREENSHOT:
                         im_buffer = cStringIO.StringIO(
                             browser.get_screenshot_as_png())
