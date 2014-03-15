@@ -32,7 +32,7 @@ BACKEND_UPDATE_INTERVAL=0.1
 
 KANCOLLE_BROWSER=chrome
 KCAA_BROWSER=chrome
-FRONTEND_UPDATE_INTERVAL=0.1
+FRONTEND_UPDATE_INTERVAL=0.5
 
 # ============================================================================
 # Chrome-specific

@@ -29,7 +29,7 @@ def parse_args(argv):
                         help='Chromedriver binary to use.')
     parser.add_argument('--phantomjs_binary', default='phantomjs',
                         help='PhantomJS binary to use.')
-    parser.add_argument('--frontend_update_interval', default=0.1, type=float,
+    parser.add_argument('--frontend_update_interval', default=0.5, type=float,
                         help='Update interval for frontend processes, '
                              'including the client.')
     parser.add_argument('--credentials', default='',
