@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 
+import cStringIO
 import logging
 import os.path
 import time
 import traceback
 
+from PIL import Image
 from selenium import webdriver
 from selenium.common import exceptions
 from selenium.webdriver.common import action_chains
@@ -129,7 +131,11 @@ def get_game_frame(browser):
     add_game_frame_cover(browser, game_area_width, game_area_height, dx, dy)
     # If in the debug mode, show the digitizer tools.
     add_digitizer(browser)
-    return game_frame, dx, dy
+    location = game_frame.location
+    left = int(location['x'] + dx)
+    top = int(location['y'] + dy)
+    return game_frame, dx, dy, (left, top, left + game_area_width,
+                                top + game_area_height)
 
 
 def add_game_frame_cover(browser, game_area_width, game_area_height, dx, dy):
@@ -200,7 +206,7 @@ def show_game_frame_cover(browser, is_shown):
 def setup_kancolle_browser(args, controller_conn, to_exit):
     try:
         monitor = BrowserMonitor('Kancolle', open_kancolle_browser(args), 5)
-        game_frame, dx, dy = None, None, None
+        game_frame, dx, dy, game_area_rect = None, None, None, None
         while True:
             browser = monitor.browser
             if to_exit.wait(0.0):
@@ -226,14 +232,22 @@ def setup_kancolle_browser(args, controller_conn, to_exit):
                         is_shown = command_args[0]
                         show_game_frame_cover(browser, is_shown)
                     elif command_type == COMMAND_TAKE_SCREENSHOT:
-                        # TODO: Take a screenshot of the playarea only.
-                        controller_conn.send(browser.get_screenshot_as_png())
+                        im_buffer = cStringIO.StringIO(
+                            browser.get_screenshot_as_png())
+                        im = Image.open(im_buffer)
+                        im.load()
+                        im_buffer.close()
+                        im = im.crop(game_area_rect)
+                        im_buffer = cStringIO.StringIO()
+                        im.save(im_buffer, 'png')
+                        controller_conn.send(im_buffer.getvalue())
+                        im_buffer.close()
                     else:
                         raise ValueError(
                             'Unknown browser command: type = {}, args = {}'
                             .format(command_type, command_args))
             else:
-                game_frame, dx, dy = get_game_frame(browser)
+                game_frame, dx, dy, game_area_rect = get_game_frame(browser)
                 time.sleep(1.0)
     except:
         traceback.print_exc()
