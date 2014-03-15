@@ -233,8 +233,9 @@ def setup_kancolle_browser(args, controller_conn, to_exit):
                             show_game_frame_cover(browser, True)
                     elif command_type == COMMAND_COVER:
                         is_shown = command_args[0]
-                        show_game_frame_cover(browser, is_shown)
-                        covered = is_shown
+                        if is_shown != covered:
+                            show_game_frame_cover(browser, is_shown)
+                            covered = is_shown
                     elif command_type == COMMAND_TAKE_SCREENSHOT:
                         im_buffer = cStringIO.StringIO(
                             browser.get_screenshot_as_png())
