@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import datetime
 import logging
 
 import browser
@@ -72,6 +73,7 @@ class ManipulatorManager(object):
     manipulating the Kancolle player (Flash) programatically."""
 
     def __init__(self, browser_conn, objects, epoch):
+        self._logger = logging.getLogger('kcaa.manipulator_util')
         self.browser_conn = browser_conn
         self.objects = objects
         self.initialize(epoch)
@@ -89,6 +91,8 @@ class ManipulatorManager(object):
         self.define_auto_manipulators()
         self.add_initial_auto_manipulators()
         self.auto_manipulators_enabled = True
+        self.auto_manipulators_schedules = [(0, 86400)]
+        self.current_schedule_fragment = None
         self.objects['RunningManipulators'] = (
             kcsapi.client.RunningManipulators())
 
@@ -123,6 +127,35 @@ class ManipulatorManager(object):
         for name in initial_auto_manipulators:
             self.add_auto_manipulator(self.auto_manipulators[name])
         self.suppress_auto_manipulators()
+
+    def set_auto_manipulator_schedules(self, enabled, schedule_fragments):
+        self.auto_manipulators_enabled = enabled
+        self._logger.info('AutoManipulator {}.'.format(
+            'enabled' if enabled else 'disabled'))
+        self.auto_manipulators_schedules = schedule_fragments
+        self._logger.info(
+            'AutoManipulator schedules: {}.'.format(schedule_fragments))
+
+    def in_schedule_fragment(self, seconds_in_today, schedule_fragment):
+        if (seconds_in_today >= schedule_fragment[0] and
+                seconds_in_today < schedule_fragment[1]):
+            return True
+
+    def are_auto_manipulator_scheduled(self):
+        if not self.auto_manipulators_enabled:
+            return False
+        now = datetime.datetime.now()
+        seconds_in_today = 3600 * now.hour + 60 * now.minute + now.second
+        if self.current_schedule_fragment:
+            if self.in_schedule_fragment(
+                    seconds_in_today, self.current_schedule_fragment):
+                return True
+        self.current_schedule_fragment = None
+        for schedule_fragment in self.auto_manipulators_schedules:
+            if self.in_schedule_fragment(seconds_in_today, schedule_fragment):
+                self.current_schedule_fragment = schedule_fragment
+                return True
+        return False
 
     def add_manipulator(self, manipulator):
         t = self.task_manager.add(manipulator)
@@ -173,7 +206,9 @@ class ManipulatorManager(object):
         :rtype: :class:`class:`kcaa.kcsapi.model.KCAAObject`
         """
         self.screen_manager.update_screen()
-        if not self.current_task:
+        if self.current_task:
+            self.suppress_auto_manipulators()
+        else:
             if self.queue:
                 t = self.queue[0]
                 del self.queue[0]
@@ -187,11 +222,11 @@ class ManipulatorManager(object):
                 self.current_task = None
                 self.last_task = None
                 self.browser_conn.send((browser.COMMAND_COVER, (False,)))
-                if self.auto_manipulators_enabled:
+                if self.are_auto_manipulator_scheduled():
                     if self.resume_auto_manipulators():
                         self.leave_port()
-        else:
-            self.suppress_auto_manipulators()
+                else:
+                    self.suppress_auto_manipulators()
         self.update_running_manipulators()
         self.task_manager.update(current)
         if self.current_task not in self.task_manager.tasks:

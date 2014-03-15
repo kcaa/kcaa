@@ -25,6 +25,7 @@ class KCAAHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
     RELOAD_KCSAPI = '/reload_kcsapi'
     RELOAD_MANIPULATORS = '/reload_manipulators'
     MANIPULATE = '/manipulate'
+    SET_AUTO_MANIPULATOR_SCHEDULES = '/set_auto_manipulator_schedules'
     TAKE_SCREENSHOT = '/take_screenshot'
     CLIENT_PREFIX = '/client/'
 
@@ -54,6 +55,8 @@ class KCAAHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             self.handle_reload_manipulators(o)
         elif o.path == KCAAHTTPRequestHandler.MANIPULATE:
             self.handle_manipulate(o)
+        elif o.path == KCAAHTTPRequestHandler.SET_AUTO_MANIPULATOR_SCHEDULES:
+            self.handle_set_auto_manipulator_schedules(o)
         elif o.path == KCAAHTTPRequestHandler.TAKE_SCREENSHOT:
             self.handle_take_screenshot(o)
         elif o.path.startswith(KCAAHTTPRequestHandler.CLIENT_PREFIX):
@@ -156,6 +159,27 @@ class KCAAHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                 command_args[key] = values
         self.server.controller_conn.send((controller.COMMAND_MANIPULATE,
                                           (command_type, command_args)))
+        self.send_response(200)
+        self.send_header('Content-Type', 'text/plain')
+        self.end_headers()
+        self.wfile.write('success')
+
+    def handle_set_auto_manipulator_schedules(self, o):
+        if self.command != 'GET':
+            self.send_error(501, 'Unknown method: {}'.format(self.command))
+            return
+        queries = urlparse.parse_qs(o.query)
+        try:
+            enabled = queries['enabled'][0] == 'true'
+            schedule = queries['schedule'][0]
+        except KeyError:
+            self.send_error(400, 'Missing parameter: enabled or schedule')
+            return
+        schedule_fragments = [map(lambda v: int(v), fragment.split(':'))
+                              for fragment in schedule.split(';')]
+        self.server.controller_conn.send(
+            (controller.COMMAND_SET_AUTO_MANIPULATOR_SCHEDULES,
+             (enabled, schedule_fragments)))
         self.send_response(200)
         self.send_header('Content-Type', 'text/plain')
         self.end_headers()

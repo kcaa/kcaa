@@ -17,6 +17,7 @@ COMMAND_RELOAD_KCSAPI = 'reload_kcsapi'
 COMMAND_RELOAD_MANIPULATORS = 'reload_manipulators'
 COMMAND_MANIPULATE = 'manipulate'
 COMMAND_TAKE_SCREENSHOT = 'take_screenshot'
+COMMAND_SET_AUTO_MANIPULATOR_SCHEDULES = 'set_auto_manipulator_schedules'
 
 
 class DummyProcess(object):
@@ -88,6 +89,10 @@ def control(args):
                         manipulator_manager.dispatch(command_args)
                     except:
                         traceback.print_exc()
+                elif command_type == COMMAND_SET_AUTO_MANIPULATOR_SCHEDULES:
+                    enabled, schedule_fragments = command_args
+                    manipulator_manager.set_auto_manipulator_schedules(
+                        enabled, schedule_fragments)
                 elif command_type == COMMAND_TAKE_SCREENSHOT:
                     browser_conn.send((browser.COMMAND_TAKE_SCREENSHOT, None))
                     screenshot = browser_conn.recv()

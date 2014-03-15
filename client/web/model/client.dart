@@ -38,6 +38,13 @@ class Screen {
   };
 }
 
+class ScheduleFragment extends Observable {
+  @observable int start;
+  @observable int end;
+
+  ScheduleFragment(this.start, this.end);
+}
+
 void handleScreen(Assistant assistant, Map<String, dynamic> data) {
   assistant.screen = Screen.SCREEN_MAP[data["screen"]];
 }

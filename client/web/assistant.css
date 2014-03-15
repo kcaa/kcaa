@@ -46,6 +46,10 @@ div.board > *, div.board > section > * {
 div.board > *:first-child {
   margin-top: 0;
 }
+div.commandBoard button {
+  text-align: center;
+  width: 100%;
+}
 button {
   background-color: hsl(210, 90%, 20%);
   border-color: hsl(210, 30%, 90%);

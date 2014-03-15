@@ -120,8 +120,15 @@
           </div>
         </div>
         <div class="column">
-          <div class="board">
+          <div class="board commandBoard">
             <h3>クイックコマンド</h3>
+            <div>
+              <button on-click="{{toggleAutoManipulatorsEnabled}}">
+                オートマニピュレータを<template
+                if="{{autoManipulatorsEnabled}}">無効にする</template><template
+                if="{{!autoManipulatorsEnabled}}">有効にする</template>
+              </button>
+            </div>
           </div>
         </div>
       </div>

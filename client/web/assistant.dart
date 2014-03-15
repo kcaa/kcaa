@@ -48,6 +48,7 @@ class Assistant extends PolymerElement {
   Uri serverReloadKCSAPIModules;
   Uri serverReloadManipulatorModules;
   Uri serverManipulate;
+  Uri serverSetAutoManipulatorSchedules;
   Uri serverTakeScreenshot;
   Uri serverClick;
 
@@ -55,6 +56,9 @@ class Assistant extends PolymerElement {
   @observable String screen;
   @observable String runningManipulator;
   final List<String> manipulatorsInQueue = new ObservableList<String>();
+  @observable bool autoManipulatorsEnabled = true;
+  final List<ScheduleFragment> autoManipulatorSchedules =
+      new ObservableList<ScheduleFragment>();
 
   // Debug information.
   @observable String debugInfo;
@@ -98,6 +102,8 @@ class Assistant extends PolymerElement {
     serverReloadKCSAPIModules = serverRoot.resolve("reload_kcsapi");
     serverReloadManipulatorModules = serverRoot.resolve("reload_manipulators");
     serverManipulate = serverRoot.resolve("manipulate");
+    serverSetAutoManipulatorSchedules =
+        serverRoot.resolve("set_auto_manipulator_schedules");
     serverTakeScreenshot = serverRoot.resolve("take_screenshot");
     serverClick = serverRoot.resolve("click");
 
@@ -257,6 +263,26 @@ class Assistant extends PolymerElement {
     }));
     HttpRequest.getString(request.toString());
     runLater(3000, reloadScreenshot);
+  }
+
+  void setAutoManipulatorSchedules(bool enabled,
+                                   List<ScheduleFragment> schedules) {
+    var request = serverSetAutoManipulatorSchedules.resolveUri(
+        new Uri(queryParameters: {
+          "enabled": autoManipulatorsEnabled ? "true" : "false",
+          "schedule": autoManipulatorSchedules.map(
+              (fragment) => "${fragment.start}:${fragment.end}").join(";"),
+    }));
+    HttpRequest.getString(request.toString());
+  }
+
+  void toggleAutoManipulatorsEnabled(MouseEvent e, var detail, Element target) {
+    autoManipulatorsEnabled = !autoManipulatorsEnabled;
+    autoManipulatorSchedules.clear();
+    // TODO: Get schedule setting from user input.
+    autoManipulatorSchedules.add(new ScheduleFragment(0, 86400));
+    setAutoManipulatorSchedules(autoManipulatorsEnabled,
+        autoManipulatorSchedules);
   }
 
   void goOnMission(MouseEvent e) {
