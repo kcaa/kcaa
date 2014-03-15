@@ -7,10 +7,10 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:polymer/polymer.dart';
 
+part 'model/client.dart';
 part 'model/fleet.dart';
 part 'model/missionlist.dart';
 part 'model/questlist.dart';
-part 'model/screen.dart';
 part 'model/ship.dart';
 part 'util.dart';
 
@@ -53,6 +53,8 @@ class Assistant extends PolymerElement {
 
   // Client status.
   @observable String screen;
+  @observable String runningManipulator;
+  final List<String> manipulatorsInQueue = new ObservableList<String>();
 
   // Debug information.
   @observable String debugInfo;
@@ -66,6 +68,7 @@ class Assistant extends PolymerElement {
     "FleetList": handleFleetList,
     "MissionList": handleMissionList,
     "QuestList": handleQuestList,
+    "RunningManipulators": handleRunningManipulators,
     "Screen": handleScreen,
     "ShipList": handleShipList,
   };

@@ -41,3 +41,9 @@ class Screen {
 void handleScreen(Assistant assistant, Map<String, dynamic> data) {
   assistant.screen = Screen.SCREEN_MAP[data["screen"]];
 }
+
+void handleRunningManipulators(Assistant assistant, Map<String, dynamic> data) {
+  assistant.runningManipulator = data["running_manipulator"];
+  assistant.manipulatorsInQueue.clear();
+  assistant.manipulatorsInQueue.addAll(data["manipulators_in_queue"]);
+}

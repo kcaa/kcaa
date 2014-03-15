@@ -3,6 +3,7 @@
 import logging
 
 import browser
+from kcaa import kcsapi
 import manipulators
 import screens
 import task
@@ -87,6 +88,8 @@ class ManipulatorManager(object):
         self.define_manipulators()
         self.define_auto_manipulators()
         self.add_initial_auto_manipulators()
+        self.objects['RunningManipulators'] = (
+            kcsapi.client.RunningManipulators())
 
     def define_manipulators(self):
         self.manipulators = {
@@ -136,6 +139,18 @@ class ManipulatorManager(object):
                       manipulators.screen.PortScreen):
             self.screen_manager.update_screen(screens.PORT)
 
+    def update_running_manipulators(self):
+        running_manipulators_object = self.objects['RunningManipulators']
+        if self.current_task:
+            running_manipulators_object.running_manipulator = (
+                unicode(self.current_task.__class__.__name__, 'utf8'))
+        else:
+            running_manipulators_object.running_manipulator = None
+        running_manipulators_object.manipulators_in_queue = [
+            unicode(manipulator.__class__.__name__, 'utf8') for manipulator
+            in self.queue]
+        self.updated_object_types.add('RunningManipulators')
+
     def update(self, current):
         """Update manipulators.
 
@@ -169,6 +184,7 @@ class ManipulatorManager(object):
         else:
             for t in self.running_auto_triggerer:
                 t.suspend()
+        self.update_running_manipulators()
         self.task_manager.update(current)
         if self.current_task not in self.task_manager.tasks:
             self.last_task = self.current_task

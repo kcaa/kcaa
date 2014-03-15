@@ -66,6 +66,21 @@ class Screen(model.KCAAObject):
             self.generation += 1
 
 
+class RunningManipulators(model.KCAAObject):
+    """Information about currently running manipulators.
+
+    This is actually not an object represents KCSAPI-related information.
+    Rather, this object is updated by :class:`ManipulatorManager`.
+    """
+
+    running_manipulator = jsonobject.JSONProperty('running_manipulator',
+                                                  value_type=unicode)
+    """Currently running manipulator."""
+    manipulators_in_queue = jsonobject.JSONProperty(
+        'manipulators_in_queue', value_type=list, element_type=unicode)
+    """Manipulators waiting for execution in the queue."""
+
+
 if __name__ == '__main__':
     import client_test
     client_test.main()
