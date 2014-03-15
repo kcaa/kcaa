@@ -229,13 +229,13 @@ class PortMissionScreen(PortScreen):
     def select_maparea(self, maparea_id):
         def select_maparea_task(task):
             self.click(85 + 65 * maparea_id, 435)
-            yield 1.0
+            yield 2.0
         return self.do_task(select_maparea_task)
 
     def select_mission(self, mission_index):
         def select_mission_task(task):
             self.click(300, 175 + 30 * mission_index)
-            yield 1.0
+            yield 2.0
         return self.do_task(select_mission_task)
 
     def confirm(self):
@@ -247,7 +247,7 @@ class PortMissionScreen(PortScreen):
     def select_fleet(self, fleet_id):
         def select_fleet_task(task):
             self.click(340 + 30 * fleet_id, 135)
-            yield 1.0
+            yield 2.0
         return self.do_task(select_fleet_task)
 
     def finalize(self):
