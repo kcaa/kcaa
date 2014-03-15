@@ -58,6 +58,7 @@ class Assistant extends PolymerElement {
   final List<String> availableObjects = new ObservableList<String>();
   Set<String> availableObjectSet = new Set<String>();
   Timer availableObjectsChecker;
+  int updateAvailableObjectsIntervalMs;
 
   // Object handlers.
   static final Map<String, Function> OBJECT_HANDLERS = <String, Function>{
@@ -85,6 +86,7 @@ class Assistant extends PolymerElement {
     clientRoot = Uri.parse(window.location.href);
     var interval = clientRoot.queryParameters["interval"];
     interval = interval != null ? double.parse(interval) : 1.0;
+    updateAvailableObjectsIntervalMs = 1000 * interval;
     serverRoot = clientRoot.resolve("/");
     serverGetObjects = serverRoot.resolve("get_objects");
     serverGetNewObjects = serverRoot.resolve("get_new_objects");
@@ -94,10 +96,8 @@ class Assistant extends PolymerElement {
     serverManipulate = serverRoot.resolve("manipulate");
     serverTakeScreenshot = serverRoot.resolve("take_screenshot");
 
-    availableObjectsChecker =
-        new Timer.periodic(MILLISECOND * (1000 * interval), (Timer timer) {
-      updateAvailableObjects();
-    });
+    runLater(updateAvailableObjectsIntervalMs,
+        updateAvailableObjectsPeriodically);
     addCollapseButtons();
     updateCollapsedSections();
     handleObjects(serverGetObjects);
@@ -200,6 +200,12 @@ class Assistant extends PolymerElement {
       });
 
     handleObjects(serverGetNewObjects);
+  }
+
+  void updateAvailableObjectsPeriodically() {
+    updateAvailableObjects();
+    runLater(updateAvailableObjectsIntervalMs,
+        updateAvailableObjectsPeriodically);
   }
 
   void reloadKCSAPIModules() {
