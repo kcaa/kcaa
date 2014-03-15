@@ -41,6 +41,15 @@
             <td>
               <div class="title {{ship.lockedClass}}">{{ship.name}}</div>
               <div>{{ship.shipType}}</div>
+              <template if="{{ship.belongingFleet != null}}">
+                <div>
+                  第{{ship.belongingFleet.id}}艦隊所属
+                  <template if="{{ship.belongingFleet.undertakingMission
+                                  != null}}">
+                    (遠征中)
+                  </template>
+                </div>
+              </template>
             </td>
             <td class="numberColumn {{ship.levelClass}}">
               <div>{{ship.level}}<template
@@ -121,7 +130,7 @@
                               fleet.undertakingMission == null}}">
                 <!-- TODO: More compact UI. Possibly better to show a modal
                      dialog. -->
-                <div>
+                <div class="{{fleet.defaultClass}}">
                   <template repeat="{{mission in missions}}">
                     <template if="{{mission.undertakingFleetId == -1}}">
                       <button on-click="{{goOnMission}}"

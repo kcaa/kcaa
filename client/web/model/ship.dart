@@ -102,21 +102,6 @@ class Ship extends Observable {
     stateClass = getStateClass();
   }
 
-  bool updateBelongingFleet(List<Fleet> fleets) {
-    for (var fleet in fleets) {
-      for (var ship in fleet.ships) {
-        if (ship.id == id) {
-          var changed = belongingFleet == null || fleet.id != belongingFleet.id;
-          belongingFleet = fleet;
-          return changed;
-        }
-      }
-    }
-    var changed = belongingFleet != null;
-    belongingFleet = null;
-    return changed;
-  }
-
   String getStateClass() {
     if (hp / maxHp <= 0.25 || vitality < 20) {
       return "fatal";
@@ -128,6 +113,16 @@ class Ship extends Observable {
       return "";
     }
   }
+
+  void updateBelongingFleet(List<Fleet> fleets) {
+    for (var fleet in fleets){
+      if (fleet.ships.any((fleetShip) => fleetShip.id == id)) {
+        belongingFleet = fleet;
+        return;
+      }
+    }
+    belongingFleet = null;
+  }
 }
 
 void handleShipList(Assistant assistant, Map<String, dynamic> data) {
@@ -138,14 +133,16 @@ void handleShipList(Assistant assistant, Map<String, dynamic> data) {
     assistant.ships.add(ship);
     assistant.shipMap[ship.id] = ship;
   }
-  notifyFleetList(assistant);
 }
 
 void notifyShipList(Assistant assistant) {
-  for (var i = 0; i < assistant.ships.length; ++i) {
-    var ship = assistant.ships[i];
-    if (ship.updateBelongingFleet(assistant.fleets)) {
-      assistant.ships[i] = ship;
+  var shipIdsInFleets = new Set.from(assistant.fleets.expand(
+      (fleet) => fleet.ships).map((ship) => ship.id));
+  for (var ship in assistant.ships) {
+    if (shipIdsInFleets.contains(ship.id)) {
+      ship.updateBelongingFleet(assistant.fleets);
+    } else {
+      ship.belongingFleet = null;
     }
   }
 }

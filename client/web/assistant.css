@@ -40,7 +40,7 @@ div.twoColumn div.board {
   margin: 0;
   width: 100%;
 }
-div.board > * {
+div.board > *, div.board > section > * {
   margin-top: 10px;
 }
 div.board > *:first-child {
