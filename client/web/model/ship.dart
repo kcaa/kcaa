@@ -133,6 +133,7 @@ void handleShipList(Assistant assistant, Map<String, dynamic> data) {
     assistant.ships.add(ship);
     assistant.shipMap[ship.id] = ship;
   }
+  notifyFleetList(assistant);
 }
 
 void notifyShipList(Assistant assistant) {
