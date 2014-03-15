@@ -81,6 +81,7 @@ class ManipulatorManager(object):
         self.queue = []
         self.running_auto_triggerer = []
         self.current_task = None
+        self.last_task = None
         self.updated_object_types = set()
         self.task_manager = task.TaskManager(epoch)
         self.screen_manager = ScreenManager(self)
@@ -152,10 +153,12 @@ class ManipulatorManager(object):
                 t.resume()
                 for t in self.running_auto_triggerer:
                     t.suspend()
-                self.browser_conn.send((browser.COMMAND_COVER, (True,)))
-                self.leave_port()
+                if not self.last_task:
+                    self.browser_conn.send((browser.COMMAND_COVER, (True,)))
+                    self.leave_port()
             else:
                 self.current_task = None
+                self.last_task = None
                 previously_run = False
                 for t in self.running_auto_triggerer:
                     if not t.running:
@@ -169,6 +172,7 @@ class ManipulatorManager(object):
                 t.suspend()
         self.task_manager.update(current)
         if self.current_task not in self.task_manager.tasks:
+            self.last_task = self.current_task
             self.current_task = None
         updated_objects = [self.objects[object_type] for object_type in
                            self.updated_object_types]
