@@ -19,12 +19,12 @@ class Manipulator(task.Task):
         super(Manipulator, self).__init__(*args, **kwargs)
 
     @property
-    def screen_id(self):
-        return self._screen_manager.current_screen.screen_id
-
-    @property
     def screen(self):
         return self._screen_manager.current_screen
+
+    @property
+    def screen_id(self):
+        return self.screen.screen_id
 
     def do_manipulator(self, manipulator, *args, **kwargs):
         return self.manager.task_manager.add(

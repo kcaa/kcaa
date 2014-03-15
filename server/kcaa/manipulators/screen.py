@@ -45,8 +45,7 @@ class Screen(object):
         transition can be detected by it (like port to quest list screen), but
         necessary if the client doesn't sent any requests.
         """
-        self.manager.objects['Screen'].screen = screen_id
-        self.manager.updated_object_types.add('Screen')
+        self.manager.update_screen(screen_id)
 
     def assert_screen(self, screen_id):
         if self.screen_id != screen_id:
@@ -64,7 +63,6 @@ class Screen(object):
         def transition_to_task(task):
             yield delay
             self.update_screen_id(screen_id)
-            yield task.unit
         return self.do_task(transition_to_task)
 
     def wait_transition(self, screen_id, timeout=5.0, raise_on_timeout=True,
@@ -99,7 +97,7 @@ class StartScreen(Screen):
     def proceed(self):
         def proceed_task(task):
             self.click(620, 400)
-            yield self.wait_transition(screens.PORT, timeout=20.0)
+            yield self.wait_transition(screens.PORT_MAIN, timeout=20.0)
         self.assert_screen(screens.SPECIAL_START)
         return self.do_task(proceed_task)
 
@@ -128,18 +126,12 @@ class PortScreen(Screen):
                 # If this is the case, we were at the port main screen or at
                 # some undetectable screen missing 'Port' button.
                 self.click_back_button()
-            yield self.wait_transition(screens.PORT)
-            self.update_screen_id(screens.PORT_MAIN)
-            yield task.unit
+            yield 3.0
+            if self.screen_id == screens.PORT:
+                self.update_screen_id(screens.PORT_MAIN)
             yield self.manager.current_screen.change_screen(screen_id)
         self.assert_screen_category(screens.PORT)
         return self.do_task(change_screen_task)
-
-    def leave_port(self):
-        def leave_port_task(task):
-            self.update_screen_id(screens.PORT)
-            yield task.unit
-        return self.do_task(leave_port_task)
 
     def check_mission_result(self):
         def check_mission_result_task(task):
@@ -282,9 +274,7 @@ class PortOperationsScreen(PortScreen):
                 return
             if screen_id == screens.PORT_MAIN:
                 self.click_port_button()
-                yield self.wait_transition(screens.PORT)
-                self.update_screen_id(screens.PORT_MAIN)
-                yield task.unit
+                yield self.wait_transition(screens.PORT_MAIN)
                 return
             if screen_id in screen_map:
                 self.click_organizing_button()
@@ -364,8 +354,6 @@ class MissionResultScreen(Screen):
             self.click_somewhere()
             yield 3.0
             self.click_somewhere()
-            self._logger.debug(
-                'And now we are at the port main, but mark it as PORT.')
-            self.update_screen_id(screens.PORT)
-            yield 2.0
+            self._logger.debug('And now we are at the port main.')
+            self.transition_to(screens.PORT_MAIN)
         return self.do_task(proceed_mission_result_screen_task)

@@ -64,7 +64,6 @@ class AutoCheckMissionResult(base.AutoManipulator):
     def run(self, count):
         for _ in xrange(count):
             yield self.do_manipulator(CheckMissionResult)
-        yield self.screen.leave_port()
 
 
 class GoOnMission(base.Manipulator):
@@ -91,4 +90,3 @@ class GoOnMission(base.Manipulator):
         yield self.screen.confirm()
         yield self.screen.select_fleet(fleet_id)
         yield self.screen.finalize()
-        yield self.screen.leave_port()

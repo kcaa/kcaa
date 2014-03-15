@@ -45,11 +45,16 @@ class ScreenManager(object):
     def current_screen(self):
         return self._current_screen
 
-    def update_screen(self):
+    def update_screen(self, screen_id=None):
         screen_object = self.objects.get('Screen')
         if not screen_object:
             return
-        screen_id = screen_object.screen
+        if screen_id is None:
+            screen_id = screen_object.screen
+        else:
+            self._logger.debug('specified: {}'.format(screen_id))
+            screen_object.screen = screen_id
+            self.updated_object_types.add('Screen')
         if screen_id != self._last_screen_id:
             screen = self.screens.get(screen_id)
             if screen:
@@ -126,6 +131,11 @@ class ManipulatorManager(object):
         self.running_auto_triggerer.append(t)
         return t
 
+    def leave_port(self):
+        if isinstance(self.screen_manager.current_screen,
+                      manipulators.screen.PortScreen):
+            self.screen_manager.update_screen(screens.PORT)
+
     def update(self, current):
         """Update manipulators.
 
@@ -143,6 +153,7 @@ class ManipulatorManager(object):
                 for t in self.running_auto_triggerer:
                     t.suspend()
                 self.browser_conn.send((browser.COMMAND_COVER, (True,)))
+                self.leave_port()
             else:
                 self.current_task = None
                 previously_run = False
@@ -152,6 +163,7 @@ class ManipulatorManager(object):
                         previously_run = True
                 if previously_run:
                     self.browser_conn.send((browser.COMMAND_COVER, (False,)))
+                    self.leave_port()
         else:
             for t in self.running_auto_triggerer:
                 t.suspend()
