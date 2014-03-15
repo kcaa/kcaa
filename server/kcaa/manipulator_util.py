@@ -88,6 +88,7 @@ class ManipulatorManager(object):
         self.define_manipulators()
         self.define_auto_manipulators()
         self.add_initial_auto_manipulators()
+        self.auto_manipulators_enabled = True
         self.objects['RunningManipulators'] = (
             kcsapi.client.RunningManipulators())
 
@@ -121,6 +122,7 @@ class ManipulatorManager(object):
         ]
         for name in initial_auto_manipulators:
             self.add_auto_manipulator(self.auto_manipulators[name])
+        self.suppress_auto_manipulators()
 
     def add_manipulator(self, manipulator):
         t = self.task_manager.add(manipulator)
@@ -151,6 +153,18 @@ class ManipulatorManager(object):
             in self.queue]
         self.updated_object_types.add('RunningManipulators')
 
+    def resume_auto_manipulators(self):
+        previously_run = False
+        for t in self.running_auto_triggerer:
+            if not t.running:
+                t.resume()
+                previously_run = True
+        return previously_run
+
+    def suppress_auto_manipulators(self):
+        for t in self.running_auto_triggerer:
+            t.suspend()
+
     def update(self, current):
         """Update manipulators.
 
@@ -165,25 +179,19 @@ class ManipulatorManager(object):
                 del self.queue[0]
                 self.current_task = t
                 t.resume()
-                for t in self.running_auto_triggerer:
-                    t.suspend()
+                self.suppress_auto_manipulators()
                 if not self.last_task:
                     self.browser_conn.send((browser.COMMAND_COVER, (True,)))
                     self.leave_port()
             else:
                 self.current_task = None
                 self.last_task = None
-                previously_run = False
-                for t in self.running_auto_triggerer:
-                    if not t.running:
-                        t.resume()
-                        previously_run = True
-                if previously_run:
-                    self.browser_conn.send((browser.COMMAND_COVER, (False,)))
-                    self.leave_port()
+                self.browser_conn.send((browser.COMMAND_COVER, (False,)))
+                if self.auto_manipulators_enabled:
+                    if self.resume_auto_manipulators():
+                        self.leave_port()
         else:
-            for t in self.running_auto_triggerer:
-                t.suspend()
+            self.suppress_auto_manipulators()
         self.update_running_manipulators()
         self.task_manager.update(current)
         if self.current_task not in self.task_manager.tasks:
