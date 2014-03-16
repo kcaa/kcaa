@@ -47,5 +47,6 @@ class AutoFleetCharge(base.AutoManipulator):
             return {'fleet_ids': fleet_ids_to_charge}
 
     def run(self, fleet_ids):
+        yield 1.0
         for fleet_id in fleet_ids:
             yield self.do_manipulator(FleetCharge, fleet_id)

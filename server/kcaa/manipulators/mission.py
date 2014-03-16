@@ -62,6 +62,7 @@ class AutoCheckMissionResult(base.AutoManipulator):
             return {'count': count}
 
     def run(self, count):
+        yield 1.0
         for _ in xrange(count):
             yield self.do_manipulator(CheckMissionResult)
 
