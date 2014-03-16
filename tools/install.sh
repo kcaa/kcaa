@@ -43,6 +43,7 @@ function create_install_directory() {
 function install_kancolle_player_prerequisites() {
   local kancolle_player_prerequisites=(
     flashplugin-installer
+    otf-ipafont-gothic
     xorg
   )
   echo "Installing Kancolle player prerequisites..."
