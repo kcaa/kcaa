@@ -52,6 +52,7 @@ function install_kancolle_player_prerequisites() {
 # Python third-party packages required to run the KCAA Python server.
 function install_python_server_prerequisites() {
   local python_server_apt_prerequisites=(
+    openjdk-7-jre
     python-dev
     zlib1g-dev
   )
