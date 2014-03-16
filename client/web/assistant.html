@@ -41,7 +41,8 @@
             <td>
               <div class="title {{ship.lockedClass}}">{{ship.name}}</div>
               <div>{{ship.shipType}}</div>
-              <template if="{{ship.belongingFleet != null}}">
+              <template if="{{ships.length > 6 &&
+                              ship.belongingFleet != null}}">
                 <div>
                   第{{ship.belongingFleet.id}}艦隊所属
                   <template if="{{ship.belongingFleet.undertakingMission
