@@ -3,7 +3,8 @@ part of kcaa;
 class Fleet extends Observable {
   @observable int id;
   @observable String name;
-  @observable List<Ship> ships = new List<Ship>();
+  // Somehow this list needs to be @observable for getting ships.length.
+  @observable final List<Ship> ships = new ObservableList<Ship>();
   @observable String undertakingMission;
   @observable bool collapsed;
   @observable String defaultClass;
