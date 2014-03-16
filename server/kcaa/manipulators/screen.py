@@ -355,5 +355,5 @@ class MissionResultScreen(Screen):
             yield 3.0
             self.click_somewhere()
             self._logger.debug('And now we are at the port main.')
-            self.transition_to(screens.PORT_MAIN)
+            yield self.transition_to(screens.PORT_MAIN)
         return self.do_task(proceed_mission_result_screen_task)
