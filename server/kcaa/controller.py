@@ -26,10 +26,9 @@ class DummyProcess(object):
         pass
 
 
-def control(args):
+def control(args, to_exit):
     # It seems that uncaught exceptions are silently buffered after creating
     # another multiprocessing.Process.
-    to_exit = multiprocessing.Event()
     ps = DummyProcess()
     pk = DummyProcess()
     pc = DummyProcess()
@@ -114,6 +113,8 @@ def control(args):
                 # still there. You can always reload modules explicitly with
                 # the reload button in the KCAA control window.
                 traceback.print_exc()
+    except (KeyboardInterrupt, SystemExit):
+        logger.info('SIGINT received in the controller process. Exiting...')
     except:
         traceback.print_exc()
     to_exit.set()

@@ -3,6 +3,7 @@
 import datetime
 import logging
 import multiprocessing
+import signal
 import sys
 
 import kcaa
@@ -28,8 +29,18 @@ def main(argv):
     handler.setFormatter(ShortLogFormatter())
     logger.addHandler(handler)
 
-    p = multiprocessing.Process(target=kcaa.controller.control, args=(args,))
+    to_exit = multiprocessing.Event()
+    p = multiprocessing.Process(target=kcaa.controller.control,
+                                args=(args, to_exit))
     p.start()
+
+    def handle_sigint(signal, frame):
+        logger.info('SIGINT received in the main process. Exiting...')
+        to_exit.set()
+        p.join()
+        sys.exit(0)
+
+    signal.signal(signal.SIGINT, handle_sigint)
     p.join()
 
 

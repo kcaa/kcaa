@@ -254,6 +254,9 @@ def setup_kancolle_browser(args, controller_conn, to_exit):
             else:
                 game_frame, dx, dy, game_area_rect = get_game_frame(browser)
                 time.sleep(1.0)
+    except (KeyboardInterrupt, SystemExit):
+        logger.info('SIGINT received in the Kancolle browser process. '
+                    'Exiting...')
     except:
         traceback.print_exc()
     to_exit.set()
@@ -292,6 +295,8 @@ def setup_kcaa_browser(args, root_url, to_exit):
                 # again, assuming that was an accident.
                 monitor = BrowserMonitor(
                     'KCAA', open_kcaa_browser(args, root_url), 5)
+    except (KeyboardInterrupt, SystemExit):
+        logger.info('SIGINT received in the KCAA browser process. Exiting...')
     except:
         traceback.print_exc()
     to_exit.set()

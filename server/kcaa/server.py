@@ -230,7 +230,13 @@ def move_to_client_dir():
 def setup(args):
     move_to_client_dir()
     httpd = SocketServer.TCPServer(('', args.server_port),
-                                   KCAAHTTPRequestHandler)
+                                   KCAAHTTPRequestHandler,
+                                   bind_and_activate=False)
+    # If the port number is specified, allow it to be reused.
+    if args.server_port != 0:
+        httpd.allow_reuse_address = True
+    httpd.server_bind()
+    httpd.server_activate()
     _, port = httpd.server_address
     root_url = 'http://localhost:{}/client/?interval={}'.format(
         port, args.frontend_update_interval)
@@ -239,6 +245,7 @@ def setup(args):
 
 
 def handle_server(args, to_exit, controller_conn, object_queue):
+    httpd = None
     try:
         httpd, root_url = setup(args)
         httpd.new_objects = set()
@@ -255,6 +262,10 @@ def handle_server(args, to_exit, controller_conn, object_queue):
                 object_type, data = object_queue.get()
                 httpd.new_objects.add(object_type)
                 httpd.objects[object_type] = data
+    except (KeyboardInterrupt, SystemExit):
+        logger.info('SIGINT received in the server process. Exiting...')
     except:
         traceback.print_exc()
     to_exit.set()
+    if httpd:
+        httpd.server_close()
