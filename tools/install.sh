@@ -114,6 +114,12 @@ function install_phantomjs() {
   local filename=phantomjs--linux-x86_64
   tar xf ${THIRDPARTY_DIR}/${filename}.tar.bz2 --directory=${INSTALL_DIR}
   ln -s ${INSTALL_DIR}/${filename}/bin/phantomjs ${INSTALL_DIR}/phantomjs
+  # PhantomJS requires some shared libraries to run.
+  local phantomjs_apt_prerequisites=(
+    python-pyphantomjs
+  )
+  echo "Installing PhantomJS APT prerequisites..."
+  sudo apt-get install ${phantomjs_apt_prerequisites[@]}
 }
 
 function install_browsermob_proxy() {
