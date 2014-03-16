@@ -1,4 +1,11 @@
 #!/bin/bash
+#
+# You need to run './run_proxy.sh' as a separate job if you set
+# PROXY_CONTROLLER_DAEMON=1.
+#
+# You need to run 'sudo startx' in a separate job, and 'export DISPLAY=:0.0'
+# before running './start_game.sh' in the same session if you running this
+# script from non-GUI environment.
 
 source $(dirname $0)/config
 
