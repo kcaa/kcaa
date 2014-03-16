@@ -8,7 +8,7 @@ import base
 from kcaa import screens
 
 
-logger = logging.getLogger('kcaa.manipulators.automission')
+logger = logging.getLogger('kcaa.manipulators.mission')
 
 
 class CheckMissionResult(base.Manipulator):

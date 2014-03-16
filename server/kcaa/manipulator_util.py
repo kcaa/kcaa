@@ -110,7 +110,7 @@ class ManipulatorManager(object):
             'AutoFleetCharge': manipulators.logistics.AutoFleetCharge,
             # Special
             'AutoStartGame': manipulators.special.AutoStartGame,
-            # Auto mission
+            # Mission
             'AutoCheckMissionResult':
             manipulators.mission.AutoCheckMissionResult,
         }
