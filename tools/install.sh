@@ -6,12 +6,29 @@ source ${SCRIPT_DIR}/config
 THIRDPARTY_DIR=${SCRIPT_DIR}/../thirdparty
 
 function confirm_install_prerequisites() {
-  which pip &> /dev/null
+  local -A prerequisites=(
+    ["gcc"]="gcc"
+    ["pip"]="python-pip"
+    ["tar"]="tar"
+    ["unzip"]="unzip"
+  )
+  which apt-get &> /dev/null
   if [ $? -ne 0 ]; then
-    echo "Cannot find 'pip' (Python package installer/manager)."
-    echo "Possibly you can install it by 'sudo apt-get install python-pip'."
+    echo "Cannot find 'apt-get' (APT package manager)."
+    echo "Possibly you are not using Debian-originated Linux?"
+    echo "TODO: Support non-Debian Linux distributions."
     exit 1
   fi
+  for command in ${!prerequisites[@]}
+  do
+    which ${command} &> /dev/null
+    if [ $? -ne 0 ]; then
+      echo "Cannot find '${command}'."
+      echo "Possibly you can install it by 'sudo apt-get install" \
+        "${prerequisites[${command}]}'."
+      exit 1
+    fi
+  done
 }
 
 function create_install_directory() {
@@ -23,8 +40,24 @@ function create_install_directory() {
   fi
 }
 
+function install_kancolle_player_prerequisites() {
+  local kancolle_player_prerequisites=(
+    flashplugin-installer
+    xorg
+  )
+  echo "Installing Kancolle player prerequisites..."
+  sudo apt-get install ${kancolle_player_prerequisites[@]}
+}
+
 # Python third-party packages required to run the KCAA Python server.
 function install_python_server_prerequisites() {
+  local python_server_apt_prerequisites=(
+    openjdk-7-jre
+    python-dev
+    zlib1g-dev
+  )
+  echo "Installing KCAA Python server APT prerequisites..."
+  sudo apt-get install ${python_server_apt_prerequisites[@]}
   local python_server_prerequisites=(
     pillow
     python-dateutil
@@ -81,6 +114,12 @@ function install_phantomjs() {
   local filename=phantomjs--linux-x86_64
   tar xf ${THIRDPARTY_DIR}/${filename}.tar.bz2 --directory=${INSTALL_DIR}
   ln -s ${INSTALL_DIR}/${filename}/bin/phantomjs ${INSTALL_DIR}/phantomjs
+  # PhantomJS requires some shared libraries to run.
+  local phantomjs_apt_prerequisites=(
+    python-pyphantomjs
+  )
+  echo "Installing PhantomJS APT prerequisites..."
+  sudo apt-get install ${phantomjs_apt_prerequisites[@]}
 }
 
 function install_browsermob_proxy() {
@@ -118,6 +157,7 @@ function install_dartium() {
 
 confirm_install_prerequisites
 create_install_directory
+install_kancolle_player_prerequisites
 install_python_server_prerequisites
 install_chromedriver
 install_phantomjs
