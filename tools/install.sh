@@ -51,6 +51,12 @@ function install_kancolle_player_prerequisites() {
 
 # Python third-party packages required to run the KCAA Python server.
 function install_python_server_prerequisites() {
+  local python_server_apt_prerequisites=(
+    python-dev
+    zlib1g-dev
+  )
+  echo "Installing KCAA Python server APT prerequisites..."
+  sudo apt-get install ${python_server_apt_prerequisites[@]}
   local python_server_prerequisites=(
     pillow
     python-dateutil
