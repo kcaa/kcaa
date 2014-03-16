@@ -6,6 +6,12 @@ source ${SCRIPT_DIR}/config
 THIRDPARTY_DIR=${SCRIPT_DIR}/../thirdparty
 
 function confirm_install_prerequisites() {
+  local -A prerequisites=(
+    ["gcc"]="gcc"
+    ["pip"]="python-pip"
+    ["tar"]="tar"
+    ["unzip"]="unzip"
+  )
   which apt-get &> /dev/null
   if [ $? -ne 0 ]; then
     echo "Cannot find 'apt-get' (APT package manager)."
@@ -13,12 +19,16 @@ function confirm_install_prerequisites() {
     echo "TODO: Support non-Debian Linux distributions."
     exit 1
   fi
-  which pip &> /dev/null
-  if [ $? -ne 0 ]; then
-    echo "Cannot find 'pip' (Python package installer/manager)."
-    echo "Possibly you can install it by 'sudo apt-get install python-pip'."
-    exit 1
-  fi
+  for command in ${!prerequisites[@]}
+  do
+    which ${command} &> /dev/null
+    if [ $? -ne 0 ]; then
+      echo "Cannot find '${command}'."
+      echo "Possibly you can install it by 'sudo apt-get install" \
+        "${prerequisites[${command}]}'."
+      exit 1
+    fi
+  done
 }
 
 function create_install_directory() {
@@ -36,7 +46,7 @@ function install_kancolle_player_prerequisites() {
     xorg
   )
   echo "Installing Kancolle player prerequisites..."
-  sudo apt-get --yes install ${kancolle_player_prerequisites[@]}
+  sudo apt-get install ${kancolle_player_prerequisites[@]}
 }
 
 # Python third-party packages required to run the KCAA Python server.
