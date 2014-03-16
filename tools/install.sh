@@ -6,6 +6,13 @@ source ${SCRIPT_DIR}/config
 THIRDPARTY_DIR=${SCRIPT_DIR}/../thirdparty
 
 function confirm_install_prerequisites() {
+  which apt-get &> /dev/null
+  if [ $? -ne 0 ]; then
+    echo "Cannot find 'apt-get' (APT package manager)."
+    echo "Possibly you are not using Debian-originated Linux?"
+    echo "TODO: Support non-Debian Linux distributions."
+    exit 1
+  fi
   which pip &> /dev/null
   if [ $? -ne 0 ]; then
     echo "Cannot find 'pip' (Python package installer/manager)."
@@ -21,6 +28,15 @@ function create_install_directory() {
     echo "Failed to create the install path: ${INSTALL_DIR}"
     exit 1
   fi
+}
+
+function install_kancolle_player_prerequisites() {
+  local kancolle_player_prerequisites=(
+    flashplugin-installer
+    xorg
+  )
+  echo "Installing Kancolle player prerequisites..."
+  sudo apt-get --yes install ${kancolle_player_prerequisites[@]}
 }
 
 # Python third-party packages required to run the KCAA Python server.
@@ -118,6 +134,7 @@ function install_dartium() {
 
 confirm_install_prerequisites
 create_install_directory
+install_kancolle_player_prerequisites
 install_python_server_prerequisites
 install_chromedriver
 install_phantomjs
