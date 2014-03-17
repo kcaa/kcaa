@@ -275,8 +275,10 @@ class Assistant extends PolymerElement {
           .toStringAsFixed(0),
     }));
     HttpRequest.getString(request.toString());
-    updateScreenPeriodically = true;
-    reloadScreenshot();
+    if (!updateScreenPeriodically) {
+      updateScreenPeriodically = true;
+      reloadScreenshot();
+    }
   }
 
   void toggleUpdateScreenPeriodically() {
