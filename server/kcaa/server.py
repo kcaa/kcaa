@@ -186,8 +186,17 @@ class KCAAHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         self.wfile.write('success')
 
     def handle_take_screenshot(self, o):
+        if self.command != 'GET':
+            self.send_error(501, 'Unknown method: {}'.format(self.command))
+            return
+        queries = urlparse.parse_qs(o.query)
+        format = queries.get('format', ['jpeg'])[0]
+        quality = int(queries.get('quality', [50])[0])
+        width = int(queries.get('width', [0])[0])
+        height = int(queries.get('height', [0])[0])
         self.server.controller_conn.send(
-            (controller.COMMAND_TAKE_SCREENSHOT, None))
+            (controller.COMMAND_TAKE_SCREENSHOT,
+             (format, quality, width, height)))
         self.send_response(200)
         self.send_header('Content-Type', 'image/png')
         self.end_headers()

@@ -237,14 +237,20 @@ def setup_kancolle_browser(args, controller_conn, to_exit):
                             show_game_frame_cover(browser, is_shown)
                             covered = is_shown
                     elif command_type == COMMAND_TAKE_SCREENSHOT:
+                        format, quality, width, height = command_args
                         im_buffer = cStringIO.StringIO(
                             browser.get_screenshot_as_png())
                         im = Image.open(im_buffer)
                         im.load()
                         im_buffer.close()
                         im = im.crop(game_area_rect)
+                        if width != 0 and height != 0:
+                            im.thumbnail((width, height), Image.NEAREST)
                         im_buffer = cStringIO.StringIO()
-                        im.save(im_buffer, 'png')
+                        if format == 'jpeg':
+                            im.save(im_buffer, format, quality=quality)
+                        else:
+                            im.save(im_buffer, format)
                         controller_conn.send(im_buffer.getvalue())
                         im_buffer.close()
                     else:

@@ -313,10 +313,15 @@
         <div class="board">
           <h3 data-collapsed="true">画面</h3>
           <div>
-            <button on-click="{{reloadScreenshot}}">更新</button>
+            <button on-click="{{toggleUpdateScreenPeriodically}}">
+              自動更新<template
+                if="{{updateScreenPeriodically}}">停止</template><template
+                if="{{!updateScreenPeriodically}}">開始</template>
+            </button>
           </div>
           <div>
-            <img id="screenshot" on-click="{{clickScreen}}">
+            <img id="screenshot" src="/take_screenshot"
+                 on-click="{{clickScreen}}" on-load="{{updateScreen}}">
           </div>
         </div>
       </div>

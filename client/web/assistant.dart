@@ -24,6 +24,8 @@ class CollapsedSectionInfo {
 
 @CustomTag('kcaa-assistant')
 class Assistant extends PolymerElement {
+  static const int SCREEN_UPDATE_INTERVAL = 1000;
+
   // Ships.
   final List<Ship> ships = new ObservableList<Ship>();
   Map<int, Ship> shipMap = new Map<int, Ship>();
@@ -59,6 +61,7 @@ class Assistant extends PolymerElement {
   @observable bool autoManipulatorsEnabled = true;
   final List<ScheduleFragment> autoManipulatorSchedules =
       new ObservableList<ScheduleFragment>();
+  @observable bool updateScreenPeriodically = false;
 
   // Debug information.
   @observable String debugInfo;
@@ -248,8 +251,18 @@ class Assistant extends PolymerElement {
   void reloadScreenshot() {
     ($["screenshot"] as ImageElement).src = serverTakeScreenshot.resolveUri(
         new Uri(queryParameters: {
-            "time": new DateTime.now().millisecondsSinceEpoch.toString(),
+          "format": "jpeg",
+          "quality": "50",
+          "width": "800",
+          "height": "480",
+          "time": new DateTime.now().millisecondsSinceEpoch.toString(),
         })).toString();
+  }
+
+  void updateScreen() {
+    if (updateScreenPeriodically) {
+      runLater(SCREEN_UPDATE_INTERVAL, () => reloadScreenshot());
+    }
   }
 
   void clickScreen(MouseEvent e, var detail, Element target) {
@@ -262,7 +275,13 @@ class Assistant extends PolymerElement {
           .toStringAsFixed(0),
     }));
     HttpRequest.getString(request.toString());
-    runLater(3000, reloadScreenshot);
+    updateScreenPeriodically = true;
+    reloadScreenshot();
+  }
+
+  void toggleUpdateScreenPeriodically() {
+    updateScreenPeriodically = !updateScreenPeriodically;
+    reloadScreenshot();
   }
 
   void setAutoManipulatorSchedules(bool enabled,

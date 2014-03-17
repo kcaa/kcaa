@@ -93,7 +93,9 @@ def control(args, to_exit):
                     manipulator_manager.set_auto_manipulator_schedules(
                         enabled, schedule_fragments)
                 elif command_type == COMMAND_TAKE_SCREENSHOT:
-                    browser_conn.send((browser.COMMAND_TAKE_SCREENSHOT, None))
+                    format, quality, width, height = command_args
+                    browser_conn.send((browser.COMMAND_TAKE_SCREENSHOT,
+                                       (format, quality, width, height)))
                     screenshot = browser_conn.recv()
                     server_conn.send(screenshot)
                 else:
