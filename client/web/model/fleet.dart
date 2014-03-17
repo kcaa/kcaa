@@ -6,16 +6,28 @@ class Fleet extends Observable {
   // Somehow this list needs to be @observable for getting ships.length.
   @observable final List<Ship> ships = new ObservableList<Ship>();
   @observable String undertakingMission;
-  @observable bool collapsed;
+  @observable bool collapsed = null;
   @observable String defaultClass;
 
-  Fleet(Map<String, dynamic> data, Map<int, Ship> shipMap,
-        List<Mission> missions, {bool collapsed: null})
-      : id = data["id"],
-        name = data["name"] {
-    for (var shipId in data["ship_ids"]) {
-      var ship = shipMap[shipId];
-      ships.add(ship);
+  Fleet();
+
+  void update(Map<String, dynamic> data, Map<int, Ship> shipMap,
+        List<Mission> missions, {bool collapsed: null}) {
+    id = data["id"];
+    name = data["name"];
+
+    var shipsLength = data["ship_ids"].length;
+    if (ships.length != shipsLength) {
+      if (shipsLength < ships.length) {
+        ships.removeRange(shipsLength, ships.length);
+      } else {
+        for (var i = ships.length; i < shipsLength; i++) {
+          ships.add(null);
+        }
+      }
+    }
+    for (var i = 0; i < shipsLength; i++) {
+      ships[i] = shipMap[data["ship_ids"][i]];
     }
     if (data["mission_id"] != null) {
       var missionId = data["mission_id"];
@@ -33,40 +45,24 @@ class Fleet extends Observable {
     }
     defaultClass = this.collapsed ? "hidden": "";
   }
-
-  void updateShips(Map<int, Ship> shipMap) {
-    for (var i = 0; i < ships.length; ++i) {
-      ships[i] = shipMap[ships[i].id];
-    }
-  }
 }
 
 void handleFleetList(Assistant assistant, Map<String, dynamic> data) {
-  if ((data["fleets"] as List).length == assistant.fleets.length) {
-    for (var i = 0; i < assistant.fleets.length; ++i) {
-      var fleetData = data["fleets"][i];
-      assistant.fleets[i] = new Fleet(fleetData, assistant.shipMap,
-          assistant.missions, collapsed: assistant.fleets[i].collapsed);
+  var fleetsLength = data["fleets"].length;
+  if (assistant.fleets.length != fleetsLength) {
+    if (fleetsLength < assistant.fleets.length) {
+      assistant.fleets.removeRange(fleetsLength, assistant.fleets.length);
+    } else {
+      for (var i = assistant.fleets.length; i < fleetsLength; i++) {
+        assistant.fleets.add(new Fleet());
+      }
+      // Wait for the DOM to be updated.
+      runLater(0, () => assistant.updateCollapsedSections());
     }
-  } else {
-    assistant.fleets.clear();
-    for (var fleetData in data["fleets"]) {
-      assistant.fleets.add(new Fleet(fleetData, assistant.shipMap,
-          assistant.missions));
-    }
+  }
+  for (var i = 0; i < fleetsLength; i++) {
+    assistant.fleets[i].update(data["fleets"][i], assistant.shipMap,
+        assistant.missions, collapsed: assistant.fleets[i].collapsed);
   }
   notifyShipList(assistant);
-  // Wait for the DOM to be updated.
-  runLater(0, () => assistant.updateCollapsedSections());
-}
-
-void notifyFleetList(Assistant assistant) {
-  for (var i = 0; i < assistant.fleets.length; ++i) {
-    var fleet = assistant.fleets[i];
-    fleet.updateShips(assistant.shipMap);
-    assistant.fleets[i] = fleet;
-  }
-  // This is just for collapse buttons. Hiding collapsed fleets are taken care
-  // of by defaultHiddenClass. That works better because no rerendering happens.
-  runLater(0, () => assistant.updateCollapsedSections());
 }

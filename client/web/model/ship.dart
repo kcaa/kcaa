@@ -148,7 +148,6 @@ void handleShipList(Assistant assistant, Map<String, dynamic> data) {
         assistant.ships.add(null);
       }
     }
-    notifyFleetList(assistant);
   }
   for (var i = 0; i < shipsLength; i++) {
     assistant.ships[i] = assistant.shipMap[int.parse(data["ship_order"][i])];
