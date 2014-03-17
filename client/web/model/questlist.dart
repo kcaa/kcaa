@@ -31,26 +31,38 @@ class Quest extends Observable {
   @observable int progress;
   @observable String cycle;
 
-  Quest(Map<String, dynamic> data)
-      : id = data["id"],
-        name = data["name"],
-        description = data["description"],
-        category = CATEGORY_MAP[data["category"]],
-        state = data["state"],
-        stateClass = STATE_CLASS_MAP[data["state"]],
-        fuel = data["rewards"]["fuel"],
-        ammo = data["rewards"]["ammo"],
-        steel = data["rewards"]["steel"],
-        bauxite = data["rewards"]["bauxite"],
-        progress = data["progress"],
-        cycle = CYCLE_MAP[data["cycle"]] {}
+  Quest();
+
+  void update(Map<String, dynamic> data) {
+    id = data["id"];
+    name = data["name"];
+    description = data["description"];
+    category = CATEGORY_MAP[data["category"]];
+    state = data["state"];
+    stateClass = STATE_CLASS_MAP[data["state"]];
+    fuel = data["rewards"]["fuel"];
+    ammo = data["rewards"]["ammo"];
+    steel = data["rewards"]["steel"];
+    bauxite = data["rewards"]["bauxite"];
+    progress = data["progress"];
+    cycle = CYCLE_MAP[data["cycle"]];
+  }
 }
 
 void handleQuestList(Assistant assistant, Map<String, dynamic> data) {
   assistant.numQuests = data["count"];
   assistant.numQuestsUndertaken = data["count_undertaken"];
-  assistant.quests.clear();
-  for (var questData in data["quests"]) {
-    assistant.quests.add(new Quest(questData));
+  var questsLength = data["quests"].length;
+  if (assistant.quests.length != questsLength) {
+    if (questsLength < assistant.quests.length) {
+      assistant.quests.removeRange(questsLength, assistant.quests.length);
+    } else {
+      for (var i = assistant.quests.length; i < questsLength; i++) {
+        assistant.quests.add(new Quest());
+      }
+    }
+  }
+  for (var i = 0; i < questsLength; i++) {
+    assistant.quests[i].update(data["quests"][i]);
   }
 }
