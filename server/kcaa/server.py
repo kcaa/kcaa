@@ -37,7 +37,7 @@ class KCAAHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
     def log_message(self, format, *args):
         # Kill verbose HTTP logging.
-        return
+        pass
 
     def dispatch(self):
         o = urlparse.urlparse(self.path)
@@ -241,6 +241,16 @@ def setup(args):
     httpd = SocketServer.TCPServer(('', args.server_port),
                                    KCAAHTTPRequestHandler,
                                    bind_and_activate=False)
+
+    def handle_error(request, client_address):
+        # Kill verbose exception logging, especially Error 32: Broken pipe.
+        # This is a normal exception when the client resets the connection.
+        logger.info(
+            'Socket error happened while handling a request from {}'
+            .format(client_address))
+
+    httpd.handle_error = handle_error
+
     # If the port number is specified, allow it to be reused.
     if args.server_port != 0:
         httpd.allow_reuse_address = True
