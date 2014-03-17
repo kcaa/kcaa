@@ -39,19 +39,22 @@ class Mission extends Observable {
   @observable DateTime eta;
   @observable String etaDatetimeString;
 
-  Mission(Map<String, dynamic> data)
-      : id = data["id"],
-        name = data["name"],
-        description = data["description"],
-        difficulty = DIFFICULTY_MAP[data["difficulty"]],
-        maparea = MAPAREA_MAP[data["maparea"]],
-        state = data["state"],
-        stateClass = STATE_CLASS_MAP[data["state"]],
-        time = data["time"],
-        fuelConsumption =
-          (data["consumption"]["fuel"] * 100).toStringAsFixed(0),
-        ammoConsumption =
-          (data["consumption"]["ammo"] * 100).toStringAsFixed(0) {
+  Mission();
+
+  void update(Map<String, dynamic> data) {
+    id = data["id"];
+    name = data["name"];
+    description = data["description"];
+    difficulty = DIFFICULTY_MAP[data["difficulty"]];
+    maparea = MAPAREA_MAP[data["maparea"]];
+    state = data["state"];
+    stateClass = STATE_CLASS_MAP[data["state"]];
+    time = data["time"];
+    fuelConsumption =
+      (data["consumption"]["fuel"] * 100).toStringAsFixed(0);
+    ammoConsumption =
+      (data["consumption"]["ammo"] * 100).toStringAsFixed(0);
+
     // Undertaking fleet.
     if (data["undertaking_fleet"] != null) {
       undertakingFleetId = data["undertaking_fleet"][0];
@@ -78,10 +81,17 @@ class Mission extends Observable {
 }
 
 void handleMissionList(Assistant assistant, Map<String, dynamic> data) {
-  assistant.missions.clear();
-  for (var missionData in data["missions"]) {
-    if (missionData["name"] != null) {
-      assistant.missions.add(new Mission(missionData));
+  var missionsLength = data["missions"].where((m) => m["name"] != null).length;
+  if (assistant.missions.length != missionsLength) {
+    if (missionsLength < assistant.missions.length) {
+      assistant.missions.removeRange(missionsLength, assistant.missions.length);
+    } else {
+      for (var i = assistant.missions.length; i < missionsLength; i++) {
+        assistant.missions.add(new Mission());
+      }
     }
+  }
+  for (var i = 0; i < missionsLength; i++) {
+    assistant.missions[i].update(data["missions"][i]);
   }
 }
