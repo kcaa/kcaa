@@ -46,37 +46,40 @@ class Ship extends Observable {
   @observable Fleet belongingFleet;
   @observable String stateClass;
 
-  Ship(Map<String, dynamic> data, List<Fleet> fleets)
-      : id = data["id"],
-        name = data["name"],
-        shipType = SHIP_TYPE_MAP[data["ship_type"]],
-        level = data["level"],
-        upgradeLevel = data["upgrade_level"],
-        fuel = data["loaded_resource"]["fuel"],
-        fuelCapacity = data["resource_capacity"]["fuel"],
-        ammo = data["loaded_resource"]["ammo"],
-        ammoCapacity = data["resource_capacity"]["ammo"],
-        vitality = data["vitality"],
-        hp = data["hitpoint"]["current"],
-        maxHp = data["hitpoint"]["maximum"],
-        armor = data["armor"]["current"],
-        enhancedArmor =
-          data["armor"]["baseline"] + data["enhanced_ability"]["armor"],
-        maxArmor = data["armor"]["maximum"],
-        firepower = data["firepower"]["current"],
-        enhancedFirepower =
-          data["firepower"]["baseline"] + data["enhanced_ability"]["firepower"],
-        maxFirepower = data["firepower"]["maximum"],
-        thunderstroke = data["thunderstroke"]["current"],
-        enhancedThunderstroke =
-          data["thunderstroke"]["baseline"] +
-          data["enhanced_ability"]["thunderstroke"],
-        maxThunderstroke = data["thunderstroke"]["maximum"],
-        antiAir = data["anti_air"]["current"],
-        enhancedAntiAir =
-          data["anti_air"]["baseline"] + data["enhanced_ability"]["anti_air"],
-        maxAntiAir = data["anti_air"]["maximum"],
-        locked = data["locked"] {
+  Ship();
+
+  void update(Map<String, dynamic> data, List<Fleet> fleets) {
+    id = data["id"];
+    name = data["name"];
+    shipType = SHIP_TYPE_MAP[data["ship_type"]];
+    level = data["level"];
+    upgradeLevel = data["upgrade_level"];
+    fuel = data["loaded_resource"]["fuel"];
+    fuelCapacity = data["resource_capacity"]["fuel"];
+    ammo = data["loaded_resource"]["ammo"];
+    ammoCapacity = data["resource_capacity"]["ammo"];
+    vitality = data["vitality"];
+    hp = data["hitpoint"]["current"];
+    maxHp = data["hitpoint"]["maximum"];
+    armor = data["armor"]["current"];
+    enhancedArmor =
+      data["armor"]["baseline"] + data["enhanced_ability"]["armor"];
+    maxArmor = data["armor"]["maximum"];
+    firepower = data["firepower"]["current"];
+    enhancedFirepower =
+      data["firepower"]["baseline"] + data["enhanced_ability"]["firepower"];
+    maxFirepower = data["firepower"]["maximum"];
+    thunderstroke = data["thunderstroke"]["current"];
+    enhancedThunderstroke =
+      data["thunderstroke"]["baseline"] +
+      data["enhanced_ability"]["thunderstroke"];
+    maxThunderstroke = data["thunderstroke"]["maximum"];
+    antiAir = data["anti_air"]["current"];
+    enhancedAntiAir =
+      data["anti_air"]["baseline"] + data["enhanced_ability"]["anti_air"];
+    maxAntiAir = data["anti_air"]["maximum"];
+    locked = data["locked"];
+
     levelClass = upgradeLevel != 0 && level >= upgradeLevel ? "upgradable" : "";
     // What?! Dart doesn't have something similar to sprintf...
     // Neither in string interpolation......
@@ -126,14 +129,30 @@ class Ship extends Observable {
 }
 
 void handleShipList(Assistant assistant, Map<String, dynamic> data) {
-  assistant.ships.clear();
-  assistant.shipMap.clear();
-  for (var shipId in data["ship_order"]) {
-    var ship = new Ship(data["ships"][shipId], assistant.fleets);
-    assistant.ships.add(ship);
-    assistant.shipMap[ship.id] = ship;
+  var newShipMap = new Map<int, Ship>();
+  for (var shipData in (data["ships"] as Map).values) {
+    var ship = assistant.shipMap[shipData["id"]];
+    if (ship == null) {
+      ship = new Ship();
+    }
+    ship.update(shipData, assistant.fleets);
+    newShipMap[ship.id] = ship;
   }
-  notifyFleetList(assistant);
+  assistant.shipMap = newShipMap;
+  var shipsLength = data["ship_order"].length;
+  if (assistant.ships.length != shipsLength) {
+    if (shipsLength < assistant.ships.length) {
+      assistant.ships.removeRange(shipsLength, assistant.ships.length);
+    } else {
+      for (var i = assistant.ships.length; i < shipsLength; i++) {
+        assistant.ships.add(null);
+      }
+    }
+    notifyFleetList(assistant);
+  }
+  for (var i = 0; i < shipsLength; i++) {
+    assistant.ships[i] = assistant.shipMap[int.parse(data["ship_order"][i])];
+  }
 }
 
 void notifyShipList(Assistant assistant) {
