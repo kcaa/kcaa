@@ -58,6 +58,7 @@ class Assistant extends PolymerElement {
   @observable String screen;
   @observable String runningManipulator;
   final List<String> manipulatorsInQueue = new ObservableList<String>();
+  // TODO: Get this through RunningManipulators object.
   @observable bool autoManipulatorsEnabled = true;
   final List<ScheduleFragment> autoManipulatorSchedules =
       new ObservableList<ScheduleFragment>();
