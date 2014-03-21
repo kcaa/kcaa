@@ -148,7 +148,14 @@ void handleShipList(Assistant assistant, Map<String, dynamic> data) {
     }
   }
   for (var i = 0; i < shipsLength; i++) {
-    assistant.ships[i] = assistant.shipMap[int.parse(data["ship_order"][i])];
+    var ship = assistant.shipMap[int.parse(data["ship_order"][i])];
+    // Update the ship list only when the order has changed.
+    // Seems like it requires tremendous amount of load to assign a value to
+    // ObservableList, even if the value being assigned is the same as the
+    // previous value.
+    if (assistant.ships[i] != ship) {
+      assistant.ships[i] = ship;
+    }
   }
 }
 
