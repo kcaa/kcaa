@@ -129,16 +129,14 @@ class Ship extends Observable {
 }
 
 void handleShipList(Assistant assistant, Map<String, dynamic> data) {
-  var newShipMap = new Map<int, Ship>();
   for (var shipData in (data["ships"] as Map).values) {
     var ship = assistant.shipMap[shipData["id"]];
     if (ship == null) {
       ship = new Ship();
+      assistant.shipMap[shipData["id"]] = ship;
     }
     ship.update(shipData, assistant.fleets);
-    newShipMap[ship.id] = ship;
   }
-  assistant.shipMap = newShipMap;
   var shipsLength = data["ship_order"].length;
   if (assistant.ships.length != shipsLength) {
     if (shipsLength < assistant.ships.length) {
