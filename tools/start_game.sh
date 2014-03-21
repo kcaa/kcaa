@@ -37,4 +37,5 @@ ${SERVER_BIN} \
   --chrome_binary=${CHROME_BIN} \
   --chromedriver_binary=${CHROMEDRIVER_BIN} \
   --phantomjs_binary=${PHANTOMJS_BIN} \
-  --credentials=${CREDENTIALS}
+  --credentials=${CREDENTIALS} \
+  --debug=${DEBUG}

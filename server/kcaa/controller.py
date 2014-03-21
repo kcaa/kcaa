@@ -54,7 +54,7 @@ def control(args, to_exit):
                                      args=(args, root_url, to_exit))
         pk.start()
         pc.start()
-        kcsapi_handler = kcsapi_util.KCSAPIHandler(har_manager)
+        kcsapi_handler = kcsapi_util.KCSAPIHandler(har_manager, args.debug)
         manipulator_manager = manipulator_util.ManipulatorManager(
             browser_conn, kcsapi_handler.objects, time.time())
         while True:

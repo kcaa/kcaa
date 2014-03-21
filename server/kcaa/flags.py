@@ -37,4 +37,8 @@ def parse_args(argv):
                              'contain the login ID and password separated by '
                              'colon, in one line. Only DMM account is '
                              'supported.')
+    parser.add_argument('--debug', default=False, type=bool,
+                        help='True if showing various debug information. This '
+                             'is useful for developing, but would reduce '
+                             'performance.')
     return parser.parse_args(argv)
