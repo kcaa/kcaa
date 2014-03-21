@@ -3,6 +3,19 @@
 import argparse
 
 
+# Converts --debug=true style specs to boolean values.
+def string_bool(value):
+    try:
+        return {
+            'true': True,
+            'yes': True,
+            'false': False,
+            'no': False,
+        }[value.lower()]
+    except KeyError:
+        raise ValueError('Invalid value: {}'.format(value))
+
+
 def parse_args(argv):
     parser = argparse.ArgumentParser(description='KCAA server.')
     parser.add_argument('--proxy_controller', default='localhost:9090',
@@ -37,7 +50,7 @@ def parse_args(argv):
                              'contain the login ID and password separated by '
                              'colon, in one line. Only DMM account is '
                              'supported.')
-    parser.add_argument('--debug', default=False, type=bool,
+    parser.add_argument('--debug', default=False, type=string_bool,
                         help='True if showing various debug information. This '
                              'is useful for developing, but would reduce '
                              'performance.')
