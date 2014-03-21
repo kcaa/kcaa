@@ -116,6 +116,7 @@ class Assistant extends PolymerElement {
     addCollapseButtons();
     updateCollapsedSections();
     handleObjects(serverGetObjects);
+    reloadScreenshot();
   }
 
   CollapsedSectionInfo collapseSection(Element header, Element collapseButton,
