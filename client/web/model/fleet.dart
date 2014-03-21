@@ -56,9 +56,9 @@ void handleFleetList(Assistant assistant, Map<String, dynamic> data) {
       for (var i = assistant.fleets.length; i < fleetsLength; i++) {
         assistant.fleets.add(new Fleet());
       }
-      // Wait for the DOM to be updated.
-      runLater(0, () => assistant.updateCollapsedSections());
     }
+    // Wait for the DOM to be updated.
+    runLater(0, () => assistant.updateCollapsedSections());
   }
   for (var i = 0; i < fleetsLength; i++) {
     assistant.fleets[i].update(data["fleets"][i], assistant.shipMap,
