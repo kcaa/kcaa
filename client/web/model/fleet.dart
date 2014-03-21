@@ -27,7 +27,11 @@ class Fleet extends Observable {
       }
     }
     for (var i = 0; i < shipsLength; i++) {
-      ships[i] = shipMap[data["ship_ids"][i]];
+      var ship = shipMap[data["ship_ids"][i]];
+      // Do not update the ObservableList if the value is the same.
+      if (ships[i] != ship) {
+        ships[i] = ship;
+      }
     }
     if (data["mission_id"] != null) {
       var missionId = data["mission_id"];
@@ -37,6 +41,8 @@ class Fleet extends Observable {
           break;
         }
       }
+    } else {
+      undertakingMission = null;
     }
     if (collapsed != null) {
       this.collapsed = collapsed;
