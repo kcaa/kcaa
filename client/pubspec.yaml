@@ -2,6 +2,7 @@ name: kcaa
 version: 0.1.0
 description: 'KCAA: Kancolle Automated Assistant'
 dependencies:
+  bootjack: any
   intl: any
   json_object: any
   polymer: any
