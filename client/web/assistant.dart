@@ -120,10 +120,8 @@ class Assistant extends PolymerElement {
 
   void addCollapseButtons() {
     // shadowRoot provides access to the root of this custom element.
-    print("adding collapse buttons");
     for (Element header in
         shadowRoot.querySelectorAll("div.board *[data-collapsed]")) {
-      print("collapse button for ${header} (${header.text})");
       var collapseButton = new ButtonElement();
       collapseButton.classes.add("collapse");
       collapseButton.onClick.listen(toggleCollapseSection);
