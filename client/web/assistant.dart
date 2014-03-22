@@ -77,8 +77,8 @@ class Assistant extends PolymerElement {
     serverTakeScreenshot = serverRoot.resolve("take_screenshot");
     serverClick = serverRoot.resolve("click");
 
-//    runLater(updateAvailableObjectsIntervalMs,
-//        updateAvailableObjectsPeriodically);
+    runLater(updateAvailableObjectsIntervalMs,
+        updateAvailableObjectsPeriodically);
     addCollapseButtons();
     updateCollapsedSections();
     handleObjects(serverGetObjects);
