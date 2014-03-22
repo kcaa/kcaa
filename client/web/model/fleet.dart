@@ -1,4 +1,4 @@
-part of kcaa;
+part of kcaa_model;
 
 class Fleet extends Observable {
   @observable int id;
@@ -53,22 +53,23 @@ class Fleet extends Observable {
   }
 }
 
-void handleFleetList(Assistant assistant, Map<String, dynamic> data) {
+void handleFleetList(Assistant assistant, AssistantModel model,
+                     Map<String, dynamic> data) {
   var fleetsLength = data["fleets"].length;
-  if (assistant.fleets.length != fleetsLength) {
-    if (fleetsLength < assistant.fleets.length) {
-      assistant.fleets.removeRange(fleetsLength, assistant.fleets.length);
+  if (model.fleets.length != fleetsLength) {
+    if (fleetsLength < model.fleets.length) {
+      model.fleets.removeRange(fleetsLength, model.fleets.length);
     } else {
-      for (var i = assistant.fleets.length; i < fleetsLength; i++) {
-        assistant.fleets.add(new Fleet());
+      for (var i = model.fleets.length; i < fleetsLength; i++) {
+        model.fleets.add(new Fleet());
       }
     }
     // Wait for the DOM to be updated.
     runLater(0, () => assistant.updateCollapsedSections());
   }
   for (var i = 0; i < fleetsLength; i++) {
-    assistant.fleets[i].update(data["fleets"][i], assistant.shipMap,
-        assistant.missions, collapsed: assistant.fleets[i].collapsed);
+    model.fleets[i].update(data["fleets"][i], model.shipMap,
+        model.missions, collapsed: model.fleets[i].collapsed);
   }
-  notifyShipList(assistant);
+  notifyShipList(model);
 }

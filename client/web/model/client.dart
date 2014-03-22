@@ -1,4 +1,4 @@
-part of kcaa;
+part of kcaa_model;
 
 class Screen {
   static final Map<int, String> SCREEN_MAP = <int, String>{
@@ -45,12 +45,14 @@ class ScheduleFragment extends Observable {
   ScheduleFragment(this.start, this.end);
 }
 
-void handleScreen(Assistant assistant, Map<String, dynamic> data) {
-  assistant.screen = Screen.SCREEN_MAP[data["screen"]];
+void handleScreen(Assistant assistant, AssistantModel model,
+                  Map<String, dynamic> data) {
+  model.screen = Screen.SCREEN_MAP[data["screen"]];
 }
 
-void handleRunningManipulators(Assistant assistant, Map<String, dynamic> data) {
-  assistant.runningManipulator = data["running_manipulator"];
-  assistant.manipulatorsInQueue.clear();
-  assistant.manipulatorsInQueue.addAll(data["manipulators_in_queue"]);
+void handleRunningManipulators(Assistant assistant, AssistantModel model,
+                               Map<String, dynamic> data) {
+  model.runningManipulator = data["running_manipulator"];
+  model.manipulatorsInQueue.clear();
+  model.manipulatorsInQueue.addAll(data["manipulators_in_queue"]);
 }

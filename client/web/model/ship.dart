@@ -1,4 +1,4 @@
-part of kcaa;
+part of kcaa_model;
 
 class Ship extends Observable {
   static final Map<int, String> SHIP_TYPE_MAP = <int, String>{
@@ -128,43 +128,44 @@ class Ship extends Observable {
   }
 }
 
-void handleShipList(Assistant assistant, Map<String, dynamic> data) {
+void handleShipList(Assistant assistant, AssistantModel model,
+                    Map<String, dynamic> data) {
   for (var shipData in (data["ships"] as Map).values) {
-    var ship = assistant.shipMap[shipData["id"]];
+    var ship = model.shipMap[shipData["id"]];
     if (ship == null) {
       ship = new Ship();
-      assistant.shipMap[shipData["id"]] = ship;
+      model.shipMap[shipData["id"]] = ship;
     }
-    ship.update(shipData, assistant.fleets);
+    ship.update(shipData, model.fleets);
   }
   var shipsLength = data["ship_order"].length;
-  if (assistant.ships.length != shipsLength) {
-    if (shipsLength < assistant.ships.length) {
-      assistant.ships.removeRange(shipsLength, assistant.ships.length);
+  if (model.ships.length != shipsLength) {
+    if (shipsLength < model.ships.length) {
+      model.ships.removeRange(shipsLength, model.ships.length);
     } else {
-      for (var i = assistant.ships.length; i < shipsLength; i++) {
-        assistant.ships.add(null);
+      for (var i = model.ships.length; i < shipsLength; i++) {
+        model.ships.add(null);
       }
     }
   }
   for (var i = 0; i < shipsLength; i++) {
-    var ship = assistant.shipMap[int.parse(data["ship_order"][i])];
+    var ship = model.shipMap[int.parse(data["ship_order"][i])];
     // Update the ship list only when the order has changed.
     // Seems like it requires tremendous amount of load to assign a value to
     // ObservableList, even if the value being assigned is the same as the
     // previous value.
-    if (assistant.ships[i] != ship) {
-      assistant.ships[i] = ship;
+    if (model.ships[i] != ship) {
+      model.ships[i] = ship;
     }
   }
 }
 
-void notifyShipList(Assistant assistant) {
-  var shipIdsInFleets = new Set.from(assistant.fleets.expand(
+void notifyShipList(AssistantModel model) {
+  var shipIdsInFleets = new Set.from(model.fleets.expand(
       (fleet) => fleet.ships).map((ship) => ship.id));
-  for (var ship in assistant.ships) {
+  for (var ship in model.ships) {
     if (shipIdsInFleets.contains(ship.id)) {
-      ship.updateBelongingFleet(assistant.fleets);
+      ship.updateBelongingFleet(model.fleets);
     } else {
       ship.belongingFleet = null;
     }

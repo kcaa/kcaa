@@ -105,15 +105,15 @@
             <h3>ステータス</h3>
             <h4>クライアントの状態</h4>
             <div>
-              <div>現在の画面: {{screen}}</div>
+              <div>現在の画面: {{model.screen}}</div>
               <div>マニピュレータ:
-                <template if="{{runningManipulator == null}}">
+                <template if="{{model.runningManipulator == null}}">
                   なし
                 </template>
-                <template if="{{runningManipulator != null}}">
+                <template if="{{modelrunningManipulator != null}}">
                   {{runningManipulator}}
-                  <template if="{{manipulatorsInQueue.length > 0}}">
-                    (+{{manipulatorsInQueue.length}})
+                  <template if="{{model.manipulatorsInQueue.length > 0}}">
+                    (+{{model.manipulatorsInQueue.length}})
                   </template>
                 </template>
               </div>
@@ -126,8 +126,8 @@
             <div>
               <button on-click="{{toggleAutoManipulatorsEnabled}}">
                 オートマニピュレータを<template
-                if="{{autoManipulatorsEnabled}}">無効にする</template><template
-                if="{{!autoManipulatorsEnabled}}">有効にする</template>
+                if="{{model.autoManipulatorsEnabled}}">無効にする</template><template
+                if="{{!modelautoManipulatorsEnabled}}">有効にする</template>
               </button>
             </div>
           </div>
@@ -152,7 +152,7 @@
       <div class="row horizontal">
         <div class="board">
           <h3 data-collapsed="false">艦隊</h3>
-          <template repeat="{{fleet in fleets}}">
+          <template repeat="{{fleet in model.fleets}}">
             <section>
               <h4 data-collapsed="{{fleet.collapsed}}">
                 第{{fleet.id}}艦隊: {{fleet.name}}
@@ -186,16 +186,16 @@
       </div>
       <div class="row horizontal">
         <div class="board">
-          <h3 data-collapsed="true">艦船 ({{ships.length}}隻)</h3>
+          <h3 data-collapsed="true">艦船 ({{model.ships.length}}隻)</h3>
           <div>
-            <template ref="shiplist" bind></template>
+            <template ref="shiplist" bind="{{model}}"></template>
           </div>
         </div>
       </div>
       <div class="row horizontal">
         <div class="board">
           <h3 data-collapsed="true">
-            任務一覧 ({{numQuestsUndertaken}}/{{numQuests}}個遂行中)
+            任務一覧 ({{model.numQuestsUndertaken}}/{{model.numQuests}}個遂行中)
           </h3>
           <table>
             <col width="50px">
@@ -217,9 +217,7 @@
               </tr>
             </thead>
             <tbody>
-              <!-- This doesn't work with dart2js because it seems not
-                   supporting accessing members (quest.state or the like). -->
-              <tr template repeat="{{quest in quests}}"
+              <tr template repeat="{{quest in model.quests}}"
                   class="{{quest.stateClass}}">
                 <td class="labelColumn">
                   <div>{{quest.category}}</div>
@@ -248,7 +246,7 @@
       </div>
       <div class="row horizontal">
         <div class="board">
-          <h3 data-collapsed="true">遠征一覧 ({{missions.length}}個)</h3>
+          <h3 data-collapsed="true">遠征一覧 ({{model.missions.length}}個)</h3>
           <table>
             <col width="70px">
             <col>
@@ -267,7 +265,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr template repeat="{{mission in missions}}"
+              <tr template repeat="{{mission in model.missions}}"
                   class="{{mission.stateClass}}">
                 <td class="labelColumn">
                   <div>{{mission.maparea}}</div>
@@ -308,6 +306,7 @@
       <div class="row horizontal">
         <div class="board">
           <h3 data-collapsed="true">デバッグコントロール</h3>
+          niho
           <h4>モジュールリロード</h4>
           <button on-click="{{reloadKCSAPIModules}}">KCSAPIハンドラ</button>
           <button on-click="{{reloadManipulatorModules}}">マニピュレータ</button>

@@ -3,17 +3,10 @@ library kcaa;
 import 'dart:async';
 import 'dart:convert';
 import 'dart:html';
-import 'package:bootjack/bootjack.dart';
-import 'package:intl/date_symbol_data_local.dart';
-import 'package:intl/intl.dart';
 import 'package:polymer/polymer.dart';
 
-part 'model/client.dart';
-part 'model/fleet.dart';
-part 'model/missionlist.dart';
-part 'model/questlist.dart';
-part 'model/ship.dart';
-part 'util.dart';
+import 'model/assistant.dart';
+import 'util.dart';
 
 class CollapsedSectionInfo {
   Element header;
@@ -27,20 +20,7 @@ class CollapsedSectionInfo {
 class Assistant extends PolymerElement {
   static const int SCREEN_UPDATE_INTERVAL = 1000;
 
-  // Ships.
-  final List<Ship> ships = new ObservableList<Ship>();
-  Map<int, Ship> shipMap = new Map<int, Ship>();
-
-  // Fleets.
-  final List<Fleet> fleets = new ObservableList<Fleet>();
-
-  // Quests.
-  @observable int numQuests = 0;
-  @observable int numQuestsUndertaken = 0;
-  final List<Quest> quests = new ObservableList<Quest>();
-
-  // Missions.
-  final List<Mission> missions = new ObservableList<Mission>();
+  @observable AssistantModel model;
 
   // Server URIs.
   Uri clientRoot;
@@ -55,22 +35,13 @@ class Assistant extends PolymerElement {
   Uri serverTakeScreenshot;
   Uri serverClick;
 
-  // Client status.
-  @observable String screen;
-  @observable String runningManipulator;
-  final List<String> manipulatorsInQueue = new ObservableList<String>();
-  // TODO: Get this through RunningManipulators object.
-  @observable bool autoManipulatorsEnabled = true;
-  final List<ScheduleFragment> autoManipulatorSchedules =
-      new ObservableList<ScheduleFragment>();
-  @observable bool updateScreenPeriodically = false;
-
   // Debug information.
   @observable String debugInfo;
   final List<String> availableObjects = new ObservableList<String>();
   Set<String> availableObjectSet = new Set<String>();
   Timer availableObjectsChecker;
   int updateAvailableObjectsIntervalMs;
+  @observable bool updateScreenPeriodically = false;
 
   // Object handlers.
   static final Map<String, Function> OBJECT_HANDLERS = <String, Function>{
@@ -88,19 +59,14 @@ class Assistant extends PolymerElement {
       "ShipList", "MissionList",
   ];
 
-  Assistant.created() : super.created() {
-    // Theoretically this is not safe, as some data requiring ja_JP date format
-    // may run before loading completes, but that would never happen in reality.
-    initializeDateFormatting("ja_JP", null).then((_) => null);
-    Modal.use();
-  }
+  Assistant.created() : super.created();
 
   @override
   void enteredView() {
     clientRoot = Uri.parse(window.location.href);
     var interval = clientRoot.queryParameters["interval"];
     interval = interval != null ? double.parse(interval) : 1.0;
-    updateAvailableObjectsIntervalMs = 1000 * interval;
+    updateAvailableObjectsIntervalMs = (1000 * interval).toInt();
     serverRoot = clientRoot.resolve("/");
     serverGetObjects = serverRoot.resolve("get_objects");
     serverGetNewObjects = serverRoot.resolve("get_new_objects");
@@ -144,7 +110,7 @@ class Assistant extends PolymerElement {
   void toggleCollapseFleet(MouseEvent e) {
     var collapsedSection = toggleCollapseSection(e);
     var fleetId = int.parse(collapsedSection.collapseButton.dataset["fleetId"]);
-    fleets[fleetId - 1].collapsed = collapsedSection.collapsed;
+    model.fleets[fleetId - 1].collapsed = collapsedSection.collapsed;
   }
 
   void addCollapseButtons() {
@@ -171,7 +137,7 @@ class Assistant extends PolymerElement {
     var handler = OBJECT_HANDLERS[objectType];
     if (handler != null) {
       return getObject(objectType, false).then((Map<String, dynamic> data) {
-        handler(this, data);
+        handler(this, model, data);
       });
     } else {
       return new Future.value(null);
@@ -294,20 +260,20 @@ class Assistant extends PolymerElement {
                                    List<ScheduleFragment> schedules) {
     var request = serverSetAutoManipulatorSchedules.resolveUri(
         new Uri(queryParameters: {
-          "enabled": autoManipulatorsEnabled ? "true" : "false",
-          "schedule": autoManipulatorSchedules.map(
+          "enabled": model.autoManipulatorsEnabled ? "true" : "false",
+          "schedule": model.autoManipulatorSchedules.map(
               (fragment) => "${fragment.start}:${fragment.end}").join(";"),
     }));
     HttpRequest.getString(request.toString());
   }
 
   void toggleAutoManipulatorsEnabled(MouseEvent e, var detail, Element target) {
-    autoManipulatorsEnabled = !autoManipulatorsEnabled;
-    autoManipulatorSchedules.clear();
+    model.autoManipulatorsEnabled = !model.autoManipulatorsEnabled;
+    model.autoManipulatorSchedules.clear();
     // TODO: Get schedule setting from user input.
-    autoManipulatorSchedules.add(new ScheduleFragment(0, 86400));
-    setAutoManipulatorSchedules(autoManipulatorsEnabled,
-        autoManipulatorSchedules);
+    model.autoManipulatorSchedules.add(new ScheduleFragment(0, 86400));
+    setAutoManipulatorSchedules(model.autoManipulatorsEnabled,
+        model.autoManipulatorSchedules);
   }
 
   void goOnMission(MouseEvent e) {

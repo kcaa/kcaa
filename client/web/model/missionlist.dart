@@ -1,4 +1,4 @@
-part of kcaa;
+part of kcaa_model;
 
 class Mission extends Observable {
   static final Map<int, String> DIFFICULTY_MAP = <int, String>{
@@ -80,18 +80,19 @@ class Mission extends Observable {
   }
 }
 
-void handleMissionList(Assistant assistant, Map<String, dynamic> data) {
+void handleMissionList(Assistant assistant, AssistantModel model,
+                       Map<String, dynamic> data) {
   var missionsLength = data["missions"].where((m) => m["name"] != null).length;
-  if (assistant.missions.length != missionsLength) {
-    if (missionsLength < assistant.missions.length) {
-      assistant.missions.removeRange(missionsLength, assistant.missions.length);
+  if (model.missions.length != missionsLength) {
+    if (missionsLength < model.missions.length) {
+      model.missions.removeRange(missionsLength, model.missions.length);
     } else {
-      for (var i = assistant.missions.length; i < missionsLength; i++) {
-        assistant.missions.add(new Mission());
+      for (var i = model.missions.length; i < missionsLength; i++) {
+        model.missions.add(new Mission());
       }
     }
   }
   for (var i = 0; i < missionsLength; i++) {
-    assistant.missions[i].update(data["missions"][i]);
+    model.missions[i].update(data["missions"][i]);
   }
 }

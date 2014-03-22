@@ -1,4 +1,4 @@
-part of kcaa;
+import 'dart:async';
 
 const MILLISECOND = const Duration(milliseconds: 1);
 
