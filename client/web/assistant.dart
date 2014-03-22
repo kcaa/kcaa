@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:html';
+import 'package:bootjack/bootjack.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:polymer/polymer.dart';
 
 import 'model/assistant.dart';
@@ -18,7 +20,7 @@ class CollapsedSectionInfo {
 class Assistant extends PolymerElement {
   static const int SCREEN_UPDATE_INTERVAL = 1000;
 
-  @observable AssistantModel model;
+  @observable AssistantModel model = new AssistantModel();
 
   // Server URIs.
   Uri clientRoot;
@@ -57,7 +59,12 @@ class Assistant extends PolymerElement {
       "ShipList", "MissionList",
   ];
 
-  Assistant.created() : super.created();
+  Assistant.created() : super.created() {
+    // Theoretically this is not safe, as some data requiring ja_JP date format
+    // may run before loading completes, but that would never happen in reality.
+    initializeDateFormatting("ja_JP", null).then((_) => null);
+    Modal.use();
+  }
 
   @override
   void enteredView() {
@@ -113,8 +120,10 @@ class Assistant extends PolymerElement {
 
   void addCollapseButtons() {
     // shadowRoot provides access to the root of this custom element.
+    print("adding collapse buttons");
     for (Element header in
         shadowRoot.querySelectorAll("div.board *[data-collapsed]")) {
+      print("collapse button for ${header} (${header.text})");
       var collapseButton = new ButtonElement();
       collapseButton.classes.add("collapse");
       collapseButton.onClick.listen(toggleCollapseSection);

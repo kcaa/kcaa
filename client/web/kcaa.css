@@ -89,6 +89,7 @@ button.collapse {
   border-radius: 0;
   box-shadow: none;
   color: inherit;
+  display: inline;
   margin: 0 0 0 0.3em;
   padding: 0;
   text-align: left;

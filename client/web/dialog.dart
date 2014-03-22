@@ -4,7 +4,7 @@ import 'package:polymer/polymer.dart';
 import 'model/assistant.dart';
 
 class DialogMixin {
-  void close() {
+  void closeDialog() {
     querySelector("#modalDialogContainer").classes.remove("in");
     (this as HtmlElement).classes.add("hidden");
   }
@@ -16,5 +16,10 @@ class ScheduleDialog extends PolymerElement with DialogMixin {
 
   void ok() {
     close();
+  }
+
+  void close() {
+    // Seems like dart2js can't recognize a method from a mixin...
+    closeDialog();
   }
 }
