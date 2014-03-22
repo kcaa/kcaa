@@ -1,5 +1,3 @@
-library kcaa;
-
 import 'dart:async';
 import 'dart:convert';
 import 'dart:html';
@@ -79,8 +77,8 @@ class Assistant extends PolymerElement {
     serverTakeScreenshot = serverRoot.resolve("take_screenshot");
     serverClick = serverRoot.resolve("click");
 
-    runLater(updateAvailableObjectsIntervalMs,
-        updateAvailableObjectsPeriodically);
+//    runLater(updateAvailableObjectsIntervalMs,
+//        updateAvailableObjectsPeriodically);
     addCollapseButtons();
     updateCollapsedSections();
     handleObjects(serverGetObjects);
@@ -274,6 +272,12 @@ class Assistant extends PolymerElement {
     model.autoManipulatorSchedules.add(new ScheduleFragment(0, 86400));
     setAutoManipulatorSchedules(model.autoManipulatorsEnabled,
         model.autoManipulatorSchedules);
+  }
+
+  void showModalDialog(MouseEvent e, var detail, Element target) {
+    var targetDialog = target.dataset["dialog"];
+    querySelector("#modalDialogContainer").classes.add("in");
+    querySelector("#${targetDialog}").classes.remove("hidden");
   }
 
   void goOnMission(MouseEvent e) {

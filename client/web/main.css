@@ -51,3 +51,18 @@ footer {
       hsla(0, 0%, 0%, 0.0) 30%,
       hsla(0, 0%, 0%, 0.2));
 }
+
+/* ========================================================================= */
+/* Bootstrap (bootjack) fixes */
+/* ========================================================================= */
+
+.fade.in {
+  background-color: hsla(0, 0%, 0%, 0.5);
+  display: block;
+}
+div.modal-dialog.row.horizontal {
+  padding: 50px;
+}
+div.modal-dialog.row.horizontal div.modal-content.board {
+  padding: 0px;
+}

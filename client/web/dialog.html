@@ -1,0 +1,23 @@
+<meta charset="utf-8">
+<polymer-element name="kcaa-schedule-dialog">
+  <template>
+    <link rel="stylesheet" href="packages/bootjack/css/bootstrap.min.css">
+    <link rel="stylesheet" href="kcaa.css">
+    <link rel="stylesheet" href="dialog.css">
+    <div class="modal-header">
+      <button class="close" on-click="{{close}}">&times;</button>
+      <h3 class="modal-title">オートマニピュレータのスケジュール</h3>
+    </div>
+    <div class="modal-body">
+      <div>開始:
+        <input type="text" value="7" size="2">時
+        <input type="text" value="0" size="2">分
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button on-click="{{close}}">Cancel</button>
+      <button on-click="{{ok}}">OK</button>
+    </div>
+  </template>
+</polymer-element>
+<script type="application/dart" src="dialog.dart"></script>

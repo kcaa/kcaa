@@ -1,0 +1,6 @@
+button.close {
+  box-shadow: none;
+}
+button.close:hover {
+  background: transparent;
+}
