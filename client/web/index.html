@@ -5,7 +5,6 @@
 <title>KCAA for 艦これ</title>
 <link rel="stylesheet" href="packages/bootjack/css/bootstrap.min.css">
 <link rel="stylesheet" href="main.css">
-<link rel="import" href="assistant.html">
 <script type="application/dart">export 'package:polymer/init.dart';</script>
 <script src="packages/browser/dart.js"></script>
 
@@ -16,6 +15,11 @@
   </span>
 </h1>
 
+<button class="btn btn-primary btn-lg" data-toggle="modal"
+        data-target="#modalContainer">
+  Launch demo modal
+</button>
+
 <div class="kcaa-container">
   <kcaa-assistant></kcaa-assistant>
 </div>
@@ -24,3 +28,24 @@
   <div>このツールの利用は自己責任で。</div>
   <div>自動化はほどほどにね!</div>
 </footer>
+
+<!-- Modal -->
+<div class="modal fade" id="modalContainer" tabindex="-1" role="dialog"
+     aria-labelledby="modalLabel" aria-hidden="true">
+  <div class="modal-dialog row horizontal">
+    <div class="modal-content board">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"
+                aria-hidden="true">&times;</button>
+        <h3 class="modal-title" id="modalLabel">Modal?</h3>
+      </div>
+      <div class="modal-body">
+        ...
+      </div>
+      <div class="modal-footer">
+        <button>Cancel</button>
+        <button>OK</button>
+      </div>
+    </div>
+  </div>
+</div>
