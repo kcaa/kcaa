@@ -173,7 +173,7 @@
                 <!-- TODO: More compact UI. Possibly better to show a modal
                      dialog. -->
                 <div class="{{fleet.defaultClass}}">
-                  <template repeat="{{mission in missions}}">
+                  <template repeat="{{mission in model.missions}}">
                     <template if="{{mission.undertakingFleetId == -1}}">
                       <button on-click="{{goOnMission}}"
                               data-fleet-id="{{fleet.id}}"
