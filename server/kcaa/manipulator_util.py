@@ -91,7 +91,15 @@ class ManipulatorManager(object):
         self.define_auto_manipulators()
         self.add_initial_auto_manipulators()
         self.auto_manipulators_enabled = True
-        self.auto_manipulators_schedules = [(0, 86400)]
+        # TODO: Move this default config to the client code.
+        self.auto_manipulators_schedules = [
+            (0, 3600),       # 00:00-01:00
+            (25200, 25425),  # 07:00-07:45
+            (43200, 46800),  # 12:00-13:00
+            (54000, 54600),  # 15:00-15:10
+            (64800, 67500),  # 18:00-18:45
+            (75600, 86400),  # 21:00-24:00
+        ]
         self.current_schedule_fragment = None
         self.objects['RunningManipulators'] = (
             kcsapi.client.RunningManipulators())
@@ -175,6 +183,7 @@ class ManipulatorManager(object):
             self.screen_manager.update_screen(screens.PORT)
 
     def update_running_manipulators(self):
+        # TODO: Update only when there is an update.
         running_manipulators_object = self.objects['RunningManipulators']
         if self.current_task:
             running_manipulators_object.running_manipulator = (
@@ -184,6 +193,11 @@ class ManipulatorManager(object):
         running_manipulators_object.manipulators_in_queue = [
             unicode(manipulator.__class__.__name__, 'utf8') for manipulator
             in self.queue]
+        running_manipulators_object.auto_manipulators_enabled = (
+            self.auto_manipulators_enabled)
+        running_manipulators_object.auto_manipulators_schedules = [
+            kcsapi.client.ScheduleFragment(start=value[0], end=value[1])
+            for value in self.auto_manipulators_schedules]
         self.updated_object_types.add('RunningManipulators')
 
     def resume_auto_manipulators(self):
