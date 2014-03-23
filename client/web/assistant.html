@@ -118,23 +118,18 @@
                   </template>
                 </template>
               </div>
+              <div>オートマニピュレータ: <template
+                if="{{model.autoManipulatorsEnabled}}">有効</template><template
+                if="{{!model.autoManipulatorsEnabled}}">無効</template>
+                <button on-click="{{showModalDialog}}"
+                        data-dialog="kcaaScheduleDialog">設定</button>
+              </div>
             </div>
           </div>
         </div>
         <div class="column">
           <div class="board commandBoard">
             <h3>クイックコマンド</h3>
-            <div>
-              <button on-click="{{toggleAutoManipulatorsEnabled}}">
-                オートマニピュレータを<template
-                if="{{model.autoManipulatorsEnabled}}">無効にする</template><template
-                if="{{!model.autoManipulatorsEnabled}}">有効にする</template>
-              </button>
-            </div>
-            <div>
-              <button on-click="{{showModalDialog}}"
-                      data-dialog="kcaaScheduleDialog">スケジュールの設定</button>
-            </div>
           </div>
         </div>
       </div>
