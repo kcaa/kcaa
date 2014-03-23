@@ -5,6 +5,7 @@ import 'package:bootjack/bootjack.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:polymer/polymer.dart';
 
+import 'dialog.dart';
 import 'model/assistant.dart';
 import 'util.dart';
 
@@ -89,7 +90,10 @@ class Assistant extends PolymerElement {
     addCollapseButtons();
     updateCollapsedSections();
     handleObjects(serverGetObjects);
-    reloadScreenshot();
+    // TODO: Ensure this happens after all other dialog elements are
+    // initialized.
+    runLater(1000, () => passModelToDialogs());
+    runLater(3000, () => reloadScreenshot());
   }
 
   CollapsedSectionInfo collapseSection(Element header, Element collapseButton,
@@ -223,6 +227,19 @@ class Assistant extends PolymerElement {
     getObject(target.text, true);
   }
 
+  void passModelToDialogs() {
+    var dialogContainer = querySelector("#kcaaDialogContainer");
+    for (var dialog in dialogContainer.children) {
+      try {
+        dialog.model = model;
+        dialog.assistant = this;
+        dialog.name = dialog.toString();
+      } on Error {
+        // Simply ignore non-dialog elements.
+      }
+    }
+  }
+
   void reloadScreenshot() {
     ($["screenshot"] as ImageElement).src = serverTakeScreenshot.resolveUri(
         new Uri(queryParameters: {
@@ -263,6 +280,11 @@ class Assistant extends PolymerElement {
 
   void setAutoManipulatorSchedules(bool enabled,
                                    List<ScheduleFragment> schedules) {
+    model.autoManipulatorsEnabled = enabled;
+    if (schedules != model.autoManipulatorSchedules) {
+      model.autoManipulatorSchedules.clear();
+      model.autoManipulatorSchedules.addAll(schedules);
+    }
     var request = serverSetAutoManipulatorSchedules.resolveUri(
         new Uri(queryParameters: {
           "enabled": model.autoManipulatorsEnabled ? "true" : "false",
@@ -273,18 +295,16 @@ class Assistant extends PolymerElement {
   }
 
   void toggleAutoManipulatorsEnabled(MouseEvent e, var detail, Element target) {
-    model.autoManipulatorsEnabled = !model.autoManipulatorsEnabled;
-    model.autoManipulatorSchedules.clear();
-    // TODO: Get schedule setting from user input.
-    model.autoManipulatorSchedules.add(new ScheduleFragment(0, 86400));
-    setAutoManipulatorSchedules(model.autoManipulatorsEnabled,
+    setAutoManipulatorSchedules(!model.autoManipulatorsEnabled,
         model.autoManipulatorSchedules);
   }
 
   void showModalDialog(MouseEvent e, var detail, Element target) {
-    var targetDialog = target.dataset["dialog"];
+    var dialogName = target.dataset["dialog"];
     querySelector("#modalDialogContainer").classes.add("in");
-    querySelector("#${targetDialog}").classes.remove("hidden");
+    var dialog = querySelector("#${dialogName}") as KcaaDialog;
+    dialog.show();
+    dialog.classes.remove("hidden");
   }
 
   void goOnMission(MouseEvent e) {

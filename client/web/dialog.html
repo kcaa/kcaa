@@ -9,10 +9,16 @@
       <h3 class="modal-title">オートマニピュレータのスケジュール</h3>
     </div>
     <div class="modal-body">
-      <div>開始:
-        <input type="text" value="7" size="2">時
-        <input type="text" value="0" size="2">分
-      </div>
+      <template repeat="{{schedule in schedules | enumerate}}">
+        <div>
+          <input type="text" value="{{schedule.value.start}}" size="5">秒から
+          <input type="text" value="{{schedule.value.end}}" size="5">秒まで
+          <button on-click="{{removeSchedule}}" data-index="{{schedule.index}}">
+            &times; 削除
+          </button>
+        </div>
+      </template>
+      <div><button on-click="{{addSchedule}}">+ 追加</button></div>
     </div>
     <div class="modal-footer">
       <button on-click="{{close}}">Cancel</button>

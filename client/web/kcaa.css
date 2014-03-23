@@ -94,6 +94,16 @@ button.collapse {
   padding: 0;
   text-align: left;
 }
+input[type=text] {
+  border-color: hsl(0, 0%, 80%);
+  border-radius: 5px;
+  border-style: solid;
+  border-width: 1px;
+  box-shadow: inset 2px 2px 2px hsl(0, 0%, 90%);
+  margin: 0 3px;
+  padding: 3px;
+}
+
 h3 {
   color: hsl(210, 30%, 30%);
   font-size: 1.2em;
