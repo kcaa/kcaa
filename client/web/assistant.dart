@@ -280,15 +280,10 @@ class Assistant extends PolymerElement {
 
   void setAutoManipulatorSchedules(bool enabled,
                                    List<ScheduleFragment> schedules) {
-    model.autoManipulatorsEnabled = enabled;
-    if (schedules != model.autoManipulatorSchedules) {
-      model.autoManipulatorSchedules.clear();
-      model.autoManipulatorSchedules.addAll(schedules);
-    }
     var request = serverSetAutoManipulatorSchedules.resolveUri(
         new Uri(queryParameters: {
-          "enabled": model.autoManipulatorsEnabled ? "true" : "false",
-          "schedule": model.autoManipulatorSchedules.map(
+          "enabled": enabled ? "true" : "false",
+          "schedule": schedules.map(
               (fragment) => "${fragment.start}:${fragment.end}").join(";"),
     }));
     HttpRequest.getString(request.toString());

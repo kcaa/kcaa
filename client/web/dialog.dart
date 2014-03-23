@@ -26,12 +26,14 @@ class KcaaDialog extends PolymerElement {
 
 @CustomTag('kcaa-schedule-dialog')
 class ScheduleDialog extends KcaaDialog {
+  @observable bool enabled;
   @observable List<ScheduleFragment> schedules;
 
   ScheduleDialog.created() : super.created();
 
   @override
   void show() {
+    enabled = model.autoManipulatorsEnabled;
     schedules = new ObservableList.from(model.autoManipulatorSchedules);
   }
 
@@ -45,7 +47,7 @@ class ScheduleDialog extends KcaaDialog {
   }
 
   void ok() {
-    assistant.setAutoManipulatorSchedules(true, schedules);
+    assistant.setAutoManipulatorSchedules(enabled, schedules);
     close();
   }
 }
