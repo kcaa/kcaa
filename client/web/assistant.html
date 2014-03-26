@@ -111,8 +111,8 @@
                 <template if="{{model.runningManipulator == null}}">
                   なし
                 </template>
-                <template if="{{modelrunningManipulator != null}}">
-                  {{runningManipulator}}
+                <template if="{{model.runningManipulator != null}}">
+                  {{model.runningManipulator}}
                   <template if="{{model.manipulatorsInQueue.length > 0}}">
                     (+{{model.manipulatorsInQueue.length}})
                   </template>
