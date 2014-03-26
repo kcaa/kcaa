@@ -94,7 +94,7 @@ class ManipulatorManager(object):
         # TODO: Move this default config to the client code.
         self.auto_manipulators_schedules = [
             (0, 3600),       # 00:00-01:00
-            (25200, 25425),  # 07:00-07:45
+            (25200, 27900),  # 07:00-07:45
             (43200, 46800),  # 12:00-13:00
             (54000, 54600),  # 15:00-15:10
             (64800, 67500),  # 18:00-18:45
