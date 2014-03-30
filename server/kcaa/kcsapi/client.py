@@ -77,13 +77,13 @@ class RunningManipulators(model.KCAAObject):
                                                   value_type=unicode)
     """Currently running manipulator."""
     manipulators_in_queue = jsonobject.JSONProperty(
-        'manipulators_in_queue', value_type=list, element_type=unicode)
+        'manipulators_in_queue', [], value_type=list, element_type=unicode)
     """Manipulators waiting for execution in the queue."""
     auto_manipulators_enabled = jsonobject.JSONProperty(
         'auto_manipulators_enabled', value_type=bool)
     """True if auto manipulators are enabled."""
     auto_manipulators_schedules = jsonobject.JSONProperty(
-        'auto_manipulators_schedules', value_type=list,
+        'auto_manipulators_schedules', [], value_type=list,
         element_type=ScheduleFragment)
     """Auto manipulators schedule."""
 

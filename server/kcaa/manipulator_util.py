@@ -90,19 +90,19 @@ class ManipulatorManager(object):
         self.define_manipulators()
         self.define_auto_manipulators()
         self.add_initial_auto_manipulators()
-        self.auto_manipulators_enabled = True
-        # TODO: Move this default config to the client code.
-        self.auto_manipulators_schedules = [
-            (0, 3600),       # 00:00-01:00
-            (25200, 27900),  # 07:00-07:45
-            (43200, 46800),  # 12:00-13:00
-            (54000, 54600),  # 15:00-15:10
-            (64800, 67500),  # 18:00-18:45
-            (75600, 86400),  # 21:00-24:00
-        ]
         self.current_schedule_fragment = None
-        self.objects['RunningManipulators'] = (
-            kcsapi.client.RunningManipulators())
+        self.rmo = kcsapi.client.RunningManipulators()
+        self.rmo_last_generation = self.rmo.generation
+        self.objects['RunningManipulators'] = self.rmo
+        # TODO: Move this default config to the client code.
+        self.set_auto_manipulator_schedules(True, [
+            [0, 3600],       # 00:00-01:00
+            [25200, 27900],  # 07:00-07:45
+            [43200, 46800],  # 12:00-13:00
+            [54000, 54600],  # 15:00-15:10
+            [64800, 67500],  # 18:00-18:45
+            [75600, 86400],  # 21:00-24:00
+        ])
 
     def define_manipulators(self):
         self.manipulators = {
@@ -146,6 +146,12 @@ class ManipulatorManager(object):
         now = datetime.datetime.now()
         seconds_in_today = 3600 * now.hour + 60 * now.minute + now.second
         self._logger.info('Current time: {}'.format(seconds_in_today))
+        # Update RunningManipulators object.
+        self.rmo.auto_manipulators_enabled = enabled
+        self.rmo.auto_manipulators_schedules = [
+            kcsapi.client.ScheduleFragment(start=value[0], end=value[1])
+            for value in schedule_fragments]
+        self.rmo.generation += 1
 
     @staticmethod
     def in_schedule_fragment(seconds_in_today, schedule_fragment):
@@ -188,24 +194,6 @@ class ManipulatorManager(object):
                       manipulators.screen.PortScreen):
             self.screen_manager.update_screen(screens.PORT)
 
-    def update_running_manipulators(self):
-        # TODO: Update only when there is an update.
-        running_manipulators_object = self.objects['RunningManipulators']
-        if self.current_task:
-            running_manipulators_object.running_manipulator = (
-                unicode(self.current_task.__class__.__name__, 'utf8'))
-        else:
-            running_manipulators_object.running_manipulator = None
-        running_manipulators_object.manipulators_in_queue = [
-            unicode(manipulator.__class__.__name__, 'utf8') for manipulator
-            in self.queue]
-        running_manipulators_object.auto_manipulators_enabled = (
-            self.auto_manipulators_enabled)
-        running_manipulators_object.auto_manipulators_schedules = [
-            kcsapi.client.ScheduleFragment(start=value[0], end=value[1])
-            for value in self.auto_manipulators_schedules]
-        self.updated_object_types.add('RunningManipulators')
-
     def resume_auto_manipulators(self):
         previously_run = False
         for t in self.running_auto_triggerer:
@@ -238,9 +226,18 @@ class ManipulatorManager(object):
                 if not self.last_task:
                     self.browser_conn.send((browser.COMMAND_COVER, (True,)))
                     self.leave_port()
+                self.rmo.running_manipulator = unicode(
+                    self.current_task.__class__.__name__, 'utf8')
+                self.rmo.manipulators_in_queue = [
+                    unicode(manipulator.__class__.__name__, 'utf8')
+                    for manipulator in self.queue]
+                self.rmo.generation += 1
             else:
                 if self.last_task:
                     self.browser_conn.send((browser.COMMAND_COVER, (False,)))
+                    self.rmo.running_manipulator = None
+                    self.rmo.manipulators_in_queue = []
+                    self.rmo.generation += 1
                 self.current_task = None
                 self.last_task = None
                 if self.are_auto_manipulator_scheduled():
@@ -248,11 +245,13 @@ class ManipulatorManager(object):
                         self.leave_port()
                 else:
                     self.suppress_auto_manipulators()
-        self.update_running_manipulators()
         self.task_manager.update(current)
         if self.current_task not in self.task_manager.tasks:
             self.last_task = self.current_task
             self.current_task = None
+        if self.rmo.generation > self.rmo_last_generation:
+            self.updated_object_types.add('RunningManipulators')
+            self.rmo_last_generation = self.rmo.generation
         updated_objects = [self.objects[object_type] for object_type in
                            self.updated_object_types]
         self.updated_object_types.clear()
