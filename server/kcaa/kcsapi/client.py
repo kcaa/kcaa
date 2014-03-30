@@ -66,7 +66,7 @@ class Screen(model.KCAAObject):
             self.generation += 1
 
 
-class ScheduleFragment(model.KCAAObject):
+class ScheduleFragment(jsonobject.JSONSerializableObject):
 
     start = jsonobject.JSONProperty('start', value_type=int)
     """Start timing of this fragment, in seconds from the beginning of a
