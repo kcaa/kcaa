@@ -14,15 +14,6 @@ class Screen(model.KCAAObject):
 
     screen = jsonobject.JSONProperty('screen', screens.UNKNOWN, value_type=int)
     """Current screen."""
-    generation = jsonobject.JSONProperty('generation', 0, value_type=int)
-    """Generation of the current screen.
-
-    This field starts with 0, and is incremented every time it detects a KCSAPI
-    request that affects a screen transition.
-
-    This value is incremented even if the transition makes :attr:`screen` being
-    set to the same value as the last one.
-    """
 
     api_sequence = []
     max_sequence_length = 10

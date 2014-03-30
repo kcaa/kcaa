@@ -22,6 +22,16 @@ class KCAAObject(jsonobject.JSONSerializableObject):
 
     _raw_transactions = jsonobject.JSONProperty('_raw_transactions',
                                                 value_type=dict)
+    generation = jsonobject.JSONProperty('generation', 0, value_type=int)
+    """Generation of the object.
+
+    This field starts with 0, and is incremented every time it detects a KCSAPI
+    request that updates this object.
+
+    This value is incremented even if the object contents don't change. If you
+    need an incremental update, use DifferentialKCAAObject.
+    TODO: Create DifferentialKCAAObject.
+    """
 
     @jsonproperty
     def object_type(self):
