@@ -2,9 +2,21 @@
   margin-top: 5px;
 }
 
+.errorMessage {
+  color: red;
+  font-weight: bold;
+}
+
 button.close {
   box-shadow: none;
 }
 button.close:hover {
   background: transparent;
+}
+button.cancel {
+  background-color: hsl(0, 0%, 60%);
+  color: hsl(0, 0%, 90%);
+}
+button.cancel:hover {
+  background-color: hsl(0, 0%, 30%);
 }

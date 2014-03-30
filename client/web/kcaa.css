@@ -104,6 +104,10 @@ input[type=text] {
   margin: 0 3px;
   padding: 3px;
 }
+input[type=text].invalid {
+  border-color: hsl(0, 80%, 50%);
+  border-width: 3px;
+}
 
 h3 {
   color: hsl(210, 30%, 30%);
