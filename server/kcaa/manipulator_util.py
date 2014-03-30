@@ -147,7 +147,8 @@ class ManipulatorManager(object):
         seconds_in_today = 3600 * now.hour + 60 * now.minute + now.second
         self._logger.info('Current time: {}'.format(seconds_in_today))
 
-    def in_schedule_fragment(self, seconds_in_today, schedule_fragment):
+    @staticmethod
+    def in_schedule_fragment(seconds_in_today, schedule_fragment):
         if (seconds_in_today >= schedule_fragment[0] and
                 seconds_in_today < schedule_fragment[1]):
             return True
@@ -158,12 +159,13 @@ class ManipulatorManager(object):
         now = datetime.datetime.now()
         seconds_in_today = 3600 * now.hour + 60 * now.minute + now.second
         if self.current_schedule_fragment:
-            if self.in_schedule_fragment(
+            if ManipulatorManager.in_schedule_fragment(
                     seconds_in_today, self.current_schedule_fragment):
                 return True
         self.current_schedule_fragment = None
         for schedule_fragment in self.auto_manipulators_schedules:
-            if self.in_schedule_fragment(seconds_in_today, schedule_fragment):
+            if ManipulatorManager.in_schedule_fragment(seconds_in_today,
+                                                       schedule_fragment):
                 self.current_schedule_fragment = schedule_fragment
                 return True
         return False
