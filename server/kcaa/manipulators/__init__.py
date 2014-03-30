@@ -47,7 +47,8 @@ def main():
     doctest.testmod(screen)
     doctest.testmod(special)
     import pytest
-    pytest.main()
+    import sys
+    sys.exit(pytest.main())
 
 
 if __name__ == '__main__':

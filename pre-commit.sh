@@ -4,6 +4,7 @@
 #   ln -s ../../pre-commit.sh .git/hooks/pre-commit
 
 # Run KCAA server tests.
+# TODO: Run all doctests as well.
 KCAA_SERVER_ROOT=${PWD}/server
 export PYTHONPATH=${KCAA_SERVER_ROOT}
-python ${KCAA_SERVER_ROOT}/__init__.py
+py.test ${KCAA_SERVER_ROOT}

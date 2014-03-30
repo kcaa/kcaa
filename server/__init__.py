@@ -9,7 +9,8 @@ def main():
     doctest.testmod(kcaa)
     doctest.testmod(server_main)
     import pytest
-    pytest.main()
+    import sys
+    sys.exit(pytest.main())
 
 
 if __name__ == '__main__':

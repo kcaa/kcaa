@@ -665,7 +665,8 @@ class TestDynamicJSONSerializableObject(object):
 def main():
     import doctest
     doctest.testmod(jsonobject)
-    pytest.main(args=[__file__.replace('.pyc', '.py')])
+    import sys
+    sys.exit(pytest.main(args=[__file__.replace('.pyc', '.py')]))
 
 
 if __name__ == '__main__':
