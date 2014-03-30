@@ -1,22 +1,22 @@
 tr.fatal {
   background: linear-gradient(
     150deg,
-    hsla(0, 0%, 0%, 0.0),
-    hsla(0, 80%, 60%, 0.5));
+    hsl(0, 0%, 100%),
+    hsl(0, 80%, 50%));
   color: hsl(0, 50%, 20%);
 }
 tr.dangerous {
   background: linear-gradient(
     150deg,
-    hsla(0, 0%, 0%, 0.0),
-    hsla(30, 80%, 70%, 0.5));
+    hsl(0, 0%, 100%),
+    hsl(30, 80%, 50%));
   color: hsl(30, 50%, 20%);
 }
 tr.good {
   background: linear-gradient(
     150deg,
-    hsla(0, 0%, 0%, 0.0),
-    hsla(60, 80%, 80%, 0.5));
+    hsl(0, 0%, 100%),
+    hsl(60, 80%, 80%));
   color: hsl(60, 50%, 20%);
 }
 
