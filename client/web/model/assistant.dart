@@ -34,6 +34,7 @@ class AssistantModel extends Observable {
   @observable final List<String> manipulatorsInQueue =
       new ObservableList<String>();
   @observable bool autoManipulatorsEnabled = true;
+  @observable bool autoManipulatorsActive = false;
   final List<ScheduleFragment> autoManipulatorSchedules =
       new ObservableList<ScheduleFragment>();
 }

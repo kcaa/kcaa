@@ -107,7 +107,7 @@
             <h4>クライアントの状態</h4>
             <div>
               <div>現在の画面: {{model.screen}}</div>
-              <div>マニピュレータ:
+              <div>操作補助:
                 <template if="{{model.runningManipulator == null}}">
                   なし
                 </template>
@@ -118,9 +118,15 @@
                   </template>
                 </template>
               </div>
-              <div>オートマニピュレータ: <template
+              <div>自動操作: <template
                 if="{{model.autoManipulatorsEnabled}}">有効</template><template
                 if="{{!model.autoManipulatorsEnabled}}">無効</template>
+                <template if="{{model.autoManipulatorsActive}}">
+                  (アクティブ)
+                </template>
+                <template if="{{!model.autoManipulatorsActive}}">
+                  (非アクティブ)
+                </template>
                 <button on-click="{{showModalDialog}}"
                         data-dialog="kcaaScheduleDialog">設定</button>
               </div>

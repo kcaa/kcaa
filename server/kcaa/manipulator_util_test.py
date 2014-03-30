@@ -51,6 +51,13 @@ class TestManipulatorManager(object):
         assert not manager.are_auto_manipulator_scheduled(7200)
         assert manager.are_auto_manipulator_scheduled(0)
 
+    def test_are_auto_manipulator_scheduled_current_fragment_deleted(
+            self, manager):
+        manager.set_auto_manipulator_schedules(True, [[0, 3600]])
+        assert manager.are_auto_manipulator_scheduled(0)
+        manager.set_auto_manipulator_schedules(True, [])
+        assert not manager.are_auto_manipulator_scheduled(0)
+
 
 def main():
     import doctest

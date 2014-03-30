@@ -82,6 +82,9 @@ class RunningManipulators(model.KCAAObject):
     auto_manipulators_enabled = jsonobject.JSONProperty(
         'auto_manipulators_enabled', value_type=bool)
     """True if auto manipulators are enabled."""
+    auto_manipulators_active = jsonobject.JSONProperty(
+        'auto_manipulators_active', value_type=bool)
+    """True if auto manipulators are active."""
     auto_manipulators_schedules = jsonobject.JSONProperty(
         'auto_manipulators_schedules', [], value_type=list,
         element_type=ScheduleFragment)

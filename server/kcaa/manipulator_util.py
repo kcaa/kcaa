@@ -146,8 +146,11 @@ class ManipulatorManager(object):
         now = datetime.datetime.now()
         seconds_in_today = 3600 * now.hour + 60 * now.minute + now.second
         self._logger.info('Current time: {}'.format(seconds_in_today))
+        self.current_schedule_fragment = None
         # Update RunningManipulators object.
         self.rmo.auto_manipulators_enabled = enabled
+        self.rmo.auto_manipulators_active = (
+            self.are_auto_manipulator_scheduled())
         self.rmo.auto_manipulators_schedules = [
             kcsapi.client.ScheduleFragment(start=value[0], end=value[1])
             for value in schedule_fragments]
@@ -195,16 +198,20 @@ class ManipulatorManager(object):
             self.screen_manager.update_screen(screens.PORT)
 
     def resume_auto_manipulators(self):
-        previously_run = False
+        previously_run = True
         for t in self.running_auto_triggerer:
             if not t.running:
                 t.resume()
-                previously_run = True
-        return previously_run
+                previously_run = False
+        return not previously_run
 
     def suppress_auto_manipulators(self):
+        previously_run = False
         for t in self.running_auto_triggerer:
-            t.suspend()
+            if t.running:
+                t.suspend()
+                previously_run = True
+        return previously_run
 
     def update(self, current):
         """Update manipulators.
@@ -243,8 +250,12 @@ class ManipulatorManager(object):
                 if self.are_auto_manipulator_scheduled():
                     if self.resume_auto_manipulators():
                         self.leave_port()
+                        self.rmo.auto_manipulators_active = True
+                        self.rmo.generation += 1
                 else:
-                    self.suppress_auto_manipulators()
+                    if self.suppress_auto_manipulators():
+                        self.rmo.auto_manipulators_active = False
+                        self.rmo.generation += 1
         self.task_manager.update(current)
         if self.current_task not in self.task_manager.tasks:
             self.last_task = self.current_task
