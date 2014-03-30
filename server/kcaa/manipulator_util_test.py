@@ -41,6 +41,16 @@ class TestManipulatorManager(object):
         assert not manager.are_auto_manipulator_scheduled(10800)
         assert manager.are_auto_manipulator_scheduled(0)
 
+    def test_are_auto_manipulator_scheduled_two_overlapping_fragments(
+            self, manager):
+        manager.set_auto_manipulator_schedules(True, [[0, 3600],
+                                                      [1800, 7200]])
+        assert manager.are_auto_manipulator_scheduled(0)
+        assert manager.are_auto_manipulator_scheduled(3600)
+        assert manager.are_auto_manipulator_scheduled(7199)
+        assert not manager.are_auto_manipulator_scheduled(7200)
+        assert manager.are_auto_manipulator_scheduled(0)
+
 
 def main():
     import doctest
