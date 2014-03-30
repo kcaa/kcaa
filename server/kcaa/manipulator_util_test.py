@@ -31,6 +31,16 @@ class TestManipulatorManager(object):
         assert not manager.are_auto_manipulator_scheduled(3600)
         assert not manager.are_auto_manipulator_scheduled(5400)
 
+    def test_are_auto_manipulator_scheduled_two_fragments(self, manager):
+        manager.set_auto_manipulator_schedules(True, [[0, 3600],
+                                                      [7200, 10800]])
+        assert manager.are_auto_manipulator_scheduled(0)
+        assert not manager.are_auto_manipulator_scheduled(3600)
+        assert manager.are_auto_manipulator_scheduled(7200)
+        assert manager.are_auto_manipulator_scheduled(10799)
+        assert not manager.are_auto_manipulator_scheduled(10800)
+        assert manager.are_auto_manipulator_scheduled(0)
+
 
 def main():
     import doctest
