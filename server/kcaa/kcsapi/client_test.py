@@ -19,7 +19,7 @@ class TestScreen(object):
         screen = client.Screen()
         assert screen.screen == screens.UNKNOWN
         self.update(screen, '/api_get_member/deck_port')
-        assert screen.screen == screens.PORT
+        assert screen.screen == screens.PORT_MAIN
         self.update(screen, '/api_req_mission/result')
         assert screen.screen == screens.MISSION_RESULT
         self.update(screen, '/api_get_member/deck_port')
