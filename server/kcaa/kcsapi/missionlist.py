@@ -134,6 +134,7 @@ class MissionList(model.KCAAObject):
             for id, progress in mission_to_progress.iteritems():
                 self.missions.append(Mission(
                     id=id,
+                    name=u'N/A',
                     undertaking_fleet=progress[0],
                     eta=progress[1]))
             self.missions.sort(lambda x, y: x.id - y.id)
