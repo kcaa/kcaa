@@ -236,9 +236,10 @@ class ManipulatorManager(object):
                     self.browser_conn.send((browser.COMMAND_COVER, (True,)))
                     self.leave_port()
             else:
+                if self.last_task:
+                    self.browser_conn.send((browser.COMMAND_COVER, (False,)))
                 self.current_task = None
                 self.last_task = None
-                self.browser_conn.send((browser.COMMAND_COVER, (False,)))
                 if self.are_auto_manipulator_scheduled():
                     if self.resume_auto_manipulators():
                         self.leave_port()
