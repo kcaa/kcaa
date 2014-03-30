@@ -153,11 +153,12 @@ class ManipulatorManager(object):
                 seconds_in_today < schedule_fragment[1]):
             return True
 
-    def are_auto_manipulator_scheduled(self):
+    def are_auto_manipulator_scheduled(self, seconds_in_today=None):
         if not self.auto_manipulators_enabled:
             return False
-        now = datetime.datetime.now()
-        seconds_in_today = 3600 * now.hour + 60 * now.minute + now.second
+        if seconds_in_today is None:
+            now = datetime.datetime.now()
+            seconds_in_today = 3600 * now.hour + 60 * now.minute + now.second
         if self.current_schedule_fragment:
             if ManipulatorManager.in_schedule_fragment(
                     seconds_in_today, self.current_schedule_fragment):
@@ -272,3 +273,8 @@ class ManipulatorManager(object):
                     .format(command_type, command_args))
         else:
             raise ValueError('Unknown command type: {}'.format(command_type))
+
+
+if __name__ == '__main__':
+    import manipulator_util_test
+    manipulator_util_test.main()

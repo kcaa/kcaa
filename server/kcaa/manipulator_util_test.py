@@ -19,6 +19,10 @@ class TestManipulatorManager(object):
         assert not in_schedule_fragment(3600, [0, 3600])
         assert not in_schedule_fragment(5400, [0, 3600])
 
+    def test_are_auto_manipulator_scheduled_disabled(self, manager):
+        manager.set_auto_manipulator_schedules(False, [0, 3600])
+        assert not manager.are_auto_manipulator_scheduled(0)
+
 
 def main():
     import doctest
