@@ -143,6 +143,9 @@ class ManipulatorManager(object):
         self.auto_manipulators_schedules = schedule_fragments
         self._logger.info(
             'AutoManipulator schedules: {}.'.format(schedule_fragments))
+        now = datetime.datetime.now()
+        seconds_in_today = 3600 * now.hour + 60 * now.minute + now.second
+        self._logger.info('Current time: {}'.format(seconds_in_today))
 
     def in_schedule_fragment(self, seconds_in_today, schedule_fragment):
         if (seconds_in_today >= schedule_fragment[0] and
