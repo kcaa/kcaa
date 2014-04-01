@@ -171,18 +171,11 @@
               </h4>
               <template if="{{fleet.id > 1 &&
                               fleet.undertakingMission == null}}">
-                <!-- TODO: More compact UI. Possibly better to show a modal
-                     dialog. -->
                 <div class="{{fleet.defaultClass}}">
-                  <template repeat="{{mission in model.missions}}">
-                    <template if="{{mission.undertakingFleetId == -1}}">
-                      <button on-click="{{goOnMission}}"
-                              data-fleet-id="{{fleet.id}}"
-                              data-mission-id="{{mission.id}}">
-                        {{mission.id}}: {{mission.name}}
-                      </button>
-                    </template>
-                  </template>
+                  遠征:
+                  <button on-click="{{showModalDialog}}"
+                          data-dialog="kcaaFleetMissionDialog"
+                          data-fleet-id="{{fleet.id}}">遠征選択</button>
                 </div>
               </template>
               <template ref="shiplist" bind="{{fleet}}"></template>

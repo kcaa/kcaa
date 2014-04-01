@@ -34,4 +34,65 @@
     </div>
   </template>
 </polymer-element>
+<polymer-element name="kcaa-fleet-mission-dialog">
+  <template>
+    <link rel="stylesheet" href="packages/bootjack/css/bootstrap.min.css">
+    <link rel="stylesheet" href="kcaa.css">
+    <link rel="stylesheet" href="dialog.css">
+    <div class="modal-header">
+      <button class="close" on-click="{{close}}">&times;</button>
+      <h3 class="modal-title">遠征選択 - 第{{fleet.id}}艦隊 ({{fleet.name}})</h3>
+    </div>
+    <div class="modal-body">
+      <table>
+        <col width="70px">
+        <col>
+        <col width="50px">
+        <col width="50px">
+        <col width="50px">
+        <col width="50px">
+        <col width="50px">
+        <thead>
+          <tr>
+            <th rowspan="2">海域</th>
+            <th rowspan="2">説明</th>
+            <th colspan="4">利益</th>
+            <th rowspan="2">時間</th>
+          </tr>
+          <tr>
+            <th>燃料</th>
+            <th>弾薬</th>
+            <th>鋼材</th>
+            <th>ボーキ</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr template repeat="{{evaled_mission in evaled_missions}}">
+            <td class="labelColumn">
+              <div>{{evaled_mission.mission.maparea}}</div>
+              <div>{{evaled_mission.mission.difficulty}}</div>
+            </td>
+            <td>
+              <div class="title">
+                <a href="#"
+                   on-click="{{goOnMission}}"
+                   data-mission-id="{{evaled_mission.mission.id}}">
+                  {{evaled_mission.mission.name}}
+                </a>
+              </div>
+            </td>
+            <td class="numberColumn">{{evaled_mission.fuelProfit}}</td>
+            <td class="numberColumn">{{evaled_mission.ammoProfit}}</td>
+            <td class="numberColumn">{{evaled_mission.mission.steel}}</td>
+            <td class="numberColumn">{{evaled_mission.mission.bauxite}}</td>
+            <td class="numberColumn">{{evaled_mission.mission.time}}分</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="modal-footer">
+      <button class="cancel" on-click="{{close}}">Cancel</button>
+    </div>
+  </template>
+</polymer-element>
 <script type="application/dart" src="dialog.dart"></script>

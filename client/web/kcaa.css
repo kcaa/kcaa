@@ -175,3 +175,6 @@ td > div:first-child {
 td.labelColumn, td.labelColumn div, td.numberColumn, td.numberColumn div {
   text-align: center;
 }
+td.labelColumn div, td.numberColumn div {
+  width: 100%;
+}

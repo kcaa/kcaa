@@ -16,7 +16,7 @@ class KcaaDialog extends PolymerElement {
   KcaaDialog.created() : super.created();
 
   // Called when the dialog is being shown.
-  void show() {}
+  void show(Element target) {}
 
   @observable
   void close() {
@@ -67,14 +67,14 @@ class FriendlyScheduleFragment extends Observable {
 @CustomTag('kcaa-schedule-dialog')
 class ScheduleDialog extends KcaaDialog {
   @observable bool enabled;
-  @observable final List<FriendlyScheduleFragment> schedules =
+  @observable List<FriendlyScheduleFragment> schedules =
       new ObservableList();
   @observable String errorMessage;
 
   ScheduleDialog.created() : super.created();
 
   @override
-  void show() {
+  void show(Element target) {
     enabled = model.autoManipulatorsEnabled;
     schedules.clear();
     schedules.addAll(model.autoManipulatorSchedules.map(
@@ -110,5 +110,55 @@ class ScheduleDialog extends KcaaDialog {
     } on FormatException {
       errorMessage = "時刻指定に誤りがあります。";
     }
+  }
+}
+
+class EvaluatedMission {
+  @observable Mission mission;
+  @observable int fuelProfit;
+  @observable int ammoProfit;
+
+  EvaluatedMission(Mission mission, Fleet fleet) {
+    this.mission = mission;
+    var fuelConsumption = fleet.ships
+        .map((ship) => ship.fuelCapacity * mission.fuelConsumption / 100)
+        .reduce((x, y) => x + y)
+        .toInt();
+    var ammoConsumption = fleet.ships
+        .map((ship) => ship.ammoCapacity * mission.ammoConsumption / 100)
+        .reduce((x, y) => x + y)
+        .toInt();
+    fuelProfit = mission.fuel - fuelConsumption;
+    ammoProfit = mission.ammo - ammoConsumption;
+  }
+}
+
+@CustomTag('kcaa-fleet-mission-dialog')
+class FleetMissionDialog extends KcaaDialog {
+  @observable Fleet fleet;
+  @observable List<EvaluatedMission> evaled_missions;
+
+  FleetMissionDialog.created() : super.created();
+
+  @override
+  void show(Element target) {
+    var fleetId = int.parse(target.dataset["fleetId"]);
+    fleet = model.fleets[fleetId - 1];
+    evaled_missions = new ObservableList<EvaluatedMission>.from(model.missions
+        .where((mission) => mission.undertakingFleetId == -1)
+        .map((mission) => new EvaluatedMission(mission, fleet)));
+  }
+
+  void goOnMission(MouseEvent e, var detail, Element target) {
+    var fleetId = fleet.id.toString();
+    var missionId = target.dataset["missionId"];
+    Uri request = assistant.serverManipulate.resolveUri(
+        new Uri(queryParameters: {
+          "type": "GoOnMission",
+          "fleet_id": fleetId,
+          "mission_id": missionId,
+        }));
+    HttpRequest.getString(request.toString());
+    close();
   }
 }

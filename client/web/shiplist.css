@@ -20,9 +20,6 @@ tr.good {
   color: hsl(60, 50%, 20%);
 }
 
-td.labelColumn div, td.numberColumn div {
-  width: 100%;
-}
 td.upgradable, td.fullyEnhanced {
   font-weight: bold;
 }

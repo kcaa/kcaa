@@ -34,6 +34,7 @@ class Mission extends Observable {
   @observable int time;
   @observable int fuelConsumption;
   @observable int ammoConsumption;
+  @observable int fuel, ammo, steel, bauxite;
   @observable int undertakingFleetId;
   @observable String undertakingFleetName;
   @observable DateTime eta;
@@ -50,10 +51,16 @@ class Mission extends Observable {
     state = data["state"];
     stateClass = STATE_CLASS_MAP[data["state"]];
     time = data["time"];
-    fuelConsumption =
-      (data["consumption"]["fuel"] * 100).toStringAsFixed(0);
-    ammoConsumption =
-      (data["consumption"]["ammo"] * 100).toStringAsFixed(0);
+    fuelConsumption = (data["consumption"]["fuel"] * 100).toInt();
+    ammoConsumption = (data["consumption"]["ammo"] * 100).toInt();
+    data["rewards"].putIfAbsent("fuel", () => 0);
+    data["rewards"].putIfAbsent("ammo", () => 0);
+    data["rewards"].putIfAbsent("steel", () => 0);
+    data["rewards"].putIfAbsent("bauxite", () => 0);
+    fuel = data["rewards"]["fuel"];
+    ammo = data["rewards"]["ammo"];
+    steel = data["rewards"]["steel"];
+    bauxite = data["rewards"]["bauxite"];
 
     // Undertaking fleet.
     if (data["undertaking_fleet"] != null) {

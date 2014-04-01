@@ -298,19 +298,7 @@ class Assistant extends PolymerElement {
     var dialogName = target.dataset["dialog"];
     querySelector("#modalDialogContainer").classes.add("in");
     var dialog = querySelector("#${dialogName}") as KcaaDialog;
-    dialog.show();
+    dialog.show(target);
     dialog.classes.remove("hidden");
-  }
-
-  void goOnMission(MouseEvent e) {
-    var button = e.target as HtmlElement;
-    var fleetId = button.dataset["fleetId"];
-    var missionId = button.dataset["missionId"];
-    Uri request = serverManipulate.resolveUri(new Uri(queryParameters: {
-      "type": "GoOnMission",
-      "fleet_id": fleetId,
-      "mission_id": missionId,
-    }));
-    HttpRequest.getString(request.toString());
   }
 }
