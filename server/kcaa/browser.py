@@ -125,7 +125,7 @@ def get_game_frame(browser):
     try:
         game_frame = browser.find_element_by_id('game_frame')
     except:
-        return None, None, None
+        return None, None, None, None
     dx = (game_frame.size['width'] - game_area_width) / 2
     dy = game_area_top
     add_game_frame_cover(browser, game_area_width, game_area_height, dx, dy)
