@@ -6,6 +6,7 @@ import time
 
 import base
 from kcaa import screens
+from kcaa.kcsapi import missionlist
 
 
 logger = logging.getLogger('kcaa.manipulators.mission')
@@ -67,6 +68,19 @@ class AutoCheckMissionResult(base.AutoManipulator):
             yield self.do_manipulator(CheckMissionResult)
 
 
+class FindMission(base.Manipulator):
+
+    def run(self, mission_list, mission_id):
+        # MAPAREA_BASE should be already fetched. We start from
+        # SOUTHWESTERN_ISLANDS.
+        for maparea in xrange(
+                missionlist.Mission.MAPAREA_SOUTHWESTERN_ISLANDS,
+                missionlist.Mission.MAPAREA_SOUTH + 1):
+            yield self.screen.select_maparea(maparea)
+            if mission_list.get_mission(mission_id):
+                return
+
+
 class GoOnMission(base.Manipulator):
 
     def run(self, fleet_id, mission_id):
@@ -83,9 +97,12 @@ class GoOnMission(base.Manipulator):
         if mission:
             yield self.screen.select_maparea(mission.maparea)
         else:
-            logger.info('Mission {} is unknown. Giving up.'.format(mission_id))
-            # TODO: Add logic to find this by clicking maparea pages?
-            return
+            yield self.do_manipulator(FindMission, mission_list, mission_id)
+            mission = mission_list.get_mission(mission_id)
+            if not mission:
+                logger.info('Mission {} is unknown. Giving up.'.format(
+                    mission_id))
+                return
         mission_index = mission_list.get_index_in_maparea(mission)
         yield self.screen.select_mission(mission_index)
         yield self.screen.confirm()
