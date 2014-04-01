@@ -44,6 +44,8 @@ MISSION_REWARDS = {
     30: resource.Resource(bauxite=100),
     31: resource.Resource(ammo=30),
     # MAPAREA_SOUTH
+    33: resource.Resource(),
+    34: resource.Resource(),
     35: resource.Resource(steel=240, bauxite=280),
     36: resource.Resource(fuel=480, steel=200, bauxite=200),
     37: resource.Resource(ammo=380, steel=270),
