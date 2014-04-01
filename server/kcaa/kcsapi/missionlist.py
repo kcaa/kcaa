@@ -5,6 +5,52 @@ import model
 import resource
 
 
+# Rewards obtained on success, which is not available in KCSAPI response.
+# Cited from: http://wikiwiki.jp/kancolle/?%B1%F3%C0%AC
+# TODO: Move this out to some configuration file, possibly in JSON?
+MISSION_REWARDS = {
+    # MAPAREA_BASE
+    1: resource.Resource(ammo=30),
+    2: resource.Resource(ammo=100, steel=30),
+    3: resource.Resource(fuel=30, ammo=30, steel=40),
+    4: resource.Resource(ammo=60),
+    5: resource.Resource(fuel=200, ammo=200, steel=20, bauxite=20),
+    6: resource.Resource(bauxite=80),
+    7: resource.Resource(steel=50, bauxite=50),
+    8: resource.Resource(fuel=50, ammo=100, steel=50, bauxite=50),
+    # MAPAREA_SOUTHWESTERN_ISLANDS
+    9: resource.Resource(fuel=350),
+    10: resource.Resource(ammo=50, bauxite=30),
+    11: resource.Resource(bauxite=250),
+    12: resource.Resource(fuel=50, ammo=250, steel=200, bauxite=50),
+    13: resource.Resource(fuel=240, ammo=300),
+    14: resource.Resource(ammo=240, steel=200),
+    15: resource.Resource(steel=300, bauxite=400),
+    16: resource.Resource(fuel=500, ammo=500, steel=200, bauxite=200),
+    # MAPAREA_NORTH
+    17: resource.Resource(fuel=70, ammo=70, steel=50),
+    18: resource.Resource(steel=300, bauxite=100),
+    19: resource.Resource(fuel=400, steel=50, bauxite=30),
+    20: resource.Resource(steel=150),
+    21: resource.Resource(fuel=320, ammo=270),
+    22: resource.Resource(ammo=10),
+    23: resource.Resource(ammo=20, bauxite=100),
+    # MAPAREA_WEST
+    25: resource.Resource(fuel=900, steel=500),
+    26: resource.Resource(bauxite=900),
+    27: resource.Resource(steel=800),
+    28: resource.Resource(steel=900, bauxite=350),
+    29: resource.Resource(bauxite=100),
+    30: resource.Resource(bauxite=100),
+    31: resource.Resource(ammo=30),
+    # MAPAREA_SOUTH
+    35: resource.Resource(steel=240, bauxite=280),
+    36: resource.Resource(fuel=480, steel=200, bauxite=200),
+    37: resource.Resource(ammo=380, steel=270),
+    38: resource.Resource(fuel=420, steel=200),
+}
+
+
 class Mission(jsonobject.JSONSerializableObject):
 
     id = jsonobject.ReadonlyJSONProperty('id', value_type=int)
@@ -41,6 +87,9 @@ class Mission(jsonobject.JSONSerializableObject):
     consumption = jsonobject.ReadonlyJSONProperty(
         'consumption', value_type=resource.ResourcePercentage)
     """Resource consumption percentage relative to the fleet capacity."""
+    rewards = jsonobject.ReadonlyJSONProperty('rewards',
+                                              value_type=resource.Resource)
+    """Rewards obtained on success."""
     bonus_items = jsonobject.ReadonlyJSONProperty('bonus_items')
     """TODO: Bonus items?"""
     undertaking_fleet = jsonobject.JSONProperty('undertaking_fleet',
@@ -100,7 +149,8 @@ class MissionList(model.KCAAObject):
                 time=mission_data.api_time,
                 consumption=resource.ResourcePercentage(
                     fuel=float(mission_data.api_use_fuel),
-                    ammo=float(mission_data.api_use_bull)))
+                    ammo=float(mission_data.api_use_bull)),
+                rewards=MISSION_REWARDS.get(mission_data.api_id))
             progress = mission_to_progress.get(mission.id)
             if progress:
                 mission.undertaking_fleet = progress[0]
