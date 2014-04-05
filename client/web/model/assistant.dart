@@ -6,10 +6,10 @@ import 'package:polymer/polymer.dart';
 import '../assistant.dart';
 import '../util.dart';
 
-part 'questlist.dart';
+part 'quest.dart';
 part 'client.dart';
 part 'fleet.dart';
-part 'missionlist.dart';
+part 'mission.dart';
 part 'ship.dart';
 
 class AssistantModel extends Observable {
