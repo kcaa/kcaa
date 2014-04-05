@@ -93,6 +93,7 @@ def open_kancolle_browser(args):
             password.send_keys(passwd)
             last_exception = None
             for _ in xrange(5):
+                time.sleep(1.0)
                 try:
                     login_button = browser.find_element_by_xpath(
                         '//div[@class="box-btn-login"]//input[@type="submit"]')
@@ -106,7 +107,6 @@ def open_kancolle_browser(args):
                     logger.warning(
                         'Seems like page loading failed. This may be just a '
                         'transient error, so retrying.')
-                    time.sleep(1.0)
             else:
                 browser.get_screenshot_as_file('screen.png')
                 logger.fatal(
