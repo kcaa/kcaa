@@ -35,6 +35,14 @@ def parse_args(argv):
                         help='Browser to open KCAA client. You can leave this '
                              'empty if you want to open the KCAA client from '
                              'a different machine.')
+    parser.add_argument('--show_kancolle_screen', default=False,
+                        type=string_bool,
+                        help='True if showing Kancolle screen in KCAA client. '
+                             'Useful if you open the KCAA client from a '
+                             'different machine. You might want to pass '
+                             '"--kcaa_browswer= '
+                             '--kancolle_browswer=phantomjs" for best '
+                             'performance.')
     parser.add_argument('--chrome_binary', default='/usr/bin/google-chrome',
                         help='Chrome binary to use. Useful especially when '
                              'you want to use Chromium or Dartium.')

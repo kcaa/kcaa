@@ -42,6 +42,7 @@ class Assistant extends PolymerElement {
   Set<String> availableObjectSet = new Set<String>();
   Timer availableObjectsChecker;
   int updateAvailableObjectsIntervalMs;
+  bool showScreen = true;
   @observable bool updateScreenPeriodically = false;
 
   // Object handlers.
@@ -65,14 +66,13 @@ class Assistant extends PolymerElement {
     // may run before loading completes, but that would never happen in reality.
     initializeDateFormatting("ja_JP", null).then((_) => null);
     Modal.use();
-  }
 
-  @override
-  void enteredView() {
     clientRoot = Uri.parse(window.location.href);
     var interval = clientRoot.queryParameters["interval"];
     interval = interval != null ? double.parse(interval) : 1.0;
     updateAvailableObjectsIntervalMs = (1000 * interval).toInt();
+    showScreen = clientRoot.queryParameters["screen"] != "false";
+
     serverRoot = clientRoot.resolve("/");
     serverGetObjects = serverRoot.resolve("get_objects");
     serverGetNewObjects = serverRoot.resolve("get_new_objects");
@@ -84,6 +84,14 @@ class Assistant extends PolymerElement {
         serverRoot.resolve("set_auto_manipulator_schedules");
     serverTakeScreenshot = serverRoot.resolve("take_screenshot");
     serverClick = serverRoot.resolve("click");
+  }
+
+  @override
+  void enteredView() {
+    if (showScreen) {
+      $["screenSection"].classes.remove("hidden");
+      runLater(1000, () => reloadScreenshot());
+    }
 
     runLater(updateAvailableObjectsIntervalMs,
         updateAvailableObjectsPeriodically);
@@ -93,7 +101,6 @@ class Assistant extends PolymerElement {
     // TODO: Ensure this happens after all other dialog elements are
     // initialized.
     runLater(1000, () => passModelToDialogs());
-    runLater(3000, () => reloadScreenshot());
   }
 
   CollapsedSectionInfo collapseSection(Element header, Element collapseButton,

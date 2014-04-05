@@ -33,6 +33,7 @@ BACKEND_UPDATE_INTERVAL=0.1
 
 KANCOLLE_BROWSER=chrome
 KCAA_BROWSER=chrome
+SHOW_KANCOLLE_SCREEN=false
 FRONTEND_UPDATE_INTERVAL=0.5
 
 # ============================================================================
