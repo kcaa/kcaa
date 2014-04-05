@@ -3,9 +3,9 @@
 import client
 import fleet
 import jsonobject
-import missionlist
+import mission
 import model
-import questlist
+import quest
 import resource
 import ship
 
@@ -67,9 +67,9 @@ def main():
     doctest.testmod(client)
     doctest.testmod(fleet)
     doctest.testmod(jsonobject)
-    doctest.testmod(missionlist)
+    doctest.testmod(mission)
     doctest.testmod(model)
-    doctest.testmod(questlist)
+    doctest.testmod(quest)
     doctest.testmod(resource)
     doctest.testmod(ship)
     import pytest

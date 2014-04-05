@@ -6,7 +6,7 @@ import time
 
 import base
 from kcaa import screens
-from kcaa.kcsapi import missionlist
+from kcaa.kcsapi import mission
 
 
 logger = logging.getLogger('kcaa.manipulators.mission')
@@ -39,21 +39,21 @@ class AutoCheckMissionResult(base.AutoManipulator):
             return
         now = int(1000 * time.time())
         count = 0
-        for mission in mission_list.missions:
-            if mission.eta and mission.eta - cls.precursor_duration < now:
+        for mission_ in mission_list.missions:
+            if mission_.eta and mission_.eta - cls.precursor_duration < now:
                 count += 1
         if cls.verbose and (count > 0 or
                             now - cls.interval > cls.last_updated):
             cls.last_updated = now
             mission_num = 0
             etas = []
-            for mission in mission_list.missions:
-                if mission.eta:
+            for mission_ in mission_list.missions:
+                if mission_.eta:
                     mission_num += 1
-                    etas.append(mission.eta)
+                    etas.append(mission_.eta)
                     logger.debug('ETA{}: {}'.format(
                         mission_num,
-                        datetime.datetime.fromtimestamp(mission.eta / 1000)
+                        datetime.datetime.fromtimestamp(mission_.eta / 1000)
                         .strftime(cls.datetime_pattern)))
             if etas:
                 min_eta = min(etas)
@@ -74,8 +74,8 @@ class FindMission(base.Manipulator):
         # MAPAREA_BASE should be already fetched. We start from
         # SOUTHWESTERN_ISLANDS.
         for maparea in xrange(
-                missionlist.Mission.MAPAREA_SOUTHWESTERN_ISLANDS,
-                missionlist.Mission.MAPAREA_SOUTH + 1):
+                mission.Mission.MAPAREA_SOUTHWESTERN_ISLANDS,
+                mission.Mission.MAPAREA_SOUTH + 1):
             yield self.screen.select_maparea(maparea)
             if mission_list.get_mission(mission_id):
                 return
@@ -93,17 +93,17 @@ class GoOnMission(base.Manipulator):
             logger.info('No mission list was found. Giving up.')
             return
         yield self.screen.change_screen(screens.PORT_MISSION)
-        mission = mission_list.get_mission(mission_id)
-        if mission:
-            yield self.screen.select_maparea(mission.maparea)
+        mission_ = mission_list.get_mission(mission_id)
+        if mission_:
+            yield self.screen.select_maparea(mission_.maparea)
         else:
             yield self.do_manipulator(FindMission, mission_list, mission_id)
-            mission = mission_list.get_mission(mission_id)
-            if not mission:
+            mission_ = mission_list.get_mission(mission_id)
+            if not mission_:
                 logger.info('Mission {} is unknown. Giving up.'.format(
                     mission_id))
                 return
-        mission_index = mission_list.get_index_in_maparea(mission)
+        mission_index = mission_list.get_index_in_maparea(mission_)
         yield self.screen.select_mission(mission_index)
         yield self.screen.confirm()
         yield self.screen.select_fleet(fleet_id)

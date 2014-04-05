@@ -73,16 +73,16 @@ class KCSAPIHandler(object):
             # mission, and /deck_port when a user comes back to the start
             # screen (which is called a port).
             '/api_get_member/deck': [kcsapi.fleet.FleetList,
-                                     kcsapi.missionlist.MissionList],
+                                     kcsapi.mission.MissionList],
             '/api_get_member/deck_port': [kcsapi.fleet.FleetList,
-                                          kcsapi.missionlist.MissionList],
+                                          kcsapi.mission.MissionList],
             '/api_req_hensei/change': [kcsapi.fleet.FleetList],
             # Quests
-            '/api_get_member/questlist': [kcsapi.questlist.QuestList],
+            '/api_get_member/questlist': [kcsapi.quest.QuestList],
             '/api_req_quest/start': [kcsapi.model.NullHandler()],
             '/api_req_quest/stop': [kcsapi.model.NullHandler()],
             # Missions
-            '/api_get_master/mission': [kcsapi.missionlist.MissionList],
+            '/api_get_master/mission': [kcsapi.mission.MissionList],
             '/api_req_mission/start': [kcsapi.model.NullHandler()],
             '/api_req_mission/result': [kcsapi.model.NullHandler()],
             # Items
