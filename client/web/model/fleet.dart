@@ -34,6 +34,7 @@ class Fleet extends Observable {
       }
     }
     if (data["mission_id"] != null) {
+      undertakingMission = "不明";
       var missionId = data["mission_id"];
       for (var mission in missions) {
         if (mission.id == missionId) {
