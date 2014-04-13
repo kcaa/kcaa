@@ -6,6 +6,7 @@ import jsonobject
 import mission
 import model
 import quest
+import repair
 import resource
 import ship
 
@@ -70,6 +71,7 @@ def main():
     doctest.testmod(mission)
     doctest.testmod(model)
     doctest.testmod(quest)
+    doctest.testmod(repair)
     doctest.testmod(resource)
     doctest.testmod(ship)
     import pytest
