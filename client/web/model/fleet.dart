@@ -57,17 +57,11 @@ class Fleet extends Observable {
 void handleFleetList(Assistant assistant, AssistantModel model,
                      Map<String, dynamic> data) {
   var fleetsLength = data["fleets"].length;
-  if (model.fleets.length != fleetsLength) {
-    if (fleetsLength < model.fleets.length) {
-      model.fleets.removeRange(fleetsLength, model.fleets.length);
-    } else {
-      for (var i = model.fleets.length; i < fleetsLength; i++) {
-        model.fleets.add(new Fleet());
-      }
-    }
+  if (fleetsLength != model.fleets.length) {
     // Wait for the DOM to be updated.
     runLater(0, () => assistant.updateCollapsedSections());
   }
+  resizeList(model.fleets, fleetsLength, () => new Fleet());
   for (var i = 0; i < fleetsLength; i++) {
     model.fleets[i].update(data["fleets"][i], model.shipMap,
         model.missions, collapsed: model.fleets[i].collapsed);

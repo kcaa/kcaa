@@ -75,14 +75,7 @@ class Mission extends Observable {
     if (data["eta"] != null) {
       eta = new DateTime.fromMillisecondsSinceEpoch(data["eta"], isUtc: true)
         .toLocal();
-      var etaDate = new DateTime(eta.year, eta.month, eta.day);
-      var now = new DateTime.now();
-      var today = new DateTime(now.year, now.month, now.day);
-      if (etaDate == today) {
-        etaDatetimeString = new DateFormat.Hm("ja_JP").format(eta);
-      } else {
-        etaDatetimeString = new DateFormat.MMMd("ja_JP").add_Hm().format(eta);
-      }
+      etaDatetimeString = formatShortTime(eta);
     }
   }
 }
@@ -90,15 +83,7 @@ class Mission extends Observable {
 void handleMissionList(Assistant assistant, AssistantModel model,
                        Map<String, dynamic> data) {
   var missionsLength = data["missions"].where((m) => m["name"] != null).length;
-  if (model.missions.length != missionsLength) {
-    if (missionsLength < model.missions.length) {
-      model.missions.removeRange(missionsLength, model.missions.length);
-    } else {
-      for (var i = model.missions.length; i < missionsLength; i++) {
-        model.missions.add(new Mission());
-      }
-    }
-  }
+  resizeList(model.missions, missionsLength, () => new Mission());
   for (var i = 0; i < missionsLength; i++) {
     model.missions[i].update(data["missions"][i]);
   }

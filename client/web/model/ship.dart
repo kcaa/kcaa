@@ -139,15 +139,7 @@ void handleShipList(Assistant assistant, AssistantModel model,
     ship.update(shipData, model.fleets);
   }
   var shipsLength = data["ship_order"].length;
-  if (model.ships.length != shipsLength) {
-    if (shipsLength < model.ships.length) {
-      model.ships.removeRange(shipsLength, model.ships.length);
-    } else {
-      for (var i = model.ships.length; i < shipsLength; i++) {
-        model.ships.add(null);
-      }
-    }
-  }
+  resizeList(model.ships, shipsLength, () => new Ship());
   for (var i = 0; i < shipsLength; i++) {
     var ship = model.shipMap[int.parse(data["ship_order"][i])];
     // Update the ship list only when the order has changed.

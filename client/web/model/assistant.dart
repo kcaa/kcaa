@@ -38,3 +38,27 @@ class AssistantModel extends Observable {
   final List<ScheduleFragment> autoManipulatorSchedules =
       new ObservableList<ScheduleFragment>();
 }
+
+// Resize the list target so that its length is equal to that of reference.
+// If target is longer, the elements are removed from the end. If target is
+// shorter, new elements are pushed using newValue callback.
+void resizeList(List target, int length, dynamic newValue()) {
+  if (length < target.length) {
+    target.removeRange(length, target.length);
+  } else {
+    for (var i = target.length; i < length; i++) {
+      target.add(newValue());
+    }
+  }
+}
+
+String formatShortTime(DateTime dateTime) {
+  var date = new DateTime(dateTime.year, dateTime.month, dateTime.day);
+  var now = new DateTime.now();
+  var today = new DateTime(now.year, now.month, now.day);
+  if (date == today) {
+    return new DateFormat.Hm("ja_JP").format(dateTime);
+  } else {
+    return new DateFormat.MMMd("ja_JP").add_Hm().format(dateTime);
+  }
+}
