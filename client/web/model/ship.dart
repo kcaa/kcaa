@@ -100,7 +100,7 @@ class Ship extends Observable {
     thunderstrokeClass =
         enhancedThunderstroke == maxThunderstroke ? "fullyEnhanced" : "";
     antiAirClass = enhancedAntiAir == maxAntiAir ? "fullyEnhanced" : "";
-    lockedClass = locked ? "locked" : "";
+    lockedClass = locked ? "" : "unlocked";
     updateBelongingFleet(fleets);
     stateClass = getStateClass();
   }

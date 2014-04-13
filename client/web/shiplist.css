@@ -26,6 +26,6 @@ td.upgradable, td.fullyEnhanced {
 td.upgradable div:first-child:after, td.fullyEnhanced div:first-child:after {
   content: "✓";
 }
-div.locked:after {
-  content: "✓";
+div.unlocked:after {
+  content: "✗";
 }
