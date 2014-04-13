@@ -43,6 +43,9 @@ class FleetList(model.KCAAObject):
                 mission_complete = None
                 if fleet_data.api_mission[0] != 0:
                     mission_id = fleet_data.api_mission[1]
+                    # TODO: Fix this. This is not accurate.
+                    # Probably better to use Mission's eta and the current
+                    # time?
                     mission_complete = (
                         True if fleet_data.api_mission[3] == 1 else False)
                 self.fleets.append(Fleet(
