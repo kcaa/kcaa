@@ -113,7 +113,7 @@ class ScheduleDialog extends KcaaDialog {
   }
 }
 
-class EvaluatedMission {
+class EvaluatedMission extends Observable {
   @observable Mission mission;
   @observable int fuelProfit;
   @observable int ammoProfit;
