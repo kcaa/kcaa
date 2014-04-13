@@ -74,8 +74,13 @@
             </td>
             <td>
               <div class="title">
+                <!-- TODO: Check what is the best option to suppress default
+                           event handler behavior. onclick="return false"
+                           works, but looks not very good as it's conflicting
+                           with on-click, at least superficially. -->
                 <a href="#"
                    on-click="{{goOnMission}}"
+                   onclick="return false"
                    data-mission-id="{{evaled_mission.mission.id}}">
                   {{evaled_mission.mission.name}}
                 </a>
