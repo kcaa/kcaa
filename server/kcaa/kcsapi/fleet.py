@@ -54,6 +54,3 @@ class FleetList(model.KCAAObject):
                     ship_ids=filter(lambda x: x != -1, fleet_data.api_ship),
                     mission_id=mission_id,
                     mission_complete=mission_complete))
-        elif api_name == '/api_req_hensei/change':
-            for i, data in enumerate(response['api_data']):
-                self.fleets[i].ship_ids = filter(lambda x: x != -1, data)

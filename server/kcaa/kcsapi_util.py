@@ -76,7 +76,7 @@ class KCSAPIHandler(object):
                                      kcsapi.mission.MissionList],
             '/api_get_member/deck_port': [kcsapi.fleet.FleetList,
                                           kcsapi.mission.MissionList],
-            '/api_req_hensei/change': [kcsapi.fleet.FleetList],
+            '/api_req_hensei/change': [kcsapi.model.NullHandler()],
             # Quests
             '/api_get_member/questlist': [kcsapi.quest.QuestList],
             '/api_req_quest/start': [kcsapi.model.NullHandler()],
