@@ -6,7 +6,6 @@
     <!-- TODO: Is it possible to separate this template to shiplist.html? -->
     <!--       Seems like <link rel="import"> doesn't work with templates. -->
     <!-- ================================================================== -->
-    <link rel="stylesheet" href="shiplist.css">
     <template id="shiplist">
       <!-- TODO: How to customize columns? Sometimes I want to see other
            parameters like cruising speed, anti-submarine or the like. -->
@@ -99,6 +98,7 @@
 
     <link rel="stylesheet" href="kcaa.css">
     <link rel="stylesheet" href="assistant.css">
+    <link rel="stylesheet" href="shiplist.css">
     <div id="assistant">
       <div class="row twoColumn">
         <div class="column">
@@ -189,6 +189,61 @@
           <div>
             <template ref="shiplist" bind="{{model}}"></template>
           </div>
+        </div>
+      </div>
+      <div class="row horizontal">
+        <div class="board">
+          <h3 data-collapsed="true">
+            入渠 ({{model.numShipsBeingRepaired}}/{{
+              model.repairSlots.length}}隻)
+          </h3>
+          <table>
+            <col>
+            <col width="50px">
+            <col width="100px">
+            <thead>
+              <tr>
+                <th>艦船</th>
+                <th>HP</th>
+                <th>修理完了</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr template repeat="{{slot in model.repairSlots}}"
+                  class="{{slot.ship.stateClass}}">
+                <td>
+                  <!-- TODO: Remove this workaround (extract the first div out
+                             of template). Probably can be removed when
+                             switching to div-based styling. -->
+                  <div>
+                    <template if="{{slot.ship != null}}">
+                      <div class="title {{slot.ship.lockedClass}}">
+                        {{slot.ship.name}}
+                      </div>
+                    </template>
+                    <template if="{{slot.ship == null}}">空き</template>
+                  </div>
+                  <div>{{slot.ship.shipType}}</div>
+                  <template if="{{slot.ship.belongingFleet != null}}">
+                    <div>
+                      第{{slot.ship.belongingFleet.id}}艦隊所属
+                    </div>
+                  </template>
+                </td>
+                <td class="numberColumn">
+                  <div>
+                    <template if="{{slot.ship != null}}">
+                      <div>{{slot.ship.hpPercentage}}%</div>
+                    </template>
+                  </div>
+                  <template if="{{slot.ship != null}}">
+                    <div>{{slot.ship.hp}}/{{slot.ship.maxHp}}</div>
+                  </template>
+                </td>
+                <td>{{slot.etaDatetimeString}}</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
       <div class="row horizontal">

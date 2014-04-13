@@ -10,6 +10,7 @@ part 'quest.dart';
 part 'client.dart';
 part 'fleet.dart';
 part 'mission.dart';
+part 'repairdock.dart';
 part 'ship.dart';
 
 class AssistantModel extends Observable {
@@ -24,6 +25,11 @@ class AssistantModel extends Observable {
 
   // Fleets.
   @observable final List<Fleet> fleets = new ObservableList<Fleet>();
+
+  // Repair dock.
+  @observable int numShipsBeingRepaired = 0;
+  @observable final List<RepairSlot> repairSlots =
+      new ObservableList<RepairSlot>();
 
   // Missions.
   @observable final List<Mission> missions = new ObservableList<Mission>();
