@@ -81,7 +81,7 @@ def open_browser(browser_type, args):
 
 def open_kancolle_browser(args):
     browser = open_browser(args.kancolle_browser, args)
-    browser.set_window_size(980, 780)
+    browser.set_window_size(980, 750)
     browser.set_window_position(0, 0)
     browser.get(KANCOLLE_URL)
     if args.credentials and os.path.isfile(args.credentials):
@@ -174,6 +174,7 @@ def add_digitizer(browser):
         var digitizerDisplay = document.createElement("div");
         digitizerDisplay.style.fontSize = "16px";
         digitizerDisplay.style.position = "absolute";
+        digitizerDisplay.style.top = "45px";
         var toggleButton = document.createElement("button");
         toggleButton.textContent = "Toggle Cover";
         toggleButton.onclick = function (e) {
