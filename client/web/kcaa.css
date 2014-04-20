@@ -181,3 +181,17 @@ td.labelColumn, td.labelColumn div, td.numberColumn, td.numberColumn div {
 td.labelColumn div, td.numberColumn div {
   width: 100%;
 }
+
+div.screenContainer {
+  position: relative;
+}
+#clickMarker {
+  height: 128px;
+  opacity: 0;
+  position: absolute;
+  transform: scale(0, 0);
+  -webkit-transform: scale(0, 0);
+  transition-property: opacity, transform;
+  -webkit-transition-property: opacity, -webkit-transform;
+  width: 128px;
+}

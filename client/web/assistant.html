@@ -149,7 +149,17 @@
                 if="{{!updateScreenPeriodically}}">開始</template>
             </button>
           </div>
-          <div>
+          <div class="screenContainer">
+            <svg id="clickMarker" width="128" height="128">
+              <circle cx="64" cy="64" r="61" stroke="#ffffff"
+                      stroke-width="6px" fill="none"></circle>
+              <circle cx="64" cy="64" r="61" stroke="#003f7f"
+                      stroke-width="3px" fill="none"></circle>
+              <circle cx="64" cy="64" r="10" stroke="none" fill="#003f7f"
+                      fill-opacity="0.7"></circle>
+              <circle cx="64" cy="64" r="7" stroke="none" fill="#ffffff"
+                      fill-opacity="0.9"></circle>
+            </svg>
             <img id="screenshot"
                  on-click="{{clickScreen}}" on-load="{{updateScreen}}">
           </div>
