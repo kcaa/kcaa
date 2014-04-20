@@ -104,9 +104,10 @@ def open_kancolle_browser(args):
                     break
                 except exceptions.WebDriverException as e:
                     last_exception = e
-                    logger.warning(
+                    logger.info(
                         'Seems like page loading failed. This may be just a '
-                        'transient error, so retrying.')
+                        'transient error in a browser like phantomjs. '
+                        'Retrying.')
             else:
                 browser.get_screenshot_as_file('screen.png')
                 logger.fatal(
