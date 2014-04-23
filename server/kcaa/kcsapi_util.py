@@ -49,12 +49,14 @@ class KCSAPIHandler(object):
         # - Others.
         self.kcsapi_handlers = {
             # Initialization, or account information
-            # /api_start seems delivering information required to render
-            # maparea. It's still useful for deciding what screen the client is
-            # showing.
+            # /api_start2 now delivers most (all?) master information;
+            # invariant data required for modelling, rendering and everything.
+            # TODO: Support /api_start2. The basic plan is to delegate each
+            # master handler to parse the subset of them, e.g. for
+            # ShipDefinitionList, just parse response.api_data.api_mst_ship.
             '/api_auth_member/logincheck': [kcsapi.model.NullHandler()],
             '/api_req_member/get_incentive': [kcsapi.model.NullHandler()],
-            '/api_start': [kcsapi.model.NullHandler()],
+            '/api_start2': [kcsapi.model.NullHandler()],
             # Encyclopedia
             '/api_get_member/book2': [kcsapi.model.NullHandler()],
             # Ships

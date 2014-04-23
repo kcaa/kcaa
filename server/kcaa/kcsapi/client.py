@@ -38,7 +38,7 @@ class Screen(model.KCAAObject):
         '/api_req_practice/battle_result': screens.PRACTICE_RESULT,
         '/api_req_sortie/battle': screens.EXPEDITION_COMBAT,
         '/api_req_sortie/battleresult': screens.EXPEDITION_RESULT,
-        '/api_start': screens.SPECIAL_START,
+        '/api_start2': screens.SPECIAL_START,
     }
 
     def update(self, api_name, request, response, objects, debug):
