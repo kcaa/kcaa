@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import base64
-import json
 import logging
 import re
 import urlparse
@@ -137,8 +136,10 @@ class KCSAPIHandler(object):
             match = KCSAPI_PATH_REGEX.match(o.path)
             if match:
                 api_name = match.group('api_name')
-                request = {param['name']: param['value'] for param in
-                           entry['request']['postData']['params']}
+                request = kcsapi.jsonobject.parse(
+                    {param['name']: param['value'] for param in
+                     entry['request']['postData']['params']},
+                    readonly=True)
                 content = entry['response']['content']
                 text = content['text']
                 # Highly likely the KCSAPI response is Base64 encoded, because
@@ -161,7 +162,8 @@ class KCSAPIHandler(object):
                         ' '.join(('{:X}'.format(ord(c))) for c in text[:64])))
                     continue
                 # KCSAPI response should be in UTF-8.
-                response = json.loads(text, encoding='utf8')
+                response = kcsapi.jsonobject.parse_text(text, readonly=True,
+                                                        encoding='utf8')
                 yield api_name, request, response
 
     def dispatch(self, api_name, request, response):
