@@ -138,67 +138,66 @@ class ShipDefinitionList(model.KCAAObject):
     def update(self, api_name, request, response, objects, debug):
         super(ShipDefinitionList, self).update(api_name, request, response,
                                                objects, debug)
-        for data in response['api_data']:
-            ship_data = jsonobject.parse(data)
+        for data in response.api_data.api_mst_ship:
             # /api_get_master/ship KCSAPI returns empty results for unknown
             # ships. Those entries have a fuel capacity of 0.
-            if ship_data.api_fuel_max == 0:
+            if data.api_fuel_max == 0:
                 continue
             # Maps are always keyed by string in JSON, so it's safer to key
             # string here. This is required to make this object usable with
             # KCSAPI handler's serialization/deserialization mechanism.
-            self.ships[str(ship_data.api_id)] = ShipDefinition(
-                id=ship_data.api_id,
-                name=ship_data.api_name,
-                ship_type=ship_data.api_stype,
-                rarity=ship_data.api_backs,
+            self.ships[str(data.api_id)] = ShipDefinition(
+                id=data.api_id,
+                name=data.api_name,
+                ship_type=data.api_stype,
+                rarity=data.api_backs,
                 resource_capacity=resource.Resource(
-                    fuel=ship_data.api_fuel_max,
-                    ammo=ship_data.api_bull_max),
+                    fuel=data.api_fuel_max,
+                    ammo=data.api_bull_max),
                 hull_durability=Variable(
-                    baseline=ship_data.api_taik[0],
-                    maximum=ship_data.api_taik[1]),
+                    baseline=data.api_taik[0],
+                    maximum=data.api_taik[1]),
                 armor=Variable(
-                    baseline=ship_data.api_souk[0],
-                    maximum=ship_data.api_souk[1]),
+                    baseline=data.api_souk[0],
+                    maximum=data.api_souk[1]),
                 avoidance=Variable(
-                    baseline=ship_data.api_kaih[0],
-                    maximum=ship_data.api_kaih[1]),
+                    baseline=data.api_kaih[0],
+                    maximum=data.api_kaih[1]),
                 firepower=Variable(
-                    baseline=ship_data.api_houg[0],
-                    maximum=ship_data.api_houg[1]),
+                    baseline=data.api_houg[0],
+                    maximum=data.api_houg[1]),
                 thunderstroke=Variable(
-                    baseline=ship_data.api_raig[0],
-                    maximum=ship_data.api_raig[1]),
+                    baseline=data.api_raig[0],
+                    maximum=data.api_raig[1]),
                 anti_air=Variable(
-                    baseline=ship_data.api_tyku[0],
-                    maximum=ship_data.api_tyku[1]),
+                    baseline=data.api_tyku[0],
+                    maximum=data.api_tyku[1]),
                 anti_submarine=Variable(
-                    baseline=ship_data.api_tais[0],
-                    maximum=ship_data.api_tais[1]),
+                    baseline=data.api_tais[0],
+                    maximum=data.api_tais[1]),
                 scouting=Variable(
-                    baseline=ship_data.api_saku[0],
-                    maximum=ship_data.api_saku[1]),
+                    baseline=data.api_saku[0],
+                    maximum=data.api_saku[1]),
                 luck=Variable(
-                    baseline=ship_data.api_luck[0],
-                    maximum=ship_data.api_luck[1]),
-                aircraft_capacity=ship_data.api_tous[1],
-                aircraft_slot_capacity=ship_data.api_maxeq,
-                speed=ship_data.api_soku,
-                firing_range=ship_data.api_leng,
-                slot_count=ship_data.api_slot_num,
-                build_time=ship_data.api_buildtime,
-                upgrade_to=int(ship_data.api_aftershipid),
-                upgrade_level=ship_data.api_afterlv,
+                    baseline=data.api_luck[0],
+                    maximum=data.api_luck[1]),
+                aircraft_capacity=data.api_tous[1],
+                aircraft_slot_capacity=data.api_maxeq,
+                speed=data.api_soku,
+                firing_range=data.api_leng,
+                slot_count=data.api_slot_num,
+                build_time=data.api_buildtime,
+                upgrade_to=int(data.api_aftershipid),
+                upgrade_level=data.api_afterlv,
                 upgrade_resource=resource.Resource(
-                    fuel=ship_data.api_afterfuel,
-                    ammo=ship_data.api_afterbull),
+                    fuel=data.api_afterfuel,
+                    ammo=data.api_afterbull),
                 rebuilding_material=AbilityEnhancement(
-                    firepower=ship_data.api_powup[0],
-                    thunderstroke=ship_data.api_powup[1],
-                    anti_air=ship_data.api_powup[2],
-                    armor=ship_data.api_powup[3]),
-                sort_order=ship_data.api_sortno)
+                    firepower=data.api_powup[0],
+                    thunderstroke=data.api_powup[1],
+                    anti_air=data.api_powup[2],
+                    armor=data.api_powup[3]),
+                sort_order=data.api_sortno)
             # Unknown fields:
             #   api_atap, api_bakk, api_baku,
             #   api_enqflg, api_gumax, api_houk, api_houm, api_member_id,

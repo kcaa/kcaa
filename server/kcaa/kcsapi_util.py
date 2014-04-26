@@ -55,11 +55,10 @@ class KCSAPIHandler(object):
             # ShipDefinitionList, just parse response.api_data.api_mst_ship.
             '/api_auth_member/logincheck': [kcsapi.model.NullHandler()],
             '/api_req_member/get_incentive': [kcsapi.model.NullHandler()],
-            '/api_start2': [kcsapi.model.NullHandler()],
+            '/api_start2': [kcsapi.ship.ShipDefinitionList],
             # Encyclopedia
             '/api_get_member/book2': [kcsapi.model.NullHandler()],
             # Ships
-            '/api_get_master/ship': [kcsapi.ship.ShipDefinitionList],
             '/api_get_member/ship': [kcsapi.ship.ShipList],
             '/api_get_member/ship2': [kcsapi.ship.ShipList],
             '/api_get_member/ship3': [kcsapi.ship.ShipList],
