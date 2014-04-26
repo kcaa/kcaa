@@ -296,33 +296,22 @@ class ShipList(model.KCAAObject):
         super(ShipList, self).update(api_name, request, response, objects,
                                      debug)
         updated_ids = set()
-        # TODO: Check if other handlers are still required.
-        # This part is too messy...
-        if api_name == '/api_port/port':
+        if (api_name == '/api_port/port' or
+                api_name == '/api_get_member/ship2'):
             del self.ship_order[:]
-            for data in response.api_data.api_ship:
+            if api_name == '/api_port/port':
+                ship_data = response.api_data.api_ship
+            else:
+                ship_data = response.api_data
+            for data in ship_data:
                 ship = self.get_ship(data, objects).convert_to_dict()
                 ShipList.update_ship(ship, data)
                 self.ships[str(ship['id'])] = Ship(**ship)
                 updated_ids.add(str(ship['id']))
                 self.ship_order.append(str(ship['id']))
-        elif (api_name == '/api_get_member/ship' or
-                api_name == '/api_get_member/ship2' or
-                api_name == '/api_get_member/ship3'):
-            del self.ship_order[:]
-            ships_data = (response['api_data']['api_ship_data'] if
-                          api_name == '/api_get_member/ship3' else
-                          response['api_data'])
-            for data in ships_data:
-                ship_data = jsonobject.parse(data)
-                ship = self.get_ship(ship_data, objects).convert_to_dict()
-                ShipList.update_ship(ship, ship_data)
-                self.ships[str(ship['id'])] = Ship(**ship)
-                updated_ids.add(str(ship['id']))
-                self.ship_order.append(str(ship['id']))
         elif api_name == '/api_req_hensei/lock':
-            ship = self.ships[str(request['api_ship_id'])]
-            ship.locked = bool(response['api_data']['api_locked'])
+            ship = self.ships[str(request.api_ship_id)]
+            ship.locked = bool(response.api_data.api_locked)
             return
         elif api_name == '/api_req_hokyu/charge':
             for ship_data in response.api_data.api_ship:
@@ -332,13 +321,13 @@ class ShipList(model.KCAAObject):
             return
         elif api_name == '/api_req_kaisou/remodeling':
             ship_defs = objects['ShipDefinitionList'].ships
-            self.ships[str(request['api_id'])] = (
-                ship_defs[str(self.ships[str(request['api_id'])].upgrade_to)])
+            self.ships[str(request.api_id)] = (
+                ship_defs[str(self.ships[str(request.api_id)].upgrade_to)])
             return
         elif api_name == '/api_req_kousyou/getship':
             ship_defs = objects['ShipDefinitionList'].ships
-            self.ships[str(response['api_data']['api_id'])] = (
-                ship_defs[str(response['api_data']['api_ship_id'])])
+            self.ships[str(response.api_data.api_id)] = (
+                ship_defs[str(response.api_data.api_ship_id)])
             return
         # Remove ships that have gone.
         for not_updated_id in set(self.ships.iterkeys()) - updated_ids:
