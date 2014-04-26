@@ -2,7 +2,6 @@ library kcaa_dialog;
 
 import 'dart:html';
 import 'package:polymer/polymer.dart';
-import 'package:intl/intl.dart';
 
 import 'assistant.dart';
 import 'model/assistant.dart';
