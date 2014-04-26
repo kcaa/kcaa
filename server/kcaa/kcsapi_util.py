@@ -94,9 +94,6 @@ class KCSAPIHandler(object):
             # Furnitures
             # Not interested in furniture configuration.
             '/api_get_member/furniture': [kcsapi.model.NullHandler()],
-            # Log
-            # Almost useless.
-            '/api_get_member/actionlog': [kcsapi.model.NullHandler()],
         }
         # Eager handlers accept all KCSAPI responses regardless of API URL.
         self.kcsapi_eager_handlers = [
