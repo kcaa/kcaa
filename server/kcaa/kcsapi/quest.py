@@ -63,29 +63,30 @@ class QuestList(model.KCAAObject):
     def update(self, api_name, request, response, objects, debug):
         super(QuestList, self).update(api_name, request, response, objects,
                                       debug)
-        data = jsonobject.parse(response['api_data'])
-        self.count = data.api_count
-        self.count_undertaken = data.api_exec_count
-        quests = []
-        for quest_data in data.api_list:
-            if quest_data == -1:
-                continue
-            progress = (0, 50, 80)[quest_data.api_progress_flag]
-            if quest_data.api_state == Quest.STATE_COMPLETE:
-                progress = 100
-            quests.append(Quest(
-                id=quest_data.api_no,
-                name=quest_data.api_title,
-                description=quest_data.api_detail,
-                category=quest_data.api_category,
-                state=quest_data.api_state,
-                progress=progress,
-                bonus_type=quest_data.api_bonus_flag,
-                cycle=quest_data.api_type,
-                rewards=resource.Resource(
-                    fuel=quest_data.api_get_material[0],
-                    ammo=quest_data.api_get_material[1],
-                    steel=quest_data.api_get_material[2],
-                    bauxite=quest_data.api_get_material[3])))
-        quests.sort(lambda x, y: x.id - y.id)
-        self.quests = model.merge_list(self.quests, quests)
+        if api_name == '/api_get_member/questlist':
+            data = response.api_data
+            self.count = data.api_count
+            self.count_undertaken = data.api_exec_count
+            quests = []
+            for quest_data in data.api_list:
+                if quest_data == -1:
+                    continue
+                progress = (0, 50, 80)[quest_data.api_progress_flag]
+                if quest_data.api_state == Quest.STATE_COMPLETE:
+                    progress = 100
+                quests.append(Quest(
+                    id=quest_data.api_no,
+                    name=quest_data.api_title,
+                    description=quest_data.api_detail,
+                    category=quest_data.api_category,
+                    state=quest_data.api_state,
+                    progress=progress,
+                    bonus_type=quest_data.api_bonus_flag,
+                    cycle=quest_data.api_type,
+                    rewards=resource.Resource(
+                        fuel=quest_data.api_get_material[0],
+                        ammo=quest_data.api_get_material[1],
+                        steel=quest_data.api_get_material[2],
+                        bauxite=quest_data.api_get_material[3])))
+            quests.sort(lambda x, y: x.id - y.id)
+            self.quests = model.merge_list(self.quests, quests)
