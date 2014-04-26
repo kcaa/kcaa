@@ -34,23 +34,20 @@ class FleetList(model.KCAAObject):
     def update(self, api_name, request, response, objects, debug):
         super(FleetList, self).update(api_name, request, response, objects,
                                       debug)
-        if (api_name == '/api_get_member/deck' or
-                api_name == '/api_get_member/deck_port'):
-            self.fleets = []
-            for data in response['api_data']:
-                fleet_data = jsonobject.parse(data)
-                mission_id = None
-                mission_complete = None
-                if fleet_data.api_mission[0] != 0:
-                    mission_id = fleet_data.api_mission[1]
-                    # TODO: Fix this. This is not accurate.
-                    # Probably better to use Mission's eta and the current
-                    # time?
-                    mission_complete = (
-                        True if fleet_data.api_mission[3] == 1 else False)
-                self.fleets.append(Fleet(
-                    id=fleet_data.api_id,
-                    name=fleet_data.api_name,
-                    ship_ids=filter(lambda x: x != -1, fleet_data.api_ship),
-                    mission_id=mission_id,
-                    mission_complete=mission_complete))
+        self.fleets = []
+        for data in response.api_data.api_deck_port:
+            mission_id = None
+            mission_complete = None
+            if data.api_mission[0] != 0:
+                mission_id = data.api_mission[1]
+                # TODO: Fix this. This is not accurate.
+                # Probably better to use Mission's eta and the current
+                # time?
+                mission_complete = (
+                    True if data.api_mission[3] == 1 else False)
+            self.fleets.append(Fleet(
+                id=data.api_id,
+                name=data.api_name,
+                ship_ids=filter(lambda x: x != -1, data.api_ship),
+                mission_id=mission_id,
+                mission_complete=mission_complete))
