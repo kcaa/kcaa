@@ -196,7 +196,7 @@ class KCSAPIHandler(object):
             return
         for api_name, request, response in self.get_kcsapi_responses(entries):
             # Process only succeeded ones.
-            if not response['api_result']:
+            if not response.api_result:
                 self._logger.warn('KCSAPI request on {} failed.'.format(
                     api_name))
                 continue
