@@ -78,7 +78,7 @@ class KCSAPIHandler(object):
             # Fleets (deck).
             '/api_get_member/deck': [kcsapi.fleet.FleetList,
                                      kcsapi.mission.MissionList],
-            '/api_req_hensei/change': [kcsapi.model.NullHandler()],
+            '/api_req_hensei/change': [kcsapi.fleet.FleetList],
             # Repair docks.
             '/api_get_member/ndock': [kcsapi.repair.RepairDock],
             # Quests.

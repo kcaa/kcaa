@@ -38,6 +38,18 @@ class FleetList(model.KCAAObject):
             self.update_fleets(response.api_data.api_deck_port)
         elif api_name == '/api_get_member/deck':
             self.update_fleets(response.api_data)
+        elif api_name == '/api_req_hensei/change':
+            fleet = self.fleets[int(request.api_id)-1]
+            ship_index = int(request.api_ship_idx)
+            ship_id = int(request.api_ship_id)
+            # -1 means the ship was removed from the fleet.
+            if ship_id != -1:
+                if ship_index >= len(fleet.ship_ids):
+                    fleet.ship_ids.append(ship_id)
+                else:
+                    fleet.ship_ids[ship_index] = ship_id
+            else:
+                del fleet.ship_ids[ship_index]
 
     def update_fleets(self, fleet_data):
         self.fleets = []
