@@ -79,6 +79,7 @@ class Mission(jsonobject.JSONSerializableObject):
     MAPAREA_NORTH = 3
     MAPAREA_WEST = 4
     MAPAREA_SOUTH = 5
+    MAPAREA_2014_SPRING = 26
     state = jsonobject.ReadonlyJSONProperty('state', value_type=int)
     """State."""
     STATE_NEW = 0
@@ -126,33 +127,35 @@ class MissionList(model.KCAAObject):
     def update(self, api_name, request, response, objects, debug):
         super(MissionList, self).update(api_name, request, response, objects,
                                         debug)
-        if api_name == '/api_get_master/mission':
-            self.update_api_get_master_mission(request, response)
+        if api_name == '/api_start2':
+            self.update_master(request, response)
         elif (api_name == '/api_get_member/deck' or
               api_name == '/api_get_member/deck_port'):
             self.update_api_get_member_deck(request, response)
 
-    def update_api_get_master_mission(self, request, response):
+    def update_master(self, request, response):
+        # TODO: Refactor this method. As the master information is now shipped
+        # with /api_start2, there's no need to care if there is already a
+        # member data there.
         mission_to_progress = {}
         for mission in self.missions:
             if mission.undertaking_fleet:
                 mission_to_progress[mission.id] = [mission.undertaking_fleet,
                                                    mission.eta]
         missions = []
-        for data in response['api_data']:
-            mission_data = jsonobject.parse(data)
+        for data in response.api_data.api_mst_mission:
             mission = Mission(
-                id=mission_data.api_id,
-                name=mission_data.api_name,
-                description=mission_data.api_details,
-                difficulty=mission_data.api_difficulty,
-                maparea=mission_data.api_maparea_id,
-                state=mission_data.api_state,
-                time=mission_data.api_time,
+                id=data.api_id,
+                name=data.api_name,
+                description=data.api_details,
+                difficulty=data.api_difficulty,
+                maparea=data.api_maparea_id,
+                state=Mission.STATE_COMPLETE,
+                time=data.api_time,
                 consumption=resource.ResourcePercentage(
-                    fuel=float(mission_data.api_use_fuel),
-                    ammo=float(mission_data.api_use_bull)),
-                rewards=MISSION_REWARDS.get(mission_data.api_id))
+                    fuel=float(data.api_use_fuel),
+                    ammo=float(data.api_use_bull)),
+                rewards=MISSION_REWARDS.get(data.api_id, {}))
             progress = mission_to_progress.get(mission.id)
             if progress:
                 mission.undertaking_fleet = progress[0]
