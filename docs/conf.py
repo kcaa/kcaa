@@ -50,7 +50,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'KCAA: KanColle Automated Assistant'
-copyright = u'2014, eplusx'
+copyright = u'2014, KCAA Dev'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -203,7 +203,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
   ('index', 'KCAAKanColleAutomatedAssistant.tex', u'KCAA: KanColle Automated Assistant Documentation',
-   u'eplusx', 'manual'),
+   u'KCAA Dev', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -233,7 +233,7 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     ('index', 'kcaakancolleautomatedassistant', u'KCAA: KanColle Automated Assistant Documentation',
-     [u'eplusx'], 1)
+     [u'KCAA Dev'], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -247,7 +247,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
   ('index', 'KCAAKanColleAutomatedAssistant', u'KCAA: KanColle Automated Assistant Documentation',
-   u'eplusx', 'KCAAKanColleAutomatedAssistant', 'One line description of project.',
+   u'KCAA Dev', 'KCAAKanColleAutomatedAssistant', 'One line description of project.',
    'Miscellaneous'),
 ]
 
