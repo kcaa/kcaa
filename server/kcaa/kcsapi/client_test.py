@@ -18,11 +18,11 @@ class TestScreen(object):
     def test_mission_result(self):
         screen = client.Screen()
         assert screen.screen == screens.UNKNOWN
-        self.update(screen, '/api_get_member/deck_port')
+        self.update(screen, '/api_port/port')
         assert screen.screen == screens.PORT_MAIN
         self.update(screen, '/api_req_mission/result')
         assert screen.screen == screens.MISSION_RESULT
-        self.update(screen, '/api_get_member/deck_port')
+        self.update(screen, '/api_port/port')
         assert screen.screen == screens.MISSION_RESULT
 
     def test_mission_result_real_sequence(self):
@@ -31,12 +31,12 @@ class TestScreen(object):
         self.update_sequence(screen, [
             '/api_auth_member/logincheck',
             '/api_get_member/material',
-            '/api_get_member/deck_port',
+            '/api_port/port',
             '/api_get_member/ndock',
             '/api_get_member/ship3',
             '/api_get_member/basic',
             '/api_req_mission/result',
-            '/api_get_member/deck_port',
+            '/api_port/port',
             '/api_get_member/basic',
             '/api_get_member/ship2',
             '/api_get_member/material',
