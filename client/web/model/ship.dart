@@ -45,6 +45,7 @@ class Ship extends Observable {
   @observable String lockedClass;
   @observable Fleet belongingFleet;
   @observable String stateClass;
+  @observable int sortOrder;
 
   Ship();
 
@@ -103,6 +104,7 @@ class Ship extends Observable {
     lockedClass = locked ? "" : "unlocked";
     updateBelongingFleet(fleets);
     stateClass = getStateClass();
+    sortOrder = data["sort_order"];
   }
 
   String getStateClass() {
@@ -128,6 +130,16 @@ class Ship extends Observable {
   }
 }
 
+// Compare ships by Kancolle level.
+// First sort by level (not considering experience gauge), then by sort order
+// (encyclopedia order). This order is consistent with "Lv" in Kancolle player.
+int compareShipByKancolleLevel(Ship a, Ship b) {
+  if (a.level != b.level) {
+    return -a.level.compareTo(b.level);
+  }
+  return a.sortOrder.compareTo(b.sortOrder);
+}
+
 void handleShipList(Assistant assistant, AssistantModel model,
                     Map<String, dynamic> data) {
   for (var shipData in (data["ships"] as Map).values) {
@@ -138,10 +150,12 @@ void handleShipList(Assistant assistant, AssistantModel model,
     }
     ship.update(shipData, model.fleets);
   }
-  var shipsLength = data["ship_order"].length;
+  var shipsLength = data["ships"].length;
   resizeList(model.ships, shipsLength, () => new Ship());
+  var sortedShips = model.shipMap.values.toList(growable: false);
+  sortedShips.sort(compareShipByKancolleLevel);
   for (var i = 0; i < shipsLength; i++) {
-    var ship = model.shipMap[int.parse(data["ship_order"][i])];
+    var ship = sortedShips[i];
     // Update the ship list only when the order has changed.
     // Seems like it requires tremendous amount of load to assign a value to
     // ObservableList, even if the value being assigned is the same as the

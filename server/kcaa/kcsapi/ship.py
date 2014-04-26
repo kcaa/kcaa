@@ -125,7 +125,7 @@ class ShipDefinition(jsonobject.JSONSerializableObject):
         'rebuilding_material', value_type=AbilityEnhancement)
     """Rebuilding material."""
     sort_order = jsonobject.ReadonlyJSONProperty('sort_order', value_type=int)
-    """Sort order, or the dictionary ID."""
+    """Sort order, or the encyclopedia ID."""
 
 
 class ShipDefinitionList(model.KCAAObject):
