@@ -80,7 +80,7 @@ class Mission(jsonobject.JSONSerializableObject):
     MAPAREA_WEST = 4
     MAPAREA_SOUTH = 5
     MAPAREA_2014_SPRING = 26
-    state = jsonobject.ReadonlyJSONProperty('state', value_type=int)
+    state = jsonobject.JSONProperty('state', value_type=int)
     """State."""
     STATE_NEW = 0
     STATE_ACTIVE = 1
@@ -129,6 +129,8 @@ class MissionList(model.KCAAObject):
                                         debug)
         if api_name == '/api_start2':
             self.update_master(request, response)
+        elif api_name == '/api_get_member/mission':
+            self.update_api_get_member_mission(request, response)
         elif (api_name == '/api_get_member/deck' or
               api_name == '/api_get_member/deck_port'):
             self.update_api_get_member_deck(request, response)
@@ -163,6 +165,14 @@ class MissionList(model.KCAAObject):
             missions.append(mission)
         missions.sort(lambda x, y: x.id - y.id)
         self.missions = model.merge_list(self.missions, missions)
+
+    def update_api_get_member_mission(self, request, response):
+        mission_to_state = {}
+        for data in response.api_data:
+            mission_to_state[data.api_mission_id] = data.api_state
+        for mission in self.missions:
+            mission.state = mission_to_state.get(
+                mission.id, Mission.STATE_COMPLETE)
 
     def update_api_get_member_deck(self, request, response):
         mission_to_progress = {}

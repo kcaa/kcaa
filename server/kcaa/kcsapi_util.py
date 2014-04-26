@@ -86,6 +86,7 @@ class KCSAPIHandler(object):
             '/api_req_quest/start': [kcsapi.model.NullHandler()],
             '/api_req_quest/stop': [kcsapi.model.NullHandler()],
             # Missions
+            '/api_get_member/mission': [kcsapi.mission.MissionList],
             '/api_req_mission/start': [kcsapi.model.NullHandler()],
             '/api_req_mission/result': [kcsapi.model.NullHandler()],
             # Items
