@@ -35,12 +35,12 @@ class FriendlyScheduleFragment extends Observable {
   }
 
   FriendlyScheduleFragment(ScheduleFragment fragment) {
-    var startHour = (fragment.start / 3600).toInt();
-    var startMin = ((fragment.start - 3600 * startHour) / 60).toInt();
+    var startHour = fragment.start ~/ 3600;
+    var startMin = (fragment.start - 3600 * startHour) ~/ 60;
     var startMinPadding = startMin < 10 ? "0" : "";
     start = "${startHour}:${startMinPadding}${startMin}";
-    var endHour = (fragment.end / 3600).toInt();
-    var endMin = ((fragment.end - 3600 * endHour) / 60).toInt();
+    var endHour = fragment.end ~/ 3600;
+    var endMin = (fragment.end - 3600 * endHour) ~/ 60;
     var endMinPadding = endMin < 10 ? "0" : "";
     end = "${endHour}:${endMinPadding}${endMin}";
   }
