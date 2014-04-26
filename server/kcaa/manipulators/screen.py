@@ -246,7 +246,7 @@ class PortMissionScreen(PortScreen):
 
     def select_fleet(self, fleet_id):
         def select_fleet_task(task):
-            self.click(340 + 30 * fleet_id, 135)
+            self.click(335 + 30 * fleet_id, 120)
             yield 2.0
         return self.do_task(select_fleet_task)
 
