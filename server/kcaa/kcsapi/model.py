@@ -12,9 +12,11 @@ from jsonobject import jsonproperty
 class RawTransaction(jsonobject.JSONSerializableObject):
     """Raw transaction data."""
 
-    request = jsonobject.JSONProperty('request', value_type=dict)
+    request = jsonobject.JSONProperty(
+        'request', value_type=jsonobject.JSONSerializableObject)
     """Raw request."""
-    response = jsonobject.JSONProperty('response', value_type=dict)
+    response = jsonobject.JSONProperty(
+        'response', value_type=jsonobject.JSONSerializableObject)
     """Raw response."""
 
 
