@@ -288,9 +288,6 @@ class ShipList(model.KCAAObject):
     ships = jsonobject.JSONProperty('ships', {}, value_type=dict,
                                     element_type=Ship)
     """Ships. Keyed by instance ID (string)."""
-    ship_order = jsonobject.JSONProperty('ship_order', [], value_type=list,
-                                         element_type=unicode)
-    """Order of ships. This perserves the sort order."""
 
     def update(self, api_name, request, response, objects, debug):
         super(ShipList, self).update(api_name, request, response, objects,
@@ -298,7 +295,6 @@ class ShipList(model.KCAAObject):
         updated_ids = set()
         if (api_name == '/api_port/port' or
                 api_name == '/api_get_member/ship2'):
-            del self.ship_order[:]
             if api_name == '/api_port/port':
                 ship_data = response.api_data.api_ship
             else:
@@ -308,7 +304,6 @@ class ShipList(model.KCAAObject):
                 ShipList.update_ship(ship, data)
                 self.ships[str(ship['id'])] = Ship(**ship)
                 updated_ids.add(str(ship['id']))
-                self.ship_order.append(str(ship['id']))
         elif api_name == '/api_req_hensei/lock':
             ship = self.ships[str(request.api_ship_id)]
             ship.locked = bool(response.api_data.api_locked)
