@@ -131,9 +131,10 @@ class MissionList(model.KCAAObject):
             self.update_master(request, response)
         elif api_name == '/api_get_member/mission':
             self.update_api_get_member_mission(request, response)
-        elif (api_name == '/api_get_member/deck' or
-              api_name == '/api_get_member/deck_port'):
-            self.update_api_get_member_deck(request, response)
+        elif api_name == '/api_get_member/deck':
+            self.update_mission_fleets(response.api_data)
+        elif api_name == '/api_port/port':
+            self.update_mission_fleets(response.api_data.api_deck_port)
 
     def update_master(self, request, response):
         # TODO: Refactor this method. As the master information is now shipped
@@ -174,16 +175,17 @@ class MissionList(model.KCAAObject):
             mission.state = mission_to_state.get(
                 mission.id, Mission.STATE_COMPLETE)
 
-    def update_api_get_member_deck(self, request, response):
+    def update_mission_fleets(self, fleet_data):
+        # TODO: Refactor this method. As the master information is now shipped
+        # with /api_start2, there's no need to care if there is already a
+        # member data there.
         mission_to_progress = {}
-        for data in response['api_data']:
-            fleet_data = jsonobject.parse(data)
-            if fleet_data.api_mission[0] != 0:
-                mission_id = fleet_data.api_mission[1]
-                eta = fleet_data.api_mission[2]
+        for data in fleet_data:
+            if data.api_mission[0] != 0:
+                mission_id = data.api_mission[1]
+                eta = data.api_mission[2]
                 mission_to_progress[mission_id] = [
-                    [fleet_data.api_id, fleet_data.api_name],
-                    eta]
+                    [data.api_id, data.api_name], eta]
         for mission in self.missions:
             progress = mission_to_progress.get(mission.id)
             if progress:

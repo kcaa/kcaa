@@ -70,12 +70,11 @@ class KCSAPIHandler(object):
             # or building docks.
             # TODO: Support all /api_port/port handlers.
             '/api_port/port': [kcsapi.fleet.FleetList,
+                               kcsapi.mission.MissionList,
                                kcsapi.ship.ShipList],
+            # Fleets (deck).
             '/api_get_member/deck': [kcsapi.fleet.FleetList,
                                      kcsapi.mission.MissionList],
-            '/api_get_member/deck_port': [kcsapi.fleet.FleetList,
-                                          kcsapi.mission.MissionList],
-            # Fleets (deck).
             '/api_req_hensei/change': [kcsapi.model.NullHandler()],
             # Repair docks
             '/api_get_member/ndock': [kcsapi.repair.RepairDock],
