@@ -66,7 +66,6 @@ class KCSAPIHandler(object):
             # Like /api_start2, /api_port/port delivers most (all?) member
             # information; variant data for the player, ships, fleets, repair
             # or building docks.
-            # TODO: Support all /api_port/port handlers.
             '/api_port/port': [kcsapi.fleet.FleetList,
                                kcsapi.mission.MissionList,
                                kcsapi.ship.ShipList],
