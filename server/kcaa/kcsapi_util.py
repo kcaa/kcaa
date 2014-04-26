@@ -94,9 +94,6 @@ class KCSAPIHandler(object):
             # Furnitures
             # Not interested in furniture configuration.
             '/api_get_member/furniture': [kcsapi.model.NullHandler()],
-            # Maparea
-            # Delivers only names.
-            '/api_get_master/maparea': [kcsapi.model.NullHandler()],
             # Log
             # Almost useless.
             '/api_get_member/actionlog': [kcsapi.model.NullHandler()],
