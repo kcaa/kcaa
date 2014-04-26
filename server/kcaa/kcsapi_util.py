@@ -32,31 +32,35 @@ class KCSAPIHandler(object):
     def define_handlers(self):
         """Define KCSAPI handlers.
 
+        For each KCSAPI, define proper handlers. The order matters; start from
+        the independent ones, and then followed by depending ones. Otherwise a
+        client may read an incomplete data. For 2 independent handlers, order
+        them alphabetically.
+
         The reason to define handlers here, not in a module level, is to
         refresh the handler class objects to reflect what's in source files
         under kcsapi/ directory.
         """
-        # API URLs can be classified into 4 classes:
-        # - /api_get_master/FOO: Get the general definition about FOO. User
-        #                        independent.
+        # API URLs can be classified into 3 classes:
         # - /api_get_member/FOO: Get the current status about FOO. User
-        #                        dependent.
+        #                        dependent. Some data is delivered through a
+        #                        shared KCSAPI, /api_port/port.
         # - /api_req_FOO/BAR: Make changes on FOO by doing an action BAR.
         #                     Doesn't necessarily deliver useful information
         #                     in the response (i.e. oftentimes the request
         #                     itself is important).
         # - Others.
         self.kcsapi_handlers = {
-            # Initialization, or account information
+            # Initialization, or account information.
             # /api_start2 now delivers most (all?) master information;
             # invariant data required for modelling, rendering and everything.
             '/api_auth_member/logincheck': [kcsapi.model.NullHandler()],
             '/api_req_member/get_incentive': [kcsapi.model.NullHandler()],
             '/api_start2': [kcsapi.mission.MissionList,
                             kcsapi.ship.ShipDefinitionList],
-            # Encyclopedia
+            # Encyclopedia.
             '/api_get_member/book2': [kcsapi.model.NullHandler()],
-            # Ships
+            # Ships.
             '/api_get_member/ship2': [kcsapi.ship.ShipList],
             '/api_req_hensei/lock': [kcsapi.ship.ShipList],
             '/api_req_hokyu/charge': [kcsapi.ship.ShipList],
@@ -66,27 +70,28 @@ class KCSAPIHandler(object):
             # Like /api_start2, /api_port/port delivers most (all?) member
             # information; variant data for the player, ships, fleets, repair
             # or building docks.
-            '/api_port/port': [kcsapi.fleet.FleetList,
-                               kcsapi.mission.MissionList,
-                               kcsapi.ship.ShipList],
+            # Note that ShipList must precede FleetList, as FleetList is
+            # potentially depending on ShipList.
+            '/api_port/port': [kcsapi.mission.MissionList,
+                               kcsapi.ship.ShipList,
+                               kcsapi.fleet.FleetList],
             # Fleets (deck).
             '/api_get_member/deck': [kcsapi.fleet.FleetList,
                                      kcsapi.mission.MissionList],
             '/api_req_hensei/change': [kcsapi.model.NullHandler()],
-            # Repair docks
+            # Repair docks.
             '/api_get_member/ndock': [kcsapi.repair.RepairDock],
-            # Quests
+            # Quests.
             '/api_get_member/questlist': [kcsapi.quest.QuestList],
             '/api_req_quest/start': [kcsapi.model.NullHandler()],
             '/api_req_quest/stop': [kcsapi.model.NullHandler()],
-            # Missions
+            # Missions.
             '/api_get_member/mission': [kcsapi.mission.MissionList],
             '/api_req_mission/start': [kcsapi.model.NullHandler()],
             '/api_req_mission/result': [kcsapi.model.NullHandler()],
-            # Items
+            # Items.
             #'/api_get_member/useitem': [],
-            # Furnitures
-            # Not interested in furniture configuration.
+            # Furnitures.
             '/api_get_member/furniture': [kcsapi.model.NullHandler()],
         }
         # Eager handlers accept all KCSAPI responses regardless of API URL.
