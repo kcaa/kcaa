@@ -50,9 +50,6 @@ class KCSAPIHandler(object):
             # Initialization, or account information
             # /api_start2 now delivers most (all?) master information;
             # invariant data required for modelling, rendering and everything.
-            # TODO: Support /api_start2. The basic plan is to delegate each
-            # master handler to parse the subset of them, e.g. for
-            # ShipDefinitionList, just parse response.api_data.api_mst_ship.
             '/api_auth_member/logincheck': [kcsapi.model.NullHandler()],
             '/api_req_member/get_incentive': [kcsapi.model.NullHandler()],
             '/api_start2': [kcsapi.mission.MissionList,
