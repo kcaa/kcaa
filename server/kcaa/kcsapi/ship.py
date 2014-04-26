@@ -296,7 +296,17 @@ class ShipList(model.KCAAObject):
         super(ShipList, self).update(api_name, request, response, objects,
                                      debug)
         updated_ids = set()
-        if (api_name == '/api_get_member/ship' or
+        # TODO: Check if other handlers are still required.
+        # This part is too messy...
+        if api_name == '/api_port/port':
+            del self.ship_order[:]
+            for data in response.api_data.api_ship:
+                ship = self.get_ship(data, objects).convert_to_dict()
+                ShipList.update_ship(ship, data)
+                self.ships[str(ship['id'])] = Ship(**ship)
+                updated_ids.add(str(ship['id']))
+                self.ship_order.append(str(ship['id']))
+        elif (api_name == '/api_get_member/ship' or
                 api_name == '/api_get_member/ship2' or
                 api_name == '/api_get_member/ship3'):
             del self.ship_order[:]

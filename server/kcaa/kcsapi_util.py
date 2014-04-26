@@ -66,16 +66,17 @@ class KCSAPIHandler(object):
             '/api_req_hokyu/charge': [kcsapi.ship.ShipList],
             '/api_req_kaisou/remodeling': [kcsapi.ship.ShipList],
             '/api_req_kousyou/getship': [kcsapi.ship.ShipList],
-            # Decks (Fleets)
-            # Not sure what's the difference between /deck and /deck_port. They
-            # share the same data structure.
-            # As long as I know, /deck is used when a fleet departs for a
-            # mission, and /deck_port when a user comes back to the start
-            # screen (which is called a port).
+            # Port.
+            # Like /api_start2, /api_port/port delivers most (all?) member
+            # information; variant data for the player, ships, repair or
+            # building docks.
+            # TODO: Support all /api_port/port handlers.
+            '/api_port/port': [kcsapi.ship.ShipList],
             '/api_get_member/deck': [kcsapi.fleet.FleetList,
                                      kcsapi.mission.MissionList],
             '/api_get_member/deck_port': [kcsapi.fleet.FleetList,
                                           kcsapi.mission.MissionList],
+            # Fleets (deck).
             '/api_req_hensei/change': [kcsapi.model.NullHandler()],
             # Repair docks
             '/api_get_member/ndock': [kcsapi.repair.RepairDock],
