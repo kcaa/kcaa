@@ -92,7 +92,6 @@ class KCSAPIHandler(object):
             #'/api_get_member/useitem': [],
             # Furnitures
             # Not interested in furniture configuration.
-            '/api_get_master/furniture': [kcsapi.model.NullHandler()],
             '/api_get_member/furniture': [kcsapi.model.NullHandler()],
             # Maparea
             # Delivers only names.
