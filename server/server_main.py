@@ -9,30 +9,17 @@ import sys
 import kcaa
 
 
-class ShortLogFormatter(logging.Formatter):
-
-    def format(self, record):
-        now = datetime.datetime.now()
-        return '{} {:5s}: {}'.format(now.strftime('%H:%M:%S'),
-                                     record.levelname[:5],
-                                     record.getMessage())
-
-
 def main(argv):
     args = kcaa.flags.parse_args(argv[1:])
 
-    # Log to stdout.
-    logger = logging.getLogger('kcaa')
-    logger.setLevel(logging.DEBUG)
-    handler = logging.StreamHandler(sys.stderr)
-    handler.setLevel(logging.DEBUG)
-    handler.setFormatter(ShortLogFormatter())
-    logger.addHandler(handler)
+    logger = kcaa.setup_logger()
+    logger.debug('Logger setup finished.')
 
     to_exit = multiprocessing.Event()
     p = multiprocessing.Process(target=kcaa.controller.control,
                                 args=(args, to_exit))
     p.start()
+    logger.debug('Controller process started.')
 
     def handle_sigint(signal, frame):
         logger.info('SIGINT received in the main process. Exiting...')

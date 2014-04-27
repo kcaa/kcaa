@@ -11,6 +11,8 @@ from selenium import webdriver
 from selenium.common import exceptions
 from selenium.webdriver.common import action_chains
 
+import kcaa
+
 
 KANCOLLE_URL = 'http://www.dmm.com/netgame/social/-/gadgets/=/app_id=854854/'
 
@@ -19,6 +21,7 @@ COMMAND_COVER = 'cover'
 COMMAND_TAKE_SCREENSHOT = 'take_screenshot'
 
 
+kcaa.setup_logger()
 logger = logging.getLogger('kcaa.browser')
 
 
@@ -35,6 +38,7 @@ def get_desired_capabilities(args):
 
 
 def setup_chrome(args, desired_capabilities):
+    print args
     options = webdriver.ChromeOptions()
     options.binary_location = args.chrome_binary
     return webdriver.Chrome(executable_path=args.chromedriver_binary,

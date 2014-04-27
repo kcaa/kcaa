@@ -6,6 +6,7 @@ import time
 import traceback
 
 import browser
+import kcaa
 import kcsapi_util
 import manipulator_util
 import proxy_util
@@ -33,6 +34,7 @@ def control(args, to_exit):
     pk = DummyProcess()
     pc = DummyProcess()
     try:
+        kcaa.setup_logger()
         logger = logging.getLogger('kcaa.controller')
         har_manager = proxy_util.HarManager(args, 3.0)
         controller_conn, server_conn = multiprocessing.Pipe()
