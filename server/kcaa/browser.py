@@ -210,7 +210,7 @@ def show_game_frame_cover(browser, is_shown):
 
 def setup_kancolle_browser(args, controller_conn, to_exit):
     try:
-        monitor = BrowserMonitor('Kancolle', open_kancolle_browser(args), 5)
+        monitor = BrowserMonitor('Kancolle', open_kancolle_browser(args), 3)
         game_frame, dx, dy, game_area_rect = None, None, None, None
         covered = False
         while True:
@@ -295,7 +295,7 @@ def setup_kcaa_browser(args, root_url, to_exit):
         kcaa_browser = open_kcaa_browser(args, root_url)
         if not kcaa_browser:
             return
-        monitor = BrowserMonitor('KCAA', kcaa_browser, 5)
+        monitor = BrowserMonitor('KCAA', kcaa_browser, 3)
         while True:
             time.sleep(1.0)
             if to_exit.wait(0.0):
@@ -305,7 +305,7 @@ def setup_kcaa_browser(args, root_url, to_exit):
                 # necessarily a signal for exiting. Rather, I would restart it
                 # again, assuming that was an accident.
                 monitor = BrowserMonitor(
-                    'KCAA', open_kcaa_browser(args, root_url), 5)
+                    'KCAA', open_kcaa_browser(args, root_url), 3)
     except (KeyboardInterrupt, SystemExit):
         logger.info('SIGINT received in the KCAA browser process. Exiting...')
     except:
