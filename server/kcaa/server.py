@@ -7,14 +7,14 @@ import traceback
 import urlparse
 
 import controller
-import kcaa
+import logenv
 
 
 DEPLOYED_PACKAGE = 'build/web'
 DEVELOPMENT_PACKAGE = 'web'
 
 
-kcaa.setup_logger()
+logenv.setup_logger()
 logger = logging.getLogger('kcaa.server')
 
 
