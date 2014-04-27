@@ -61,10 +61,10 @@ License, Version 2.0) below.
 
 KCAA software is licensed under Apache License, Version 2.0.
 
-  Copyright 2014 KCAA Dev
-  https://github.com/kcaa/kcaa
-  Apache License, Version 2.0
-  http://www.apache.org/licenses/LICENSE-2.0
+    Copyright 2014 KCAA Dev
+    https://github.com/kcaa/kcaa
+    Apache License, Version 2.0
+    http://www.apache.org/licenses/LICENSE-2.0
 
 KCAA software include all files and subdirectories in this repository or
 directory, except under "thirdparty" subdirectory.
