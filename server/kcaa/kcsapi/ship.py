@@ -294,11 +294,14 @@ class ShipList(model.KCAAObject):
                                      debug)
         updated_ids = set()
         if (api_name == '/api_port/port' or
-                api_name == '/api_get_member/ship2'):
+                api_name == '/api_get_member/ship2' or
+                api_name == '/api_get_member/ship3'):
             if api_name == '/api_port/port':
                 ship_data = response.api_data.api_ship
-            else:
+            elif api_name == '/api_get_member/ship2':
                 ship_data = response.api_data
+            else:
+                ship_data = response.api_data.api_ship_data
             for data in ship_data:
                 ship = self.get_ship(data, objects).convert_to_dict()
                 ShipList.update_ship(ship, data)
