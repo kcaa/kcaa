@@ -1,33 +1,61 @@
 # KCAA: KanColle Automated Assistant
 
-KCAA (pronounced as *K-car*) is an assistant tool for playing Kancolle (Kantai
-Collection).
+KCAA (pronounced as *K-car*) is an assistant tool for playing
+[Kancolle](http://www.dmm.com/netgame/feature/kancolle.html) (Kantai
+Collection), aimed to do simple tasks for you so that you can focus on what you
+really should do -- resource management and making decisions.
 
-# Python server dependencies
+Currently supported key features are
+- Fleets and ships with vital parameters at a glance
+- Assisting some routine works
+- (Experimental) Screen capture for remote use case
 
-KCAA server (`server/server_main.py`) needs following third-party PyPI
-packages.
+Planned key features are
+- More flexible fleet/ship list view (filter, sort, see minor parameters)
+- Saving/restoring Fleet/equipment configuration
+- Making journals (log or charts) for resources
+- More assists for routine works
+- Polishing UI/UX
 
-- [python-dateutil](https://pypi.python.org/pypi/python-dateutil)
-- [requests](https://pypi.python.org/pypi/requests)
-- [selenium](https://pypi.python.org/pypi/selenium)
+This is an English version of README. For Japanese information, see
+https://github.com/kcaa/kcaa/blob/master/README-ja.md but beware that the
+contents may differ.
 
-All of the above can be installed via `pip`. If you use Debian-like Linux
-distribution (including Ubuntu), you can install `pip` itself via `apt-get`.
-For example:
+日本語版は: https://github.com/kcaa/kcaa/blob/master/README-ja.md
 
-    sudo apt-get install python-pip
-    sudo pip install python-dateutil requests selenium
+# Quick Installation
 
-You will need a root priviledge if you don't run python in a virtual
-environment. If you want to create your own sandbox environment, see also
-[virtualenv](https://pypi.python.org/pypi/virtualenv).
+## Windows
 
-And for testing, the following packages are recommended.
+TODO.
 
-- [pytest](https://pypi.python.org/pypi/pytest)
-- [pytest-cov](https://pypi.python.org/pypi/pytest-cov)
-- [pytest-pep8](https://pypi.python.org/pypi/pytest-pep8)
+## Ubuntu
+
+Just run `tools/install.sh`. You are required to have a sudoer permission.
+
+    cd /path/to/kcaa
+    ./install.sh
+
+Once it's finished, run `tools/start_game.sh`. By default it starts up 2 Chrome
+browsers, one for Kancolle itself and another for KCAA information and control.
+
+    ./start_game.sh
+
+## Other Linux distributions
+
+Not planned, but it should be technically feasible. Contributions are very much
+appreciated.
+
+## Mac OS
+
+Not planned, but it should be technically feasible. Contributions are very much
+appreciated.
+
+# Important Caveats
+
+This software is distributed *as-is*. KCAA Dev, the developer and distributor,
+gives no warranty in any kind. See the license terms of this software (Apache
+License, Version 2.0) below.
 
 # License
 
