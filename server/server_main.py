@@ -29,6 +29,7 @@ def main(argv):
 
     signal.signal(signal.SIGINT, handle_sigint)
     p.join()
+    logger.info('Shutting down the main process.')
 
 
 if __name__ == '__main__':

@@ -216,6 +216,8 @@ def setup_kancolle_browser(args, controller_conn, to_exit):
         while True:
             browser = monitor.browser
             if to_exit.wait(0.0):
+                logger.info('Browser Kancolle got an exit signal. Shutting '
+                            'down.')
                 break
             if not monitor.is_alive():
                 # If a user closes the Kancolle browser, it should be a signal
@@ -299,6 +301,7 @@ def setup_kcaa_browser(args, root_url, to_exit):
         while True:
             time.sleep(1.0)
             if to_exit.wait(0.0):
+                logger.info('Browser KCAA got an exit signal. Shutting down.')
                 break
             if not monitor.is_alive():
                 # KCAA window is not vital for playing the game -- it is not

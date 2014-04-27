@@ -18,3 +18,5 @@ set SERVERBIN=%cd%\..\server\server_main.py
   --phantomjs_binary=%PHANTOMJSBIN% ^
   --credentials=%CREDENTIALS% ^
   --debug=%DEBUG%
+
+echo Server exited. Close this window!
