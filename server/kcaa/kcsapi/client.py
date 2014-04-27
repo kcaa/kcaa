@@ -24,12 +24,13 @@ class Screen(model.KCAAObject):
           '/api_port/port'], screens.MISSION_RESULT),
     ]
     API_TO_SCREEN_MAP = {
-        '/api_get_master/mapinfo': screens.PORT_EXPEDITION,
-        '/api_get_master/mission': screens.PORT_MISSION,
-        '/api_get_master/payitem': screens.PORT_ITEMSHOP,
-        '/api_get_member/book2': screens.PORT_ENCYCLOPEDIA,
+        '/api_get_member/mapinfo': screens.PORT_EXPEDITION,
+        '/api_get_member/mission': screens.PORT_MISSION,
+        '/api_get_member/payitem': screens.PORT_ITEMSHOP,
+        '/api_get_member/picture_book': screens.PORT_ENCYCLOPEDIA,
         '/api_get_member/practice': screens.PORT_PRACTICE,
         '/api_get_member/questlist': screens.PORT_QUESTLIST,
+        '/api_get_member/record': screens.PORT_RECORD,
         '/api_port/port': screens.PORT_MAIN,
         '/api_req_map/next': screens.EXPEDITION,  # TODO: special handler
         '/api_req_map/start': screens.EXPEDITION,  # TODO: special handler
