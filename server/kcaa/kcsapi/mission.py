@@ -100,7 +100,7 @@ class Mission(jsonobject.JSONSerializableObject):
     """Fleet which is undertaking this mission. First element represents the
     ID of the fleet, and the second holds the fleet name."""
     # Do not use fleet.Fleet here, as it yields another module dependency.
-    eta = jsonobject.JSONProperty('eta', value_type=int)
+    eta = jsonobject.JSONProperty('eta', value_type=long)
     """Estimated Time of Arrival, in UNIX time with millisecond precision."""
 
 
@@ -183,7 +183,7 @@ class MissionList(model.KCAAObject):
         for data in fleet_data:
             if data.api_mission[0] != 0:
                 mission_id = data.api_mission[1]
-                eta = data.api_mission[2]
+                eta = long(data.api_mission[2])
                 mission_to_progress[mission_id] = [
                     [data.api_id, data.api_name], eta]
         for mission in self.missions:
