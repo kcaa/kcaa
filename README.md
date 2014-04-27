@@ -28,3 +28,17 @@ And for testing, the following packages are recommended.
 - [pytest](https://pypi.python.org/pypi/pytest)
 - [pytest-cov](https://pypi.python.org/pypi/pytest-cov)
 - [pytest-pep8](https://pypi.python.org/pypi/pytest-pep8)
+
+# License
+
+KCAA software is licensed under Apache License, Version 2.0.
+
+  Copyright 2014 KCAA Dev
+  https://github.com/kcaa/kcaa
+  Apache License, Version 2.0
+  http://www.apache.org/licenses/LICENSE-2.0
+
+KCAA software include all files and subdirectories in this repository or
+directory, except under "thirdparty" subdirectory.
+Third-party softwares come with their own license terms and restrictions. See
+thirdparty/README.txt for details.
