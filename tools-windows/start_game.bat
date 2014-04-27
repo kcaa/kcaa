@@ -3,9 +3,6 @@
 call config.bat
 
 set SERVERBIN=%cd%\..\server\server_main.py
-set PYTHONPATH=%PYTHONPATH%;%cd%\..\server
-
-echo %PYTHONPATH%
 
 %PYTHON% ^
   %SERVERBIN% ^
