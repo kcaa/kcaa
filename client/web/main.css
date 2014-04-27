@@ -37,6 +37,10 @@ h1 .sub {
   left: -16px;
   position: relative;
 }
+h1 .kancolle-logo-follower {
+  left: -20px;
+  position: relative;
+}
 .kcaa-container {
   text-align: center;
 }
