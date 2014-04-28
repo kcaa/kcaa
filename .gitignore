@@ -12,6 +12,6 @@ docs/_static/
 docs/_templates/
 ghostdriver.log
 htmlcov/
-thirdparty/bin/
+opt/
 __pycache__/
 
