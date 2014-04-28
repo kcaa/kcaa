@@ -9,7 +9,7 @@ rem ==========================================================================
 
 set PYTHON=C:\Python27\python.exe
 set PIP=C:\Python27\Scripts\pip.exe
-set INSTALLDIR=%CD%\..\thirdparty\bin
+set INSTALLDIR=%CD%\..\opt
 
 rem ==========================================================================
 rem Proxy
@@ -41,6 +41,7 @@ rem Chrome-specific
 rem ==========================================================================
 
 set CHROMEBIN=
+set CHROMEUSERDATABASEDIR=%INSTALLDIR%\userdata_chrome
 set CHROMEDRIVERBIN=%INSTALLDIR%\chromedriver.exe
 
 rem ==========================================================================

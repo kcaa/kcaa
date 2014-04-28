@@ -37,19 +37,22 @@ def get_desired_capabilities(args):
     return capabilities
 
 
-def setup_chrome(args, desired_capabilities):
+def setup_chrome(name, args, desired_capabilities):
     options = webdriver.ChromeOptions()
     options.binary_location = args.chrome_binary
+    if args.chrome_user_data_basedir:
+        options.add_argument('--user-data-dir={}'.format(
+            os.path.join(args.chrome_user_data_basedir, name)))
     return webdriver.Chrome(executable_path=args.chromedriver_binary,
                             chrome_options=options,
                             desired_capabilities=desired_capabilities)
 
 
-def setup_firefox(args, desired_capabilities):
+def setup_firefox(name, args, desired_capabilities):
     return webdriver.Firefox(capabilities=desired_capabilities)
 
 
-def setup_phantomjs(args, desired_capabilities):
+def setup_phantomjs(name, args, desired_capabilities):
     # Use PhantomJS with caution: it doesn't support proxying only HTTP
     # transactions (= bypassing HTTPS ones). This may reveal your username and
     # password to anyone who can access the proxy server, or anyone who can run
@@ -67,15 +70,15 @@ def setup_phantomjs(args, desired_capabilities):
     return browser
 
 
-def open_browser(browser_type, args):
+def open_browser(name, browser_type, args):
     desired_capabilities = get_desired_capabilities(args)
     browser = None
     if browser_type == 'chrome':
-        browser = setup_chrome(args, desired_capabilities)
+        browser = setup_chrome(name, args, desired_capabilities)
     elif browser_type == 'firefox':
-        browser = setup_firefox(args, desired_capabilities)
+        browser = setup_firefox(name, args, desired_capabilities)
     elif browser_type == 'phantomjs':
-        browser = setup_phantomjs(args, desired_capabilities)
+        browser = setup_phantomjs(name, args, desired_capabilities)
     else:
         raise ValueError('Unrecognized browser: {browser}'.format(
             browser=browser_type))
@@ -83,7 +86,7 @@ def open_browser(browser_type, args):
 
 
 def open_kancolle_browser(args):
-    browser = open_browser(args.kancolle_browser, args)
+    browser = open_browser('kancolle', args.kancolle_browser, args)
     browser.set_window_size(980, 750)
     browser.set_window_position(0, 0)
     browser.get(KANCOLLE_URL)
@@ -285,7 +288,7 @@ def open_kcaa_browser(args, root_url):
                     'one for KCAA. You can still open a KCAA Web UI with {}.'
                     .format(root_url))
         return None
-    browser = open_browser(args.kcaa_browser, args)
+    browser = open_browser('kcaa', args.kcaa_browser, args)
     browser.set_window_size(700, 1050)
     browser.set_window_position(980, 0)
     browser.get(root_url)

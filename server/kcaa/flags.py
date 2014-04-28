@@ -46,6 +46,10 @@ def parse_args(argv):
     parser.add_argument('--chrome_binary', default='/usr/bin/google-chrome',
                         help='Chrome binary to use. Useful especially when '
                              'you want to use Chromium or Dartium.')
+    parser.add_argument('--chrome_user_data_basedir', default='',
+                        help='Base directory for storing Chrome user data. '
+                             'If left empty, all user-specific configuration '
+                             'will be lost when a browser exits.')
     parser.add_argument('--chromedriver_binary', default='chromedriver',
                         help='Chromedriver binary to use.')
     parser.add_argument('--phantomjs_binary', default='phantomjs',
