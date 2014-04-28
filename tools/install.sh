@@ -40,6 +40,15 @@ function create_install_directory() {
   fi
 }
 
+function create_user_data_directory() {
+  echo "Creating USER_DATA_DIR: ${USER_DATA_DIR} with mode 700"
+  mkdir -p ${USER_DATA_DIR} -m 700
+  if [ $? -ne 0 ]; then
+    echo "Failed to create the user data path: ${USER_DATA_DIR}"
+    exit 1
+  fi
+}
+
 function install_kancolle_player_prerequisites() {
   local kancolle_player_prerequisites=(
     flashplugin-installer
@@ -159,6 +168,7 @@ function install_dartium() {
 
 confirm_install_prerequisites
 create_install_directory
+create_user_data_directory
 install_kancolle_player_prerequisites
 install_python_server_prerequisites
 install_chromedriver
