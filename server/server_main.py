@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-import datetime
-import logging
 import multiprocessing
 import signal
 import sys
