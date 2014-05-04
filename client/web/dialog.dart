@@ -158,6 +158,7 @@ class FleetMissionDialog extends KcaaDialog {
           "mission_id": missionId,
         }));
     HttpRequest.getString(request.toString());
+    e.preventDefault();
     close();
   }
 }
