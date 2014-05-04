@@ -44,14 +44,17 @@ class FleetList(model.KCAAObject):
             fleet = self.fleets[int(request.api_id)-1]
             ship_index = int(request.api_ship_idx)
             ship_id = int(request.api_ship_id)
-            # -1 means the ship was removed from the fleet.
-            if ship_id != -1:
+            if ship_id == -1:
+                # -1 means the ship was removed from the fleet.
+                del fleet.ship_ids[ship_index]
+            elif ship_id == -2:
+                # -2 means all the ships except the flag ship were removed.
+                del fleet.ship_ids[1:]
+            else:
                 if ship_index >= len(fleet.ship_ids):
                     fleet.ship_ids.append(ship_id)
                 else:
                     fleet.ship_ids[ship_index] = ship_id
-            else:
-                del fleet.ship_ids[ship_index]
 
     def update_fleets(self, fleet_data):
         self.fleets = []
