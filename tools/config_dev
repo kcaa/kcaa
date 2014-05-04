@@ -8,7 +8,7 @@ source config
 # Chrome-specific
 # ============================================================================
 
-CHROME_BIN=${INSTALL_DIR}/dartium/chrome
+CHROME_BIN=${BIN_DIR}/dartium/chrome
 
 # ============================================================================
 # Login

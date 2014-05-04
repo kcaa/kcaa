@@ -28,15 +28,6 @@ function confirm_install_prerequisites() {
   done
 }
 
-function create_install_directory() {
-  echo "Creating INSTALL_DIR: ${INSTALL_DIR}"
-  mkdir -p ${INSTALL_DIR}
-  if [ $? -ne 0 ]; then
-    echo "Failed to create the install path: ${INSTALL_DIR}"
-    exit 1
-  fi
-}
-
 function create_user_data_directory() {
   echo "Creating USER_DATA_DIR: ${USER_DATA_DIR} with mode 700"
   mkdir -p ${USER_DATA_DIR} -m 700
@@ -103,8 +94,8 @@ function install_phantomjs() {
 }
 
 function install_dartium() {
-  if [ -d ${INSTALL_DIR}/dartium ]; then
-    echo "Dartium is already installed at ${INSTALL_DIR}/dartium. Skipping."
+  if [ -d ${BIN_DIR}/dartium ]; then
+    echo "Dartium is already installed at ${BIN_DIR}/dartium. Skipping."
     return
   fi
 
@@ -112,14 +103,14 @@ function install_dartium() {
 'stable/release/latest/dartium'
   local filename='dartium-linux-x64-release.zip'
   echo "Installing the latest Dartium..."
-  wget -q -O ${INSTALL_DIR}/${filename} ${storage_base}/${filename}
+  wget -q -O ${BIN_DIR}/${filename} ${storage_base}/${filename}
   echo "Unzipping..."
-  unzip -q -d ${INSTALL_DIR} ${INSTALL_DIR}/${filename}
-  local dart_dir=$(unzip -l -qq ${INSTALL_DIR}/${filename} \
+  unzip -q -d ${BIN_DIR} ${BIN_DIR}/${filename}
+  local dart_dir=$(unzip -l -qq ${BIN_DIR}/${filename} \
     | awk '{print $NF}' \
     | head -n 1 \
     | sed -e 's|/$||')
-  ln -s ${INSTALL_DIR}/${dart_dir} ${INSTALL_DIR}/dartium
+  ln -s ${BIN_DIR}/${dart_dir} ${BIN_DIR}/dartium
 }
 
 function update_binary() {
@@ -127,7 +118,6 @@ function update_binary() {
 }
 
 confirm_install_prerequisites
-create_install_directory
 create_user_data_directory
 install_kancolle_player_prerequisites
 install_python_server_prerequisites
