@@ -10,10 +10,6 @@ import controller
 import logenv
 
 
-DEPLOYED_PACKAGE = 'build/web'
-DEVELOPMENT_PACKAGE = 'web'
-
-
 class KCAAHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
     GET_OBJECTS = '/get_objects'
@@ -215,23 +211,25 @@ class KCAAHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 def move_to_client_dir(logger):
     # Change directory to client directory so that SimpleHTTPServer can serve
     # client resources.
-    client_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..',
-                                              '..', 'client'))
-    if not os.path.isdir(client_dir):
-        raise IOError('No client directory found: {}'.format(client_dir))
-    os.chdir(client_dir)
+    kcaa_dir = os.path.abspath(os.path.join(
+        os.path.dirname(__file__), '..', '..',))
+    os.chdir(kcaa_dir)
     # Use 'build' subdirectory when deployed, or 'web' when being developed.
-    if os.path.isdir(DEPLOYED_PACKAGE):
-        logger.info(
-            'Deployed package found. Using {}.'.format(DEPLOYED_PACKAGE))
-        os.chdir(DEPLOYED_PACKAGE)
-    elif os.path.isdir(DEVELOPMENT_PACKAGE):
-        logger.info(
-            'Development package found. Using {}.'.format(DEVELOPMENT_PACKAGE))
-        os.chdir(DEVELOPMENT_PACKAGE)
+    # Prefer if there is bin/build directory. This is the default when
+    # released.
+    packages = [
+        'bin/build/web',
+        'client/build/web',
+        'client/web',
+    ]
+    for package in packages:
+        if os.path.isdir(package):
+            logger.info('Package found at {}'.format(package))
+            os.chdir(package)
+            return
     else:
         raise IOError('No client package directories found under {}.'.format(
-            client_dir))
+            kcaa_dir))
 
 
 def setup(args, logger):
