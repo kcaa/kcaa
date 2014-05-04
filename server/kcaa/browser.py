@@ -123,7 +123,7 @@ def open_kancolle_browser(args):
     return browser
 
 
-def get_game_frame(browser):
+def get_game_frame(browser, debug):
     # Is there a better way to get this? Currently these are read from the
     # iframe source.
     game_area_width = 800
@@ -137,7 +137,8 @@ def get_game_frame(browser):
     dy = game_area_top
     add_game_frame_cover(browser, game_area_width, game_area_height, dx, dy)
     # If in the debug mode, show the digitizer tools.
-    add_digitizer(browser)
+    if debug:
+        add_digitizer(browser, debug)
     location = game_frame.location
     left = int(location['x'] + dx)
     top = int(location['y'] + dy)
@@ -268,7 +269,8 @@ def setup_kancolle_browser(args, controller_conn, to_exit):
                             'Unknown browser command: type = {}, args = {}'
                             .format(command_type, command_args))
             else:
-                game_frame, dx, dy, game_area_rect = get_game_frame(browser)
+                game_frame, dx, dy, game_area_rect = get_game_frame(
+                    browser, args.debug)
                 time.sleep(1.0)
     except (KeyboardInterrupt, SystemExit):
         logger.info('SIGINT received in the Kancolle browser process. '
