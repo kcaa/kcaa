@@ -259,9 +259,10 @@ def setup(args):
     httpd.server_bind()
     httpd.server_activate()
     _, port = httpd.server_address
-    root_url = 'http://localhost:{}/client/?interval={}&screen={}'.format(
-        port, args.frontend_update_interval,
-        'true' if args.show_kancolle_screen else 'false')
+    root_url = ('http://localhost:{}/client/?interval={}&screen={}&debug={}'.
+                format(port, args.frontend_update_interval,
+                       'true' if args.show_kancolle_screen else 'false',
+                       'true' if args.debug else 'false'))
     logger.info('KCAA client ready at {}'.format(root_url))
     return httpd, root_url
 

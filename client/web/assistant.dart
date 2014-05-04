@@ -37,6 +37,7 @@ class Assistant extends PolymerElement {
   Uri serverClick;
 
   // Debug information.
+  bool debug = false;
   @observable String debugInfo;
   final List<String> availableObjects = new ObservableList<String>();
   Set<String> availableObjectSet = new Set<String>();
@@ -72,6 +73,7 @@ class Assistant extends PolymerElement {
     var interval = clientRoot.queryParameters["interval"];
     interval = interval != null ? double.parse(interval) : 1.0;
     updateAvailableObjectsIntervalMs = (1000 * interval).toInt();
+    debug = clientRoot.queryParameters["debug"] == "true";
     showScreen = clientRoot.queryParameters["screen"] != "false";
 
     serverRoot = clientRoot.resolve("/");
@@ -89,6 +91,10 @@ class Assistant extends PolymerElement {
 
   @override
   void enteredView() {
+    if (debug) {
+      $["debugControlsSection"].classes.remove("hidden");
+      $["debugInfoSection"].classes.remove("hidden");
+    }
     if (showScreen) {
       $["screenSection"].classes.remove("hidden");
       runLater(1000, () => reloadScreenshot());
