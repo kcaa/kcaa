@@ -314,7 +314,7 @@ def setup_kcaa_browser(args, root_url, to_exit):
                 # necessarily a signal for exiting. Rather, I would restart it
                 # again, assuming that was an accident.
                 monitor = BrowserMonitor(
-                    'KCAA', open_kcaa_browser(args, root_url), 3)
+                    'KCAA', open_kcaa_browser(args, root_url, logger), 3)
     except (KeyboardInterrupt, SystemExit):
         logger.info('SIGINT received in the KCAA browser process. Exiting...')
     except:
