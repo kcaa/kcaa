@@ -55,7 +55,7 @@ PHANTOMJS_BIN=${INSTALL_DIR}/phantomjs
 # Login
 # ============================================================================
 
-CREDENTIALS=${HOME}/.kancolle_credentials
+CREDENTIALS=${USER_DATA_DIR}/credentials
 
 # ============================================================================
 # Debug
