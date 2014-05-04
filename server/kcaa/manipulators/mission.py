@@ -37,7 +37,7 @@ class AutoCheckMissionResult(base.AutoManipulator):
         mission_list = owner.objects.get('MissionList')
         if not mission_list:
             return
-        now = int(1000 * time.time())
+        now = long(1000 * time.time())
         count = 0
         for mission_ in mission_list.missions:
             if mission_.eta and mission_.eta - cls.precursor_duration < now:
