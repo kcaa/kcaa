@@ -100,8 +100,12 @@ class Mission(jsonobject.JSONSerializableObject):
     """Fleet which is undertaking this mission. First element represents the
     ID of the fleet, and the second holds the fleet name."""
     # Do not use fleet.Fleet here, as it yields another module dependency.
-    eta = jsonobject.JSONProperty('eta', value_type=long)
-    """Estimated Time of Arrival, in UNIX time with millisecond precision."""
+    eta = jsonobject.JSONProperty('eta')
+    """Estimated Time of Arrival, in UNIX time with millisecond precision.
+
+    Do not set the value type; this may be typed as int by Linux json loader
+    while as long by Windows one. This poses a tricky problem when reloading
+    this module. Better not to stick with a strict type check for now."""
 
 
 class MissionList(model.KCAAObject):
