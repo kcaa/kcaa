@@ -7,7 +7,9 @@
 # before running './start_game.sh' in the same session if you running this
 # script from non-GUI environment.
 
-source $(dirname $0)/config
+CONFIG_FILE=${1-$(dirname $0)/config}
+
+source ${CONFIG_FILE}
 
 SERVER_BIN=$(dirname $0)/../server/server_main.py
 RUN_PROXY_BIN=$(dirname $0)/run_proxy.sh
