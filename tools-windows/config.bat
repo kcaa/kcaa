@@ -9,14 +9,14 @@ rem ==========================================================================
 
 set PYTHON=C:\Python27\python.exe
 set PIP=C:\Python27\Scripts\pip.exe
-set INSTALLDIR=%CD%\..\opt
+set BINDIR=%CD%\..\bin
 set USERDATADIR=%APPDATA%\kcaa
 
 rem ==========================================================================
 rem Proxy
 rem ==========================================================================
 
-set PROXYCONTROLLERBIN=%INSTALLDIR%\browsermob-proxy\bin\browsermob-proxy.bat
+set PROXYCONTROLLERBIN=%BINDIR%\browsermob-proxy\bin\browsermob-proxy.bat
 set PROXYCONTROLLERHOST=localhost
 set PROXYCONTROLLERPORT=9090
 set PROXYPORT=9091
@@ -43,7 +43,7 @@ rem ==========================================================================
 
 set CHROMEBIN=
 set CHROMEUSERDATABASEDIR=%USERDATADIR%\chrome
-set CHROMEDRIVERBIN=%INSTALLDIR%\chromedriver.exe
+set CHROMEDRIVERBIN=%BINDIR%\chromedriver.exe
 
 rem ==========================================================================
 rem PhantomJS-specific

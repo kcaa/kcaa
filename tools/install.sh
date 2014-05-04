@@ -3,13 +3,10 @@
 SCRIPT_DIR=$(dirname $0)
 source ${SCRIPT_DIR}/config
 
-THIRDPARTY_DIR=${SCRIPT_DIR}/../thirdparty
-
 function confirm_install_prerequisites() {
   local -A prerequisites=(
     ["gcc"]="gcc"
     ["pip"]="python-pip"
-    ["tar"]="tar"
     ["unzip"]="unzip"
   )
   which apt-get &> /dev/null
@@ -96,54 +93,13 @@ function install_python_server_testing_prerequisites() {
   done
 }
 
-function install_chromedriver() {
-  if [ -x ${INSTALL_DIR}/chromedriver ]; then
-    echo "Chromedrive is already installed at ${INSTALL_DIR}/chromedriver." \
-      "Skipping."
-    return
-  fi
-
-  local storage_base='http://chromedriver.storage.googleapis.com'
-  local filename='chromedriver_linux64.zip'
-  echo "Installing the latest Chromedriver..."
-  local latest_version=$(wget -q -O - ${storage_base}/LATEST_RELEASE)
-  echo "Latest version of Chromedriver is ${latest_version}. Downloading..."
-  wget -q -O ${INSTALL_DIR}/${filename} \
-    ${storage_base}/${latest_version}/${filename}
-  echo "Unzipping..."
-  unzip -q -d ${INSTALL_DIR} ${INSTALL_DIR}/${filename}
-}
-
 function install_phantomjs() {
-  if [ -x ${INSTALL_DIR}/phantomjs ]; then
-    echo "PhantomJS is already installed at ${INSTALL_DIR}/phantomjs. " \
-      "Skipping."
-    return
-  fi
-
-  echo "Installing PhantomJS..."
-  local filename=phantomjs--linux-x86_64
-  tar xf ${THIRDPARTY_DIR}/${filename}.tar.bz2 --directory=${INSTALL_DIR}
-  ln -s ${INSTALL_DIR}/${filename}/bin/phantomjs ${INSTALL_DIR}/phantomjs
   # PhantomJS requires some shared libraries to run.
   local phantomjs_apt_prerequisites=(
     python-pyphantomjs
   )
   echo "Installing PhantomJS APT prerequisites..."
   sudo apt-get install ${phantomjs_apt_prerequisites[@]}
-}
-
-function install_browsermob_proxy() {
-  if [ -d ${INSTALL_DIR}/browsermob-proxy ]; then
-    echo "Browsermob Proxy is already installed at " \
-      "${INSTALL_DIR}/browsermob-proxy. Skipping."
-    return
-  fi
-
-  echo "Installing Browsermob Proxy..."
-  local filename=browsermob-proxy-2.0-beta-10-SNAPSHOT
-  unzip -q -d ${INSTALL_DIR} ${THIRDPARTY_DIR}/${filename}-bin.zip
-  ln -s ${INSTALL_DIR}/${filename} ${INSTALL_DIR}/browsermob-proxy
 }
 
 function install_dartium() {
@@ -166,14 +122,17 @@ function install_dartium() {
   ln -s ${INSTALL_DIR}/${dart_dir} ${INSTALL_DIR}/dartium
 }
 
+function update_binary() {
+  # TODO: Implement this.
+}
+
 confirm_install_prerequisites
 create_install_directory
 create_user_data_directory
 install_kancolle_player_prerequisites
 install_python_server_prerequisites
-install_browsermob_proxy
-install_chromedriver
 #install_phantomjs
 #install_dartium
+update_binary
 
 echo "Installation finished."

@@ -3,7 +3,7 @@
 call config.bat
 
 echo Installing PIP...
-%PYTHON% %INSTALLDIR%\get-pip.py
+%PYTHON% %BINDIR%\get-pip.py
 
 echo Installing KCAA Python server prerequisites...
 %PIP% install python-dateutil

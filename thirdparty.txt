@@ -1,0 +1,50 @@
+The following thirdparty softwares are bundled and distributed in the KCAA
+binary or release package.
+
+BrowserMob Proxy
+----------------
+
+  Copyright -2014 lightbody
+  http://bmp.lightbody.net/
+  Apache License, Version 2.0
+  http://www.apache.org/licenses/LICENSE-2.0
+
+The bundled version was built by KCAA Dev. It includes patches for HAR page
+selection/deletion made by KCAA Dev. The patch is licensed under Apache v2
+license like the core of KCAA software.
+
+  https://github.com/kcaa/kcaa
+
+PhantomJS
+---------
+
+NOTE: PhantomJS is not actually included in this version. Those who are
+interested in can install by yourself (just downloading the binary and
+uncomment some part of scripts) but it's not publicly supported yet.
+
+  Copyright -2014 Ariya Hildayat
+  http://phantomjs.org/
+  BSD License
+  https://github.com/ariya/phantomjs/blob/master/LICENSE.BSD
+
+The bundled version was built by ryan. It includes patches for Flash plugin
+support made by ryan. The binary is distributed as-is. See the following page
+for details of the binary.
+
+  http://www.ryanbridges.org/2013/05/21/putting-the-flash-back-in-phantomjs/
+
+Chromedriver
+------------
+
+  Copyright -2014 The Chromedriver developers
+  https://code.google.com/p/selenium/wiki/ChromeDriver
+  BSD License
+  http://opensource.org/licenses/BSD-3-Clause
+
+get-pip.py
+----------
+
+  Copyright -2014 The pip developers
+  https://pypi.python.org/pypi/pip
+  MIT License
+  http://opensource.org/licenses/mit-license.php
