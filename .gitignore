@@ -2,6 +2,7 @@
 .cache/
 .coverage
 *.pyc
+bin/
 client/build/
 client/packages
 client/pubspec.lock
