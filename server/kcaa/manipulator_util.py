@@ -94,15 +94,7 @@ class ManipulatorManager(object):
         self.rmo = kcsapi.client.RunningManipulators()
         self.rmo_last_generation = self.rmo.generation
         self.objects['RunningManipulators'] = self.rmo
-        # TODO: Move this default config to the client code.
-        self.set_auto_manipulator_schedules(True, [
-            [0, 3600],       # 00:00-01:00
-            [25200, 27900],  # 07:00-07:45
-            [43200, 46800],  # 12:00-13:00
-            [54000, 54600],  # 15:00-15:10
-            [64800, 67500],  # 18:00-18:45
-            [75600, 86400],  # 21:00-24:00
-        ])
+        self.set_auto_manipulator_schedules(True, [[0, 86400]])
 
     def define_manipulators(self):
         self.manipulators = {
