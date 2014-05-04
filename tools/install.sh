@@ -171,9 +171,9 @@ create_install_directory
 create_user_data_directory
 install_kancolle_player_prerequisites
 install_python_server_prerequisites
-install_chromedriver
-install_phantomjs
 install_browsermob_proxy
-install_dartium
+install_chromedriver
+#install_phantomjs
+#install_dartium
 
 echo "Installation finished."

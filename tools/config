@@ -41,7 +41,7 @@ FRONTEND_UPDATE_INTERVAL=0.5
 # Chrome-specific
 # ============================================================================
 
-CHROME_BIN=${INSTALL_DIR}/dartium/chrome
+CHROME_BIN=
 CHROME_USER_DATA_BASEDIR=${USER_DATA_DIR}/chrome
 CHROMEDRIVER_BIN=${INSTALL_DIR}/chromedriver
 
