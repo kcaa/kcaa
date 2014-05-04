@@ -180,7 +180,7 @@ def add_digitizer(browser):
         var digitizerDisplay = document.createElement("div");
         digitizerDisplay.style.fontSize = "16px";
         digitizerDisplay.style.position = "absolute";
-        digitizerDisplay.style.top = "45px";
+        digitizerDisplay.style.top = "42px";
         var toggleButton = document.createElement("button");
         toggleButton.textContent = "Toggle Cover";
         toggleButton.onclick = function (e) {
