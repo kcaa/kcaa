@@ -479,13 +479,13 @@ class JSONProperty(CustomizableJSONProperty):
         self._default = default
         self._value_type = value_type
         self._element_type = element_type
-        self._check_type(default)
         if not wrapped_variable:
             wrapped_variable = ('__{}_{:x}'.format(self.__class__.__name__,
                                                    id(self)))
         self._wrapped_variable = wrapped_variable
         super(JSONProperty, self).__init__(fget=self._get, fset=self._set,
                                            name=name, omittable=omittable)
+        self._check_type(default)
 
     def _get(self, owner):
         if not hasattr(owner, self._wrapped_variable):
@@ -502,29 +502,34 @@ class JSONProperty(CustomizableJSONProperty):
         if value is not None and self._value_type is not None:
             bad_element = lambda e: not isinstance(e, self._element_type)
             if not isinstance(value, self._value_type):
-                raise TypeError('Given value {} of type {} is not {}'.format(
-                    value, value.__class__.__name__,
-                    self._value_type.__name__))
+                raise TypeError(
+                    ('Property {} expected type {}, but got a value {} of '
+                     'type {}').format(
+                         self.name, value, value.__class__.__name__,
+                         self._value_type.__name__))
             elif ((issubclass(self._value_type, list) or
                    issubclass(self._value_type, tuple)) and
                     self._element_type is not None):
                 if any(map(bad_element, value)):
-                    raise TypeError('Given {} {} should contain only '
-                                    'elements of type {}'.format(
-                                        value, self._value_type,
-                                        self._element_type.__name__))
+                    raise TypeError(
+                        ('Property {} expected a {} of elements of type {}, '
+                         'but got {}').format(
+                             self.name, self._value_type,
+                             self._element_type.__name__, value))
             elif issubclass(self._value_type, dict):
                 bad_key = lambda k: (not isinstance(k, str) and
                                      not isinstance(k, unicode))
                 if any(map(bad_key, value.iterkeys())):
-                    raise TypeError('Given dict {} should contain only keys '
-                                    'of type str or unicode'.format(value))
+                    raise TypeError(
+                        ('Property {} expected a dict with str or unicode '
+                         'keys, but got {}').format(self.name, value))
                 if self._element_type is not None:
                     if any(map(bad_element, value.itervalues())):
-                        raise TypeError('Given dict {} should contain only '
-                                        'elements of type {}'.format(
-                                            value,
-                                            self._element_type.__name__))
+                        raise TypeError(
+                            ('Property {} expected a dict with values of type '
+                             '{}, but got {}').format(
+                                 self.name, value,
+                                 self._element_type.__name__))
 
 
 class ReadonlyJSONProperty(JSONProperty):
