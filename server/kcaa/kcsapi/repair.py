@@ -10,7 +10,7 @@ class RepairSlot(jsonobject.JSONSerializableObject):
     """ID."""
     ship_id = jsonobject.JSONProperty('ship_id', value_type=int)
     """ID of ship being repaired in this slot."""
-    eta = jsonobject.JSONProperty('eta', value_type=int)
+    eta = jsonobject.JSONProperty('eta', value_type=long)
     """Estimated Time of Arrival, in UNIX time with millisecond precision."""
 
     @property
@@ -34,4 +34,4 @@ class RepairDock(model.KCAAObject):
                 self.slots.append(RepairSlot(
                     id=data.api_id,
                     ship_id=data.api_ship_id,
-                    eta=data.api_complete_time))
+                    eta=long(data.api_complete_time)))
