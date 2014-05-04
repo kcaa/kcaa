@@ -38,8 +38,14 @@ class ScreenManager(object):
             screens.PORT_FURNITURE: manipulators.screen.PortScreen,
             screens.PORT_QUESTLIST: manipulators.screen.PortScreen,
             screens.PORT_ITEMSHOP: manipulators.screen.PortScreen,
+            screens.PORT_EXPEDITION: manipulators.screen.PortScreen,
+            screens.PORT_PRACTICE: manipulators.screen.PortScreen,
             screens.PORT_MISSION: manipulators.screen.PortMissionScreen,
+            screens.PORT_ORGANIZING: manipulators.screen.PortOperationsScreen,
             screens.PORT_LOGISTICS: manipulators.screen.PortLogisticsScreen,
+            screens.PORT_REBUILDING: manipulators.screen.PortOperationsScreen,
+            screens.PORT_REPAIR: manipulators.screen.PortOperationsScreen,
+            screens.PORT_SHIPYARD: manipulators.screen.PortOperationsScreen,
             screens.MISSION_RESULT: manipulators.screen.MissionResultScreen,
         }
 
