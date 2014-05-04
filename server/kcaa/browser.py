@@ -134,7 +134,7 @@ def get_game_frame(browser, debug):
     add_game_frame_cover(browser, game_area_width, game_area_height, dx, dy)
     # If in the debug mode, show the digitizer tools.
     if debug:
-        add_digitizer(browser, debug)
+        add_digitizer(browser)
     location = game_frame.location
     left = int(location['x'] + dx)
     top = int(location['y'] + dy)
