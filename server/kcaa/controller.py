@@ -34,7 +34,7 @@ def control(args, to_exit):
     pk = DummyProcess()
     pc = DummyProcess()
     try:
-        logenv.setup_logger()
+        logenv.setup_logger(args.debug)
         logger = logging.getLogger('kcaa.controller')
         har_manager = proxy_util.HarManager(args, 3.0)
         controller_conn, server_conn = multiprocessing.Pipe()

@@ -20,14 +20,14 @@ class ShortLogFormatter(logging.Formatter):
 # Set up a logger.
 # On Linux it seems it's enough to call this from the main process. Windows
 # seems not comfortable with that -- needs to be called from each subprocess.
-def setup_logger():
+def setup_logger(debug):
     global _logger
     if _logger:
         return _logger
     logger = logging.getLogger('kcaa')
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(logging.DEBUG if debug else logging.INFO)
     handler = logging.StreamHandler(sys.stderr)
-    handler.setLevel(logging.DEBUG)
+    handler.setLevel(logging.DEBUG if debug else logging.INFO)
     handler.setFormatter(ShortLogFormatter())
     logger.addHandler(handler)
     _logger = logger

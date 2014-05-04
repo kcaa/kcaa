@@ -14,10 +14,6 @@ DEPLOYED_PACKAGE = 'build/web'
 DEVELOPMENT_PACKAGE = 'web'
 
 
-logenv.setup_logger()
-logger = logging.getLogger('kcaa.server')
-
-
 class KCAAHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
     GET_OBJECTS = '/get_objects'
@@ -216,7 +212,7 @@ class KCAAHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             self.send_error(501, 'Unknown method: {}'.format(self.command))
 
 
-def move_to_client_dir():
+def move_to_client_dir(logger):
     # Change directory to client directory so that SimpleHTTPServer can serve
     # client resources.
     client_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..',
@@ -238,8 +234,8 @@ def move_to_client_dir():
             client_dir))
 
 
-def setup(args):
-    move_to_client_dir()
+def setup(args, logger):
+    move_to_client_dir(logger)
     httpd = SocketServer.TCPServer(('', args.server_port),
                                    KCAAHTTPRequestHandler,
                                    bind_and_activate=False)
@@ -270,7 +266,9 @@ def setup(args):
 def handle_server(args, to_exit, controller_conn, object_queue):
     httpd = None
     try:
-        httpd, root_url = setup(args)
+        logenv.setup_logger(args.debug)
+        logger = logging.getLogger('kcaa.server')
+        httpd, root_url = setup(args, logger)
         httpd.new_objects = set()
         httpd.objects = {}
         httpd.controller_conn = controller_conn
