@@ -62,7 +62,7 @@ class ScreenManager(object):
                 self._current_screen = screen(self)
                 self._logger.debug('Current screen is {}'.format(screen_id))
             else:
-                self._logger.warn('Current screen {} is not manipulatable.'
+                self._logger.debug('Current screen {} is not manipulatable.'
                     .format(screen_id))
                 self._current_screen = manipulators.screen.Screen(self)
         self._last_screen_id = screen_id
