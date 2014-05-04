@@ -294,19 +294,25 @@ class ShipList(model.KCAAObject):
                                      debug)
         updated_ids = set()
         if (api_name == '/api_port/port' or
-                api_name == '/api_get_member/ship2' or
-                api_name == '/api_get_member/ship3'):
+                api_name == '/api_get_member/ship2'):
             if api_name == '/api_port/port':
                 ship_data = response.api_data.api_ship
             elif api_name == '/api_get_member/ship2':
                 ship_data = response.api_data
-            else:
-                ship_data = response.api_data.api_ship_data
             for data in ship_data:
                 ship = self.get_ship(data, objects).convert_to_dict()
                 ShipList.update_ship(ship, data)
                 self.ships[str(ship['id'])] = Ship(**ship)
                 updated_ids.add(str(ship['id']))
+        elif api_name == '/api_get_member/ship3':
+            # When remodeling, /ship3 only seems to return the flag ship info
+            # of the first fleet?
+            ship_data = response.api_data.api_ship_data
+            for data in ship_data:
+                ship = self.get_ship(data, objects).convert_to_dict()
+                ShipList.update_ship(ship, data)
+                self.ships[str(ship['id'])] = Ship(**ship)
+            return
         elif api_name == '/api_req_hensei/lock':
             ship = self.ships[str(request.api_ship_id)]
             ship.locked = bool(response.api_data.api_locked)
