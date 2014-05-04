@@ -94,7 +94,7 @@ class ManipulatorManager(object):
         self.rmo = kcsapi.client.RunningManipulators()
         self.rmo_last_generation = self.rmo.generation
         self.objects['RunningManipulators'] = self.rmo
-        self.set_auto_manipulator_schedules(True, [[0, 86400]])
+        self.set_auto_manipulator_schedules(False, [[0, 86400]])
 
     def define_manipulators(self):
         self.manipulators = {
