@@ -29,7 +29,7 @@ function update_repository() {
   echo "Successfully updated git repository."
 }
 
-function update_binary() {
+function update() {
   local version_file=$1
   local target_dir=$2
 
