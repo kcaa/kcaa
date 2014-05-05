@@ -38,7 +38,10 @@
 がインストールされていることを確認してください。
 `tools-windows/config.bat`を書き換えればFirefoxを選ぶこともできます。
 
-終わったら、最新のリリースパッケージ(zip形式)をダウンロードして解凍してください。
+終わったら、最新のリリースパッケージ kcaa_release_vX.X.X.zip
+(X.X.Xはバージョン)を
+[リリース一覧](https://github.com/kcaa/kcaa/releases)
+からダウンロードして解凍してください。
 中にある `tools-windows/install.bat` を探して実行します。
 
 これでインストールは終わりです!
@@ -52,7 +55,13 @@
 ## Ubuntu
 
 まずこのリポジトリを `git clone` してください。
-なんのことかわからなければ、最新のリリースパッケージ(zip形式)をダウンロードして解凍してください。
+
+    git clone https://github.com/kcaa/kcaa.git
+
+なんのことかわからなければ、最新のリリースパッケージ kcaa_release_vX.X.X.zip
+(X.X.Xはバージョン)を
+[リリース一覧](https://github.com/kcaa/kcaa/releases)
+からダウンロードして解凍してください。
 
 それから、
 [Chrome](http://www.google.co.jp/intl/ja/chrome/browser/)
@@ -62,7 +71,7 @@
 次に `tools/install.sh` を実行してください。
 sudoer権限が必要になります。
 
-    cd /path/to/kcaa/tools
+    cd kcaa_vX.X.X/tools
     ./install.sh
 
 これでインストールは終わりです!

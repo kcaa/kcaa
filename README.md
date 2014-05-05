@@ -36,7 +36,9 @@ Install thirdparty softwares:
 And make sure you have a Chrome with a Flash player plugin. You can choose
 Firefox as well in `tools-windows/config.bat` file.
 
-Then download the latest release package (zip format) and unzip it.
+Then download the latest kcaa_release_vX.X.X.zip (*X.X.X* means a version) from
+[releases page](https://github.com/kcaa/kcaa/releases)
+and unzip it.
 Find `tools-windows/install.bat` in it and run. This will install some Python
 packages required for KCAA.
 
@@ -49,17 +51,21 @@ https://twitter.com/kcaadev !
 
 ## Ubuntu
 
-Just `git clone` this repository. If you don't get the meaning, download the
-latest release package (zip format) and unzip it.
+First, `git clone` this repository.
 
-TODO: Link to the latest release
+    git clone https://github.com/kcaa/kcaa.git
 
-And make sure you have a Chrome with a Flash player plugin. You can choose
+If you don't get the meaning, download the latest kcaa_release_vX.X.X.zip
+(*X.X.X* means a version) from
+[releases page](https://github.com/kcaa/kcaa/releases)
+and unzip it.
+
+Also make sure you have a Chrome with a Flash player plugin. You can choose
 Firefox as well in `tools/config` file.
 
 Then run `tools/install.sh`. You are required to have a sudoer permission.
 
-    cd /path/to/kcaa/tools
+    cd kcaa_vX.X.X/tools
     ./install.sh
 
 Now you're done! Run `tools/start_game.sh`. By default it starts up 2 Chrome
