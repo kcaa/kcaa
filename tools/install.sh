@@ -114,7 +114,7 @@ function install_dartium() {
 }
 
 function update_binary() {
-  local current_version=$(cat ../BINARY_VERSION)
+  local current_version=$(cat ../bin/BINARY_VERSION)
   local kcaa_repo_base=https://raw.githubusercontent.com/kcaa/kcaa
   local binary_version_file=${kcaa_repo_base}/latest_release/BINARY_VERSION
   local latest_version=$(wget -O - ${binary_version_file})

@@ -85,6 +85,11 @@ function copy_licenses() {
   cp ${KCAA_DIR}/thirdparty.txt ${BIN_DIR}
 }
 
+function copy_version_file() {
+  echo "Copying version file..."
+  cp ${KCAA_DIR}/BINARY_VERSION ${BIN_DIR}
+}
+
 function zip_package() {
   echo "Zipping KCAA binary package..."
   pushd ${KCAA_DIR}
@@ -117,6 +122,7 @@ prepare_chromedriver
 prepare_get_pip
 build_client
 copy_licenses
+copy_version_file
 zip_package
 
 rm -r ${TMP_DIR}
