@@ -8,7 +8,7 @@ really should do -- resource management and making decisions.
 Currently supported key features are
 - Fleets and ships with vital parameters at a glance
 - Assisting some routine works
-- (Experimental) Screen capture for remote use case
+- (Experimental) Remote usage, with screen capture
 
 Planned key features are
 - More flexible fleet/ship list view (filter, sort, see minor parameters)
@@ -31,9 +31,14 @@ TODO.
 
 ## Ubuntu
 
-Just run `tools/install.sh`. You are required to have a sudoer permission.
+Just `git clone` this repository. If you don't get the meaning, download the
+latest release package (zip format) and unzip it.
 
-    cd /path/to/kcaa
+TODO: Link to the latest release
+
+Then run `tools/install.sh`. You are required to have a sudoer permission.
+
+    cd /path/to/kcaa/tools
     ./install.sh
 
 Once it's finished, run `tools/start_game.sh`. By default it starts up 2 Chrome
@@ -67,6 +72,6 @@ KCAA software is licensed under Apache License, Version 2.0.
     http://www.apache.org/licenses/LICENSE-2.0
 
 KCAA software include all files and subdirectories in this repository or
-directory, except under "thirdparty" subdirectory.
+directory, except under "bin" subdirectory.
 Third-party softwares come with their own license terms and restrictions. See
-thirdparty/README.txt for details.
+thirdparty.txt for details.
