@@ -6,18 +6,19 @@
 
 KCAA_DIR=$(readlink -f $(dirname $0)/..)
 BIN_DIR=${KCAA_DIR}/bin
+CLIENT_DEPLOYED_DIR=${KCAA_DIR}/client_deployed
 
 BROWSERMOB_PROXY_DIR=${HOME}/browsermob-proxy
 PHANTOMJS_BINARY=${HOME}/phantomjs--linux-x86_64.tar.bz2
-OUTPUT_DIR=${HOME}
+OUTPUT_DIR=${HOME}/kcaa_releases
 TMP_DIR=$(mktemp -d)
 
 function check_bin_dir() {
   echo "Checking bin directory..."
-  if [ -d ${BIN_DIR} ]; then
-    echo "Directory ${BIN_DIR} exists. Move or remove it before proceeding."
-    exit 1
-  fi
+  [ -d ${BIN_DIR} ] && rm -r ${BIN_DIR}
+  mkdir ${BIN_DIR}
+  [ -d ${CLIENT_DEPLOYED_DIR} ] && rm -r ${CLIENT_DEPLOYED_DIR}
+  mkdir ${CLIENT_DEPLOYED_DIR}
 }
 
 function prepare_browsermob_proxy() {
@@ -76,7 +77,7 @@ function build_client() {
   echo "Building KCAA client..."
   pushd ${KCAA_DIR}/client
   pub build
-  mv build ${BIN_DIR}
+  mv build ${CLIENT_DEPLOYED_DIR}
   popd
 }
 
@@ -88,26 +89,34 @@ function copy_licenses() {
 function copy_version_file() {
   echo "Copying version file..."
   cp ${KCAA_DIR}/BINARY_VERSION ${BIN_DIR}
+  cp ${KCAA_DIR}/CLIENT_VERSION ${CLIENT_DEPLOYED_DIR}
+}
+
+function move_old_package() {
+  local filename=$1
+  if [ -e ${filename} ]; then
+    local tmp=$(mktemp)
+    mv ${filename} ${tmp}
+    echo "${filename} already exists. Moved to ${tmp}."
+  fi
 }
 
 function zip_package() {
   echo "Zipping KCAA binary package..."
   pushd ${KCAA_DIR}
-  local kcaa_bin=${OUTPUT_DIR}/kcaa_bin.zip
-  if [ -e ${kcaa_bin} ]; then
-    local kcaa_bin_tmp=$(mktemp)
-    mv ${kcaa_bin} ${kcaa_bin_tmp}
-    echo "${kcaa_bin} already exists. Moved to ${kcaa_bin_tmp}."
-  fi
-  zip -q -r ${kcaa_bin} bin
+  local binary_version=$(cat BINARY_VERSION)
+  local kcaa_bin=${OUTPUT_DIR}/kcaa_bin_${binary_version}.zip
+  move_old_package ${kcaa_bin}
+  zip -q -r ${kcaa_bin} $(basename ${BIN_DIR})
+  echo "Zipping KCAA deployed client package..."
+  echo client_version=$(cat CLIENT_VERSION)
+  local kcaa_client=${OUTPUT_DIR}/kcaa_client_${client_version}.zip
+  move_old_package ${kcaa_client}
+  zip -q -r ${kcaa_client} $(basename ${CLIENT_DEPLOYED_DIR})
   cd ${KCAA_DIR}/..
   echo "Zippping KCAA release package..."
-  local kcaa_release=${OUTPUT_DIR}/kcaa_release.zip
-  if [ -e ${kcaa_release} ]; then
-    local kcaa_release_tmp=$(mktemp)
-    mv ${kcaa_release} ${kcaa_release_tmp}
-    echo "${kcaa_release} already exists. Moved to ${kcaa_release_tmp}."
-  fi
+  local kcaa_release=${OUTPUT_DIR}/kcaa_release_${client_version}.zip
+  move_old_package ${kcaa_release}
   zip -q -r ${kcaa_release} $(basename ${KCAA_DIR}) -x \
     kcaa/.git/ \
     kcaa/.git/**\* \
