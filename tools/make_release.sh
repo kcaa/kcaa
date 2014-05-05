@@ -132,10 +132,11 @@ function zip_package() {
   echo "Zippping KCAA release package..."
   local kcaa_release=${OUTPUT_DIR}/kcaa_release_${client_version}.zip
   move_old_package ${kcaa_release}
-  zip -q -r ${kcaa_release} $(basename ${KCAA_DIR}) -x \
-    kcaa/.git/ \
-    kcaa/.git/**\* \
-    kcaa/.*
+  local kcaa_basename=$(basename ${KCAA_DIR})
+  zip -q -r ${kcaa_release} ${kcaa_basename} -x \
+    ${kcaa_basename}/.git/ \
+    ${kcaa_basename}/.git/**\* \
+    ${kcaa_basename}/.*
   popd
 }
 
