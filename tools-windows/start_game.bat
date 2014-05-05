@@ -23,6 +23,8 @@ set SERVERBIN=%cd%\..\server\server_main.py
   --chromedriver_binary=%CHROMEDRIVERBIN% ^
   --phantomjs_binary=%PHANTOMJSBIN% ^
   --credentials=%CREDENTIALS% ^
-  --debug=%DEBUG%
+  --debug=%DEBUG% ^
+  2>&1 ^
+  | tee.bat log.txt
 
 echo Server exited. Close this window!
