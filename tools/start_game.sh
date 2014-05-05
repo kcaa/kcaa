@@ -7,12 +7,13 @@
 # before running './start_game.sh' in the same session if you running this
 # script from non-GUI environment.
 
-CONFIG_FILE=${1-$(dirname $0)/config}
+SCRIPT_DIR=$(dirname $0)
+CONFIG_FILE=${1-${SCRIPT_DIR}/config}
 
 source ${CONFIG_FILE}
 
-SERVER_BIN=$(dirname $0)/../server/server_main.py
-RUN_PROXY_BIN=$(dirname $0)/run_proxy.sh
+SERVER_BIN=${SCRIPT_DIR}/../server/server_main.py
+RUN_PROXY_BIN=${SCRIPT_DIR}/run_proxy.sh
 
 function on_exit() {
   if [ -n "${PROXY_CONTROLLER_PID}" ]; then
@@ -41,4 +42,6 @@ ${SERVER_BIN} \
   --chromedriver_binary=${CHROMEDRIVER_BIN} \
   --phantomjs_binary=${PHANTOMJS_BIN} \
   --credentials=${CREDENTIALS} \
-  --debug=${DEBUG}
+  --debug=${DEBUG} \
+  2>&1 \
+  | tee ${SCRIPT_DIR}/log.txt
