@@ -117,7 +117,7 @@ function update_binary() {
   local current_version=$(cat ../bin/BINARY_VERSION)
   local kcaa_repo_base=https://raw.githubusercontent.com/kcaa/kcaa
   local binary_version_file=${kcaa_repo_base}/latest_release/BINARY_VERSION
-  local latest_version=$(wget -O - ${binary_version_file})
+  local latest_version=$(wget -q -O - ${binary_version_file})
   if [ ${current_version} = ${latest_version} ]; then
     echo "KCAA binary is up to date. (${latest_version})"
     return
