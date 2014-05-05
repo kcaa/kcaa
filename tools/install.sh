@@ -114,7 +114,15 @@ function install_dartium() {
 }
 
 function update_binary() {
-  # TODO: Implement this.
+  local current_version=$(cat ../BINARY_VERSION)
+  local kcaa_repo_base=https://raw.githubusercontent.com/kcaa/kcaa
+  local binary_version_file=${kcaa_repo_base}/latest_release/BINARY_VERSION
+  local latest_version=$(wget -O - ${binary_version_file})
+  if [ ${current_version} = ${latest_version} ]; then
+    echo "KCAA binary is up to date. (${latest_version})"
+    return
+  fi
+  # TODO: Download and update to the latest version.
 }
 
 confirm_install_prerequisites
