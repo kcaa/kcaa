@@ -25,6 +25,22 @@ function prepare_browsermob_proxy() {
   unzip -q \
     -d ${BIN_DIR} \
     ${BROWSERMOB_PROXY_DIR}/target/browsermob-proxy-*-bin.zip
+  mv ${BIN_DIR}/browsermob-proxy-* ${BIN_DIR}/browsermob-proxy
+  # Shorten the CLASSPATH in the startup script for Windows with wild card.
+  # It's very likely to exceed the byte size limit of environment variables.
+  local run_script_win=${BIN_DIR}/browsermob-proxy/bin/browsermob-proxy.bat
+  grep '^set CLASSPATH="%BASEDIR%"\\etc;"%REPO%"' \
+    ${run_script_win} &> /dev/null
+  if [ $? -ne 0 ]; then
+    echo "CLASSPATH setting not found in Windows startup script. Fix the" \
+      "pattern and rerun."
+    exit 1
+  fi
+  # Do not forget to put \r to the end, as the line ending of this file is
+  # CR+LF.
+  sed -e 's/^\(set CLASSPATH="%BASEDIR%"\\etc;"%REPO%"\).*$/\1\\*\r/' \
+    ${run_script_win} > ${TMP_DIR}/run_script_win
+  cp ${TMP_DIR}/run_script_win ${run_script_win}
 }
 
 function prepare_chromedriver() {
