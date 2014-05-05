@@ -2,6 +2,11 @@
 
 call config.bat
 
+if %PROXYCONTROLLERDAEMON%==0 (
+  echo Running proxy controller.
+  start /b call run_proxy.bat
+)
+
 set SERVERBIN=%cd%\..\server\server_main.py
 
 %PYTHON% ^

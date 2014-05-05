@@ -20,6 +20,7 @@ set PROXYCONTROLLERBIN=%BINDIR%\browsermob-proxy\bin\browsermob-proxy.bat
 set PROXYCONTROLLERHOST=localhost
 set PROXYCONTROLLERPORT=9090
 set PROXYPORT=9091
+set PROXYCONTROLLERDAEMON=0
 
 rem ==========================================================================
 rem Server
