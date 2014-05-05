@@ -4,12 +4,14 @@
 .coverage
 __pycache__/
 bin/
+bin_v*/
 client/build/
 client/packages
 client/pubspec.lock
 client/web/model/packages
 client/web/packages
 client_deployed/
+client_deployed_v*/
 docs/_build/
 docs/_static/
 docs/_templates/
