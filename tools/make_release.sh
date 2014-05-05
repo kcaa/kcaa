@@ -124,7 +124,7 @@ function zip_package() {
   move_old_package ${kcaa_bin}
   zip -q -r ${kcaa_bin} $(basename ${BIN_DIR})
   echo "Zipping KCAA deployed client package..."
-  echo client_version=$(head -n 1 CLIENT_VERSION | cut -d , -f 1)
+  local client_version=$(head -n 1 CLIENT_VERSION | cut -d , -f 1)
   local kcaa_client=${OUTPUT_DIR}/kcaa_client_${client_version}.zip
   move_old_package ${kcaa_client}
   zip -q -r ${kcaa_client} $(basename ${CLIENT_DEPLOYED_DIR})
