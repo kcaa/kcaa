@@ -13,6 +13,18 @@ PHANTOMJS_BINARY=${HOME}/phantomjs--linux-x86_64.tar.bz2
 OUTPUT_DIR=${HOME}/kcaa_releases
 TMP_DIR=$(mktemp -d)
 
+function check_dir_name() {
+  basename ${KCAA_DIR} | grep 'kcaa_v[0-9.]\+' &> /dev/null
+  if [ $? -ne 0 ]; then
+    echo "You are running this script within a non-versioned directory."
+    echo "This is usually not what you want; the client directory will be" \
+      "deleted, and furthermore the release package will contain a"\
+      "non-versioned directory at the top level."
+    echo "Aborting."
+    exit 1
+  fi
+}
+
 function check_bin_dir() {
   echo "Checking bin directory..."
   [ -d ${BIN_DIR} ] && rm -r ${BIN_DIR}
@@ -79,6 +91,9 @@ function build_client() {
   pub build
   mv build ${CLIENT_DEPLOYED_DIR}
   popd
+  # Remove the client directory as it contains packages symblic links.
+  # Also it's not required for a release package.
+  rm -r ${KCAA_DIR}/client
 }
 
 function copy_licenses() {
@@ -124,6 +139,7 @@ function zip_package() {
   popd
 }
 
+check_dir_name
 check_bin_dir
 prepare_browsermob_proxy
 prepare_chromedriver
