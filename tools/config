@@ -18,7 +18,7 @@ PROXY_CONTROLLER_BIN=${BIN_DIR}/browsermob-proxy/bin/browsermob-proxy
 PROXY_CONTROLLER_HOST=localhost
 PROXY_CONTROLLER_PORT=9090
 PROXY_PORT=9091
-PROXY_CONTROLLER_DAEMON=1
+PROXY_CONTROLLER_DAEMON=0
 PROXY_CONTROLLER_HEAPSIZE=1024m
 
 # ============================================================================
