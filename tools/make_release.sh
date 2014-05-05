@@ -108,7 +108,7 @@ function zip_package() {
     mv ${kcaa_release} ${kcaa_release_tmp}
     echo "${kcaa_release} already exists. Moved to ${kcaa_release_tmp}."
   fi
-  zip -q -r ${kcaa_release} kcaa -x \
+  zip -q -r ${kcaa_release} $(basename ${KCAA_DIR}) -x \
     kcaa/.git/ \
     kcaa/.git/**\* \
     kcaa/.*
