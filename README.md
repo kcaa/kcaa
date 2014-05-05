@@ -27,7 +27,25 @@ contents may differ.
 
 ## Windows
 
-TODO.
+Install thirdparty softwares:
+
+- Python 2.7: http://www.python.jp/download/
+- Pillow for Python 2.7: https://pypi.python.org/pypi/Pillow/2.4.0
+- Java Runtime Environment (JRE): http://www.java.com/en/download/
+
+And make sure you have a Chrome with a Flash player plugin. You can choose
+Firefox as well in `tools-windows/config.bat` file.
+
+Then download the latest release package (zip format) and unzip it.
+Find `tools-windows/install.bat` in it and run. This will install some Python
+packages required for KCAA.
+
+Now you're done! Run `tools-windows/start_game.bat`. By default it starts up 2
+Chrome browsers, one for Kancolle itself and another for KCAA information and
+control.
+
+Ask any questions (either in English or Japanese) at
+https://twitter.com/kcaadev !
 
 ## Ubuntu
 
@@ -36,25 +54,33 @@ latest release package (zip format) and unzip it.
 
 TODO: Link to the latest release
 
+And make sure you have a Chrome with a Flash player plugin. You can choose
+Firefox as well in `tools/config` file.
+
 Then run `tools/install.sh`. You are required to have a sudoer permission.
 
     cd /path/to/kcaa/tools
     ./install.sh
 
-Once it's finished, run `tools/start_game.sh`. By default it starts up 2 Chrome
+Now you're done! Run `tools/start_game.sh`. By default it starts up 2 Chrome
 browsers, one for Kancolle itself and another for KCAA information and control.
 
     ./start_game.sh
 
+Ask any questions (either in English or Japanese) at
+https://twitter.com/kcaadev !
+
 ## Other Linux distributions
 
-Not planned, but it should be technically feasible. Contributions are very much
-appreciated.
+Not planned, but it should be technically feasible.
+The main obstacle is to establish the installation process.
+Contributions are very much appreciated.
 
 ## Mac OS
 
-Not planned, but it should be technically feasible. Contributions are very much
-appreciated.
+Not planned yet, but it should be technically feasible.
+The main obstacle is to establish the installation process.
+Contributions are very much appreciated.
 
 # Important Caveats
 

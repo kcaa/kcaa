@@ -21,12 +21,43 @@
 
 ## Windows
 
-TODO
+まず、必要なサードパーティのソフトウェアを次の場所からダウンロード、インストールします。
+
+- Python 2.7: http://www.python.jp/download/
+  - 何を選べばいいかわからなければ
+    [python-2.7.6.amd64.msi](http://www.python.org/ftp/python/2.7.6/python-2.7.6.amd64.msi)
+    を選びます。
+- Pillow for Python 2.7: https://pypi.python.org/pypi/Pillow/2.4.0
+  - 何を選べばいいかわからなければ
+    [Pillow-2.4.0-win-amd64-py2.7.exe](https://pypi.python.org/packages/2.7/P/Pillow/Pillow-2.4.0.win-amd64-py2.7.exe)
+    を選びます。
+- Java Runtime Environment (JRE): http://www.java.com/ja/download/
+
+それから、
+[Chrome](http://www.google.co.jp/intl/ja/chrome/browser/)
+がインストールされていることを確認してください。
+`tools-windows/config.bat`を書き換えればFirefoxを選ぶこともできます。
+
+終わったら、最新のリリースパッケージ(zip形式)をダウンロードして解凍してください。
+中にある `tools-windows/install.bat` を探して実行します。
+
+これでインストールは終わりです!
+プレイするには、 `tools-windows/start_game.bat` を実行します。
+二つのChromeブラウザが開き、片方には艦これが、もう片方には艦これアシスタントが立ち上がります。
+
+
+何か詰まったり質問などあれば、 https://twitter.com/kcaadev で何でも聞いてください。
+お待ちしています!
 
 ## Ubuntu
 
 まずこのリポジトリを `git clone` してください。
 なんのことかわからなければ、最新のリリースパッケージ(zip形式)をダウンロードして解凍してください。
+
+それから、
+[Chrome](http://www.google.co.jp/intl/ja/chrome/browser/)
+がインストールされていることを確認してください。
+`tools/config`を書き換えればFirefoxを選ぶこともできます。
 
 次に `tools/install.sh` を実行してください。
 sudoer権限が必要になります。
@@ -34,20 +65,24 @@ sudoer権限が必要になります。
     cd /path/to/kcaa/tools
     ./install.sh
 
-インストールが終わったら、 `tools/start_game.sh` を実行します。
+これでインストールは終わりです!
+プレイするには、 `tools/start_game.sh` を実行します。
 二つのChromeブラウザが開き、片方には艦これが、もう片方には艦これアシスタントが立ち上がります。
 
     ./start_game.sh
 
+何か詰まったり質問などあれば、 https://twitter.com/kcaadev で何でも聞いてください。
+お待ちしています!
+
 ## その他のLinux
 
-サポートの予定はありませんが、技術的には可能なはずです。
-パッチ書いたら送ってくれると喜びます!
+サポートの予定はありませんが、必要なパッケージのインストールスクリプトができればできるはずです。
+Pull requestあれば大歓迎します!
 
 ## Mac OS
 
-サポートの予定はありませんが、技術的には可能なはずです。
-パッチ書いたら送ってくれると喜びます!
+まだ予定はありませんが(予定は未定)、必要なパッケージのインストールスクリプトができればできるはずです。
+Pull requestあれば大歓迎します!
 
 # 重要なこと
 
