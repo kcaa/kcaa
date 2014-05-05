@@ -113,24 +113,13 @@ function install_dartium() {
   ln -s ${BIN_DIR}/${dart_dir} ${BIN_DIR}/dartium
 }
 
-function update_binary() {
-  local current_version=$(cat ../bin/BINARY_VERSION)
-  local kcaa_repo_base=https://raw.githubusercontent.com/kcaa/kcaa
-  local binary_version_file=${kcaa_repo_base}/latest_release/BINARY_VERSION
-  local latest_version=$(wget -q -O - ${binary_version_file})
-  if [ ${current_version} = ${latest_version} ]; then
-    echo "KCAA binary is up to date. (${latest_version})"
-    return
-  fi
-  # TODO: Download and update to the latest version.
-}
-
 confirm_install_prerequisites
 create_user_data_directory
 install_kancolle_player_prerequisites
 install_python_server_prerequisites
 #install_phantomjs
 #install_dartium
-update_binary
+
+${SCRIPT_DIR}/update.sh
 
 echo "Installation finished."
