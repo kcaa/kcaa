@@ -215,10 +215,9 @@ def move_to_client_dir(logger):
         os.path.dirname(__file__), '..', '..',))
     os.chdir(kcaa_dir)
     # Use 'build' subdirectory when deployed, or 'web' when being developed.
-    # Prefer if there is bin/build directory. This is the default when
-    # released.
+    # Prefer if there is deployed directory. This is the default when released.
     packages = [
-        'bin/build/web',
+        'client_deployed/build/web',
         'client/build/web',
         'client/web',
     ]
