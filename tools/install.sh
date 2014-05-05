@@ -120,6 +120,6 @@ install_python_server_prerequisites
 #install_phantomjs
 #install_dartium
 
-${SCRIPT_DIR}/update.sh
+UPDATE_REPOSITORY=0 ${SCRIPT_DIR}/update.sh
 
 echo "Installation finished."

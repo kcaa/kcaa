@@ -1,8 +1,33 @@
 #!/bin/bash
 
 KCAA_DIR=$(readlink -f $(dirname $0)/..)
+UPDATE_REPOSITORY=${UPDATE_REPOSITORY-1}
 
 TMP_DIR=$(mktemp -d)
+
+function update_repository() {
+  if [ ! -d .git ]; then
+    echo "No git repository found; you must have installed via a release" \
+      "package."
+    if ((UPDATE_REPOSITORY)); then
+      echo "In place update is not possible without git repository, as the" \
+        "server code will be inconsistent with client code. Aborting."
+      echo "If you want to enable in place update from next time, try git " \
+        "clone:"
+      echo "  cd ~"
+      echo "  git clone https://github.com/kcaa/kcaa.git"
+      echo "  kcaa/tools/update.sh"
+      exit 1
+    else
+      echo "This is valid for the initial installation. Just skipping."
+      return
+    fi
+  fi
+  echo "Updating git repository..."
+  git fetch origin
+  git merge origin/latest_release
+  echo "Successfully updated git repository."
+}
 
 function update_binary() {
   local version_file=$1
@@ -25,11 +50,12 @@ function update_binary() {
   local latest_package=$(head -n 1 ${TMP_DIR}/${version_file} | cut -d , -f 2)
   wget -q -O ${TMP_DIR}/${target_dir}.zip ${latest_package}
   unzip -q -d ${KCAA_DIR} ${TMP_DIR}/${target_dir}.zip
-  echo "Updated ${target_dir} to ${latest_version}."
+  echo "Successfully updated ${target_dir} to ${latest_version}."
 }
 
 cd ${KCAA_DIR}
 
+update_repository
 update BINARY_VERSION bin
 update CLIENT_VERSION client_deployed
 
