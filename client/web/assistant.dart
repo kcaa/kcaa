@@ -326,6 +326,9 @@ class Assistant extends PolymerElement {
               (fragment) => "${fragment.start}:${fragment.end}").join(";"),
     }));
     HttpRequest.getString(request.toString());
+    model.autoManipulatorsEnabled = enabled;
+    model.autoManipulatorSchedules.clear();
+    model.autoManipulatorSchedules.addAll(schedules);
   }
 
   void toggleAutoManipulatorsEnabled(MouseEvent e, var detail, Element target) {
