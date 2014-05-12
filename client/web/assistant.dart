@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'dart:html';
 import 'package:bootjack/bootjack.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:json_object/json_object.dart';
 import 'package:polymer/polymer.dart';
 
 import 'dialog.dart';
@@ -231,7 +230,7 @@ class Assistant extends PolymerElement {
     }));
     return HttpRequest.getString(request.toString())
         .then((String content) {
-          var json = new JsonObject.fromJsonString(content);
+          var json = JSON.decode(content);
           if (debug) {
             debugInfo = formatJson(json);
           }

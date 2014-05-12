@@ -1,7 +1,6 @@
 library kcaa_model;
 
 import 'package:intl/intl.dart';
-import 'package:json_object/json_object.dart';
 import 'package:polymer/polymer.dart';
 
 import '../assistant.dart';
