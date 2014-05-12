@@ -41,6 +41,7 @@ ${SERVER_BIN} \
   --chrome_user_data_basedir=${CHROME_USER_DATA_BASEDIR} \
   --chromedriver_binary=${CHROMEDRIVER_BIN} \
   --phantomjs_binary=${PHANTOMJS_BIN} \
+  --preferences=${PREFERENCES} \
   --credentials=${CREDENTIALS} \
   --debug=${DEBUG} \
   2>&1 \

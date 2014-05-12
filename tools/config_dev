@@ -17,7 +17,7 @@ PROXY_CONTROLLER_DAEMON=1
 CHROME_BIN=${BIN_DIR}/dartium/chrome
 
 # ============================================================================
-# Login
+# Preferences
 # ============================================================================
 
 CREDENTIALS=${USER_DATA_DIR}/credentials

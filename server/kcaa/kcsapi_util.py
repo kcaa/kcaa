@@ -22,11 +22,11 @@ BOM = '\xEF\xBB\xBF'
 
 class KCSAPIHandler(object):
 
-    def __init__(self, har_manager, debug):
+    def __init__(self, har_manager, preferences, debug):
         self._logger = logging.getLogger('kcaa.kcsapi_util')
         self.har_manager = har_manager
         self.debug = debug
-        self.objects = {}
+        self.objects = {'Preferences': preferences}
         self.define_handlers()
 
     def define_handlers(self):

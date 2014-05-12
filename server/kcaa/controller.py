@@ -2,10 +2,12 @@
 
 import logging
 import multiprocessing
+import os.path
 import time
 import traceback
 
 import browser
+import kcsapi
 import kcsapi_util
 import logenv
 import manipulator_util
@@ -27,6 +29,34 @@ class DummyProcess(object):
         pass
 
 
+def load_preferences(args, logger):
+    if not args.preferences:
+        logger.info('Preferences file is not specified. Using default.')
+        logger.info('If you want to have one, set the value of the flag '
+                    '--preferences properly.')
+        return kcsapi.prefs.Preferences()
+    elif os.path.isfile(args.preferences):
+        logger.info(
+            'Prefenreces file found at {}. Loading.'.format(args.preferences))
+        with open(args.preferences, 'r') as preferences_file:
+            preferences = kcsapi.prefs.Preferences.parse_text(
+                preferences_file.read())
+            return preferences
+    else:
+        logger.info(
+            'Prefenreces file not found at {}. Creating one with default.'
+            .format(args.preferences))
+        preferences = kcsapi.prefs.Preferences()
+        save_preferences(args, preferences)
+        return preferences
+
+
+def save_preferences(args, preferences):
+    with open(args.preferences, 'w') as preferences_file:
+        preferences_file.write(preferences.json(
+            indent=2, separators=(',', ': ')))
+
+
 def control(args, to_exit):
     # It seems that uncaught exceptions are silently buffered after creating
     # another multiprocessing.Process.
@@ -36,6 +66,7 @@ def control(args, to_exit):
     try:
         logenv.setup_logger(args.debug)
         logger = logging.getLogger('kcaa.controller')
+        preferences = load_preferences(args, logger)
         har_manager = proxy_util.HarManager(args, 3.0)
         controller_conn, server_conn = multiprocessing.Pipe()
         object_queue = multiprocessing.Queue()
@@ -43,6 +74,7 @@ def control(args, to_exit):
                                      args=(args, to_exit, controller_conn,
                                            object_queue))
         ps.start()
+        object_queue.put((preferences.object_type, preferences.json()))
         if not server_conn.poll(3.0):
             logger.error('Server is not responding. Shutting down.')
             to_exit.set()
@@ -56,9 +88,10 @@ def control(args, to_exit):
                                      args=(args, root_url, to_exit))
         pk.start()
         pc.start()
-        kcsapi_handler = kcsapi_util.KCSAPIHandler(har_manager, args.debug)
+        kcsapi_handler = kcsapi_util.KCSAPIHandler(
+            har_manager, preferences, args.debug)
         manipulator_manager = manipulator_util.ManipulatorManager(
-            browser_conn, kcsapi_handler.objects, time.time())
+            browser_conn, kcsapi_handler.objects, preferences, time.time())
         while True:
             time.sleep(args.backend_update_interval)
             if to_exit.wait(0.0):
@@ -92,9 +125,14 @@ def control(args, to_exit):
                     except:
                         traceback.print_exc()
                 elif command_type == COMMAND_SET_AUTO_MANIPULATOR_SCHEDULES:
+                    # TODO: Communicate with the client directory in JSON.
                     enabled, schedule_fragments = command_args
-                    manipulator_manager.set_auto_manipulator_schedules(
-                        enabled, schedule_fragments)
+                    manipulator_manager.set_auto_manipulator_preferences(
+                        kcsapi.prefs.AutoManipulatorPreferences(
+                            enabled=enabled,
+                            schedules=[kcsapi.prefs.ScheduleFragment(
+                                start=fragment[0], end=fragment[1])
+                                for fragment in schedule_fragments]))
                 elif command_type == COMMAND_TAKE_SCREENSHOT:
                     format, quality, width, height = command_args
                     browser_conn.send((browser.COMMAND_TAKE_SCREENSHOT,

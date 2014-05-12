@@ -84,10 +84,11 @@ class ManipulatorManager(object):
     """Creates Kancolle manipulator, which assists user interaction by
     manipulating the Kancolle player (Flash) programatically."""
 
-    def __init__(self, browser_conn, objects, epoch):
+    def __init__(self, browser_conn, objects, preferences, epoch):
         self._logger = logging.getLogger('kcaa.manipulator_util')
         self.browser_conn = browser_conn
         self.objects = objects
+        self.preferences = preferences
         self.initialize(epoch)
 
     def initialize(self, epoch):
@@ -106,7 +107,7 @@ class ManipulatorManager(object):
         self.rmo = kcsapi.client.RunningManipulators()
         self.rmo_last_generation = self.rmo.generation
         self.objects['RunningManipulators'] = self.rmo
-        self.set_auto_manipulator_schedules(False, [[0, 86400]])
+        self.set_auto_manipulator_preferences(self.preferences.automan_prefs)
 
     def define_manipulators(self):
         self.manipulators = {
@@ -140,30 +141,27 @@ class ManipulatorManager(object):
             self.add_auto_manipulator(self.auto_manipulators[name])
         self.suppress_auto_manipulators()
 
-    def set_auto_manipulator_schedules(self, enabled, schedule_fragments):
-        self.auto_manipulators_enabled = enabled
+    def set_auto_manipulator_preferences(self, automan_prefs):
+        self.auto_manipulators_enabled = automan_prefs.enabled
         self._logger.info('AutoManipulator {}.'.format(
-            'enabled' if enabled else 'disabled'))
-        self.auto_manipulators_schedules = schedule_fragments
+            'enabled' if automan_prefs.enabled else 'disabled'))
+        self.auto_manipulators_schedules = automan_prefs.schedules
         self._logger.info(
-            'AutoManipulator schedules: {}.'.format(schedule_fragments))
+            'AutoManipulator schedules: {}.'.format(automan_prefs.schedules))
         now = datetime.datetime.now()
         seconds_in_today = 3600 * now.hour + 60 * now.minute + now.second
         self._logger.info('Current time: {}'.format(seconds_in_today))
         self.current_schedule_fragment = None
         # Update RunningManipulators object.
-        self.rmo.auto_manipulators_enabled = enabled
+        self.rmo.auto_manipulators_enabled = automan_prefs.enabled
         self.rmo.auto_manipulators_active = (
             self.are_auto_manipulator_scheduled())
-        self.rmo.auto_manipulators_schedules = [
-            kcsapi.client.ScheduleFragment(start=value[0], end=value[1])
-            for value in schedule_fragments]
         self.rmo.generation += 1
 
     @staticmethod
     def in_schedule_fragment(seconds_in_today, schedule_fragment):
-        if (seconds_in_today >= schedule_fragment[0] and
-                seconds_in_today < schedule_fragment[1]):
+        if (seconds_in_today >= schedule_fragment.start and
+                seconds_in_today < schedule_fragment.end):
             return True
 
     def are_auto_manipulator_scheduled(self, seconds_in_today=None):

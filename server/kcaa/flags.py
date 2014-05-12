@@ -57,6 +57,10 @@ def parse_args(argv):
     parser.add_argument('--frontend_update_interval', default=0.5, type=float,
                         help='Update interval for frontend processes, '
                              'including the client.')
+    parser.add_argument('--preferences', default='',
+                        help='File describes user preferences in JSON. If not '
+                             'present, a new file with default values will be '
+                             'created.')
     parser.add_argument('--credentials', default='',
                         help='Credentials file to auto-login. The file should '
                              'contain the login ID and password separated by '

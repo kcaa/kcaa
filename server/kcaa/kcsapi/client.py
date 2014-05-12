@@ -58,15 +58,6 @@ class Screen(model.KCAAObject):
             self.generation += 1
 
 
-class ScheduleFragment(jsonobject.JSONSerializableObject):
-
-    start = jsonobject.JSONProperty('start', value_type=int)
-    """Start timing of this fragment, in seconds from the beginning of a
-    day."""
-    end = jsonobject.JSONProperty('end', value_type=int)
-    """End timing of this fragment, in seconds from the beginning of a day."""
-
-
 class RunningManipulators(model.KCAAObject):
     """Information about currently running manipulators.
 
@@ -80,16 +71,9 @@ class RunningManipulators(model.KCAAObject):
     manipulators_in_queue = jsonobject.JSONProperty(
         'manipulators_in_queue', [], value_type=list, element_type=unicode)
     """Manipulators waiting for execution in the queue."""
-    auto_manipulators_enabled = jsonobject.JSONProperty(
-        'auto_manipulators_enabled', value_type=bool)
-    """True if auto manipulators are enabled."""
     auto_manipulators_active = jsonobject.JSONProperty(
         'auto_manipulators_active', value_type=bool)
     """True if auto manipulators are active."""
-    auto_manipulators_schedules = jsonobject.JSONProperty(
-        'auto_manipulators_schedules', [], value_type=list,
-        element_type=ScheduleFragment)
-    """Auto manipulators schedule."""
 
 
 if __name__ == '__main__':
