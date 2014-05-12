@@ -107,7 +107,7 @@
             <h4>クライアントの状態</h4>
             <div>
               <div>現在の画面: {{model.screen}}</div>
-              <div>操作補助:
+              <div>自動操作中:
                 <template if="{{model.runningManipulator == null}}">
                   なし
                 </template>
@@ -118,7 +118,7 @@
                   </template>
                 </template>
               </div>
-              <div>自動操作: <template
+              <div>操作補助: <template
                 if="{{model.autoManipulatorsEnabled}}">有効</template><template
                 if="{{!model.autoManipulatorsEnabled}}">無効</template>
                 <template if="{{model.autoManipulatorsActive}}">
