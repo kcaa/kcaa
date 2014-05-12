@@ -1,6 +1,7 @@
 library kcaa_model;
 
 import 'package:intl/intl.dart';
+import 'package:json_object/json_object.dart';
 import 'package:polymer/polymer.dart';
 
 import '../assistant.dart';
@@ -10,6 +11,7 @@ part 'quest.dart';
 part 'client.dart';
 part 'fleet.dart';
 part 'mission.dart';
+part 'preferences.dart';
 part 'repairdock.dart';
 part 'ship.dart';
 
@@ -39,7 +41,7 @@ class AssistantModel extends Observable {
   @observable String runningManipulator;
   @observable final List<String> manipulatorsInQueue =
       new ObservableList<String>();
-  @observable bool autoManipulatorsEnabled = true;
+  @observable bool autoManipulatorsEnabled = false;
   @observable bool autoManipulatorsActive = false;
   final List<ScheduleFragment> autoManipulatorSchedules =
       new ObservableList<ScheduleFragment>();

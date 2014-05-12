@@ -43,7 +43,7 @@ class Mission extends Observable {
 
   Mission();
 
-  void update(Map<String, dynamic> data) {
+  void update(JsonObject data) {
     id = data["id"];
     name = data["name"];
     description = data["description"];
@@ -54,6 +54,7 @@ class Mission extends Observable {
     time = data["time"];
     fuelConsumption = (data["consumption"]["fuel"] * 100).toInt();
     ammoConsumption = (data["consumption"]["ammo"] * 100).toInt();
+    data.rewards.isExtendable = true;
     data["rewards"].putIfAbsent("fuel", () => 0);
     data["rewards"].putIfAbsent("ammo", () => 0);
     data["rewards"].putIfAbsent("steel", () => 0);

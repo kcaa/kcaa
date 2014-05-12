@@ -55,11 +55,5 @@ void handleRunningManipulators(Assistant assistant, AssistantModel model,
   model.runningManipulator = data["running_manipulator"];
   model.manipulatorsInQueue.clear();
   model.manipulatorsInQueue.addAll(data["manipulators_in_queue"]);
-  model.autoManipulatorsEnabled = data["auto_manipulators_enabled"];
   model.autoManipulatorsActive = data["auto_manipulators_active"];
-  model.autoManipulatorSchedules.clear();
-  for (var schedule in data["auto_manipulators_schedules"]) {
-    model.autoManipulatorSchedules.add(
-        new ScheduleFragment(schedule["start"], schedule["end"]));
-  }
 }
