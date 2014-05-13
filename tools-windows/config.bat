@@ -57,7 +57,7 @@ rem ==========================================================================
 rem Preferences
 rem ==========================================================================
 
-set PREFERENCES=%USERDATADIR$\preferences.txt
+set PREFERENCES=%USERDATADIR%\preferences.txt
 rem Not supported.
 set CREDENTIALS=
 
