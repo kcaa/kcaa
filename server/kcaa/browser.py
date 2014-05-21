@@ -40,6 +40,11 @@ def setup_chrome(name, args, desired_capabilities, is_chromium):
     if args.chrome_user_data_basedir:
         options.add_argument('--user-data-dir={}'.format(
             os.path.join(args.chrome_user_data_basedir, name)))
+    # Do not ignore SSL certificate errors.
+    # See also other Chrome-specific capabilities at
+    # https://sites.google.com/a/chromium.org/chromedriver/capabilities
+    options.add_experimental_option('excludeSwitches', [
+        'ignore-certificate-errors'])
     return webdriver.Chrome(executable_path=args.chromedriver_binary,
                             chrome_options=options,
                             desired_capabilities=desired_capabilities)
