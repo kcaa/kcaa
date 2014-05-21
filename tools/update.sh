@@ -33,19 +33,24 @@ function update() {
   local version_file=$1
   local target_dir=$2
 
-  local current_version=$(head -n 1 ${target_dir}/${version_file} | cut -d , -f 1)
+  local current_version=v0.0.0
+  if [ -r ${target_dir}/${version_file} ]; then
+    current_version=$(head -n 1 ${target_dir}/${version_file} | cut -d , -f 1)
+  fi
   local kcaa_repo_base=https://raw.githubusercontent.com/kcaa/kcaa
   local latest_version_file=${kcaa_repo_base}/latest_release/${version_file}
   wget -q -O ${TMP_DIR}/${version_file} ${latest_version_file}
   local latest_version=$(head -n 1 ${TMP_DIR}/${version_file} | cut -d , -f 1)
-  if [ ${current_version} = ${latest_version} ]; then
+  if [ "${current_version}" = "${latest_version}" ]; then
     echo "${target_dir} is up to date. (${latest_version})"
     return
   fi
   # Download and update the target directory.
-  echo "Renaming the existing ${target_dir} to" \
-    "${target_dir}_${current_version}..."
-  mv ${target_dir} ${target_dir}_${current_version}
+  if [ -d ${target_dir} ]; then
+    echo "Renaming the existing ${target_dir} to" \
+      "${target_dir}_${current_version}..."
+    mv ${target_dir} ${target_dir}_${current_version}
+  fi
   echo "Downloading the latest ${target_dir} package of ${latest_version}..."
   local latest_package=$(head -n 1 ${TMP_DIR}/${version_file} | cut -d , -f 2)
   wget -q -O ${TMP_DIR}/${target_dir}.zip ${latest_package}
