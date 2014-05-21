@@ -192,7 +192,7 @@ class KCAAHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             (controller.COMMAND_TAKE_SCREENSHOT,
              (format, quality, width, height)))
         self.send_response(200)
-        self.send_header('Content-Type', 'image/png')
+        self.send_header('Content-Type', 'image/{}'.format(format))
         self.end_headers()
         self.wfile.write(self.server.controller_conn.recv())
 
