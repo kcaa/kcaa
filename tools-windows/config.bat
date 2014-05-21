@@ -43,6 +43,7 @@ rem Chrome-specific
 rem ==========================================================================
 
 set CHROMEBIN=
+set CHROMIUMBIN=
 set CHROMEUSERDATABASEDIR=%USERDATADIR%\chrome
 set CHROMEDRIVERBIN=%BINDIR%\chromedriver.exe
 

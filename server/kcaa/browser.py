@@ -33,9 +33,10 @@ def get_desired_capabilities(args):
     return capabilities
 
 
-def setup_chrome(name, args, desired_capabilities):
+def setup_chrome(name, args, desired_capabilities, is_chromium):
     options = webdriver.ChromeOptions()
-    options.binary_location = args.chrome_binary
+    options.binary_location = (
+        args.chromium_binary if is_chromium else args.chrome_binary)
     if args.chrome_user_data_basedir:
         options.add_argument('--user-data-dir={}'.format(
             os.path.join(args.chrome_user_data_basedir, name)))
@@ -70,7 +71,9 @@ def open_browser(name, browser_type, args):
     desired_capabilities = get_desired_capabilities(args)
     browser = None
     if browser_type == 'chrome':
-        browser = setup_chrome(name, args, desired_capabilities)
+        browser = setup_chrome(name, args, desired_capabilities, False)
+    elif browser_type == 'chromium':
+        browser = setup_chrome(name, args, desired_capabilities, True)
     elif browser_type == 'firefox':
         browser = setup_firefox(name, args, desired_capabilities)
     elif browser_type == 'phantomjs':

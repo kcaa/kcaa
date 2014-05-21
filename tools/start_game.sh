@@ -38,6 +38,7 @@ ${SERVER_BIN} \
   --kcaa_browser=${KCAA_BROWSER} \
   --frontend_update_interval=${FRONTEND_UPDATE_INTERVAL} \
   --chrome_binary=${CHROME_BIN} \
+  --chromium_binary=${CHROMIUM_BIN} \
   --chrome_user_data_basedir=${CHROME_USER_DATA_BASEDIR} \
   --chromedriver_binary=${CHROMEDRIVER_BIN} \
   --phantomjs_binary=${PHANTOMJS_BIN} \

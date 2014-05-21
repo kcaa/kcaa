@@ -19,6 +19,7 @@ set SERVERBIN=%cd%\..\server\server_main.py
   --kcaa_browser=%KCAABROWSER% ^
   --frontend_update_interval=%FRONTENDUPDATEINTERVAL% ^
   --chrome_binary=%CHROMEBIN% ^
+  --chromium_binary=%CHROMIUMBIN% ^
   --chrome_user_data_basedir=%CHROMEUSERDATABASEDIR% ^
   --chromedriver_binary=%CHROMEDRIVERBIN% ^
   --phantomjs_binary=%PHANTOMJSBIN% ^

@@ -28,10 +28,10 @@ def parse_args(argv):
                         help='Update interval for backend processes, '
                              'including the controller and server.')
     parser.add_argument('--kancolle_browser', default='chrome',
-                        choices=['chrome', 'firefox', 'phantomjs'],
+                        choices=['chrome', 'chromium', 'firefox', 'phantomjs'],
                         help='Browser to open Kancolle player.')
     parser.add_argument('--kcaa_browser', default='chrome',
-                        choices=['chrome', 'firefox', ''],
+                        choices=['chrome', 'chromium', 'firefox', ''],
                         help='Browser to open KCAA client. You can leave this '
                              'empty if you want to open the KCAA client from '
                              'a different machine.')
@@ -43,9 +43,11 @@ def parse_args(argv):
                              '"--kcaa_browswer= '
                              '--kancolle_browswer=phantomjs" for best '
                              'performance.')
-    parser.add_argument('--chrome_binary', default='/usr/bin/google-chrome',
-                        help='Chrome binary to use. Useful especially when '
-                             'you want to use Chromium or Dartium.')
+    parser.add_argument('--chrome_binary', default='',
+                        help='Chrome binary to use. Usually you do not need '
+                             'to set a value.')
+    parser.add_argument('--chromium_binary', default='',
+                        help='Chromium binary to use. Also accepts Dartium.')
     parser.add_argument('--chrome_user_data_basedir', default='',
                         help='Base directory for storing Chrome user data. '
                              'If left empty, all user-specific configuration '
