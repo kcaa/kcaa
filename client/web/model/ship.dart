@@ -20,6 +20,7 @@ class Ship extends Observable {
     16: "水上機母艦",
     17: "揚陸艦",
     18: "装甲空母",
+    19: "工作艦",
   };
 
   @observable int id;
