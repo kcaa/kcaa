@@ -32,7 +32,7 @@ class Assistant extends PolymerElement {
   Uri serverReloadKCSAPIModules;
   Uri serverReloadManipulatorModules;
   Uri serverManipulate;
-  Uri serverSetAutoManipulatorSchedules;
+  Uri serverSetPreferences;
   Uri serverTakeScreenshot;
   Uri serverClick;
 
@@ -84,8 +84,7 @@ class Assistant extends PolymerElement {
     serverReloadKCSAPIModules = serverRoot.resolve("reload_kcsapi");
     serverReloadManipulatorModules = serverRoot.resolve("reload_manipulators");
     serverManipulate = serverRoot.resolve("manipulate");
-    serverSetAutoManipulatorSchedules =
-        serverRoot.resolve("set_auto_manipulator_schedules");
+    serverSetPreferences = serverRoot.resolve("set_preferences");
     serverTakeScreenshot = serverRoot.resolve("take_screenshot");
     serverClick = serverRoot.resolve("click");
   }
@@ -330,16 +329,12 @@ class Assistant extends PolymerElement {
 
   void setAutoManipulatorSchedules(bool enabled,
                                    List<ScheduleFragment> schedules) {
-    var request = serverSetAutoManipulatorSchedules.resolveUri(
-        new Uri(queryParameters: {
-          "enabled": enabled ? "true" : "false",
-          "schedule": schedules.map(
-              (fragment) => "${fragment.start}:${fragment.end}").join(";"),
-    }));
-    HttpRequest.getString(request.toString());
     model.preferences.automanPrefs.enabled = enabled;
     model.preferences.automanPrefs.schedules.clear();
     model.preferences.automanPrefs.schedules.addAll(schedules);
+    HttpRequest.postFormData(serverSetPreferences.toString(), {
+      "prefs": model.preferences.toJSON(),
+    });
   }
 
   void showModalDialog(MouseEvent e, var detail, Element target) {

@@ -1,5 +1,6 @@
 library kcaa_model;
 
+import 'dart:convert';
 import 'package:intl/intl.dart';
 import 'package:polymer/polymer.dart';
 

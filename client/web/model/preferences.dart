@@ -20,6 +20,20 @@ class AutomanPrefs extends Observable {
 
 class Preferences extends Observable {
   @observable AutomanPrefs automanPrefs = new AutomanPrefs();
+
+  // Convert this preferences object to JSON so that the server can directly
+  // accept it as the Prefenreces object.
+  String toJSON() {
+    return JSON.encode({
+      "automan_prefs": {
+        "enabled": automanPrefs.enabled,
+        "schedules": automanPrefs.schedules.map((sf) => {
+          "start": sf.start,
+          "end": sf.end,
+        }).toList(),
+      },
+    });
+  }
 }
 
 void handlePreferences(Assistant assistant, AssistantModel model,
