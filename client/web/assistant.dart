@@ -101,6 +101,9 @@ class Assistant extends PolymerElement {
       runLater(1000, () => reloadScreenshot());
     }
 
+    // Somehow on-transition-end event handler doesn't work.
+    $["clickMarker"].onTransitionEnd.listen(endClickVisibleFeedback);
+
     runLater(updateAvailableObjectsIntervalMs,
         updateAvailableObjectsPeriodically);
     addCollapseButtons();
@@ -274,23 +277,32 @@ class Assistant extends PolymerElement {
 
   void showClickVisibleFeedback(MouseEvent e) {
     var clickMarker = $["clickMarker"];
+    clickMarker.dataset["state"] = "expanding";
     clickMarker.style.opacity = "1";
     clickMarker.style.left = "${e.offset.x - clickMarker.client.width / 2}px";
     clickMarker.style.top = "${e.offset.y - clickMarker.client.height / 2}px";
     clickMarker.style.transform = "scale(1, 1)";
     clickMarker.style.transitionDuration = "300ms";
     clickMarker.style.transitionTimingFunction = "ease-out";
-    runLater(300, () {
-      clickMarker.style.opacity = "0";
-      clickMarker.style.transform = "scale(1.2, 1.2)";
-      clickMarker.style.transitionDuration = "500ms";
-      clickMarker.style.transitionTimingFunction = "ease-in";
-    });
-    runLater(800, () {
-      clickMarker.style.transform = "scale(0, 0)";
-      clickMarker.style.transitionDuration = "0ms";
-      clickMarker.style.transitionTimingFunction = "linear";
-    });
+  }
+
+  void endClickVisibleFeedback(TransitionEvent e) {
+    var clickMarker = e.target as Element;
+    switch (clickMarker.dataset["state"]) {
+      case "expanding":
+        clickMarker.dataset["state"] = "blurring";
+        clickMarker.style.opacity = "0";
+        clickMarker.style.transform = "scale(1.2, 1.2)";
+        clickMarker.style.transitionDuration = "500ms";
+        clickMarker.style.transitionTimingFunction = "ease-in";
+        return;
+      case "blurring":
+        clickMarker.dataset["state"] = "exiting";
+        clickMarker.style.transform = "scale(0, 0)";
+        clickMarker.style.transitionDuration = "0ms";
+        clickMarker.style.transitionTimingFunction = "linear";
+        return;
+    }
   }
 
   void clickScreen(MouseEvent e, var detail, Element target) {
