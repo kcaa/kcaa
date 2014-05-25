@@ -36,14 +36,14 @@ class AssistantModel extends Observable {
   @observable final List<Mission> missions = new ObservableList<Mission>();
 
   // Client status.
-  @observable String screen;
+  @observable String screen = Screen.SCREEN_MAP[0];
   @observable String runningManipulator;
   @observable final List<String> manipulatorsInQueue =
       new ObservableList<String>();
-  @observable bool autoManipulatorsEnabled = false;
   @observable bool autoManipulatorsActive = false;
-  final List<ScheduleFragment> autoManipulatorSchedules =
-      new ObservableList<ScheduleFragment>();
+
+  // Preferences.
+  @observable Preferences preferences = new Preferences();
 }
 
 // Resize the list target so that its length is equal to that of reference.

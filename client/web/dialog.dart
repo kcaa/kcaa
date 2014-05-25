@@ -74,9 +74,9 @@ class ScheduleDialog extends KcaaDialog {
 
   @override
   void show(Element target) {
-    enabled = model.autoManipulatorsEnabled;
+    enabled = model.preferences.automanPrefs.enabled;
     schedules.clear();
-    schedules.addAll(model.autoManipulatorSchedules.map(
+    schedules.addAll(model.preferences.automanPrefs.schedules.map(
         (fragment) => new FriendlyScheduleFragment(fragment)));
     errorMessage = null;
   }
