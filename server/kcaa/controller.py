@@ -20,7 +20,7 @@ COMMAND_RELOAD_KCSAPI = 'reload_kcsapi'
 COMMAND_RELOAD_MANIPULATORS = 'reload_manipulators'
 COMMAND_MANIPULATE = 'manipulate'
 COMMAND_TAKE_SCREENSHOT = 'take_screenshot'
-COMMAND_SET_AUTO_MANIPULATOR_SCHEDULES = 'set_auto_manipulator_schedules'
+COMMAND_SET_PREFERENCES = 'set_preferences'
 
 
 class DummyProcess(object):
@@ -124,15 +124,16 @@ def control(args, to_exit):
                         manipulator_manager.dispatch(command_args)
                     except:
                         traceback.print_exc()
-                elif command_type == COMMAND_SET_AUTO_MANIPULATOR_SCHEDULES:
-                    # TODO: Communicate with the client directory in JSON.
-                    enabled, schedule_fragments = command_args
+                elif command_type == COMMAND_SET_PREFERENCES:
+                    preferences = kcsapi.prefs.Preferences.parse_text(
+                        command_args[0])
+                    save_preferences(args, preferences)
                     manipulator_manager.set_auto_manipulator_preferences(
                         kcsapi.prefs.AutoManipulatorPreferences(
-                            enabled=enabled,
+                            enabled=preferences.automan_prefs.enabled,
                             schedules=[kcsapi.prefs.ScheduleFragment(
-                                start=fragment[0], end=fragment[1])
-                                for fragment in schedule_fragments]))
+                                start=sf.start, end=sf.end) for sf
+                                in preferences.automan_prefs.schedules]))
                 elif command_type == COMMAND_TAKE_SCREENSHOT:
                     format, quality, width, height = command_args
                     browser_conn.send((browser.COMMAND_TAKE_SCREENSHOT,

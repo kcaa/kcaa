@@ -19,7 +19,7 @@ class KCAAHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
     RELOAD_KCSAPI = '/reload_kcsapi'
     RELOAD_MANIPULATORS = '/reload_manipulators'
     MANIPULATE = '/manipulate'
-    SET_AUTO_MANIPULATOR_SCHEDULES = '/set_auto_manipulator_schedules'
+    SET_PREFERENCES = '/set_preferences'
     TAKE_SCREENSHOT = '/take_screenshot'
     CLIENT_PREFIX = '/client/'
 
@@ -27,6 +27,9 @@ class KCAAHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         self.dispatch()
 
     def do_GET(self):
+        self.dispatch()
+
+    def do_POST(self):
         self.dispatch()
 
     def log_message(self, format, *args):
@@ -49,8 +52,8 @@ class KCAAHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             self.handle_reload_manipulators(o)
         elif o.path == KCAAHTTPRequestHandler.MANIPULATE:
             self.handle_manipulate(o)
-        elif o.path == KCAAHTTPRequestHandler.SET_AUTO_MANIPULATOR_SCHEDULES:
-            self.handle_set_auto_manipulator_schedules(o)
+        elif o.path == KCAAHTTPRequestHandler.SET_PREFERENCES:
+            self.handle_set_preferences(o)
         elif o.path == KCAAHTTPRequestHandler.TAKE_SCREENSHOT:
             self.handle_take_screenshot(o)
         elif o.path.startswith(KCAAHTTPRequestHandler.CLIENT_PREFIX):
@@ -158,22 +161,19 @@ class KCAAHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         self.end_headers()
         self.wfile.write('success')
 
-    def handle_set_auto_manipulator_schedules(self, o):
-        if self.command != 'GET':
+    def handle_set_preferences(self, o):
+        if self.command != 'POST':
             self.send_error(501, 'Unknown method: {}'.format(self.command))
             return
-        queries = urlparse.parse_qs(o.query)
+        queries = urlparse.parse_qs(self.rfile.read(
+            int(self.headers['Content-Length'])))
         try:
-            enabled = queries['enabled'][0] == 'true'
-            schedule = queries['schedule'][0]
+            preferences_string = queries['prefs'][0]
         except KeyError:
-            self.send_error(400, 'Missing parameter: enabled or schedule')
+            self.send_error(400, 'Missing parameter: prefs')
             return
-        schedule_fragments = [map(lambda v: int(v), fragment.split(':'))
-                              for fragment in schedule.split(';')]
         self.server.controller_conn.send(
-            (controller.COMMAND_SET_AUTO_MANIPULATOR_SCHEDULES,
-             (enabled, schedule_fragments)))
+            (controller.COMMAND_SET_PREFERENCES, (preferences_string,)))
         self.send_response(200)
         self.send_header('Content-Type', 'text/plain')
         self.end_headers()
