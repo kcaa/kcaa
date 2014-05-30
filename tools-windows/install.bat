@@ -2,6 +2,9 @@
 
 call config.bat
 
+echo Creating USERDATADIR: %USERDATADIR%
+mkdir %USERDATADIR%
+
 echo Installing PIP...
 %PYTHON% %BINDIR%\get-pip.py
 
