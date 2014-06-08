@@ -179,15 +179,23 @@ class Assistant extends PolymerElement {
   void sortShips(MouseEvent e) {
     var sortLabel = e.target as Element;
     var columnHeader = sortLabel.parent;
-    var sortType = columnHeader.dataset["sortType"];
+    var type = columnHeader.dataset["type"];
+    var order = columnHeader.dataset["order"];
     var label = columnHeader.dataset["label"];
-    if (sortType != "descending") {
+    // Determine the metric to use.
+    model.shipComparer = Ship.SHIP_COMPARER[type];
+    // Determine the sort order.
+    if (order != "descending") {
+      model.shipOrderInverter = Ship.orderInDescending;
       sortLabel.text = label + "▼";
-      columnHeader.dataset["sortType"] = "descending";
+      columnHeader.dataset["order"] = "descending";
     } else {
+      model.shipOrderInverter = Ship.orderInAscending;
       sortLabel.text = label + "▲";
-      columnHeader.dataset["sortType"] = "ascending";
+      columnHeader.dataset["order"] = "ascending";
     }
+    // Sort the ships using these criteria.
+    reorderShipList(model);
     resetOtherShipSortLabels(columnHeader.parent, columnHeader);
     e.preventDefault();
   }
@@ -197,6 +205,7 @@ class Assistant extends PolymerElement {
       if (columnHeader == target) {
         continue;
       }
+      columnHeader.dataset.remove("order");
       var sortLabel = columnHeader.children[0];
       sortLabel.text = columnHeader.dataset["label"];
     }

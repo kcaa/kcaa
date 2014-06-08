@@ -24,6 +24,8 @@ class AssistantModel extends Observable {
   // Ships.
   @observable final List<Ship> ships = new ObservableList<Ship>();
   Map<int, Ship> shipMap = new Map<int, Ship>();
+  ShipComparer shipComparer = Ship.compareByKancolleLevel;
+  ShipOrderInverter shipOrderInverter = Ship.orderInDescending;
 
   // Fleets.
   @observable final List<Fleet> fleets = new ObservableList<Fleet>();
@@ -48,6 +50,12 @@ class AssistantModel extends Observable {
   // Preferences.
   @observable Preferences preferences = new Preferences();
 }
+
+// Compare ships by an arbitrary criteria.
+typedef int ShipComparer(Ship a, Ship b);
+
+// May or may not invert ship order.
+typedef int ShipOrderInverter(int result);
 
 // Resize the list target so that its length is equal to that of reference.
 // If target is longer, the elements are removed from the end. If target is

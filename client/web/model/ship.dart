@@ -23,6 +23,11 @@ class Ship extends Observable {
     19: "工作艦",
   };
 
+  static final SHIP_COMPARER = <String, ShipComparer>{
+    "name": compareByName,
+    "level": compareByKancolleLevel,
+  };
+
   @observable int id;
   @observable String name;
   @observable String shipType;
@@ -129,32 +134,60 @@ class Ship extends Observable {
     }
     belongingFleet = null;
   }
-}
 
-// Compare ships by Kancolle level.
-// First sort by level (not considering experience gauge), then by sort order
-// (encyclopedia order). This order is consistent with "Lv" in Kancolle player.
-int compareShipByKancolleLevel(Ship a, Ship b) {
-  if (a.level != b.level) {
-    return -a.level.compareTo(b.level);
+  static int compareByName(Ship a, Ship b) {
+    return a.name.compareTo(b.name);
   }
-  return a.sortOrder.compareTo(b.sortOrder);
+
+  // Compare ships by Kancolle level.
+  // First sort by level (not considering experience gauge), then by sort order
+  // (encyclopedia order). This order is consistent with "Lv" in Kancolle
+  // player.
+  static int compareByKancolleLevel(Ship a, Ship b) {
+    if (a.level != b.level) {
+     return a.level.compareTo(b.level);
+    }
+    return -a.sortOrder.compareTo(b.sortOrder);
+  }
+
+  // Inverse the sort order; ships are sorted in descending order.
+  static int orderInDescending(int result) {
+    return -result;
+  }
+
+  // Respect the sort order; ships are sorted in ascending order.
+  static int orderInAscending(int result) {
+    return result;
+  }
 }
 
 void handleShipList(Assistant assistant, AssistantModel model,
                     Map<String, dynamic> data) {
+  Map<int, bool> presentShips = new Map<int, bool>();
   for (var shipData in (data["ships"] as Map).values) {
-    var ship = model.shipMap[shipData["id"]];
+    var id = shipData["id"];
+    var ship = model.shipMap[id];
     if (ship == null) {
       ship = new Ship();
-      model.shipMap[shipData["id"]] = ship;
+      model.shipMap[id] = ship;
     }
     ship.update(shipData, model.fleets);
+    presentShips[id] = true;
   }
-  var shipsLength = data["ships"].length;
+  // Remove ships that are no longer available.
+  for (var id in model.shipMap.keys) {
+    if (!presentShips.containsKey(id)) {
+      model.shipMap.remove(id);
+    }
+  }
+  reorderShipList(model);
+}
+
+void reorderShipList(AssistantModel model) {
+  var shipsLength = model.shipMap.length;
   resizeList(model.ships, shipsLength, () => new Ship());
   var sortedShips = model.shipMap.values.toList(growable: false);
-  sortedShips.sort(compareShipByKancolleLevel);
+  sortedShips.sort((a, b) => model.shipOrderInverter(model.shipComparer(a, b)));
   for (var i = 0; i < shipsLength; i++) {
     var ship = sortedShips[i];
     // Update the ship list only when the order has changed.
