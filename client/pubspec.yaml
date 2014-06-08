@@ -4,7 +4,6 @@ description: 'KCAA: Kancolle Automated Assistant'
 dependencies:
   bootjack: any
   intl: any
-  json_object: any
   polymer: any
 transformers:
 - polymer:
