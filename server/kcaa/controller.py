@@ -55,7 +55,7 @@ def save_preferences(args, logger, preferences):
     with open(args.preferences, 'w') as preferences_file:
         preferences_string = preferences.json(
             indent=2, separators=(',', ': '),
-            ensure_ascii=False).encode('utf-8')
+            ensure_ascii=False).encode('utf8')
         logger.debug('Saving preferences: ' + preferences_string)
         preferences_file.write(preferences_string)
 
@@ -121,7 +121,8 @@ def control(args, to_exit):
                     reload(manipulator_util)
                     manipulator_util.reload_modules()
                     manipulator_manager = manipulator_util.ManipulatorManager(
-                        browser_conn, kcsapi_handler.objects, time.time())
+                        browser_conn, kcsapi_handler.objects, preferences,
+                        time.time())
                 elif command_type == COMMAND_MANIPULATE:
                     try:
                         manipulator_manager.dispatch(command_args)
