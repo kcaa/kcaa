@@ -180,19 +180,16 @@
                   (遠征中: {{fleet.undertakingMission}},
                    帰還: {{fleet.missionEtaDatetimeString}})
                 </template>
+                <template if="{{fleet.id > 1 &&
+                                fleet.undertakingMission == null}}">
+                  <button on-click="{{showModalDialog}}"
+                          data-dialog="kcaaFleetMissionDialog"
+                          data-fleet-id="{{fleet.id}}">遠征選択</button>
+                </template>
                 <button class="collapse"
                         on-click="{{toggleCollapseFleet}}"
                         data-fleet-id="{{fleet.id}}"></button>
               </h4>
-              <template if="{{fleet.id > 1 &&
-                              fleet.undertakingMission == null}}">
-                <div class="{{fleet.defaultClass}}">
-                  遠征:
-                  <button on-click="{{showModalDialog}}"
-                          data-dialog="kcaaFleetMissionDialog"
-                          data-fleet-id="{{fleet.id}}">遠征選択</button>
-                </div>
-              </template>
               <template ref="shiplist" bind="{{fleet}}"></template>
             </section>
           </template>
