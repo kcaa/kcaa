@@ -47,14 +47,17 @@ def load_preferences(args, logger):
             'Prefenreces file not found at {}. Creating one with default.'
             .format(args.preferences))
         preferences = kcsapi.prefs.Preferences()
-        save_preferences(args, preferences)
+        save_preferences(args, logger, preferences)
         return preferences
 
 
-def save_preferences(args, preferences):
+def save_preferences(args, logger, preferences):
     with open(args.preferences, 'w') as preferences_file:
-        preferences_file.write(preferences.json(
-            indent=2, separators=(',', ': ')))
+        preferences_string = preferences.json(
+            indent=2, separators=(',', ': '),
+            ensure_ascii=False).encode('utf-8')
+        logger.debug('Saving preferences: ' + preferences_string)
+        preferences_file.write(preferences_string)
 
 
 def control(args, to_exit):
@@ -127,7 +130,7 @@ def control(args, to_exit):
                 elif command_type == COMMAND_SET_PREFERENCES:
                     preferences = kcsapi.prefs.Preferences.parse_text(
                         command_args[0])
-                    save_preferences(args, preferences)
+                    save_preferences(args, logger, preferences)
                     manipulator_manager.set_auto_manipulator_preferences(
                         kcsapi.prefs.AutoManipulatorPreferences(
                             enabled=preferences.automan_prefs.enabled,

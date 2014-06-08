@@ -33,6 +33,25 @@ class AutoManipulatorPreferences(jsonobject.JSONSerializableObject):
     TODO: Separate this per auto manipulator."""
 
 
+class ShipRequirement(jsonobject.JSONSerializableObject):
+    id = jsonobject.JSONProperty('id', value_type=int)
+    """ID of the ship."""
+
+
+class SavedFleet(jsonobject.JSONSerializableObject):
+    name = jsonobject.JSONProperty('name', value_type=unicode)
+    """Name of the fleet."""
+    ship_requirements = jsonobject.JSONProperty(
+        'ship_requirements', [], value_type=list, element_type=ShipRequirement)
+    """Ship requirements."""
+
+
+class FleetPreferences(jsonobject.JSONSerializableObject):
+    saved_fleets = jsonobject.JSONProperty(
+        'saved_fleets', [], value_type=list, element_type=SavedFleet)
+    """Saved fleets."""
+
+
 class Preferences(model.KCAAObject):
     """KCAA client preferences.
 
@@ -43,3 +62,6 @@ class Preferences(model.KCAAObject):
         'automan_prefs', AutoManipulatorPreferences(),
         value_type=AutoManipulatorPreferences)
     """Auto manipulator preferences."""
+    fleet_prefs = jsonobject.JSONProperty(
+        'fleet_prefs', FleetPreferences(), value_type=FleetPreferences)
+    """Fleet preferences."""

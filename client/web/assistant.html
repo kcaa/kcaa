@@ -190,6 +190,10 @@
                         on-click="{{toggleCollapseFleet}}"
                         data-fleet-id="{{fleet.id}}"></button>
               </h4>
+              <div class="{{defaultClass}}">
+                <button on-click="{{saveFleet}}"
+                        data-fleet-id="{{fleet.id}}">艦隊を保存</button>
+              </div>
               <template ref="shiplist" bind="{{fleet}}"></template>
             </section>
           </template>

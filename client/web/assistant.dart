@@ -386,9 +386,7 @@ class Assistant extends PolymerElement {
     model.preferences.automanPrefs.enabled = enabled;
     model.preferences.automanPrefs.schedules.clear();
     model.preferences.automanPrefs.schedules.addAll(schedules);
-    HttpRequest.postFormData(serverSetPreferences.toString(), {
-      "prefs": model.preferences.toJSON(),
-    });
+    savePreferences();
   }
 
   void showModalDialog(MouseEvent e, var detail, Element target) {
@@ -397,5 +395,18 @@ class Assistant extends PolymerElement {
     var dialog = querySelector("#${dialogName}") as KcaaDialog;
     dialog.show(target);
     dialog.classes.remove("hidden");
+  }
+
+  void savePreferences() {
+    HttpRequest.postFormData(serverSetPreferences.toString(), {
+      "prefs": model.preferences.toJSON(),
+    });
+  }
+
+  void saveFleet(MouseEvent e, var detail, Element target) {
+    var fleetId = int.parse(target.dataset["fleetId"]);
+    var fleet = model.fleets[fleetId - 1];
+    model.preferences.fleetPrefs.saveFleet(fleet.name, fleet.ships);
+    savePreferences();
   }
 }
