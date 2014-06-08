@@ -107,6 +107,7 @@ class Assistant extends PolymerElement {
         updateAvailableObjectsPeriodically);
     addCollapseButtons();
     updateCollapsedSections();
+    addShipSortLabels();
     handleObjects(serverGetObjects);
     // TODO: Ensure this happens after all other dialog elements are
     // initialized.
@@ -156,6 +157,48 @@ class Assistant extends PolymerElement {
       var collapseButton = header.querySelector("button.collapse");
       collapseSection(header, collapseButton,
           header.dataset["collapsed"] == "true");
+    }
+  }
+
+  void addShipSortLabels() {
+    for (Element columnHeader in
+        shadowRoot.querySelectorAll("table.shipList th[data-type]")) {
+      if (columnHeader.dataset.containsKey("label")) {
+        continue;
+      }
+      var sortLabel = new AnchorElement();
+      sortLabel.text = columnHeader.text;
+      sortLabel.href = "#";
+      sortLabel.onClick.listen(sortShips);
+      columnHeader.dataset["label"] = columnHeader.text;
+      columnHeader.text = "";
+      columnHeader.children.add(sortLabel);
+    }
+  }
+
+  void sortShips(MouseEvent e) {
+    var sortLabel = e.target as Element;
+    var columnHeader = sortLabel.parent;
+    var sortType = columnHeader.dataset["sortType"];
+    var label = columnHeader.dataset["label"];
+    if (sortType != "descending") {
+      sortLabel.text = label + "▼";
+      columnHeader.dataset["sortType"] = "descending";
+    } else {
+      sortLabel.text = label + "▲";
+      columnHeader.dataset["sortType"] = "ascending";
+    }
+    resetOtherShipSortLabels(columnHeader.parent, columnHeader);
+    e.preventDefault();
+  }
+
+  void resetOtherShipSortLabels(Element row, Element target) {
+    for (Element columnHeader in row.children) {
+      if (columnHeader == target) {
+        continue;
+      }
+      var sortLabel = columnHeader.children[0];
+      sortLabel.text = columnHeader.dataset["label"];
     }
   }
 

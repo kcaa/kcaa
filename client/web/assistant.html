@@ -9,9 +9,9 @@
     <template id="shiplist">
       <!-- TODO: How to customize columns? Sometimes I want to see other
            parameters like cruising speed, anti-submarine or the like. -->
-      <table class="{{defaultClass}}">
+      <table class="shipList {{defaultClass}}">
         <col>
-        <col width="60px">
+        <col width="70px">
         <col width="50px">
         <col width="50px">
         <col width="50px">
@@ -22,16 +22,16 @@
         <col width="50px">
         <thead>
           <tr>
-            <th>名前</th>
-            <th>レベル</th>
-            <th>燃料</th>
-            <th>弾薬</th>
-            <th>戦意</th>
-            <th>HP</th>
-            <th>火力</th>
-            <th>雷装</th>
-            <th>対空</th>
-            <th>装甲</th>
+            <th data-type="default">名前</th>
+            <th data-type="label">レベル</th>
+            <th data-type="fuel">燃料</th>
+            <th data-type="ammo">弾薬</th>
+            <th data-type="vitality">戦意</th>
+            <th data-type="hp">HP</th>
+            <th data-type="firepower">火力</th>
+            <th data-type="thunderstroke">雷装</th>
+            <th data-type="antiair">対空</th>
+            <th data-type="armor">装甲</th>
           </tr>
         </thead>
         <tbody>
