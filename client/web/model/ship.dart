@@ -26,6 +26,14 @@ class Ship extends Observable {
   static final SHIP_COMPARER = <String, ShipComparer>{
     "name": compareByName,
     "level": compareByKancolleLevel,
+    "fuel": compareByFuel,
+    "ammo": compareByAmmo,
+    "vitality": compareByVitality,
+    "hp": compareByHp,
+    "firepower": compareByFirepower,
+    "thunderstroke": compareByThunderstroke,
+    "antiair": compareByAntiAir,
+    "armor": compareByArmor,
   };
 
   @observable int id;
@@ -35,12 +43,12 @@ class Ship extends Observable {
   @observable String levelClass;
   @observable int experienceGaugeValue;
   @observable String experienceGauge;
-  @observable int fuel, fuelCapacity;
-  @observable int ammo, ammoCapacity;
-  @observable String fuelPercentage, ammoPercentage;
+  @observable int fuel, fuelCapacity, fuelPercentage;
+  @observable int ammo, ammoCapacity, ammoPercentage;
+  @observable String fuelPercentageString, ammoPercentageString;
   @observable int vitality;
-  @observable int hp, maxHp;
-  @observable String hpPercentage;
+  @observable int hp, maxHp, hpPercentage;
+  @observable String hpPercentageString;
   @observable int armor, enhancedArmor, maxArmor;
   @observable int firepower, enhancedFirepower, maxFirepower;
   @observable int thunderstroke, enhancedThunderstroke, maxThunderstroke;
@@ -98,10 +106,13 @@ class Ship extends Observable {
       }
     }
     fuelPercentage =
-        (100 * data["loaded_resource_percentage"]["fuel"]).toStringAsFixed(0);
+        10 * (10 * data["loaded_resource_percentage"]["fuel"]).round();
+    fuelPercentageString = fuelPercentage.toStringAsFixed(0);
     ammoPercentage =
-        (100 * data["loaded_resource_percentage"]["ammo"]).toStringAsFixed(0);
-    hpPercentage = (100.0 * hp / maxHp).toStringAsFixed(0);
+        10 * (10 * data["loaded_resource_percentage"]["ammo"]).round();
+    ammoPercentageString = ammoPercentage.toStringAsFixed(0);
+    hpPercentage = (100 * hp / maxHp).round();
+    hpPercentageString = hpPercentage.toString();
     armorClass = enhancedArmor == maxArmor ? "fullyEnhanced" : "";
     firepowerClass = enhancedFirepower == maxFirepower ? "fullyEnhanced" : "";
     thunderstrokeClass =
@@ -136,7 +147,10 @@ class Ship extends Observable {
   }
 
   static int compareByName(Ship a, Ship b) {
-    return a.name.compareTo(b.name);
+    if (a.name != b.name) {
+      return a.name.compareTo(b.name);
+    }
+    return compareByKancolleLevel(a, b);
   }
 
   // Compare ships by Kancolle level.
@@ -148,6 +162,62 @@ class Ship extends Observable {
      return a.level.compareTo(b.level);
     }
     return -a.sortOrder.compareTo(b.sortOrder);
+  }
+
+  static int compareByFuel(Ship a, Ship b) {
+    if (a.fuelPercentage != b.fuelPercentage) {
+      return a.fuelPercentage.compareTo(b.fuelPercentage);
+    }
+    return compareByKancolleLevel(a, b);
+  }
+
+  static int compareByAmmo(Ship a, Ship b) {
+    if (a.ammoPercentage != b.ammoPercentage) {
+      return a.ammoPercentage.compareTo(b.ammoPercentage);
+    }
+    return compareByKancolleLevel(a, b);
+  }
+
+  static int compareByVitality(Ship a, Ship b) {
+    if (a.vitality != b.vitality) {
+      return a.vitality.compareTo(b.vitality);
+    }
+    return compareByKancolleLevel(a, b);
+  }
+
+  static int compareByHp(Ship a, Ship b) {
+    if (a.hpPercentage != b.hpPercentage) {
+      return a.hpPercentage.compareTo(b.hpPercentage);
+    }
+    return compareByKancolleLevel(a, b);
+  }
+
+  static int compareByFirepower(Ship a, Ship b) {
+    if (a.firepower != b.firepower) {
+      return a.firepower.compareTo(b.firepower);
+    }
+    return compareByKancolleLevel(a, b);
+  }
+
+  static int compareByThunderstroke(Ship a, Ship b) {
+    if (a.thunderstroke != b.thunderstroke) {
+      return a.thunderstroke.compareTo(b.thunderstroke);
+    }
+    return compareByKancolleLevel(a, b);
+  }
+
+  static int compareByAntiAir(Ship a, Ship b) {
+    if (a.antiAir != b.antiAir) {
+      return a.antiAir.compareTo(b.antiAir);
+    }
+    return compareByKancolleLevel(a, b);
+  }
+
+  static int compareByArmor(Ship a, Ship b) {
+    if (a.armor != b.armor) {
+      return a.armor.compareTo(b.armor);
+    }
+    return compareByKancolleLevel(a, b);
   }
 
   // Inverse the sort order; ships are sorted in descending order.
@@ -163,7 +233,7 @@ class Ship extends Observable {
 
 void handleShipList(Assistant assistant, AssistantModel model,
                     Map<String, dynamic> data) {
-  Map<int, bool> presentShips = new Map<int, bool>();
+  Set<int> presentShips = new Set<int>();
   for (var shipData in (data["ships"] as Map).values) {
     var id = shipData["id"];
     var ship = model.shipMap[id];
@@ -172,11 +242,11 @@ void handleShipList(Assistant assistant, AssistantModel model,
       model.shipMap[id] = ship;
     }
     ship.update(shipData, model.fleets);
-    presentShips[id] = true;
+    presentShips.add(id);
   }
   // Remove ships that are no longer available.
   for (var id in model.shipMap.keys) {
-    if (!presentShips.containsKey(id)) {
+    if (!presentShips.contains(id)) {
       model.shipMap.remove(id);
     }
   }
