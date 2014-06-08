@@ -132,6 +132,7 @@ def control(args, to_exit):
                     preferences = kcsapi.prefs.Preferences.parse_text(
                         command_args[0])
                     save_preferences(args, logger, preferences)
+                    kcsapi_handler.objects['Preferences'] = preferences
                     manipulator_manager.set_auto_manipulator_preferences(
                         kcsapi.prefs.AutoManipulatorPreferences(
                             enabled=preferences.automan_prefs.enabled,
