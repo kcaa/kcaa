@@ -391,7 +391,7 @@ class PortOrganizingScreen(PortOperationsScreen):
     def select_ship(self, index):
         def select_ship_task(task):
             self.click(500, 168 + 28 * index)
-            yield 1.0
+            yield 2.0
         return self.do_task(select_ship_task)
 
     def confirm(self):
