@@ -27,6 +27,8 @@ class AssistantModel extends Observable {
 
   // Fleets.
   @observable final List<Fleet> fleets = new ObservableList<Fleet>();
+  // Dirty hack for allowing this model to pretend as a fleet.
+  @observable final String defaultClass = "";
 
   // Repair dock.
   @observable int numShipsBeingRepaired = 0;
