@@ -68,6 +68,8 @@ class AutoCheckMissionResult(base.AutoManipulator):
             yield self.do_manipulator(CheckMissionResult)
 
 
+# TODO: Deprecate this. Recently the mission list is passed during the
+# initialization.
 class FindMission(base.Manipulator):
 
     def run(self, mission_list, mission_id):

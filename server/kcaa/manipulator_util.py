@@ -41,7 +41,7 @@ class ScreenManager(object):
             screens.PORT_EXPEDITION: manipulators.screen.PortScreen,
             screens.PORT_PRACTICE: manipulators.screen.PortScreen,
             screens.PORT_MISSION: manipulators.screen.PortMissionScreen,
-            screens.PORT_ORGANIZING: manipulators.screen.PortOperationsScreen,
+            screens.PORT_ORGANIZING: manipulators.screen.PortOrganizingScreen,
             screens.PORT_LOGISTICS: manipulators.screen.PortLogisticsScreen,
             screens.PORT_REBUILDING: manipulators.screen.PortOperationsScreen,
             screens.PORT_REPAIR: manipulators.screen.PortOperationsScreen,
@@ -113,6 +113,8 @@ class ManipulatorManager(object):
         self.manipulators = {
             # Mission
             'GoOnMission': manipulators.mission.GoOnMission,
+            # Organizing
+            'LoadFleet': manipulators.organizing.LoadFleet,
             # Logistics
             'FleetCharge': manipulators.logistics.FleetCharge,
         }

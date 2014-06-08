@@ -409,4 +409,15 @@ class Assistant extends PolymerElement {
     model.preferences.fleetPrefs.saveFleet(fleet.name, fleet.ships);
     savePreferences();
   }
+
+  void loadFleet(MouseEvent e, var detail, Element target) {
+    var fleetName = target.dataset["name"];
+    Uri request = serverManipulate.resolveUri(
+        new Uri(queryParameters: {
+          "type": "LoadFleet",
+          "fleet_id": "1",  // Always load to the 1st fleet
+          "saved_fleet_name": fleetName,
+        }));
+    HttpRequest.getString(request.toString());
+  }
 }

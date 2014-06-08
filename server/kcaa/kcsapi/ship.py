@@ -283,12 +283,37 @@ class Ship(ShipDefinition):
     """True if this ship is locked."""
 
 
+def compare_ship_by_kancolle_level(ship_a, ship_b):
+    if ship_a.level != ship_b.level:
+        return ship_a.level - ship_b.level
+    # Note that this is reversed. When sorted by the level in descending order,
+    # a ship with smaller sort_order comes first. Here we do the reverse here.
+    return ship_b.sort_order - ship_a.sort_order
+
+
 class ShipList(model.KCAAObject):
     """List of owned ship instances."""
 
     ships = jsonobject.JSONProperty('ships', {}, value_type=dict,
                                     element_type=Ship)
     """Ships. Keyed by instance ID (string)."""
+
+    def get_ship_position(self, ship_id):
+        import logging
+        logger = logging.getLogger('kcaa.kcsapi.ship')
+        logger.debug('Finding {} of ID {}'.format(
+            self.ships[str(ship_id)].name.encode('utf8'), ship_id))
+        if str(ship_id) not in self.ships:
+            return None, None
+        sorted_ships = sorted(
+            self.ships.values(), compare_ship_by_kancolle_level, reverse=True)
+        sorted_ship_ids = [ship.id for ship in sorted_ships]
+        ship_index = sorted_ship_ids.index(ship_id)
+        logger.debug('Ship {} at index {}'.format(
+            sorted_ships[ship_index].name.encode('utf8'), ship_index))
+        page = 1 + ship_index / 10
+        in_page_index = ship_index % 10
+        return page, in_page_index
 
     def update(self, api_name, request, response, objects, debug):
         super(ShipList, self).update(api_name, request, response, objects,

@@ -188,6 +188,14 @@ class PortScreen(Screen):
 class PortMainScreen(PortScreen):
 
     def change_screen(self, screen_id):
+        screen_map = {
+            screens.PORT_ORGANIZING: self.click_organizing_button,
+            screens.PORT_LOGISTICS: self.click_logistics_button,
+            screens.PORT_REBUILDING: self.click_rebuilding_button,
+            screens.PORT_REPAIR: self.click_repair_button,
+            screens.PORT_SHIPYARD: self.click_shipyard_button,
+        }
+
         def change_screen_task(task):
             if screen_id == screens.PORT_MAIN:
                 yield 0.0
@@ -197,9 +205,9 @@ class PortMainScreen(PortScreen):
                 yield 2.0
                 self.click_mission_button()
                 yield self.transition_to(screens.PORT_MISSION)
-            elif screen_id == screens.PORT_LOGISTICS:
-                self.click_logistics_button()
-                yield self.transition_to(screens.PORT_LOGISTICS)
+            if screen_id in screen_map:
+                screen_map[screen_id]()
+                yield self.transition_to(screen_id)
             else:
                 self.raise_impossible_transition(screen_id)
         self.assert_screen(screens.PORT_MAIN)
@@ -208,8 +216,20 @@ class PortMainScreen(PortScreen):
     def click_mission_button(self):
         self.click(680, 230)
 
+    def click_organizing_button(self):
+        self.click(200, 140)
+
     def click_logistics_button(self):
         self.click(80, 225)
+
+    def click_rebuilding_button(self):
+        self.click(320, 225)
+
+    def click_repair_button(self):
+        self.click(125, 365)
+
+    def click_shipyard_button(self):
+        self.click(275, 365)
 
 
 class PortMissionScreen(PortScreen):
@@ -281,7 +301,7 @@ class PortOperationsScreen(PortScreen):
                 yield self.wait_transition(screens.PORT_MAIN)
                 return
             if screen_id in screen_map:
-                self.click_organizing_button()
+                screen_map[screen_id]()
                 yield 2.0
                 self.update_screen_id(screen_id)
                 return
@@ -306,6 +326,91 @@ class PortOperationsScreen(PortScreen):
 
     def click_shipyard_button(self):
         self.click(20, 375)
+
+
+class PortOrganizingScreen(PortOperationsScreen):
+
+    def change_screen(self, screen_id):
+        def change_screen_task(task):
+            if screen_id == screens.PORT_ORGANIZING:
+                yield 0.0
+                return
+            yield super(PortOrganizingScreen, self).change_screen(screen_id)
+            if self.screen_id == screen_id:
+                return
+            else:
+                self.raise_impossible_transition(screen_id)
+        self.assert_screen(screens.PORT_ORGANIZING)
+        return self.do_task(change_screen_task)
+
+    def select_fleet(self, fleet_id):
+        def select_fleet_task(task):
+            self.click(105 + 30 * fleet_id, 115)
+            yield 1.0
+        return self.do_task(select_fleet_task)
+
+    def detach_all_ships(self):
+        def detach_all_ships_task(task):
+            self.click(420, 120)
+            yield 2.0
+        return self.do_task(detach_all_ships_task)
+
+    def change_member(self, index):
+        def change_member_task(task):
+            self.click(410 + 340 * (index % 2), 220 + 110 * (index / 2))
+            yield 1.0
+        return self.do_task(change_member_task)
+
+    def select_page(self, page):
+        def change_member_task(task):
+            self.click_page_reset()
+            yield 1.0
+            if page <= 5:
+                self.click_page(page - 1)
+                yield 1.0
+                return
+            current_page = 1
+            while page - current_page >= 5:
+                self.click_page_skip_5()
+                current_page += 5
+                yield 1.0
+            while page - current_page >= 2:
+                self.click_page_next_2()
+                current_page += 2
+                yield 1.0
+            while page > current_page:
+                self.click_page_next()
+                current_page += 1
+                yield 1.0
+        return self.do_task(change_member_task)
+
+    def select_ship(self, index):
+        def select_ship_task(task):
+            self.click(500, 168 + 28 * index)
+            yield 1.0
+        return self.do_task(select_ship_task)
+
+    def confirm(self):
+        def confirm_task(task):
+            self.click(695, 445)
+            yield 3.0
+        return self.do_task(confirm_task)
+
+    def click_page(self, position):
+        # position ranges from 0 to 4.
+        self.click(514 + 32 * position, 450)
+
+    def click_page_reset(self):
+        self.click(435, 450)
+
+    def click_page_next(self):
+        self.click_page(3)
+
+    def click_page_next_2(self):
+        self.click_page(4)
+
+    def click_page_skip_5(self):
+        self.click(680, 450)
 
 
 class PortLogisticsScreen(PortOperationsScreen):

@@ -38,7 +38,7 @@
           <tr template repeat="{{ship in ships}}"
               class="{{ship.stateClass}}">
             <td>
-              <div class="title {{ship.lockedClass}}">{{ship.name}}</div>
+              <div class="title {{ship.lockedClass}}">{{ship.name}} {{ship.id}}</div>
               <div>{{ship.shipType}}</div>
               <template if="{{ships.length > 6 &&
                               ship.belongingFleet != null}}">
@@ -140,6 +140,15 @@
         <div class="column">
           <div class="board commandBoard">
             <h3>クイックコマンド</h3>
+            <div>
+              <template repeat="{{savedFleet in
+                                  model.preferences.fleetPrefs.savedFleets}}">
+                <button on-click="{{loadFleet}}"
+                        data-name="{{savedFleet.name}}">
+                  第1艦隊に{{savedFleet.name}}を再現
+                </button>
+              </template>
+            </div>
           </div>
         </div>
       </div>
@@ -190,7 +199,7 @@
                         on-click="{{toggleCollapseFleet}}"
                         data-fleet-id="{{fleet.id}}"></button>
               </h4>
-              <div class="{{defaultClass}}">
+              <div class="{{fleet.defaultClass}}">
                 <button on-click="{{saveFleet}}"
                         data-fleet-id="{{fleet.id}}">艦隊を保存</button>
               </div>
