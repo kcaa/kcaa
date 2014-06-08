@@ -6,6 +6,7 @@ class Fleet extends Observable {
   // Somehow this list needs to be @observable for getting ships.length.
   @observable final List<Ship> ships = new ObservableList<Ship>();
   @observable String undertakingMission;
+  @observable String missionEtaDatetimeString;
   @observable bool collapsed = null;
   @observable String defaultClass;
 
@@ -39,6 +40,7 @@ class Fleet extends Observable {
       for (var mission in missions) {
         if (mission.id == missionId) {
           undertakingMission = mission.name;
+          missionEtaDatetimeString = mission.etaDatetimeString;
           break;
         }
       }

@@ -177,7 +177,8 @@
               <h4 data-collapsed="{{fleet.collapsed}}">
                 第{{fleet.id}}艦隊: {{fleet.name}}
                 <template if="{{fleet.undertakingMission != null}}">
-                  (遠征中: {{fleet.undertakingMission}})
+                  (遠征中: {{fleet.undertakingMission}},
+                   帰還: {{fleet.missionEtaDatetimeString}})
                 </template>
                 <button class="collapse"
                         on-click="{{toggleCollapseFleet}}"
