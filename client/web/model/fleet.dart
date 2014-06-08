@@ -61,10 +61,7 @@ void handleFleetList(Assistant assistant, AssistantModel model,
   var fleetsLength = data["fleets"].length;
   if (fleetsLength != model.fleets.length) {
     // Wait for the DOM to be updated.
-    runLater(0, () {
-      assistant.updateCollapsedSections();
-      assistant.addShipSortLabels();
-    });
+    runLater(0, () =>  assistant.updateCollapsedSections());
   }
   resizeList(model.fleets, fleetsLength, () => new Fleet());
   for (var i = 0; i < fleetsLength; i++) {
