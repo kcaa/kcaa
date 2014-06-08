@@ -114,7 +114,7 @@ def control(args, to_exit):
                     reload(kcsapi_util)
                     kcsapi_util.reload_modules()
                     kcsapi_handler = kcsapi_util.KCSAPIHandler(
-                        har_manager, args.debug)
+                        har_manager, preferences, args.debug)
                     kcsapi_handler.deserialize_objects(serialized_objects)
                     manipulator_manager.objects = kcsapi_handler.objects
                 elif command_type == COMMAND_RELOAD_MANIPULATORS:
