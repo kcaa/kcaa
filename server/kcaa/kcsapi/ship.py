@@ -299,21 +299,19 @@ class ShipList(model.KCAAObject):
     """Ships. Keyed by instance ID (string)."""
 
     def get_ship_position(self, ship_id):
-        import logging
-        logger = logging.getLogger('kcaa.kcsapi.ship')
-        logger.debug('Finding {} of ID {}'.format(
-            self.ships[str(ship_id)].name.encode('utf8'), ship_id))
         if str(ship_id) not in self.ships:
             return None, None
         sorted_ships = sorted(
             self.ships.values(), compare_ship_by_kancolle_level, reverse=True)
         sorted_ship_ids = [ship.id for ship in sorted_ships]
         ship_index = sorted_ship_ids.index(ship_id)
-        logger.debug('Ship {} at index {}'.format(
-            sorted_ships[ship_index].name.encode('utf8'), ship_index))
         page = 1 + ship_index / 10
         in_page_index = ship_index % 10
         return page, in_page_index
+
+    @property
+    def max_page(self):
+        return (len(self.ships) + 9) / 10
 
     def update(self, api_name, request, response, objects, debug):
         super(ShipList, self).update(api_name, request, response, objects,

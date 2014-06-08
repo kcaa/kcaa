@@ -38,6 +38,6 @@ class LoadFleet(base.Manipulator):
             page, index = ship_list.get_ship_position(ship_requirement.id)
             # Do I need to ensure the ship was properly changed?
             yield self.screen.change_member(pos)
-            yield self.screen.select_page(page)
+            yield self.screen.select_page(page, ship_list.max_page)
             yield self.screen.select_ship(index)
             yield self.screen.confirm()

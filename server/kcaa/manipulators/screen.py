@@ -361,8 +361,12 @@ class PortOrganizingScreen(PortOperationsScreen):
             yield 1.0
         return self.do_task(change_member_task)
 
-    def select_page(self, page):
-        def change_member_task(task):
+    def select_page(self, page, max_page):
+        def select_page_task(task):
+            if page == max_page:
+                self.click_page_last()
+                yield 1.0
+                return
             self.click_page_reset()
             yield 1.0
             if page <= 5:
@@ -382,7 +386,7 @@ class PortOrganizingScreen(PortOperationsScreen):
                 self.click_page_next()
                 current_page += 1
                 yield 1.0
-        return self.do_task(change_member_task)
+        return self.do_task(select_page_task)
 
     def select_ship(self, index):
         def select_ship_task(task):
@@ -402,6 +406,9 @@ class PortOrganizingScreen(PortOperationsScreen):
 
     def click_page_reset(self):
         self.click(435, 450)
+
+    def click_page_last(self):
+        self.click(715, 450)
 
     def click_page_next(self):
         self.click_page(3)
