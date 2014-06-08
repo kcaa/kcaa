@@ -195,3 +195,11 @@ div.screenContainer {
   -webkit-transition-property: opacity, -webkit-transform;
   width: 128px;
 }
+img#screenshot {
+  transition: all 300ms ease-out;
+  -webkit-transition: all 300ms ease-out;
+  width: 100%;
+}
+img#screenshot.loading {
+  box-shadow: 0 0 10px 5px hsla(240, 50%, 50%, 0.8);
+}

@@ -258,7 +258,9 @@ class Assistant extends PolymerElement {
   }
 
   void reloadScreenshot() {
-    ($["screenshot"] as ImageElement).src = serverTakeScreenshot.resolveUri(
+    var screenshot = $["screenshot"] as ImageElement;
+    screenshot.classes.add("loading");
+    screenshot.src = serverTakeScreenshot.resolveUri(
         new Uri(queryParameters: {
           "format": "jpeg",
           "quality": "50",
@@ -269,6 +271,7 @@ class Assistant extends PolymerElement {
   }
 
   void updateScreen() {
+    $["screenshot"].classes.remove("loading");
     if (updateScreenPeriodically) {
       runLater(SCREEN_UPDATE_INTERVAL, () => reloadScreenshot());
     }
