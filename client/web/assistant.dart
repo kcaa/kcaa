@@ -90,7 +90,7 @@ class Assistant extends PolymerElement {
   }
 
   @override
-  void enteredView() {
+  void attached() {
     if (debug) {
       $["debugControlsSection"].classes.remove("hidden");
       $["debugInfoSection"].classes.remove("hidden");
