@@ -27,6 +27,12 @@ tr.complete {
 tr.complete td {
   box-shadow: 2px 2px 3px hsla(150, 40%, 10%, 0.3) inset;
 }
+tr.practiceWon {
+  background-color: hsla(60, 80%, 80%, 0.5);
+}
+tr.practiceLost {
+  background-color: hsla(15, 80%, 80%, 0.5);
+}
 .debugInfo {
   font-family: monospace;
   margin-top: 10px;

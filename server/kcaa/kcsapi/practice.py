@@ -12,6 +12,8 @@ class ShipEntry(jsonobject.JSONSerializableObject):
     """Level."""
     name = jsonobject.ReadonlyJSONProperty('name', value_type=unicode)
     """Name."""
+    ship_type = jsonobject.ReadonlyJSONProperty('ship_type', value_type=int)
+    """Ship type."""
 
 
 class Practice(jsonobject.JSONSerializableObject):
@@ -91,4 +93,5 @@ class PracticeList(model.KCAAObject):
                 practice.ships.append(ShipEntry(
                     ship_id=ship_def.id,
                     level=data.api_level,
-                    name=ship_def.name))
+                    name=ship_def.name,
+                    ship_type=ship_def.ship_type))

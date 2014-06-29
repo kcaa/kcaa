@@ -275,7 +275,7 @@
       <div class="row horizontal">
         <div class="board">
           <h3 data-collapsed="true">
-            任務一覧 ({{model.numQuestsUndertaken}}/5個遂行中)
+            任務 ({{model.numQuestsUndertaken}}/5個遂行中)
           </h3>
           <table>
             <col width="50px">
@@ -326,7 +326,7 @@
       </div>
       <div class="row horizontal">
         <div class="board">
-          <h3 data-collapsed="true">遠征一覧 ({{model.missions.length}}個)</h3>
+          <h3 data-collapsed="true">遠征 ({{model.missions.length}}個)</h3>
           <table>
             <col width="70px">
             <col>
@@ -378,6 +378,50 @@
                     </template>
                   </div>
                 </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="row horizontal">
+        <div class="board">
+          <h3 data-collapsed="true">演習 ({{model.numPracticesDone}}/5)</h3>
+          <table>
+            <col>
+            <col width="85px">
+            <col width="85px">
+            <col width="85px">
+            <col width="85px">
+            <col width="85px">
+            <col width="85px">
+            <col width="50px">
+            <thead>
+              <tr>
+                <th>相手</th>
+                <th>第1艦船</th>
+                <th>第2艦船</th>
+                <th>第3艦船</th>
+                <th>第4艦船</th>
+                <th>第5艦船</th>
+                <th>第6艦船</th>
+                <th>結果</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr template repeat="{{practice in model.practices}}"
+                  class="{{practice.resultClass}}">
+                <td class="labelColumn">
+                  <div>{{practice.enemyRank}}</div>
+                  <div>Lv{{practice.enemyLevel}}</div>
+                </td>
+                <td template repeat="{{ship in practice.ships}}">
+                  <div class="title">{{ship.name}}</div>
+                  <div>{{ship.shipType}}</div>
+                  <template if="{{ship.level != null}}">
+                    <div>Lv{{ship.level}}</div>
+                  </template>
+                </td>
+                <td class="labelColumn">{{practice.resultMessage}}</td>
               </tr>
             </tbody>
           </table>

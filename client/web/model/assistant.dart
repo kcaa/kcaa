@@ -11,6 +11,7 @@ part 'quest.dart';
 part 'client.dart';
 part 'fleet.dart';
 part 'mission.dart';
+part 'practice.dart';
 part 'preferences.dart';
 part 'repairdock.dart';
 part 'ship.dart';
@@ -39,6 +40,10 @@ class AssistantModel extends Observable {
 
   // Missions.
   @observable final List<Mission> missions = new ObservableList<Mission>();
+
+  // Practices.
+  @observable int numPracticesDone = 0;
+  @observable final List<Practice> practices = new ObservableList<Practice>();
 
   // Client status.
   @observable String screen = Screen.SCREEN_MAP[0];

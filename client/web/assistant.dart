@@ -50,6 +50,7 @@ class Assistant extends PolymerElement {
   static final Map<String, Function> OBJECT_HANDLERS = <String, Function>{
     "FleetList": handleFleetList,
     "MissionList": handleMissionList,
+    "PracticeList": handlePracticeList,
     "Preferences": handlePreferences,
     "QuestList": handleQuestList,
     "RepairDock": handleRepairDock,
