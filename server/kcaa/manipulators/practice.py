@@ -23,7 +23,7 @@ class CheckPracticeOpponents(base.Manipulator):
             if practice_.result != practice.Practice.RESULT_NEW:
                 continue
             yield self.screen.check_opponent(practice_.id)
-            yield self.screen.cancel(practice_.id)
+            yield self.screen.cancel()
 
 
 class GoOnPractice(base.Manipulator):
