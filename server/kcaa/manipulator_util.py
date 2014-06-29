@@ -114,6 +114,7 @@ class ManipulatorManager(object):
             # Practice
             'CheckPracticeOpponents':
             manipulators.practice.CheckPracticeOpponents,
+            'GoOnPractice': manipulators.practice.GoOnPractice,
             # Mission
             'GoOnMission': manipulators.mission.GoOnMission,
             # Organizing

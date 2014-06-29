@@ -270,9 +270,25 @@ class PortPracticeScreen(PortScreen):
         def check_opponent_task(task):
             self.click(720, 145 + 55 * practice_id)
             yield 2.0
+        return self.do_task(check_opponent_task)
+
+    def try_practice(self):
+        def try_practice_task(task):
+            self.click(240, 410)
+            yield 1.0
+        return self.do_task(try_practice_task)
+
+    def confirm_practice(self):
+        def confirm_practice_task(task):
+            self.click(470, 430)
+            yield 1.0
+        return self.do_task(confirm_practice_task)
+
+    def cancel(self):
+        def cancel_task(task):
             self.click(750, 30)
             yield 1.0
-        return self.do_task(check_opponent_task)
+        return self.do_task(cancel_task)
 
 
 class PortMissionScreen(PortScreen):
