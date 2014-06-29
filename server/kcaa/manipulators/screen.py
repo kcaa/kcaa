@@ -200,11 +200,24 @@ class PortMainScreen(PortScreen):
             if screen_id == screens.PORT_MAIN:
                 yield 0.0
                 return
+            elif screen_id == screens.PORT_EXPEDITION:
+                self.click_attack_button()
+                yield 2.0
+                self.click_expedition_button()
+                yield self.transition_to(screens.PORT_EXPEDITION)
+                return
+            elif screen_id == screens.PORT_PRACTICE:
+                self.click_attack_button()
+                yield 2.0
+                self.click_practice_button()
+                yield self.transition_to(screens.PORT_PRACTICE)
+                return
             elif screen_id == screens.PORT_MISSION:
                 self.click_attack_button()
                 yield 2.0
                 self.click_mission_button()
                 yield self.transition_to(screens.PORT_MISSION)
+                return
             if screen_id in screen_map:
                 screen_map[screen_id]()
                 yield self.transition_to(screen_id)
@@ -212,6 +225,12 @@ class PortMainScreen(PortScreen):
                 self.raise_impossible_transition(screen_id)
         self.assert_screen(screens.PORT_MAIN)
         return self.do_task(change_screen_task)
+
+    def click_expedition_button(self):
+        self.click(230, 230)
+
+    def click_practice_button(self):
+        self.click(455, 230)
 
     def click_mission_button(self):
         self.click(680, 230)
@@ -230,6 +249,30 @@ class PortMainScreen(PortScreen):
 
     def click_shipyard_button(self):
         self.click(275, 365)
+
+
+class PortPracticeScreen(PortScreen):
+
+    def change_screen(self, screen_id):
+        def change_screen_task(task):
+            if screen_id == screens.PORT_PRACTICE:
+                yield 0.0
+                return
+            yield super(PortPracticeScreen, self).change_screen(screen_id)
+            # TODO: This is a boilerplate. Consider to extract as a method.
+            if self.screen_id == screen_id:
+                return
+            else:
+                self.raise_impossible_transition(screen_id)
+        return self.do_task(change_screen_task)
+
+    def check_opponent(self, practice_id):
+        def check_opponent_task(task):
+            self.click(720, 145 + 55 * practice_id)
+            yield 2.0
+            self.click(750, 30)
+            yield 1.0
+        return self.do_task(check_opponent_task)
 
 
 class PortMissionScreen(PortScreen):

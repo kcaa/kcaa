@@ -421,4 +421,12 @@ class Assistant extends PolymerElement {
         }));
     HttpRequest.getString(request.toString());
   }
+
+  void checkPracticeOpponents() {
+    Uri request = serverManipulate.resolveUri(
+        new Uri(queryParameters: {
+          "type": "CheckPracticeOpponents",
+        }));
+    HttpRequest.getString(request.toString());
+  }
 }

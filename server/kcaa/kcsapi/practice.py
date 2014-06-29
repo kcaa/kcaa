@@ -36,13 +36,13 @@ class Practice(jsonobject.JSONSerializableObject):
     """Enemy rank."""
     result = jsonobject.JSONProperty('result', value_type=int)
     """Resuslt of the practice."""
-    STATE_NEW = 0
-    STATE_E = 1
-    STATE_D = 2
-    STATE_C = 3
-    STATE_B = 4
-    STATE_A = 5
-    STATE_S = 6
+    RESULT_NEW = 0
+    RESULT_E = 1
+    RESULT_D = 2
+    RESULT_C = 3
+    RESULT_B = 4
+    RESULT_A = 5
+    RESULT_S = 6
     fleet_name = jsonobject.JSONProperty('fleet_name', value_type=unicode)
     """Fleet name."""
     ships = jsonobject.JSONProperty('ships', value_type=list,

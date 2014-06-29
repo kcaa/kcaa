@@ -142,6 +142,9 @@
           <div class="board commandBoard">
             <h3>クイックコマンド</h3>
             <div>
+              <button on-click="{{checkPracticeOpponents}}">
+                演習の対戦相手情報を更新
+              </button>
               <template repeat="{{savedFleet in
                                   model.preferences.fleetPrefs.savedFleets}}">
                 <button on-click="{{loadFleet}}"

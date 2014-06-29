@@ -4,6 +4,7 @@ import base
 import logistics
 import mission
 import organizing
+import practice
 import screen
 import special
 
@@ -46,6 +47,7 @@ def main():
     doctest.testmod(logistics)
     doctest.testmod(mission)
     doctest.testmod(organizing)
+    doctest.testmod(practice)
     doctest.testmod(screen)
     doctest.testmod(special)
     import pytest
