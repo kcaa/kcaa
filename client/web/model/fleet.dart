@@ -9,6 +9,7 @@ class Fleet extends Observable {
   @observable String missionEtaDatetimeString;
   @observable bool collapsed = null;
   @observable String defaultClass;
+  @observable bool ignoreFilter = true;
   @observable bool debug;
 
   Fleet();

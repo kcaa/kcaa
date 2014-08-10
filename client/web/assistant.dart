@@ -213,6 +213,15 @@ class Assistant extends PolymerElement {
     }
   }
 
+  void filterShips(MouseEvent e) {
+    var target = e.target as Element;
+    var filterType = target.dataset["filterType"];
+    var filter = Ship.SHIP_FILTER[filterType];
+    for (var ship in model.ships) {
+      ship.filtered = filter(ship);
+    }
+  }
+
   Future handleObject(String objectType) {
     var handler = OBJECT_HANDLERS[objectType];
     if (handler != null) {

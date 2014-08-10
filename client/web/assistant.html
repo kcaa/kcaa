@@ -22,7 +22,7 @@
           <div data-type="armor">装甲</div>
         </div>
         <template repeat="{{ship in ships}}">
-          <template if="{{!ship.filtered}}">
+          <template if="{{ignoreFilter || ship.filtered}}">
             <div class="trow {{ship.stateClass}}">
               <div class="description">
                 <div class="title {{ship.lockedClass}}">
@@ -207,6 +207,29 @@
       <div class="row horizontal">
         <div class="board">
           <h3 data-collapsed="true">艦船 ({{model.ships.length}}隻)</h3>
+          <div>
+            艦種フィルタ:
+            <button on-click="{{filterShips}}"
+                    data-filter-type="none">なし</button>
+            <button on-click="{{filterShips}}"
+                    data-filter-type="battleship">戦艦</button>
+            <button on-click="{{filterShips}}"
+                    data-filter-type="aircraftCarrier">正規空母</button>
+            <button on-click="{{filterShips}}"
+                    data-filter-type="lightAircraftCarrier">軽空母</button>
+            <button on-click="{{filterShips}}"
+                    data-filter-type="heavyCruiser">重巡洋艦</button>
+            <button on-click="{{filterShips}}"
+                    data-filter-type="torpedoCruiser">重雷装巡洋艦</button>
+            <button on-click="{{filterShips}}"
+                    data-filter-type="lightCruiser">軽巡洋艦</button>
+            <button on-click="{{filterShips}}"
+                    data-filter-type="destroyer">駆逐艦</button>
+            <button on-click="{{filterShips}}"
+                    data-filter-type="submarine">潜水艦</button>
+            <button on-click="{{filterShips}}"
+                    data-filter-type="otherShipTypes">その他</button>
+          </div>
           <div>
             <template ref="shiplist" bind="{{model}}"></template>
           </div>

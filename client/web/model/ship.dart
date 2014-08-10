@@ -36,6 +36,20 @@ class Ship extends Observable {
     "armor": compareByArmor,
   };
 
+  static final SHIP_FILTER = <String, ShipFilterer>{
+    "none": filterNone,
+    "battleship": makeFilterByShipType(["高速戦艦", "戦艦", "航空戦艦", "超弩級戦艦"]),
+    "aircraftCarrier": makeFilterByShipType(["正規空母"]),
+    "lightAircraftCarrier": makeFilterByShipType(["軽空母"]),
+    "heavyCruiser": makeFilterByShipType(["重巡洋艦", "航空巡洋艦"]),
+    "torpedoCruiser": makeFilterByShipType(["重雷装巡洋艦"]),
+    "lightCruiser": makeFilterByShipType(["軽巡洋艦"]),
+    "destroyer": makeFilterByShipType(["駆逐艦"]),
+    "submarine": makeFilterByShipType(["潜水艦", "潜水母艦"]),
+    "otherShipTypes": makeFilterByShipType(
+        ["海防艦", "補給艦", "水上機母艦", "揚陸艦", "装甲空母", "工作艦"]),
+  };
+
   @observable int id;
   @observable String name;
   @observable String shipType;
@@ -60,6 +74,7 @@ class Ship extends Observable {
   @observable Fleet belongingFleet;
   @observable String stateClass;
   @observable int sortOrder;
+  // Whether filtered or not. Only filtered ships are shown in the list.
   @observable bool filtered;
 
   Ship();
@@ -123,7 +138,7 @@ class Ship extends Observable {
     updateBelongingFleet(fleets);
     stateClass = getStateClass();
     sortOrder = data["sort_order"];
-    //filtered = id < 1000;
+    filtered = true;
   }
 
   String getStateClass() {
@@ -230,6 +245,19 @@ class Ship extends Observable {
   // Respect the sort order; ships are sorted in ascending order.
   static int orderInAscending(int result) {
     return result;
+  }
+
+  static bool filterNone(Ship s) {
+    return true;
+  }
+
+  static ShipFilterer makeFilterByShipType(List<int> shipTypes) {
+    var shipTypeSet = shipTypes.toSet();
+    return (Ship s) {
+      print(shipTypeSet);
+      print(s.shipType);
+      return shipTypeSet.contains(s.shipType);
+    };
   }
 }
 
