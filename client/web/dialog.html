@@ -45,35 +45,23 @@
       <h3 class="modal-title">遠征選択 - 第{{fleet.id}}艦隊 ({{fleet.name}})</h3>
     </div>
     <div class="modal-body">
-      <table>
-        <col width="70px">
-        <col>
-        <col width="50px">
-        <col width="50px">
-        <col width="50px">
-        <col width="50px">
-        <col width="50px">
-        <thead>
-          <tr>
-            <th rowspan="2">海域</th>
-            <th rowspan="2">説明</th>
-            <th colspan="4">利益</th>
-            <th rowspan="2">時間</th>
-          </tr>
-          <tr>
-            <th>燃料</th>
-            <th>弾薬</th>
-            <th>鋼材</th>
-            <th>ボーキ</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr template repeat="{{evaled_mission in evaled_missions}}">
-            <td class="labelColumn">
+      <div class="table">
+        <div class="trow thead">
+          <div class="wide">海域</div>
+          <div class="description">説明</div>
+          <div>燃料</div>
+          <div>弾薬</div>
+          <div>鋼材</div>
+          <div>ボーキ</div>
+          <div>時間</div>
+        </div>
+        <template repeat="{{evaled_mission in evaled_missions}}">
+          <div class="trow">
+            <div class="wide labelColumn">
               <div>{{evaled_mission.mission.maparea}}</div>
               <div>{{evaled_mission.mission.difficulty}}</div>
-            </td>
-            <td>
+            </div>
+            <div class="description">
               <div class="title">
                 <a href="#"
                    on-click="{{goOnMission}}"
@@ -81,15 +69,15 @@
                   {{evaled_mission.mission.name}}
                 </a>
               </div>
-            </td>
-            <td class="numberColumn">{{evaled_mission.fuelProfit}}</td>
-            <td class="numberColumn">{{evaled_mission.ammoProfit}}</td>
-            <td class="numberColumn">{{evaled_mission.mission.steel}}</td>
-            <td class="numberColumn">{{evaled_mission.mission.bauxite}}</td>
-            <td class="numberColumn">{{evaled_mission.mission.time}}分</td>
-          </tr>
-        </tbody>
-      </table>
+            </div>
+            <div class="numberColumn">{{evaled_mission.fuelProfit}}</div>
+            <div class="numberColumn">{{evaled_mission.ammoProfit}}</div>
+            <div class="numberColumn">{{evaled_mission.mission.steel}}</div>
+            <div class="numberColumn">{{evaled_mission.mission.bauxite}}</div>
+            <div class="numberColumn">{{evaled_mission.mission.time}}分</div>
+          </div>
+        </template>
+      </div>
     </div>
     <div class="modal-footer">
       <button class="cancel" on-click="{{close}}">Cancel</button>

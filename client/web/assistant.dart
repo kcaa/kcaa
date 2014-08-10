@@ -164,7 +164,7 @@ class Assistant extends PolymerElement {
 
   void addShipSortLabels() {
     for (Element columnHeader in
-        shadowRoot.querySelectorAll("table.shipList th[data-type]")) {
+        shadowRoot.querySelectorAll("div.shipList div[data-type]")) {
       if (columnHeader.dataset.containsKey("label")) {
         continue;
       }

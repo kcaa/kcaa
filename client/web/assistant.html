@@ -8,98 +8,85 @@
     <!--       Seems like <link rel="import"> doesn't work with templates. -->
     <!-- ================================================================== -->
     <template id="shiplist">
-      <!-- TODO: How to customize columns? Sometimes I want to see other
-           parameters like cruising speed, anti-submarine or the like. -->
-      <table class="shipList {{defaultClass}}">
-        <col>
-        <col width="70px">
-        <col width="50px">
-        <col width="50px">
-        <col width="50px">
-        <col width="50px">
-        <col width="50px">
-        <col width="50px">
-        <col width="50px">
-        <col width="50px">
-        <thead>
-          <tr>
-            <th data-type="name">名前</th>
-            <th data-type="level">レベル</th>
-            <th data-type="fuel">燃料</th>
-            <th data-type="ammo">弾薬</th>
-            <th data-type="vitality">戦意</th>
-            <th data-type="hp">HP</th>
-            <th data-type="firepower">火力</th>
-            <th data-type="thunderstroke">雷装</th>
-            <th data-type="antiair">対空</th>
-            <th data-type="armor">装甲</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr template repeat="{{ship in ships}}"
-              class="{{ship.stateClass}}">
-            <td>
-              <div class="title {{ship.lockedClass}}">
-                {{ship.name}}
-                <template if="{{debug}}">
-                  <span class="subordinate">({{ship.id}})</span>
-                </template>
-              </div>
-              <div>{{ship.shipType}}</div>
-              <template if="{{ships.length > 6 &&
-                              ship.belongingFleet != null}}">
-                <div>
-                  第{{ship.belongingFleet.id}}艦隊所属
-                  <template if="{{ship.belongingFleet.undertakingMission
-                                  != null}}">
-                    (遠征中)
+      <div class="table shipList {{defaultClass}}">
+        <div class="trow thead">
+          <div data-type="name" class="description">名前</div>
+          <div data-type="level" class="wide">レベル</div>
+          <div data-type="fuel">燃料</div>
+          <div data-type="ammo">弾薬</div>
+          <div data-type="vitality">戦意</div>
+          <div data-type="hp">HP</div>
+          <div data-type="firepower">火力</div>
+          <div data-type="divunderstroke">雷装</div>
+          <div data-type="antiair">対空</div>
+          <div data-type="armor">装甲</div>
+        </div>
+        <template repeat="{{ship in ships}}">
+          <template if="{{!ship.filtered}}">
+            <div class="trow {{ship.stateClass}}">
+              <div class="description">
+                <div class="title {{ship.lockedClass}}">
+                  {{ship.name}}
+                  <template if="{{debug}}">
+                    <span class="subordinate">({{ship.id}})</span>
                   </template>
                 </div>
-              </template>
-            </td>
-            <td class="numberColumn {{ship.levelClass}}">
-              <div>{{ship.level}}<template
-                if="{{ship.experienceGauge != null}}"><span
-                class="subordinate">.{{ship.experienceGauge}}</span>
-                </template></div>
-              <template if="{{ship.upgradeLevel != 0}}">
-                <div>改: {{ship.upgradeLevel}}</div>
-              </template>
-            </td>
-            <td class="numberColumn">
-              <div>{{ship.fuelPercentageString}}%</div>
-              <div>{{ship.fuel}}/{{ship.fuelCapacity}}</div>
-            </td>
-            <td class="numberColumn">
-              <div>{{ship.ammoPercentageString}}%</div>
-              <div>{{ship.ammo}}/{{ship.ammoCapacity}}</div>
-            </td>
-            <td class="numberColumn">{{ship.vitality}}</td>
-            <td class="numberColumn">
-              <div>{{ship.hpPercentageString}}%</div>
-              <div>{{ship.hp}}/{{ship.maxHp}}</div>
-            </td>
-            <td class="numberColumn {{ship.firepowerClass}}">
-              <div>{{ship.firepower}}</div>
-              <div>{{ship.enhancedFirepower}}/{{ship.maxFirepower}}</div>
-            </td>
-            <td class="numberColumn {{ship.thunderstrokeClass}}">
-              <div>{{ship.thunderstroke}}</div>
-              <div>
-                {{ship.enhancedThunderstroke}}/{{ship.maxThunderstroke}}
+                <div>{{ship.shipType}}</div>
+                <template if="{{ships.length > 6 &&
+                                ship.belongingFleet != null}}">
+                  <div>
+                    第{{ship.belongingFleet.id}}艦隊所属
+                    <template if="{{ship.belongingFleet.undertakingMission
+                                    != null}}">
+                      (遠征中)
+                    </template>
+                  </div>
+                </template>
               </div>
-            </td>
-            <td class="numberColumn {{ship.antiAirClass}}">
-              <div>{{ship.antiAir}}</div>
-              <div>{{ship.enhancedAntiAir}}/{{ship.maxAntiAir}}</div>
-            </td>
-            <td class="numberColumn {{ship.armorClass}}">
-              <div>{{ship.armor}}</div>
-              <div>{{ship.enhancedArmor}}/{{ship.maxArmor}}</div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+              <div class="wide numberColumn {{ship.levelClass}}">
+                <div>{{ship.level}}<template
+                  if="{{ship.experienceGauge != null}}"><span
+                  class="subordinate">.{{ship.experienceGauge}}</span>
+                  </template></div>
+                <template if="{{ship.upgradeLevel != 0}}">
+                  <div>改: {{ship.upgradeLevel}}</div>
+                </template>
+              </div>
+              <div class="numberColumn">
+                <div>{{ship.fuelPercentageString}}%</div>
+                <div>{{ship.fuel}}/{{ship.fuelCapacity}}</div>
+              </div>
+              <div class="numberColumn">
+                <div>{{ship.ammoPercentageString}}%</div>
+                <div>{{ship.ammo}}/{{ship.ammoCapacity}}</div>
+              </div>
+              <div class="numberColumn">{{ship.vitality}}</div>
+              <div class="numberColumn">
+                <div>{{ship.hpPercentageString}}%</div>
+                <div>{{ship.hp}}/{{ship.maxHp}}</div>
+              </div>
+              <div class="numberColumn {{ship.firepowerClass}}">
+                <div>{{ship.firepower}}</div>
+                <div>{{ship.enhancedFirepower}}/{{ship.maxFirepower}}</div>
+              </div>
+              <div class="numberColumn {{ship.thunderstrokeClass}}">
+                <div>{{ship.thunderstroke}}</div>
+                <div>
+                  {{ship.enhancedThunderstroke}}/{{ship.maxThunderstroke}}
+                </div>
+              </div>
+              <div class="numberColumn {{ship.antiAirClass}}">
+                <div>{{ship.antiAir}}</div>
+                <div>{{ship.enhancedAntiAir}}/{{ship.maxAntiAir}}</div>
+              </div>
+              <div class="numberColumn {{ship.armorClass}}">
+                <div>{{ship.armor}}</div>
+                <div>{{ship.enhancedArmor}}/{{ship.maxArmor}}</div>
+              </div>
+            </div>
+          </template>
+        </template>
+      </div>
     </template>
 
     <link rel="stylesheet" href="kcaa.css">
@@ -231,53 +218,38 @@
             入渠 ({{model.numShipsBeingRepaired}}/{{
               model.repairSlots.length}}隻)
           </h3>
-          <table>
-            <col>
-            <col width="50px">
-            <col width="100px">
-            <thead>
-              <tr>
-                <th>艦船</th>
-                <th>HP</th>
-                <th>修理完了</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr template repeat="{{slot in model.repairSlots}}"
-                  class="{{slot.ship.stateClass}}">
-                <td>
-                  <!-- TODO: Remove this workaround (extract the first div out
-                             of template). Probably can be removed when
-                             switching to div-based styling. -->
-                  <div>
-                    <template if="{{slot.ship != null}}">
-                      <div class="title {{slot.ship.lockedClass}}">
-                        {{slot.ship.name}}
+          <div class="table">
+            <div class="trow thead">
+              <div class="description">艦船</div>
+              <div>HP</div>
+              <div class="superWide">修理完了</div>
+            </div>
+            <template repeat="{{slot in model.repairSlots}}">
+              <div class="trow {{slot.ship.stateClass}}">
+                <div class="description">
+                  <template if="{{slot.ship != null}}">
+                    <div class="title {{slot.ship.lockedClass}}">
+                      {{slot.ship.name}}
+                    </div>
+                    <div>{{slot.ship.shipType}}</div>
+                    <template if="{{slot.ship.belongingFleet != null}}">
+                      <div>
+                        第{{slot.ship.belongingFleet.id}}艦隊所属
                       </div>
                     </template>
-                    <template if="{{slot.ship == null}}">空き</template>
-                  </div>
-                  <div>{{slot.ship.shipType}}</div>
-                  <template if="{{slot.ship.belongingFleet != null}}">
-                    <div>
-                      第{{slot.ship.belongingFleet.id}}艦隊所属
-                    </div>
                   </template>
-                </td>
-                <td class="numberColumn">
-                  <div>
-                    <template if="{{slot.ship != null}}">
-                      <div>{{slot.ship.hpPercentage}}%</div>
-                    </template>
-                  </div>
+                  <template if="{{slot.ship == null}}">空き</template>
+                </div>
+                <div class="numberColumn">
                   <template if="{{slot.ship != null}}">
+                    <div>{{slot.ship.hpPercentage}}%</div>
                     <div>{{slot.ship.hp}}/{{slot.ship.maxHp}}</div>
                   </template>
-                </td>
-                <td>{{slot.etaDatetimeString}}</td>
-              </tr>
-            </tbody>
-          </table>
+                </div>
+                <div class="superWide">{{slot.etaDatetimeString}}</div>
+              </div>
+            </template>
+          </div>
         </div>
       </div>
       <div class="row horizontal">
@@ -285,151 +257,118 @@
           <h3 data-collapsed="true">
             任務 ({{model.numQuestsUndertaken}}/5個遂行中)
           </h3>
-          <table>
-            <col width="50px">
-            <col>
-            <col width="50px">
-            <col width="50px">
-            <col width="50px">
-            <col width="50px">
-            <col width="50px">
-            <thead>
-              <tr>
-                <th>種別</th>
-                <th>説明</th>
-                <th>燃料</th>
-                <th>弾薬</th>
-                <th>鋼材</th>
-                <th>ボーキ</th>
-                <th>進捗</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr template repeat="{{quest in model.quests}}"
-                  class="{{quest.stateClass}}">
-                <td class="labelColumn">
+          <div class="table">
+            <div class="trow thead">
+              <div>種別</div>
+              <div class="description">説明</div>
+              <div>燃料</div>
+              <div>弾薬</div>
+              <div>鋼材</div>
+              <div>ボーキ</div>
+              <div>進捗</div>
+            </div>
+            <template repeat="{{quest in model.quests}}">
+              <div class="trow {{quest.stateClass}}">
+                <div class="labelColumn">
                   <div>{{quest.category}}</div>
                   <div>{{quest.cycle}}</div>
-                </td>
-                <td>
+                </div>
+                <div class="description">
                   <div class="title">{{quest.name}}</div>
                   <div>{{quest.description}}</div>
-                </td>
-                <td>{{quest.fuel}}</td>
-                <td>{{quest.ammo}}</td>
-                <td>{{quest.steel}}</td>
-                <td>{{quest.bauxite}}</td>
-                <td>
+                </div>
+                <div>{{quest.fuel}}</div>
+                <div>{{quest.ammo}}</div>
+                <div>{{quest.steel}}</div>
+                <div>{{quest.bauxite}}</div>
+                <div>
                   <template if="{{quest.state != 3}}">
                     {{quest.progress}}%
                   </template>
                   <template if="{{quest.state == 3}}">
                     達成!
                   </template>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+                </div>
+              </div>
+            </template>
+          </div>
         </div>
       </div>
       <div class="row horizontal">
         <div class="board">
           <h3 data-collapsed="true">遠征 ({{model.missions.length}}個)</h3>
-          <table>
-            <col width="70px">
-            <col>
-            <col width="50px">
-            <col width="50px">
-            <col width="50px">
-            <col width="100px">
-            <thead>
-              <tr>
-                <th>海域</th>
-                <th>説明</th>
-                <th>燃料</th>
-                <th>弾薬</th>
-                <th>時間</th>
-                <th>遂行艦隊</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr template repeat="{{mission in model.missions}}"
-                  class="{{mission.stateClass}}">
-                <td class="labelColumn">
+          <div class="table">
+            <div class="trow thead">
+              <div class="wide">海域</div>
+              <div class="description">説明</div>
+              <div>燃料</div>
+              <div>弾薬</div>
+              <div>時間</div>
+              <div class="superWide">遂行艦隊</div>
+            </div>
+            <template repeat="{{mission in model.missions}}">
+              <div class="trow {{mission.stateClass}}">
+                <div class="wide labelColumn">
                   <div>{{mission.maparea}}</div>
                   <div>{{mission.difficulty}}</div>
-                </td>
-                <td>
+                </div>
+                <div class="description">
                   <div class="title">{{mission.name}}</div>
                   <div>{{mission.description}}</div>
-                </td>
-                <td>
+                </div>
+                <div>
                   {{mission.fuelConsumption}}%
-                </td>
-                <td>
+                </div>
+                <div>
                   {{mission.ammoConsumption}}%
-                </td>
-                <td>{{mission.time}}分</td>
-                <td>
-                  <!-- It's easier to enclose everything with <template>, but
-                       that introduces difficulty in CSS styling with
-                       "td > div:first-child". -->
+                </div>
+                <div>{{mission.time}}分</div>
+                <div>
                   <div>{{mission.undertakingFleetName}}</div>
-                  <div>
-                    <template if="{{mission.undertakingFleetId != -1}}">
+                  <template if="{{mission.undertakingFleetName != null}}">
+                    <div>
                       第{{mission.undertakingFleetId}}艦隊
-                    </template>
-                  </div>
-                  <div>
-                    <template if="{{mission.etaDatetimeString != null}}">
+                    </div>
+                    <div>
                       帰還: {{mission.etaDatetimeString}}
-                    </template>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+                    </div>
+                  </template>
+                </div>
+              </div>
+            </template>
+          </div>
         </div>
       </div>
       <div class="row horizontal">
         <div class="board">
           <h3 data-collapsed="true">演習 ({{model.numPracticesDone}}/5)</h3>
-          <table>
-            <col>
-            <col width="85px">
-            <col width="85px">
-            <col width="85px">
-            <col width="85px">
-            <col width="85px">
-            <col width="85px">
-            <col width="50px">
-            <thead>
-              <tr>
-                <th>相手</th>
-                <th>第1艦船</th>
-                <th>第2艦船</th>
-                <th>第3艦船</th>
-                <th>第4艦船</th>
-                <th>第5艦船</th>
-                <th>第6艦船</th>
-                <th>結果</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr template repeat="{{practice in model.practices}}"
-                  class="{{practice.resultClass}}">
-                <td class="labelColumn">
+          <div class="table">
+            <div class="trow thead">
+              <div class="description">相手</div>
+              <div class="wider">第1艦船</div>
+              <div class="wider">第2艦船</div>
+              <div class="wider">第3艦船</div>
+              <div class="wider">第4艦船</div>
+              <div class="wider">第5艦船</div>
+              <div class="wider">第6艦船</div>
+              <div>結果</div>
+            </div>
+            <template repeat="{{practice in model.practices}}">
+              <div class="trow {{practice.resultClass}}">
+                <div class="description labelColumn">
                   <div>{{practice.enemyRank}}</div>
                   <div>Lv{{practice.enemyLevel}}</div>
-                </td>
-                <td template repeat="{{ship in practice.ships}}">
-                  <div class="title">{{ship.name}}</div>
-                  <div>{{ship.shipType}}</div>
-                  <template if="{{ship.level != null}}">
-                    <div>Lv{{ship.level}}</div>
-                  </template>
-                </td>
-                <td class="labelColumn">
+                </div>
+                <template repeat="{{ship in practice.ships}}">
+                  <div class="wider">
+                    <div class="title">{{ship.name}}</div>
+                    <div>{{ship.shipType}}</div>
+                    <template if="{{ship.level != null}}">
+                      <div>Lv{{ship.level}}</div>
+                    </template>
+                  </div>
+                </template>
+                <div class="labelColumn">
                   <div>
                     <template if="{{practice.resultMessage != ''}}">
                       {{practice.resultMessage}}
@@ -439,10 +378,10 @@
                               data-practice-id="{{practice.id}}">演習</button>
                     </template>
                   </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+                </div>
+              </div>
+            </template>
+          </div>
         </div>
       </div>
       <div id="debugControlsSection" class="row horizontal hidden">

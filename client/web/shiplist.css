@@ -1,18 +1,18 @@
-tr.fatal {
+div.trow.fatal {
   background: linear-gradient(
     150deg,
     hsl(0, 0%, 100%),
     hsl(0, 80%, 50%));
   color: hsl(0, 50%, 20%);
 }
-tr.dangerous {
+div.trow.dangerous {
   background: linear-gradient(
     150deg,
     hsl(0, 0%, 100%),
     hsl(30, 80%, 50%));
   color: hsl(30, 50%, 20%);
 }
-tr.good {
+div.trow.good {
   background: linear-gradient(
     150deg,
     hsl(0, 0%, 100%),
@@ -20,12 +20,13 @@ tr.good {
   color: hsl(60, 50%, 20%);
 }
 
-td.upgradable, td.fullyEnhanced {
+.upgradable, .fullyEnhanced {
   font-weight: bold;
 }
-td.upgradable div:first-child:after, td.fullyEnhanced div:first-child:after {
+.upgradable > div:first-child:after,
+.fullyEnhanced > div:first-child:after {
   content: "✓";
 }
-div.unlocked:after {
+.unlocked:after {
   content: "✗";
 }

@@ -60,6 +60,7 @@ class Ship extends Observable {
   @observable Fleet belongingFleet;
   @observable String stateClass;
   @observable int sortOrder;
+  @observable bool filtered;
 
   Ship();
 
@@ -122,6 +123,7 @@ class Ship extends Observable {
     updateBelongingFleet(fleets);
     stateClass = getStateClass();
     sortOrder = data["sort_order"];
+    //filtered = id < 1000;
   }
 
   String getStateClass() {

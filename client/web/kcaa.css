@@ -1,6 +1,3 @@
-.redb {
-  border: 3px red solid;
-}
 div.row {
   box-sizing: border-box;
   width: 100%;
@@ -127,7 +124,7 @@ h4 {
   text-shadow: 2px 2px 2px hsla(150, 20%, 20%, 0.5);
 }
 .hidden {
-  display: none;
+  display: none !important;
 }
 ul {
   margin: 10px 0 0;
@@ -139,47 +136,6 @@ ul ul {
   color: hsl(0, 0%, 20%);
   font-size: 0.9em;
   margin: 0;
-}
-table {
-  background: linear-gradient(
-    170deg,
-    hsl(180, 50%, 100%),
-    hsl(180, 50%, 90%));
-  border-collapse: collapse;
-  box-shadow: 3px 3px 1px hsla(210, 20%, 70%, 0.2);
-  font-size: 0.9em;
-  margin: 10px 0 0;
-  width: 100%;
-}
-table, th, td {
-  border-color: hsl(210, 20%, 70%);
-  border-style: solid;
-  border-width: 1px;
-}
-thead th {
-  background-color: hsla(0, 10%, 80%, 0.3);
-  color: hsl(0, 10%, 10%);
-  box-shadow: 2px 2px 3px hsla(0, 10%, 10%, 0.3) inset;
-}
-th, td {
-  padding: 0.2em 0.4em;
-}
-div.title {
-  font-weight: bold;
-}
-td > div, .subordinate {
-  font-size: 90%;
-  opacity: 0.7;
-}
-td > div:first-child {
-  font-size: 100%;
-  opacity: 1;
-}
-td.labelColumn, td.labelColumn div, td.numberColumn, td.numberColumn div {
-  text-align: center;
-}
-td.labelColumn div, td.numberColumn div {
-  width: 100%;
 }
 
 div.screenContainer {
@@ -202,4 +158,77 @@ img#screenshot {
 }
 img#screenshot.loading {
   box-shadow: 0 0 10px 5px hsla(240, 50%, 50%, 0.8);
+}
+
+/* Flexible table. */
+div.table {
+  background: linear-gradient(
+    170deg,
+    hsl(180, 50%, 100%),
+    hsl(180, 50%, 90%));
+  border-collapse: collapse;
+  border-color: hsl(210, 20%, 70%);
+  border-style: solid;
+  border-width: 1px;
+  box-shadow: 3px 3px 1px hsla(210, 20%, 70%, 0.2);
+  box-sizing: border-box;
+  display: table;
+  font-size: 0.9em;
+  margin: 10px 0 0;
+  width: 100%;
+}
+div.table > div.trow {
+  display: table-row;
+}
+div.table > div.trow.thead {
+  background-color: hsla(0, 10%, 80%, 0.3);
+}
+div.trow.thead > div {
+  box-shadow: 2px 2px 3px hsla(0, 10%, 10%, 0.3) inset;
+  color: hsl(0, 10%, 10%);
+  font-weight: bold;
+}
+div.table > div.trow > div {
+  border-color: hsl(210, 20%, 70%);
+  border-style: solid;
+  border-width: 1px;
+  box-sizing: border-box;
+  display: table-cell;
+  height: 100%;
+  padding: 0.2em 0.4em;
+  vertical-align: middle;
+  width: 50px;
+}
+div.table > div.trow > div.description {
+  width: auto;
+}
+div.table > div.trow > div.wide {
+  width: 70px;
+}
+div.table > div.trow > div.wider {
+  width: 85px;
+}
+div.table > div.trow > div.superWide {
+  width: 100px;
+}
+div.table > div.trow > div > div {
+  font-size: 90%;
+  opacity: 0.7;
+}
+div.table > div.trow > div > div:first-child {
+  font-size: 100%;
+  opacity: 1;
+}
+div.title {
+  font-weight: bold;
+}
+.labelColumn, .labelColumn div, .numberColumn, .numberColumn div {
+  text-align: center;
+}
+.labelColumn div, .numberColumn div {
+  width: 100%;
+}
+.subordinate {
+  font-size: 90%;
+  opacity: 0.7;
 }
