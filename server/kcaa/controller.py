@@ -77,7 +77,7 @@ def control(args, to_exit):
                                      args=(args, to_exit, controller_conn,
                                            object_queue))
         ps.start()
-        object_queue.put((preferences.object_type, preferences.json()))
+        object_queue.put((True, preferences.object_type, preferences.json()))
         if not server_conn.poll(3.0):
             logger.error('Server is not responding. Shutting down.')
             to_exit.set()
@@ -132,7 +132,11 @@ def control(args, to_exit):
                     preferences = kcsapi.prefs.Preferences.parse_text(
                         command_args[0])
                     save_preferences(args, logger, preferences)
+                    # TODO: Refactor this part. Generalize the framework to
+                    # update objects.
                     kcsapi_handler.objects['Preferences'] = preferences
+                    object_queue.put(
+                        (False, 'Preferences', preferences.json()))
                     manipulator_manager.set_auto_manipulator_preferences(
                         kcsapi.prefs.AutoManipulatorPreferences(
                             enabled=preferences.automan_prefs.enabled,
@@ -151,9 +155,9 @@ def control(args, to_exit):
                         .format(command_type, command_args))
             try:
                 for obj in kcsapi_handler.get_updated_objects():
-                    object_queue.put((obj.object_type, obj.json()))
+                    object_queue.put((True, obj.object_type, obj.json()))
                 for obj in manipulator_manager.update(time.time()):
-                    object_queue.put((obj.object_type, obj.json()))
+                    object_queue.put((True, obj.object_type, obj.json()))
             except:
                 # Permit an exception in KCSAPI handler or manipulators -- it's
                 # very likely a bug in how a raw response is read, or how they

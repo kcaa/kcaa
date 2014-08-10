@@ -268,8 +268,9 @@ def handle_server(args, to_exit, controller_conn, object_queue):
                 logger.info('Server got an exit signal. Shutting down.')
                 break
             while not object_queue.empty():
-                object_type, data = object_queue.get()
-                httpd.new_objects.add(object_type)
+                to_update, object_type, data = object_queue.get()
+                if to_update:
+                    httpd.new_objects.add(object_type)
                 httpd.objects[object_type] = data
     except (KeyboardInterrupt, SystemExit):
         logger.info('SIGINT received in the server process. Exiting...')
