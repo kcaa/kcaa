@@ -49,4 +49,12 @@ void handleRunningManipulators(Assistant assistant, AssistantModel model,
   model.manipulatorsInQueue.clear();
   model.manipulatorsInQueue.addAll(data["manipulators_in_queue"]);
   model.autoManipulatorsActive = data["auto_manipulators_active"];
+
+  // Change the document title if there is a running manipulator.
+  var title = querySelector("title") as TitleElement;
+  if (model.runningManipulator != null) {
+    title.text = "${model.runningManipulator} - ${title.title}";
+  } else {
+    title.text = title.title;
+  }
 }
