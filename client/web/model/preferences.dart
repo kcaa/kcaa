@@ -74,7 +74,7 @@ class Preferences extends Observable {
 
 void handlePreferences(Assistant assistant, AssistantModel model,
                        Map<String, dynamic> data) {
-  Preferences prefs = model.preferences;
+  Preferences prefs = new Preferences();
   prefs.automanPrefs.enabled = data["automan_prefs"]["enabled"];
   prefs.automanPrefs.schedules.clear();
   for (var schedule in data["automan_prefs"]["schedules"]) {
@@ -90,4 +90,5 @@ void handlePreferences(Assistant assistant, AssistantModel model,
     }
     prefs.fleetPrefs.savedFleets.add(savedFleetObject);
   }
+  model.preferences = prefs;
 }
