@@ -77,6 +77,7 @@ class Assistant extends PolymerElement {
     updateAvailableObjectsIntervalMs = (1000 * interval).toInt();
     debug = clientRoot.queryParameters["debug"] == "true";
     showScreen = clientRoot.queryParameters["screen"] != "false";
+    model.debug = debug;
 
     serverRoot = clientRoot.resolve("/");
     serverGetObjects = serverRoot.resolve("get_objects");

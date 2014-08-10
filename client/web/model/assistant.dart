@@ -47,6 +47,7 @@ class AssistantModel extends Observable {
   @observable final List<Practice> practices = new ObservableList<Practice>();
 
   // Client status.
+  @observable bool debug = false;
   @observable String screen = Screen.SCREEN_MAP[0];
   @observable String runningManipulator;
   @observable final List<String> manipulatorsInQueue =

@@ -39,7 +39,12 @@
           <tr template repeat="{{ship in ships}}"
               class="{{ship.stateClass}}">
             <td>
-              <div class="title {{ship.lockedClass}}">{{ship.name}}</div>
+              <div class="title {{ship.lockedClass}}">
+                {{ship.name}}
+                <template if="{{debug}}">
+                  <span class="subordinate">({{ship.id}})</span>
+                </template>
+              </div>
               <div>{{ship.shipType}}</div>
               <template if="{{ships.length > 6 &&
                               ship.belongingFleet != null}}">
