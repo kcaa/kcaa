@@ -18,6 +18,7 @@ class Mission extends Observable {
     4: "西方",
     5: "南方",
     26: "索敵機",
+    27: "AL/MI",
   };
   static final Map<int, String> STATE_CLASS_MAP = <int, String>{
     0: "new",
