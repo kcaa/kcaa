@@ -48,6 +48,14 @@ class Ship extends Observable {
     "submarine": makeFilterByShipType(["潜水艦", "潜水母艦"]),
     "otherShipTypes": makeFilterByShipType(
         ["海防艦", "補給艦", "水上機母艦", "揚陸艦", "装甲空母", "工作艦"]),
+    "goodState": makeFilterByState("good"),
+    "normalState": makeFilterByState(""),
+    "dangerousState": makeFilterByState("dangerous"),
+    "fatalState": makeFilterByState("fatal"),
+    "roomInFirepower": filterRoomInFirepower,
+    "roomInThunderstroke": filterRoomInThunderstroke,
+    "roomInAntiAir": filterRoomInAntiAir,
+    "roomInArmor": filterRoomInArmor,
   };
 
   @observable int id;
@@ -253,11 +261,27 @@ class Ship extends Observable {
 
   static ShipFilterer makeFilterByShipType(List<int> shipTypes) {
     var shipTypeSet = shipTypes.toSet();
-    return (Ship s) {
-      print(shipTypeSet);
-      print(s.shipType);
-      return shipTypeSet.contains(s.shipType);
-    };
+    return (Ship s) => shipTypeSet.contains(s.shipType);
+  }
+
+  static ShipFilterer makeFilterByState(String stateClass) {
+    return (Ship s) => s.stateClass == stateClass;
+  }
+
+  static bool filterRoomInFirepower(Ship s) {
+    return s.enhancedFirepower < s.maxFirepower;
+  }
+
+  static bool filterRoomInThunderstroke(Ship s) {
+    return s.enhancedThunderstroke < s.maxThunderstroke;
+  }
+
+  static bool filterRoomInAntiAir(Ship s) {
+    return s.enhancedAntiAir < s.maxAntiAir;
+  }
+
+  static bool filterRoomInArmor(Ship s) {
+    return s.enhancedArmor < s.maxArmor;
   }
 }
 
