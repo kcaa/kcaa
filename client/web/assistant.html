@@ -393,31 +393,37 @@
           <h3 data-collapsed="true">演習 ({{model.numPracticesDone}}/5)</h3>
           <div class="table">
             <div class="trow thead">
+              <div>ランク</div>
               <div class="description">相手</div>
-              <div class="wider">第1艦船</div>
-              <div class="wider">第2艦船</div>
-              <div class="wider">第3艦船</div>
-              <div class="wider">第4艦船</div>
-              <div class="wider">第5艦船</div>
-              <div class="wider">第6艦船</div>
-              <div>結果</div>
+              <div class="superWide">艦隊</div>
+              <div class="ultraWide">艦船</div>
+              <div class="wide">結果</div>
             </div>
             <template repeat="{{practice in model.practices}}">
               <div class="trow {{practice.resultClass}}">
-                <div class="description labelColumn">
+                <div class="labelColumn">
                   <div>{{practice.enemyRank}}</div>
                   <div>Lv{{practice.enemyLevel}}</div>
                 </div>
-                <template repeat="{{ship in practice.ships}}">
-                  <div class="wider">
-                    <div class="title">{{ship.name}}</div>
-                    <div>{{ship.shipType}}</div>
-                    <template if="{{ship.level != null}}">
-                      <div>Lv{{ship.level}}</div>
-                    </template>
-                  </div>
-                </template>
-                <div class="labelColumn">
+                <div class="description">
+                  <div class="title">{{practice.enemyName}}</div>
+                  <div>{{practice.enemyComment}}</div>
+                </div>
+                <div class="superWide">
+                  <div>{{practice.fleetName}}</div>
+                  <div>{{practice.fleetType}}</div>
+                </div>
+                <div class="ultraWide">
+                  <template repeat="{{ship in practice.ships}}">
+                    <div>
+                      <strong>{{ship.name}}</strong>
+                      <span class="subordinate">
+                        ({{ship.shipType}} Lv{{ship.level}})
+                      </span>
+                    </div>
+                  </template>
+                </div>
+                <div class="wide labelColumn">
                   <div>
                     <template if="{{practice.resultMessage != ''}}">
                       {{practice.resultMessage}}

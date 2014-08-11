@@ -44,6 +44,7 @@ class Practice extends Observable {
   @observable String resultMessage;
   @observable String resultClass;
   @observable String fleetName;
+  @observable String fleetType;
   @observable List<ShipEntry> ships = new ObservableList<ShipEntry>();
 
   Practice();
@@ -57,15 +58,12 @@ class Practice extends Observable {
     resultMessage = RESULT_MESSAGE[data["result"]];
     resultClass = RESULT_CLASS[data["result"]];
     fleetName = data["fleet_name"];
+    fleetType = "汎用型";  // TODO: Fill this from backend data.
     ships.clear();
     if (data["ships"] != null) {
       for (var ship in data["ships"]) {
         ships.add(new ShipEntry.fromData(ship));
       }
-    }
-    // Put padding up to 6 slots.
-    for (int i = ships.length; i < 6; ++i) {
-      ships.add(new ShipEntry());
     }
   }
 }

@@ -211,11 +211,15 @@ div.table > div.trow > div.wider {
 div.table > div.trow > div.superWide {
   width: 100px;
 }
+div.table > div.trow > div.ultraWide {
+  width: 200px;
+}
 div.table > div.trow > div > div {
   font-size: 90%;
   opacity: 0.7;
 }
-div.table > div.trow > div > div:first-child {
+div.table > div.trow > div > div:first-child,
+div.table > div.trow > div > template:first-child + div {
   font-size: 100%;
   opacity: 1;
 }
