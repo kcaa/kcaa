@@ -218,8 +218,8 @@ div.table > div.trow > div > div {
   font-size: 90%;
   opacity: 0.7;
 }
-div.table > div.trow > div > div:first-child,
-div.table > div.trow > div > template:first-child + div {
+div.table > div.trow > div > *:first-child,
+div.table > div.trow > div > template:first-child + * {
   font-size: 100%;
   opacity: 1;
 }

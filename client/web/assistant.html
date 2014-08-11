@@ -137,13 +137,6 @@
               <button on-click="{{checkPracticeOpponents}}">
                 演習の対戦相手情報を更新
               </button>
-              <template repeat="{{savedFleet in
-                                  model.preferences.fleetPrefs.savedFleets}}">
-                <button on-click="{{loadFleet}}"
-                        data-name="{{savedFleet.name}}">
-                  第1艦隊に{{savedFleet.name}}を再現
-                </button>
-              </template>
             </div>
           </div>
         </div>
@@ -202,6 +195,31 @@
               <template ref="shiplist" bind="{{fleet}}"></template>
             </section>
           </template>
+        </div>
+      </div>
+      <div class="row horizontal">
+        <div class="board">
+          <h3 data-collapsed="true">艦隊編成</h3>
+          <div class="table">
+            <div class="trow thead">
+              <div class="description">艦隊</div>
+              <div class="wider">再現</div>
+            </div>
+            <template repeat="{{savedFleet in
+                                model.preferences.fleetPrefs.savedFleets}}">
+              <div class="trow">
+                <div class="description">
+                  <div class="title">{{savedFleet.name}}</div>
+                  <!-- TODO: Fill this from the backend data. -->
+                  <div>汎用型</div>
+                </div>
+                <div class="wider labelColumn">
+                  <button on-click="{{loadFleet}}"
+                          data-name="{{savedFleet.name}}">第1艦隊</button>
+                </div>
+              </div>
+            </template>
+          </div>
         </div>
       </div>
       <div class="row horizontal">
