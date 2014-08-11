@@ -1,36 +1,36 @@
 #assistant {
 }
-div.row.new {
+div.trow.new {
   background-color: hsla(270, 60%, 90%, 0.3);
   color: hsl(270, 40%, 20%);
   font-weight: bold;
   text-shadow: 1px 1px 1px hsla(270, 40%, 20%, 0.2);
 }
-div.row.new > div {
+div.trow.new > div {
   box-shadow: 2px 2px 3px hsla(270, 40%, 20%, 0.3) inset;
 }
-div.row.active {
+div.trow.active {
   background-color: hsla(30, 60%, 70%, 0.3);
   color: hsl(30, 40%, 10%);
   font-weight: bold;
   text-shadow: 1px 1px 1px hsla(30, 40%, 10%, 0.2);
 }
-div.row.active > div {
+div.trow.active > div {
   box-shadow: 2px 2px 3px hsla(30, 40%, 10%, 0.3) inset;
 }
-div.row.complete {
+div.trow.complete {
   background-color: hsla(150, 60%, 70%, 0.3);
   color: hsl(150, 40%, 10%);
   font-weight: bold;
   text-shadow: 1px 1px 1px hsla(150, 40%, 10%, 0.2);
 }
-div.row.complete > div {
+div.trow.complete > div {
   box-shadow: 2px 2px 3px hsla(150, 40%, 10%, 0.3) inset;
 }
-div.row.practiceWon {
+div.trow.practiceWon {
   background-color: hsla(60, 80%, 80%, 0.5);
 }
-div.row.practiceLost {
+div.trow.practiceLost {
   background-color: hsla(15, 80%, 80%, 0.5);
 }
 .debugInfo {
