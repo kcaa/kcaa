@@ -49,14 +49,7 @@ class PracticePlan extends Observable {
   @observable String fleetName;
   @observable int formation;
 
-  // Human friendly names.
-  @observable String opponentFleetTypeName;
-  @observable String formationName;
-
-  PracticePlan(this.opponentFleetType, this.fleetName, this.formation) {
-    opponentFleetTypeName = Practice.FLEET_TYPE[opponentFleetType];
-    formationName = Practice.FORMATION_NAME[formation];
-  }
+  PracticePlan(this.opponentFleetType, this.fleetName, this.formation);
 }
 
 class PracticePrefs extends Observable {

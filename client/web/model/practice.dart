@@ -51,6 +51,8 @@ class Practice extends Observable {
     3: "梯形陣",
     4: "単横陣",
   };
+  static final Map<String, int> FORMATION_NAME_REVERSE =
+      new ReverseMapBuilder().buildFrom(FORMATION_NAME);
 
   @observable int id;
   @observable String enemyName;

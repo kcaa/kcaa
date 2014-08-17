@@ -95,6 +95,12 @@ button.collapse {
   padding: 0;
   text-align: left;
 }
+select {
+  background-color: hsl(0, 0%, 100%);
+  border-radius: 5px;
+  margin: 2px 0;
+  padding: 1px;
+}
 input[type=text] {
   border-color: hsl(0, 0%, 80%);
   border-radius: 5px;

@@ -106,10 +106,21 @@
               {{practicePlan.opponentFleetTypeName}}
             </div>
             <div class="ultraWide">
-              {{practicePlan.fleetName}}
+              <select value="{{practicePlan.fleetName}}">
+                <option></option>
+                <option template repeat="{{savedFleet in
+                                           practicePlan.savedFleets}}">
+                  {{savedFleet.name}}
+                </option>
+              </select>
             </div>
             <div class="superWide">
-              {{practicePlan.formationName}}
+              <select value="{{practicePlan.formationName}}">
+                <option template repeat="{{formationName in
+                                           practicePlan.formationNames}}">
+                  {{formationName}}
+                </option>
+              </select>
             </div>
           </div>
         </template>

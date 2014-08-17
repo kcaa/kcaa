@@ -24,6 +24,16 @@ bool iterableEquals(Iterable a, Iterable b) {
   }
 }
 
+class ReverseMapBuilder<K, V> {
+  Map<K, V> buildFrom(Map<V, K> map) {
+    var reverseMap = new Map<K, V>();
+    for (var key in map.keys) {
+      reverseMap[map[key]] = key;
+    }
+    return reverseMap;
+  }
+}
+
 void appendIndentedText(String text, int level, StringBuffer buffer) {
   var indentationMark = "  ";
   for (var i = 0; i < level; ++i) {
