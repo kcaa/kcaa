@@ -505,8 +505,8 @@ class JSONProperty(CustomizableJSONProperty):
                 raise TypeError(
                     ('Property {} expected type {}, but got a value {} of '
                      'type {}').format(
-                         self.name, value, value.__class__.__name__,
-                         self._value_type.__name__))
+                         self.name, self._value_type.__name__, value,
+                         value.__class__.__name__))
             elif ((issubclass(self._value_type, list) or
                    issubclass(self._value_type, tuple)) and
                     self._element_type is not None):
