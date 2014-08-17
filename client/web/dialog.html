@@ -84,4 +84,41 @@
     </div>
   </template>
 </polymer-element>
+<polymer-element name="kcaa-practice-plan-dialog">
+  <template>
+    <link rel="stylesheet" href="packages/bootjack/css/bootstrap.min.css">
+    <link rel="stylesheet" href="kcaa.css">
+    <link rel="stylesheet" href="dialog.css">
+    <div class="modal-header">
+      <button class="close" on-click="{{close}}">&times;</button>
+      <h3 class="modal-title">演習計画</h3>
+    </div>
+    <div class="modal-body">
+      <div class="table">
+        <div class="trow thead">
+          <div class="description">敵艦隊の編成</div>
+          <div class="ultraWide">出撃艦隊</div>
+          <div class="superWide">陣形</div>
+        </div>
+        <template repeat="{{practicePlan in practicePlans}}">
+          <div class="trow">
+            <div class="description">
+              {{practicePlan.opponentFleetTypeName}}
+            </div>
+            <div class="ultraWide">
+              {{practicePlan.fleetName}}
+            </div>
+            <div class="superWide">
+              {{practicePlan.formationName}}
+            </div>
+          </div>
+        </template>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="cancel" on-click="{{close}}">Cancel</button>
+      <button on-click="{{ok}}">OK</button>
+    </div>
+  </template>
+</polymer-element>
 <script type="application/dart" src="dialog.dart"></script>

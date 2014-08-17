@@ -44,6 +44,13 @@ class Practice extends Observable {
     5: "駆逐艦主体型",
     6: "潜水艦主体型",
   };
+  static final Map<int, String> FORMATION_NAME = <int, String>{
+    0: "単縦陣",
+    1: "複縦陣",
+    2: "輪形陣",
+    3: "梯形陣",
+    4: "単横陣",
+  };
 
   @observable int id;
   @observable String enemyName;

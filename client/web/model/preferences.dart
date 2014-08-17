@@ -44,9 +44,30 @@ class FleetPrefs extends Observable {
   }
 }
 
+class PracticePlan extends Observable {
+  @observable int opponentFleetType;
+  @observable String fleetName;
+  @observable int formation;
+
+  // Human friendly names.
+  @observable String opponentFleetTypeName;
+  @observable String formationName;
+
+  PracticePlan(this.opponentFleetType, this.fleetName, this.formation) {
+    opponentFleetTypeName = Practice.FLEET_TYPE[opponentFleetType];
+    formationName = Practice.FORMATION_NAME[formation];
+  }
+}
+
+class PracticePrefs extends Observable {
+  @observable final List<PracticePlan> practicePlans =
+      new ObservableList<PracticePlan>();
+}
+
 class Preferences extends Observable {
   @observable AutomanPrefs automanPrefs = new AutomanPrefs();
   @observable FleetPrefs fleetPrefs = new FleetPrefs();
+  @observable PracticePrefs practicePrefs = new PracticePrefs();
 
   // Convert this preferences object to JSON so that the server can directly
   // accept it as the Prefenreces object.
@@ -66,6 +87,13 @@ class Preferences extends Observable {
               savedFleet.shipRequirements.map((shipRequirement) => {
             "id": shipRequirement.id,
           }).toList(),
+        }).toList(),
+      },
+      "practice_prefs": {
+        "practice_plans": practicePrefs.practicePlans.map((practicePlan) => {
+          "opponent_fleet_type": practicePlan.opponentFleetType,
+          "fleet_name": practicePlan.fleetName,
+          "formation": practicePlan.formation,
         }).toList(),
       },
     });
@@ -89,6 +117,13 @@ void handlePreferences(Assistant assistant, AssistantModel model,
           new ShipRequirement(shipRequirement["id"]));
     }
     prefs.fleetPrefs.savedFleets.add(savedFleetObject);
+  }
+  for (var practicePlan in data["practice_prefs"]["practice_plans"]) {
+    PracticePlan practicePlanObject = new PracticePlan(
+        practicePlan["opponent_fleet_type"],
+        practicePlan["fleet_name"],
+        practicePlan["formation"]);
+    prefs.practicePrefs.practicePlans.add(practicePlanObject);
   }
   model.preferences = prefs;
 }

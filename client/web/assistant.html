@@ -134,9 +134,6 @@
           <div class="board commandBoard">
             <h3>クイックコマンド</h3>
             <div>
-              <button on-click="{{checkPracticeOpponents}}">
-                演習の対戦相手情報を更新
-              </button>
             </div>
           </div>
         </div>
@@ -409,6 +406,11 @@
       <div class="row horizontal">
         <div class="board">
           <h3 data-collapsed="true">演習 ({{model.numPracticesDone}}/5)</h3>
+          <div>
+            <button on-click="{{checkPracticeOpponents}}">情報更新</button>
+            <button on-click="{{showModalDialog}}"
+                    data-dialog="kcaaPracticePlanDialog">演習計画</button>
+          </div>
           <div class="table">
             <div class="trow thead">
               <div>ランク</div>

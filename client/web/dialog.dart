@@ -162,3 +162,21 @@ class FleetMissionDialog extends KcaaDialog {
     close();
   }
 }
+
+@CustomTag('kcaa-practice-plan-dialog')
+class PracticePlanDialog extends KcaaDialog {
+  @observable List<PracticePlan> practicePlans =
+      new ObservableList<PracticePlan>();
+
+  PracticePlanDialog.created() : super.created();
+
+  @override
+  void show(Element target) {
+    practicePlans.addAll(model.preferences.practicePrefs.practicePlans);
+  }
+
+  void ok() {
+    assistant.savePreferences();
+    close();
+  }
+}
