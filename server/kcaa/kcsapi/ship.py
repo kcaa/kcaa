@@ -128,6 +128,51 @@ class ShipDefinition(jsonobject.JSONSerializableObject):
     sort_order = jsonobject.ReadonlyJSONProperty('sort_order', value_type=int)
     """Sort order, or the encyclopedia ID."""
 
+    @staticmethod
+    def is_battleship(ship):
+        return ship.ship_type in (
+            ShipDefinition.SHIP_TYPE_LIGHT_BATTLESHIP,
+            ShipDefinition.SHIP_TYPE_BATTLESHIP,
+            ShipDefinition.SHIP_TYPE_AIRCRAFT_BATTLESHIP,
+            ShipDefinition.SHIP_TYPE_DREADNOUGHT_BATTLESHIP)
+
+    @staticmethod
+    def is_heavy_cruiser(ship):
+        return ship.ship_type in (
+            ShipDefinition.SHIP_TYPE_HEAVY_CRUISER,
+            ShipDefinition.SHIP_TYPE_AIRCRAFT_CRUISER)
+
+    @staticmethod
+    def is_light_cruiser(ship):
+        return ship.ship_type in (
+            ShipDefinition.SHIP_TYPE_LIGHT_CRUISER,
+            ShipDefinition.SHIP_TYPE_TORPEDO_CRUISER)
+
+    @staticmethod
+    def is_aircraft_carrier(ship):
+        # Submarine aircraft carrier is excluded here as its effect is limited.
+        return ship.ship_type in (
+            ShipDefinition.SHIP_TYPE_LIGHT_AIRCRAFT_CARRIER,
+            ShipDefinition.SHIP_TYPE_AIRCRAFT_CARRIER,
+            ShipDefinition.SHIP_TYPE_SEAPLANE_TENDER,
+            ShipDefinition.SHIP_TYPE_ARMORED_AIRCRAFT_CARRIER)
+
+    @staticmethod
+    def is_submarine(ship):
+        return ship.ship_type in (
+            ShipDefinition.SHIP_TYPE_SUBMARINE,
+            ShipDefinition.SHIP_TYPE_SUBMARINE_AIRCRAFT_CARRIER)
+
+    @staticmethod
+    def is_anti_submarine(ship):
+        return ship.ship_type in (
+            ShipDefinition.SHIP_TYPE_DESTROYER,
+            ShipDefinition.SHIP_TYPE_LIGHT_CRUISER,
+            ShipDefinition.SHIP_TYPE_TORPEDO_CRUISER,
+            ShipDefinition.SHIP_TYPE_AIRCRAFT_CRUISER,
+            ShipDefinition.SHIP_TYPE_LIGHT_AIRCRAFT_CARRIER,
+            ShipDefinition.SHIP_TYPE_AIRCRAFT_BATTLESHIP)
+
 
 class ShipDefinitionList(model.KCAAObject):
     """List of ship definitions."""

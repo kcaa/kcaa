@@ -2,6 +2,7 @@
 
 import jsonobject
 import model
+import ship
 
 
 class ShipEntry(jsonobject.JSONSerializableObject):
@@ -48,6 +49,50 @@ class Practice(jsonobject.JSONSerializableObject):
     ships = jsonobject.JSONProperty('ships', value_type=list,
                                     element_type=ShipEntry)
     """Ships belonging to this practice fleet."""
+    fleet_type = jsonobject.JSONProperty('fleet_type', value_type=int)
+    """Type of the fleet.
+
+    This is a simple categorization of the opponent fleet. This is designed to
+    be much simpler compared to a tag-based approach, which may supersede this
+    categorization in the future."""
+    FLEET_TYPE_GENERIC = 0
+    FLEET_TYPE_NO_ANTI_SUBMARINE = 1
+    FLEET_TYPE_BATTLESHIPS = 2
+    FLEET_TYPE_HEAVY_CRUISERS = 3
+    FLEET_TYPE_LIGHT_CRUISERS = 4
+    FLEET_TYPE_DESTROYERS = 5
+    FLEET_TYPE_SUBMARINES = 6
+
+    @staticmethod
+    def get_fleet_type(ships):
+        num_anti_submarines = len(filter(
+            ship.ShipDefinition.is_anti_submarine, ships))
+        if num_anti_submarines <= 1:
+            return Practice.FLEET_TYPE_NO_ANTI_SUBMARINE
+        num_submarines = len(filter(
+            ship.ShipDefinition.is_anti_submarine, ships))
+        is_submarine_flagship = ship.ShipDefinition.is_submarine(ships[0])
+        if num_submarines >= 4 or is_submarine_flagship:
+            return Practice.FLEET_TYPE_SUBMARINES
+        num_battleships = len(filter(ship.ShipDefinition.is_battleship, ships))
+        num_aircraft_carriers = len(filter(
+            ship.ShipDefinition.is_aircraft_carrier, ships))
+        if num_battleships + num_aircraft_carriers >= 3:
+            return Practice.FLEET_TYPE_BATTLESHIPS
+        num_heavy_cruisers = len(filter(
+            ship.ShipDefinition.is_heavy_cruiser, ships))
+        if num_heavy_cruisers + num_aircraft_carriers >= 3:
+            return Practice.FLEET_TYPE_HEAVY_CRUISERS
+        num_light_cruisers = len(filter(
+            ship.ShipDefinition.is_light_cruiser, ships))
+        if num_light_cruisers >= 3:
+            return Practice.FLEET_TYPE_LIGHT_CRUISERS
+        num_destroyers = len(filter(
+            lambda s: s.ship_type == ship.ShipDefinition.SHIP_TYPE_DESTROYER,
+            ships))
+        if num_destroyers >= 3:
+            return Practice.FLEET_TYPE_DESTROYERS
+        return Practice.FLEET_TYPE_GENERIC
 
 
 class PracticeList(model.KCAAObject):
@@ -95,3 +140,4 @@ class PracticeList(model.KCAAObject):
                     level=data.api_level,
                     name=ship_def.name,
                     ship_type=ship_def.ship_type))
+            practice.fleet_type = Practice.get_fleet_type(practice.ships)

@@ -35,6 +35,15 @@ class Practice extends Observable {
     5: "practiceWon",
     6: "practiceWon",
   };
+  static final Map<int, String> FLEET_TYPE = <int, String>{
+    0: "汎用型",
+    1: "対潜無視型",
+    2: "戦艦主体型",
+    3: "重巡主体型",
+    4: "軽巡主体型",
+    5: "駆逐艦主体型",
+    6: "潜水艦主体型",
+  };
 
   @observable int id;
   @observable String enemyName;
@@ -58,7 +67,7 @@ class Practice extends Observable {
     resultMessage = RESULT_MESSAGE[data["result"]];
     resultClass = RESULT_CLASS[data["result"]];
     fleetName = data["fleet_name"];
-    fleetType = "汎用型";  // TODO: Fill this from backend data.
+    fleetType = FLEET_TYPE[data["fleet_type"]];
     ships.clear();
     if (data["ships"] != null) {
       for (var ship in data["ships"]) {
