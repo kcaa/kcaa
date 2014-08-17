@@ -34,19 +34,23 @@ def load_preferences(args, logger):
         logger.info('Preferences file is not specified. Using default.')
         logger.info('If you want to have one, set the value of the flag '
                     '--preferences properly.')
-        return kcsapi.prefs.Preferences()
+        preferences = kcsapi.prefs.Preferences()
+        preferences.initialize()
+        return preferences
     elif os.path.isfile(args.preferences):
         logger.info(
             'Prefenreces file found at {}. Loading.'.format(args.preferences))
         with open(args.preferences, 'r') as preferences_file:
             preferences = kcsapi.prefs.Preferences.parse_text(
                 preferences_file.read())
+            preferences.initialize()
             return preferences
     else:
         logger.info(
             'Prefenreces file not found at {}. Creating one with default.'
             .format(args.preferences))
         preferences = kcsapi.prefs.Preferences()
+        preferences.initialize()
         save_preferences(args, logger, preferences)
         return preferences
 

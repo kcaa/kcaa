@@ -52,6 +52,27 @@ class FleetPreferences(jsonobject.JSONSerializableObject):
     """Saved fleets."""
 
 
+class PracticePlan(jsonobject.JSONSerializableObject):
+    opponent_fleet_type = jsonobject.JSONProperty(
+        'opponent_fleet_type', value_type=int)
+    """Opponent fleet type."""
+    fleet_name = jsonobject.JSONProperty('fleet_name', value_type=unicode)
+    """Name of the fleet to go practice."""
+    formation = jsonobject.JSONProperty('formation', value_type=int)
+    """Formation."""
+    FORMATION_SINGLE_LINE = 0
+    FORMATION_DOUBLE_LINES = 1
+    FORMATION_CIRCLE = 2
+    FORMATION_LADDER = 3
+    FORMATION_HORIZONTAL_LINE = 4
+
+
+class PracticePreferences(jsonobject.JSONSerializableObject):
+    practice_plans = jsonobject.JSONProperty(
+        'practice_plans', [], value_type=list, element_type=PracticePlan)
+    """Practice plans."""
+
+
 class Preferences(model.KCAAObject):
     """KCAA client preferences.
 
@@ -65,3 +86,19 @@ class Preferences(model.KCAAObject):
     fleet_prefs = jsonobject.JSONProperty(
         'fleet_prefs', FleetPreferences(), value_type=FleetPreferences)
     """Fleet preferences."""
+    practice_prefs = jsonobject.JSONProperty(
+        'practice_prefs', PracticePreferences(),
+        value_type=PracticePreferences)
+    """Practice preferences."""
+
+    def initialize(self):
+        # TODO: Better rewrite this...
+        opponent_fleet_types = frozenset(map(
+            lambda p: p.opponent_fleet_type,
+            self.practice_prefs.practice_plans))
+        for opponent_fleet_type in xrange(7):
+            if opponent_fleet_type not in opponent_fleet_types:
+                self.practice_prefs.practice_plans.append(
+                    PracticePlan(opponent_fleet_type=opponent_fleet_type,
+                                 fleet_name=u'',
+                                 formation=PracticePlan.FORMATION_SINGLE_LINE))
