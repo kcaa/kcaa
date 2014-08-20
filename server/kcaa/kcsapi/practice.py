@@ -56,42 +56,57 @@ class Practice(jsonobject.JSONSerializableObject):
     be much simpler compared to a tag-based approach, which may supersede this
     categorization in the future."""
     FLEET_TYPE_GENERIC = 0
-    FLEET_TYPE_NO_ANTI_SUBMARINE = 1
-    FLEET_TYPE_BATTLESHIPS = 2
-    FLEET_TYPE_HEAVY_CRUISERS = 3
-    FLEET_TYPE_LIGHT_CRUISERS = 4
-    FLEET_TYPE_DESTROYERS = 5
-    FLEET_TYPE_SUBMARINES = 6
+    FLEET_TYPE_SUBMARINES = 1
+    FLEET_TYPE_NO_ANTI_SUBMARINE = 2
+    FLEET_TYPE_AIRCRAFT_CARRIERS = 3
+    FLEET_TYPE_BATTLESHIPS = 4
+    FLEET_TYPE_HEAVY_CRUISERS = 5
+    FLEET_TYPE_LIGHT_CRUISERS = 6
+    FLEET_TYPE_DESTROYERS = 7
 
     @staticmethod
     def get_fleet_type(ships):
+        # Inverse N (number of ships)
+        inv_n = 1.0 / len(ships)
+        num_submarines = len(filter(
+            ship.ShipDefinition.is_submarine, ships))
+        is_submarine_flagship = ship.ShipDefinition.is_submarine(ships[0])
+        # "Submarines" if more than half of them are submarines or the flag
+        # ship is a submarine.
+        if inv_n * num_submarines >= 0.55 or is_submarine_flagship:
+            return Practice.FLEET_TYPE_SUBMARINES
         num_anti_submarines = len(filter(
             ship.ShipDefinition.is_anti_submarine, ships))
-        if num_anti_submarines <= 1:
+        # "No anti submarine" if no anti submarine ship.
+        if num_anti_submarines == 0:
             return Practice.FLEET_TYPE_NO_ANTI_SUBMARINE
-        num_submarines = len(filter(
-            ship.ShipDefinition.is_anti_submarine, ships))
-        is_submarine_flagship = ship.ShipDefinition.is_submarine(ships[0])
-        if num_submarines >= 4 or is_submarine_flagship:
-            return Practice.FLEET_TYPE_SUBMARINES
-        num_battleships = len(filter(ship.ShipDefinition.is_battleship, ships))
         num_aircraft_carriers = len(filter(
             ship.ShipDefinition.is_aircraft_carrier, ships))
-        if num_battleships + num_aircraft_carriers >= 3:
+        # "Aircraft carriers" if half of them are aircraft carriers.
+        if inv_n * num_aircraft_carriers >= 0.5:
+            return Practice.FLEET_TYPE_AIRCRAFT_CARRIERS
+        num_battleships = len(filter(ship.ShipDefinition.is_battleship, ships))
+        # "Battleships" if half of them are battleships or aircraft carriers.
+        if inv_n * (num_battleships + num_aircraft_carriers) >= 0.5:
             return Practice.FLEET_TYPE_BATTLESHIPS
         num_heavy_cruisers = len(filter(
             ship.ShipDefinition.is_heavy_cruiser, ships))
-        if num_heavy_cruisers + num_aircraft_carriers >= 3:
+        # "Heavy cruisers" if half of them are heavy cruisers or aircraft
+        # carriers.
+        if inv_n * (num_heavy_cruisers + num_aircraft_carriers) >= 0.5:
             return Practice.FLEET_TYPE_HEAVY_CRUISERS
         num_light_cruisers = len(filter(
             ship.ShipDefinition.is_light_cruiser, ships))
-        if num_light_cruisers >= 3:
+        # "Light cruisers" if more than half of them are light cruisers.
+        if inv_n * num_light_cruisers >= 0.55:
             return Practice.FLEET_TYPE_LIGHT_CRUISERS
         num_destroyers = len(filter(
             lambda s: s.ship_type == ship.ShipDefinition.SHIP_TYPE_DESTROYER,
             ships))
-        if num_destroyers >= 3:
+        # "Destroyers" if more than half of them are destroyers.
+        if inv_n * num_destroyers >= 0.55:
             return Practice.FLEET_TYPE_DESTROYERS
+        # "Generic" if no significant ship type is outstanding.
         return Practice.FLEET_TYPE_GENERIC
 
 

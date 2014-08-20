@@ -37,12 +37,13 @@ class Practice extends Observable {
   };
   static final Map<int, String> FLEET_TYPE = <int, String>{
     0: "汎用型",
-    1: "対潜無視型",
-    2: "戦艦主体型",
-    3: "重巡主体型",
-    4: "軽巡主体型",
-    5: "駆逐艦主体型",
-    6: "潜水艦主体型",
+    1: "潜水艦主体型",
+    2: "対潜無視型",
+    3: "空母主体型",
+    4: "戦艦主体型",
+    5: "重巡主体型",
+    6: "軽巡主体型",
+    7: "駆逐艦主体型",
   };
   static final Map<int, String> FORMATION_NAME = <int, String>{
     0: "単縦陣",

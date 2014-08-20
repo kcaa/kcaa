@@ -96,7 +96,7 @@ class Preferences(model.KCAAObject):
         opponent_fleet_types = frozenset(map(
             lambda p: p.opponent_fleet_type,
             self.practice_prefs.practice_plans))
-        for opponent_fleet_type in xrange(7):
+        for opponent_fleet_type in xrange(8):
             if opponent_fleet_type not in opponent_fleet_types:
                 self.practice_prefs.practice_plans.append(
                     PracticePlan(opponent_fleet_type=opponent_fleet_type,
