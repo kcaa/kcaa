@@ -120,13 +120,13 @@ class ManipulatorManager(object):
             # Organizing
             'LoadFleet': manipulators.organizing.LoadFleet,
             # Logistics
-            'FleetCharge': manipulators.logistics.FleetCharge,
+            'ChargeFleet': manipulators.logistics.ChargeFleet,
         }
 
     def define_auto_manipulators(self):
         self.auto_manipulators = {
             # Logistics
-            'AutoFleetCharge': manipulators.logistics.AutoFleetCharge,
+            'AutoChargeFleet': manipulators.logistics.AutoChargeFleet,
             # Special
             'AutoStartGame': manipulators.special.AutoStartGame,
             # Mission
@@ -140,7 +140,7 @@ class ManipulatorManager(object):
         # triggerer won't add another one.
         initial_auto_manipulators = [
             'AutoCheckMissionResult',
-            'AutoFleetCharge',
+            'AutoChargeFleet',
             'AutoStartGame',
         ]
         for name in initial_auto_manipulators:

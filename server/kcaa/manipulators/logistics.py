@@ -9,7 +9,7 @@ from kcaa import screens
 logger = logging.getLogger('kcaa.manipulators.logistics')
 
 
-class FleetCharge(base.Manipulator):
+class ChargeFleet(base.Manipulator):
 
     def run(self, fleet_id):
         fleet_id = int(fleet_id)
@@ -20,7 +20,7 @@ class FleetCharge(base.Manipulator):
         yield self.screen.charge_both()
 
 
-class AutoFleetCharge(base.AutoManipulator):
+class AutoChargeFleet(base.AutoManipulator):
 
     @classmethod
     def can_trigger(cls, owner):
@@ -49,4 +49,4 @@ class AutoFleetCharge(base.AutoManipulator):
     def run(self, fleet_ids):
         yield 1.0
         for fleet_id in fleet_ids:
-            yield self.do_manipulator(FleetCharge, fleet_id)
+            yield self.do_manipulator(ChargeFleet, fleet_id)
