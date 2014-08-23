@@ -226,6 +226,10 @@ class ManipulatorManager(object):
         self.scheduled_manipulators[manipulator_name] = entry
         heapq.heappush(self.queue, entry)
         self.queue_count += 1
+        self.update_running_manipulators()
+        self._logger.debug(
+            'Manipulator {} scheduled.'.format(manipulator_name))
+        self.log_manipulator_queue()
         return t
 
     def is_manipulator_scheduled(self, manipulator_name):
@@ -269,6 +273,14 @@ class ManipulatorManager(object):
                 self.rmo.auto_manipulators_active = False
                 self.rmo.generation += 1
 
+    def update_running_manipulators(self):
+        self.rmo.running_manipulator = unicode(
+            self.current_task.__class__.__name__, 'utf8')
+        self.rmo.manipulators_in_queue = [
+            unicode(manipulator.__class__.__name__, 'utf8')
+            for p, c, manipulator in self.queue]
+        self.rmo.generation += 1
+
     def log_manipulator_queue(self):
         self._logger.debug('Manipulator queue: [{}]'.format(
             ', '.join(('{} (p: {})'.format(m.__class__.__name__, p)
@@ -295,12 +307,7 @@ class ManipulatorManager(object):
                 if not self.last_task:
                     self.browser_conn.send((browser.COMMAND_COVER, (True,)))
                     self.leave_port()
-                self.rmo.running_manipulator = unicode(
-                    self.current_task.__class__.__name__, 'utf8')
-                self.rmo.manipulators_in_queue = [
-                    unicode(manipulator.__class__.__name__, 'utf8')
-                    for p, c, manipulator in self.queue]
-                self.rmo.generation += 1
+                self.update_running_manipulators()
             else:
                 if self.last_task:
                     self.browser_conn.send((browser.COMMAND_COVER, (False,)))
