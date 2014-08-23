@@ -226,7 +226,6 @@ class ManipulatorManager(object):
         self.scheduled_manipulators[manipulator_name] = entry
         heapq.heappush(self.queue, entry)
         self.queue_count += 1
-        self._logger.debug('Manipulator queue: {}'.format(str(self.queue)))
         return t
 
     def is_manipulator_scheduled(self, manipulator_name):
@@ -259,6 +258,22 @@ class ManipulatorManager(object):
                 previously_run = True
         return previously_run
 
+    def activate_auto_manipulator(self):
+        if self.are_auto_manipulator_scheduled():
+            if self.resume_auto_manipulators():
+                self.leave_port()
+                self.rmo.auto_manipulators_active = True
+                self.rmo.generation += 1
+        else:
+            if self.suppress_auto_manipulators():
+                self.rmo.auto_manipulators_active = False
+                self.rmo.generation += 1
+
+    def log_manipulator_queue(self):
+        self._logger.debug('Manipulator queue: [{}]'.format(
+            ', '.join(('{} (p: {})'.format(m.__class__.__name__, p)
+                       for p, c, m in self.queue))))
+
     def update(self, current):
         """Update manipulators.
 
@@ -267,19 +282,16 @@ class ManipulatorManager(object):
         :rtype: :class:`class:`kcaa.kcsapi.model.KCAAObject`
         """
         self.screen_manager.update_screen()
-        if self.current_task:
-            self.suppress_auto_manipulators()
-        else:
+        self.activate_auto_manipulator()
+        if not self.current_task:
             if self.queue:
+                self.log_manipulator_queue()
                 priority, queue_count, t = heapq.heappop(self.queue)
-                # This removes the entry when the first instance of the
-                # manipulators that share the name comes.
                 manipulator_name = t.__class__.__name__
-                if self.is_manipulator_scheduled(manipulator_name):
-                    del self.scheduled_manipulators[manipulator_name]
+                self._logger.debug('Manipulator {} started.'.format(
+                    manipulator_name))
                 self.current_task = t
                 t.resume()
-                self.suppress_auto_manipulators()
                 if not self.last_task:
                     self.browser_conn.send((browser.COMMAND_COVER, (True,)))
                     self.leave_port()
@@ -297,19 +309,19 @@ class ManipulatorManager(object):
                     self.rmo.generation += 1
                 self.current_task = None
                 self.last_task = None
-                if self.are_auto_manipulator_scheduled():
-                    if self.resume_auto_manipulators():
-                        self.leave_port()
-                        self.rmo.auto_manipulators_active = True
-                        self.rmo.generation += 1
-                else:
-                    if self.suppress_auto_manipulators():
-                        self.rmo.auto_manipulators_active = False
-                        self.rmo.generation += 1
         self.task_manager.update(current)
-        if self.current_task not in self.task_manager.tasks:
+        if (self.current_task and
+                self.current_task not in self.task_manager.tasks):
+            # The current task has finished.
             self.last_task = self.current_task
             self.current_task = None
+            # This removes the entry when the first instance of the
+            # manipulators that share the name have finished.
+            manipulator_name = self.last_task.__class__.__name__
+            self._logger.debug('Manipulator {} finished.'.format(
+                manipulator_name))
+            if self.is_manipulator_scheduled(manipulator_name):
+                del self.scheduled_manipulators[manipulator_name]
         if self.rmo.generation > self.rmo_last_generation:
             self.updated_object_types.add('RunningManipulators')
             self.rmo_last_generation = self.rmo.generation

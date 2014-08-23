@@ -39,13 +39,14 @@ class AutoManipulatorTriggerer(Manipulator):
 
     def run(self, manipulator, interval=1.0, *args, **kwargs):
         self._manipulator = manipulator
+        manipulator_name = manipulator.__name__
         while True:
-            if self.manager.queue:
+            if self.manager.is_manipulator_scheduled(manipulator_name):
                 yield interval
                 continue
             params = manipulator.can_trigger(self, *args, **kwargs)
             if params is not None:
-                logger.info('Triggering {}'.format(manipulator.__name__))
+                logger.info('Triggering {}'.format(manipulator_name))
                 self.add_manipulator(manipulator, **params)
             yield interval
 
