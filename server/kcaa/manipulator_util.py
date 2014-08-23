@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import datetime
+import heapq
 import logging
 
 import browser
@@ -92,8 +93,8 @@ class ManipulatorManager(object):
         self.initialize(epoch)
 
     def initialize(self, epoch):
-        # TODO: Use Queue.Queue?
         self.queue = []
+        self.queue_count = 0
         self.running_auto_triggerer = []
         self.current_task = None
         self.last_task = None
@@ -188,10 +189,12 @@ class ManipulatorManager(object):
                 return True
         return False
 
-    def add_manipulator(self, manipulator):
+    def add_manipulator(self, manipulator, priority=0):
         t = self.task_manager.add(manipulator)
         t.suspend()
-        self.queue.append(t)
+        heapq.heappush(self.queue, (priority, self.queue_count, t))
+        self.queue_count += 1
+        self._logger.debug('Manipulator queue: {}'.format(str(self.queue)))
         return t
 
     def add_auto_manipulator(self, auto_manipulator):
@@ -233,8 +236,7 @@ class ManipulatorManager(object):
             self.suppress_auto_manipulators()
         else:
             if self.queue:
-                t = self.queue[0]
-                del self.queue[0]
+                priority, queue_count, t = heapq.heappop(self.queue)
                 self.current_task = t
                 t.resume()
                 self.suppress_auto_manipulators()
@@ -245,7 +247,7 @@ class ManipulatorManager(object):
                     self.current_task.__class__.__name__, 'utf8')
                 self.rmo.manipulators_in_queue = [
                     unicode(manipulator.__class__.__name__, 'utf8')
-                    for manipulator in self.queue]
+                    for p, c, manipulator in self.queue]
                 self.rmo.generation += 1
             else:
                 if self.last_task:
