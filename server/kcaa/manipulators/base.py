@@ -27,10 +27,35 @@ class Manipulator(task.Task):
         return self.screen.screen_id
 
     def do_manipulator(self, manipulator, *args, **kwargs):
+        """Run a manipulator immediately.
+
+        :param manipulator: manipulator class object
+        :param args: positional arguments to manipulator constructor (optional)
+        :param kwargs: keyword arguments to manipulator constructor (optional)
+        :returns: task object
+
+        Run the manipulator immediately. This means other manipulators and auto
+        "manipulators will have no chance to interrupt even if it has a higher
+        priority.
+
+        Typically the caller will block itself by yielding the return value.
+        """
         return self.manager.task_manager.add(
             manipulator(self.manager, *args, **kwargs))
 
     def add_manipulator(self, manipulator, *args, **kwargs):
+        """Schedule a manipulator.
+
+        :param manipulator: manipulator class object
+        :param args: positional arguments to manipulator constructor (optional)
+        :param kwargs: keyword arguments to manipulator constructor (optional)
+        :returns: task object
+
+        Schedule the manipulator to be run later. This means other manipulators
+        and auto manipulators can interrupt if it has a higher priority.
+
+        Typically the caller will not block itself.
+        """
         return self.manager.add_manipulator(
             manipulator(self.manager, *args, **kwargs))
 
