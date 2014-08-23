@@ -95,6 +95,7 @@ class ManipulatorManager(object):
     def initialize(self, epoch):
         self.queue = []
         self.queue_count = 0
+        self.scheduled_manipulators = {}
         self.running_auto_triggerer = []
         self.current_task = None
         self.last_task = None
@@ -104,6 +105,7 @@ class ManipulatorManager(object):
         self.define_manipulators()
         self.define_auto_manipulators()
         self.add_initial_auto_manipulators()
+        self.define_manipulator_priorities()
         self.current_schedule_fragment = None
         self.rmo = kcsapi.client.RunningManipulators()
         self.rmo_last_generation = self.rmo.generation
@@ -148,6 +150,25 @@ class ManipulatorManager(object):
             self.add_auto_manipulator(self.auto_manipulators[name])
         self.suppress_auto_manipulators()
 
+    def define_manipulator_priorities(self):
+        self.manipulator_priorities = {
+            # AutoCheckMissionResult have the highest priority because it
+            # blocks all other manipulations when coming back to the port main
+            # screen.
+            'AutoCheckMissionResult': -100,
+            # AutoChargeFleet takes the second highest. This should precede
+            # practice or missions.
+            'AutoChargeFleet': -90,
+            # Usual manual manipulators have the default priority of 0.
+            'CheckPracticeOpponents': 0,
+            'GoOnPractice': 0,
+            'GoOnMission': 0,
+            'LoadFleet': 0,
+            'ChargeFleet': 0,
+            # Special manipulators have the default priority of 0.
+            'AutoStartGame': 0,
+        }
+
     def set_auto_manipulator_preferences(self, automan_prefs):
         self.auto_manipulators_enabled = automan_prefs.enabled
         self._logger.info('AutoManipulator {}.'.format(
@@ -189,13 +210,27 @@ class ManipulatorManager(object):
                 return True
         return False
 
-    def add_manipulator(self, manipulator, priority=0):
+    def add_manipulator(self, manipulator):
         t = self.task_manager.add(manipulator)
         t.suspend()
-        heapq.heappush(self.queue, (priority, self.queue_count, t))
+        manipulator_name = manipulator.__class__.__name__
+        try:
+            priority = self.manipulator_priorities[manipulator_name]
+        except KeyError:
+            self._logger.error('Priority for manipulator {} is not defined.'
+                .format(manipulator_name))
+            priority = 0
+        entry = (priority, self.queue_count, t)
+        # This works fine for auto manipulators, but not necessarily for manual
+        # manipulators (e.g. GoOnMission).
+        self.scheduled_manipulators[manipulator_name] = entry
+        heapq.heappush(self.queue, entry)
         self.queue_count += 1
         self._logger.debug('Manipulator queue: {}'.format(str(self.queue)))
         return t
+
+    def is_manipulator_scheduled(self, manipulator_name):
+        return manipulator_name in self.scheduled_manipulators
 
     def add_auto_manipulator(self, auto_manipulator):
         t = self.task_manager.add(manipulators.base.AutoManipulatorTriggerer(
@@ -237,6 +272,11 @@ class ManipulatorManager(object):
         else:
             if self.queue:
                 priority, queue_count, t = heapq.heappop(self.queue)
+                # This removes the entry when the first instance of the
+                # manipulators that share the name comes.
+                manipulator_name = t.__class__.__name__
+                if self.is_manipulator_scheduled(manipulator_name):
+                    del self.scheduled_manipulators[manipulator_name]
                 self.current_task = t
                 t.resume()
                 self.suppress_auto_manipulators()
