@@ -104,7 +104,6 @@ class ManipulatorManager(object):
         self.screen_manager = ScreenManager(self)
         self.define_manipulators()
         self.define_auto_manipulators()
-        self.add_initial_auto_manipulators()
         self.define_manipulator_priorities()
         self.current_schedule_fragment = None
         self.rmo = kcsapi.client.RunningManipulators()
@@ -136,18 +135,8 @@ class ManipulatorManager(object):
             'AutoCheckMissionResult':
             manipulators.mission.AutoCheckMissionResult,
         }
-
-    def add_initial_auto_manipulators(self):
-        # The order matters. Be sure to start from preferred auto manipulators.
-        # If there is at least 1 pending manipulator in the queue, the
-        # triggerer won't add another one.
-        initial_auto_manipulators = [
-            'AutoCheckMissionResult',
-            'AutoChargeFleet',
-            'AutoStartGame',
-        ]
-        for name in initial_auto_manipulators:
-            self.add_auto_manipulator(self.auto_manipulators[name])
+        for manipulator in self.auto_manipulators.itervalues():
+            self.add_auto_manipulator(manipulator)
         self.suppress_auto_manipulators()
 
     def define_manipulator_priorities(self):
