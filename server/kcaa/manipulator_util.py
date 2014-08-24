@@ -210,16 +210,18 @@ class ManipulatorManager(object):
                 return True
         return False
 
-    def add_manipulator(self, manipulator):
+    def add_manipulator(self, manipulator, priority=None):
         t = self.task_manager.add(manipulator)
         t.suspend()
         manipulator_name = manipulator.__class__.__name__
-        try:
-            priority = self.manipulator_priorities[manipulator_name]
-        except KeyError:
-            self._logger.error('Priority for manipulator {} is not defined.'
-                .format(manipulator_name))
-            priority = 0
+        if priority is None:
+            try:
+                priority = self.manipulator_priorities[manipulator_name]
+            except KeyError:
+                self._logger.error(
+                    'Priority for manipulator {} is not defined.'.format(
+                        manipulator_name))
+                priority = 0
         entry = (priority, self.queue_count, t)
         # This works fine for auto manipulators, but not necessarily for manual
         # manipulators (e.g. GoOnMission).
