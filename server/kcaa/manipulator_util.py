@@ -129,11 +129,12 @@ class ManipulatorManager(object):
         self.auto_manipulators = {
             # Logistics
             'AutoChargeFleet': manipulators.logistics.AutoChargeFleet,
-            # Special
-            'AutoStartGame': manipulators.special.AutoStartGame,
             # Mission
             'AutoCheckMissionResult':
             manipulators.mission.AutoCheckMissionResult,
+            'AutoGoOnMission': manipulators.mission.AutoGoOnMission,
+            # Special
+            'AutoStartGame': manipulators.special.AutoStartGame,
         }
         for manipulator in self.auto_manipulators.itervalues():
             self.add_auto_manipulator(manipulator)

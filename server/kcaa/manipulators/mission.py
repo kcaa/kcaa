@@ -110,3 +110,29 @@ class GoOnMission(base.Manipulator):
         yield self.screen.confirm()
         yield self.screen.select_fleet(fleet_id)
         yield self.screen.finalize()
+
+
+class AutoGoOnMission(base.AutoManipulator):
+
+    @classmethod
+    def can_trigger(cls, owner):
+        if not screens.in_category(owner.screen_id, screens.PORT):
+            return
+        fleet_list = owner.objects.get('FleetList')
+        if not fleet_list:
+            return
+        go_on_config = {}
+        for fleet in fleet_list.fleets:
+            if fleet.id == 1:
+                continue
+            mission_plan = owner.preferences.mission_prefs.get_mission_plan(
+                fleet.id)
+            if not fleet.mission_id and mission_plan:
+                go_on_config[fleet.id] = mission_plan.mission_id
+        if go_on_config:
+            return {'go_on_config': go_on_config}
+
+    def run(self, go_on_config):
+        yield 1.0
+        for fleet_id, mission_id in go_on_config.iteritems():
+            yield self.do_manipulator(GoOnMission, fleet_id, mission_id)

@@ -73,6 +73,25 @@ class PracticePreferences(jsonobject.JSONSerializableObject):
     """Practice plans."""
 
 
+class MissionPlan(jsonobject.JSONSerializableObject):
+    fleet_id = jsonobject.JSONProperty('fleet_id', value_type=int)
+    """Fleet ID."""
+    mission_id = jsonobject.JSONProperty('mission_id', value_type=int)
+    """Mission ID."""
+
+
+class MissionPreferences(jsonobject.JSONSerializableObject):
+    mission_plans = jsonobject.JSONProperty(
+        'mission_plans', [], value_type=list, element_type=MissionPlan)
+    """Mission plans."""
+
+    def get_mission_plan(self, fleet_id):
+        mission_plans = filter(
+            lambda p: p.fleet_id == fleet_id, self.mission_plans)
+        if mission_plans:
+            return mission_plans[0]
+
+
 class Preferences(model.KCAAObject):
     """KCAA client preferences.
 
@@ -90,6 +109,9 @@ class Preferences(model.KCAAObject):
         'practice_prefs', PracticePreferences(),
         value_type=PracticePreferences)
     """Practice preferences."""
+    mission_prefs = jsonobject.JSONProperty(
+        'mission_prefs', MissionPreferences(),
+        value_type=MissionPreferences)
 
     def initialize(self):
         # TODO: Better rewrite this...

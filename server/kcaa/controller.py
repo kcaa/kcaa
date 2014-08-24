@@ -147,6 +147,9 @@ def control(args, to_exit):
                             schedules=[kcsapi.prefs.ScheduleFragment(
                                 start=sf.start, end=sf.end) for sf
                                 in preferences.automan_prefs.schedules]))
+                    # TODO: Refactor this as well. Setting Preferences object
+                    # should be a single operation on ManipulatorManager.
+                    manipulator_manager.preferences = preferences
                 elif command_type == COMMAND_TAKE_SCREENSHOT:
                     format, quality, width, height = command_args
                     browser_conn.send((browser.COMMAND_TAKE_SCREENSHOT,
