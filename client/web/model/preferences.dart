@@ -57,10 +57,23 @@ class PracticePrefs extends Observable {
       new ObservableList<PracticePlan>();
 }
 
+class MissionPlan extends Observable {
+  @observable int fleetId;
+  @observable int missionId;
+
+  MissionPlan(this.fleetId, this.missionId);
+}
+
+class MissionPrefs extends Observable {
+  @observable final List<MissionPlan> missionPlans =
+      new ObservableList<MissionPlan>();
+}
+
 class Preferences extends Observable {
   @observable AutomanPrefs automanPrefs = new AutomanPrefs();
   @observable FleetPrefs fleetPrefs = new FleetPrefs();
   @observable PracticePrefs practicePrefs = new PracticePrefs();
+  @observable MissionPrefs missionPrefs = new MissionPrefs();
 
   // Convert this preferences object to JSON so that the server can directly
   // accept it as the Prefenreces object.
@@ -87,6 +100,12 @@ class Preferences extends Observable {
           "opponent_fleet_type": practicePlan.opponentFleetType,
           "fleet_name": practicePlan.fleetName,
           "formation": practicePlan.formation,
+        }).toList(),
+      },
+      "mission_prefs": {
+        "mission_plans": missionPrefs.missionPlans.map((missionPlan) => {
+          "fleet_id": missionPlan.fleetId,
+          "mission_id": missionPlan.missionId,
         }).toList(),
       },
     });
@@ -117,6 +136,12 @@ void handlePreferences(Assistant assistant, AssistantModel model,
         practicePlan["fleet_name"],
         practicePlan["formation"]);
     prefs.practicePrefs.practicePlans.add(practicePlanObject);
+  }
+  for (var missionPlan in data["mission_prefs"]["mission_plans"]) {
+    MissionPlan missionPlanObject = new MissionPlan(
+        missionPlan["fleet_id"],
+        missionPlan["mission_id"]);
+    prefs.missionPrefs.missionPlans.add(missionPlanObject);
   }
   model.preferences = prefs;
 }
