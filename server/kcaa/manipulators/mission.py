@@ -121,12 +121,17 @@ class AutoGoOnMission(base.AutoManipulator):
         fleet_list = owner.objects.get('FleetList')
         if not fleet_list:
             return
+        if not owner.manager.preferences.mission_prefs:
+            return
         go_on_config = {}
         for fleet in fleet_list.fleets:
             if fleet.id == 1:
                 continue
-            mission_plan = owner.preferences.mission_prefs.get_mission_plan(
-                fleet.id)
+            # TODO: This is ugly. Consider givin a direct access to Preferences
+            # object.
+            mission_plan = (
+                owner.manager.preferences.mission_prefs.get_mission_plan(
+                    fleet.id))
             if not fleet.mission_id and mission_plan:
                 go_on_config[fleet.id] = mission_plan.mission_id
         if go_on_config:
