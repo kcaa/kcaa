@@ -117,6 +117,7 @@ class ManipulatorManager(object):
             'CheckPracticeOpponents':
             manipulators.practice.CheckPracticeOpponents,
             'GoOnPractice': manipulators.practice.GoOnPractice,
+            'HandlePractice': manipulators.practice.HandlePractice,
             # Mission
             'GoOnMission': manipulators.mission.GoOnMission,
             # Organizing
@@ -152,6 +153,7 @@ class ManipulatorManager(object):
             # Usual manual manipulators have the default priority of 0.
             'CheckPracticeOpponents': 0,
             'GoOnPractice': 0,
+            'HandlePractice': 0,
             'GoOnMission': 0,
             'LoadFleet': 0,
             'ChargeFleet': 0,

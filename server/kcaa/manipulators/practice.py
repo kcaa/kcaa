@@ -3,6 +3,7 @@
 import logging
 
 import base
+import organizing
 from kcaa import screens
 from kcaa.kcsapi import practice
 
@@ -17,7 +18,7 @@ class CheckPracticeOpponents(base.Manipulator):
         yield self.screen.change_screen(screens.PORT_PRACTICE)
         practice_list = self.objects.get('PracticeList')
         if not practice_list:
-            logger.info('No practice list was found. Giving up.')
+            logger.error('No practice list was found. Giving up.')
             return
         for practice_ in practice_list.practices:
             if practice_.result != practice.Practice.RESULT_NEW:
@@ -52,9 +53,37 @@ class GoOnPractice(base.Manipulator):
             logger.error('Practice {} is already done.'.format(practice_id))
             return
         yield self.screen.check_opponent(practice_.id)
+        # TODO: Check if opponent fleet type expectation matches.
         yield self.screen.try_practice()
         yield self.screen.select_fleet(fleet_id)
         yield self.screen.confirm_practice()
         if len(fleet.ship_ids) >= 4:
             yield self.screen.select_formation(formation)
         # TODO: Handle the battle.
+
+
+class HandlePractice(base.Manipulator):
+
+    def run(self, fleet_id, practice_id):
+        fleet_id = int(fleet_id)
+        practice_id = int(practice_id)
+        practice_list = self.objects.get('PracticeList')
+        if not practice_list:
+            logger.error('No practice list was found. Giving up.')
+            return
+        practice_ = practice_list.practices[practice_id - 1]
+        if practice_.result != practice.Practice.RESULT_NEW:
+            logger.error('Practice {} is already done.'.format(practice_id))
+            return
+        practice_plan = (
+            self.manager.preferences.practice_prefs.get_practice_plan(
+                practice_.fleet_type))
+        if not practice_plan:
+            logger.error(
+                'No practice plan for the opponent fleet type {}'.format(
+                    practice_.fleet_type))
+            return
+        self.add_manipulator(organizing.LoadFleet, fleet_id,
+                             practice_plan.fleet_name)
+        self.add_manipulator(GoOnPractice, fleet_id, practice_id,
+                             practice_plan.formation)

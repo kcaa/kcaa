@@ -440,11 +440,12 @@ class Assistant extends PolymerElement {
     HttpRequest.getString(request.toString());
   }
 
-  void goOnPractice(MouseEvent e, var detail, Element target) {
+  void handlePractice(MouseEvent e, var detail, Element target) {
     var practiceId = target.dataset["practiceId"];
     Uri request = serverManipulate.resolveUri(
         new Uri(queryParameters: {
-          "type": "GoOnPractice",
+          "type": "HandlePractice",
+          "fleet_id": "1",  // Always use the 1st fleet
           "practice_id": practiceId,
         }));
     HttpRequest.getString(request.toString());

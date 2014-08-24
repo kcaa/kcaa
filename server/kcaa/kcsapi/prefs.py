@@ -72,6 +72,14 @@ class PracticePreferences(jsonobject.JSONSerializableObject):
         'practice_plans', [], value_type=list, element_type=PracticePlan)
     """Practice plans."""
 
+    def get_practice_plan(self, opponent_fleet_type):
+        practice_plans = filter(
+            lambda p: (p.opponent_fleet_type == opponent_fleet_type and
+                       p.fleet_name),
+            self.practice_plans)
+        if practice_plans:
+            return practice_plans[0]
+
 
 class MissionPlan(jsonobject.JSONSerializableObject):
     fleet_id = jsonobject.JSONProperty('fleet_id', value_type=int)
