@@ -64,6 +64,11 @@ class Screen(object):
         def transition_to_task(task):
             yield delay
             self.update_screen_id(screen_id)
+            # Allow auto manipulators to trigger when its precondition is that
+            # the screen ID matches to screen_id. E.g. AutoChargeFleet triggers
+            # after the screen transitioned to PORT_MAIN. This 1 unit time
+            # delay allows that high priority task to interrupt.
+            yield task.unit
         return self.do_task(transition_to_task)
 
     def wait_transition(self, screen_id, timeout=5.0, raise_on_timeout=True,
