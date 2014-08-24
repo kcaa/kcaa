@@ -121,6 +121,20 @@ class PortScreen(Screen):
         # instead in check_mission_result.
         self.click(200, 270)
 
+    def select_formation(self, formation):
+        # Used for expedition and practice.
+        def select_formation_task(task):
+            click_positions = [
+                (450, 185),  # FORMATION_SINGLE_LINE
+                (580, 185),  # FORMATION_DOUBLE_LINES
+                (710, 185),  # FORMATION_CIRCLE
+                (520, 345),  # FORMATION_LADDER
+                (650, 345),  # FORMATION_HORIZONTAL_LINE
+            ]
+            self.click(*click_positions[formation])
+            yield 1.0
+        return self.do_task(select_formation_task)
+
     def change_screen(self, screen_id):
         # If the current screen is unknown, go first to the port main screen,
         # and then move to the target screen.
@@ -282,6 +296,12 @@ class PortPracticeScreen(PortScreen):
             self.click(240, 410)
             yield 1.0
         return self.do_task(try_practice_task)
+
+    def select_fleet(self, fleet_id):
+        def select_fleet_task(task):
+            self.click(165 + 30 * fleet_id, 90)
+            yield 1.0
+        return self.do_task(select_fleet_task)
 
     def confirm_practice(self):
         def confirm_practice_task(task):
