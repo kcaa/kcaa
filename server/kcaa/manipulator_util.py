@@ -155,6 +155,8 @@ class ManipulatorManager(object):
             'GoOnMission': 0,
             'LoadFleet': 0,
             'ChargeFleet': 0,
+            # Usual auto manipulators have the default priority of 0.
+            'AutoGoOnMission': 0,
             # Special manipulators have the default priority of 0.
             'AutoStartGame': 0,
         }
