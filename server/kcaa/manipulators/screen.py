@@ -561,7 +561,7 @@ class PracticeScreen(Screen):
 
     def dismiss_result_overview(self):
         def dismiss_result_overview_task(task):
-            yield 7.0
+            yield 8.0
             self.click_somewhere()
             yield 5.0
         return self.do_task(dismiss_result_overview_task)
@@ -569,7 +569,7 @@ class PracticeScreen(Screen):
     def dismiss_result_details(self):
         def dismiss_result_details_task(task):
             self.click_somewhere()
-            yield 2.0
+            self.wait_transition(screens.PORT_MAIN)
         return self.do_task(dismiss_result_details_task)
 
 
