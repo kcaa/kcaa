@@ -459,4 +459,15 @@ class Assistant extends PolymerElement {
         }));
     HttpRequest.getString(request.toString());
   }
+
+  void goOnExpedition11(MouseEvent e, var detail, Element target) {
+    Uri request = serverManipulate.resolveUri(
+        new Uri(queryParameters: {
+          "type": "GoOnExpedition",
+          "fleet_id": "1",  // Always use the 1st fleet
+          "maparea_id": "1",
+          "map_id": "1",
+        }));
+    HttpRequest.getString(request.toString());
+  }
 }

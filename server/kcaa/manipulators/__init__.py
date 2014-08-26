@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import base
+import expedition
 import logistics
 import mission
 import organizing
@@ -44,6 +45,7 @@ def reload_modules():
 def main():
     import doctest
     doctest.testmod(base)
+    doctest.testmod(expedition)
     doctest.testmod(logistics)
     doctest.testmod(mission)
     doctest.testmod(organizing)

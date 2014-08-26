@@ -39,7 +39,7 @@ class ScreenManager(object):
             screens.PORT_FURNITURE: manipulators.screen.PortScreen,
             screens.PORT_QUESTLIST: manipulators.screen.PortScreen,
             screens.PORT_ITEMSHOP: manipulators.screen.PortScreen,
-            screens.PORT_EXPEDITION: manipulators.screen.PortScreen,
+            screens.PORT_EXPEDITION: manipulators.screen.PortExpeditionScreen,
             screens.PORT_PRACTICE: manipulators.screen.PortPracticeScreen,
             screens.PORT_MISSION: manipulators.screen.PortMissionScreen,
             screens.PORT_ORGANIZING: manipulators.screen.PortOrganizingScreen,
@@ -47,6 +47,16 @@ class ScreenManager(object):
             screens.PORT_REBUILDING: manipulators.screen.PortOperationsScreen,
             screens.PORT_REPAIR: manipulators.screen.PortOperationsScreen,
             screens.PORT_SHIPYARD: manipulators.screen.PortOperationsScreen,
+            screens.EXPEDITION_COMPASS: manipulators.screen.ExpeditionScreen,
+            screens.EXPEDITION_FORMATION: manipulators.screen.ExpeditionScreen,
+            screens.EXPEDITION_COMBAT: manipulators.screen.ExpeditionScreen,
+            screens.EXPEDITION_NIGHT: manipulators.screen.ExpeditionScreen,
+            screens.EXPEDITION_NIGHTCOMBAT:
+            manipulators.screen.ExpeditionScreen,
+            screens.EXPEDITION_RESULT: manipulators.screen.ExpeditionScreen,
+            screens.EXPEDITION_REWARDS: manipulators.screen.ExpeditionScreen,
+            screens.EXPEDITION_CONTINUE: manipulators.screen.ExpeditionScreen,
+            screens.EXPEDITION_TERMINAL: manipulators.screen.ExpeditionScreen,
             screens.PRACTICE_COMBAT: manipulators.screen.PracticeScreen,
             screens.PRACTICE_NIGHT: manipulators.screen.PracticeScreen,
             screens.PRACTICE_NIGHTCOMBAT: manipulators.screen.PracticeScreen,
@@ -117,6 +127,8 @@ class ManipulatorManager(object):
 
     def define_manipulators(self):
         self.manipulators = {
+            # Expedition
+            'GoOnExpedition': manipulators.expedition.GoOnExpedition,
             # Practice
             'CheckPracticeOpponents':
             manipulators.practice.CheckPracticeOpponents,
@@ -161,6 +173,7 @@ class ManipulatorManager(object):
             # consecutive LoadFleet and GoOnPractice ones.
             'EngagePractice': -10,
             # Usual manual manipulators have the default priority of 0.
+            'GoOnExpedition': 0,
             'CheckPracticeOpponents': 0,
             'GoOnPractice': 0,
             'HandlePractice': 0,

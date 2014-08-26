@@ -270,6 +270,60 @@ class PortMainScreen(PortScreen):
         self.click(275, 365)
 
 
+class PortExpeditionScreen(PortScreen):
+
+    def change_screen(self, screen_id):
+        def change_screen_task(task):
+            if screen_id == screens.PORT_EXPEDITION:
+                yield 0.0
+                return
+            yield super(PortPracticeScreen, self).change_screen(screen_id)
+            # TODO: This is a boilerplate. Consider to extract as a method.
+            if self.screen_id == screen_id:
+                return
+            else:
+                self.raise_impossible_transition(screen_id)
+        return self.do_task(change_screen_task)
+
+    def select_maparea(self, maparea_id):
+        def select_maparea_task(task):
+            self.click(80 + 75 * maparea_id, 440)
+            yield 1.0
+        return self.do_task(select_maparea_task)
+
+    def select_map(self, map_id):
+        def select_map_task(task):
+            if map_id <= 4:
+                x = 285 + 340 * ((map_id - 1) % 2)
+                y = 210 + 140 * ((map_id - 1) / 2)
+                self.click(x, y)
+                yield 2.0
+            else:
+                self.click(785, 280)
+                yield 1.0
+                self.click(450, 210 + 140 * (map_id - 5))
+                yield 2.0
+        return self.do_task(select_map_task)
+
+    def try_expedition(self):
+        def try_expedition_task(task):
+            self.click(690, 445)
+            yield 2.0
+        return self.do_task(try_expedition_task)
+
+    def select_fleet(self, fleet_id):
+        def select_fleet_task(task):
+            self.click(335 + 30 * fleet_id, 120)
+            yield 1.0
+        return self.do_task(select_fleet_task)
+
+    def confirm_expedition(self):
+        def confirm_expedition_task(task):
+            self.click(635, 445)
+            yield 3.0
+        return self.do_task(confirm_expedition_task)
+
+
 class PortPracticeScreen(PortScreen):
 
     def change_screen(self, screen_id):
@@ -543,6 +597,11 @@ class PortLogisticsScreen(PortOperationsScreen):
             self.click(705, 445)
             yield 5.0
         return self.do_task(charge_both_task)
+
+
+class ExpeditionScreen(Screen):
+
+    pass
 
 
 class PracticeScreen(Screen):
