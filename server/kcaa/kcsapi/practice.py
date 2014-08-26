@@ -157,7 +157,7 @@ class PracticeList(model.KCAAObject):
                     name=ship_def.name,
                     ship_type=ship_def.ship_type))
             practice.fleet_type = Practice.get_fleet_type(practice.ships)
-        elif api_name == '/api_req_practice/battle_result':
+        elif api_name == '/api_req_practice/battle':
             self.last_enemy_fought = int(request.api_enemy_id)
         elif api_name == '/api_req_practice/battle_result':
             win_rank_result_map = {
