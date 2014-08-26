@@ -2,6 +2,7 @@
 
 import base
 import expedition
+import fleet
 import logistics
 import mission
 import organizing
@@ -28,7 +29,7 @@ def reload_modules():
     # If a module A contains a class definition referenced in another module B,
     # the module A should precede B. (Or it **MUST** if the classes rely on
     # deriving relationship.)
-    referenced_modules = [base]
+    referenced_modules = [base, fleet]
     for module in referenced_modules:
         reload(module)
         logger.info('Reloaded module {}'.format(module.__name__))
@@ -46,6 +47,7 @@ def main():
     import doctest
     doctest.testmod(base)
     doctest.testmod(expedition)
+    doctest.testmod(fleet)
     doctest.testmod(logistics)
     doctest.testmod(mission)
     doctest.testmod(organizing)

@@ -3,6 +3,7 @@
 import logging
 
 import base
+import fleet
 import organizing
 from kcaa import screens
 from kcaa.kcsapi import practice
@@ -45,11 +46,10 @@ class GoOnPractice(base.Manipulator):
             logger.error('Practice {} is already done.'.format(practice_id))
             return
         expected_fleet_type = practice_.fleet_type
-        fleet_list = self.objects.get('FleetList')
-        if not fleet_list:
-            logger.error('No fleet list was found. Giving up.')
+        if not fleet.are_all_ships_available(self, fleet_id):
             return
-        fleet = fleet_list.fleets[fleet_id - 1]
+        fleet_list = self.objects.get('FleetList')
+        fleet_ = fleet_list.fleets[fleet_id - 1]
         # TODO: Check if the fleet is avialable for practice. Some ships may be
         # in the repair dock.
         yield self.screen.change_screen(screens.PORT_PRACTICE)
@@ -63,7 +63,7 @@ class GoOnPractice(base.Manipulator):
         yield self.screen.try_practice()
         yield self.screen.select_fleet(fleet_id)
         yield self.screen.confirm_practice()
-        if len(fleet.ship_ids) >= 4:
+        if len(fleet_.ship_ids) >= 4:
             yield self.screen.select_formation(formation)
         self.add_manipulator(EngagePractice)
 

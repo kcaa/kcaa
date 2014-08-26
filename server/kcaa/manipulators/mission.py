@@ -5,6 +5,7 @@ import logging
 import time
 
 import base
+import fleet
 from kcaa import screens
 
 
@@ -104,15 +105,17 @@ class AutoGoOnMission(base.AutoManipulator):
         if not owner.manager.preferences.mission_prefs:
             return
         go_on_config = {}
-        for fleet in fleet_list.fleets:
-            if fleet.id == 1:
+        for fleet_ in fleet_list.fleets:
+            if fleet_.id == 1:
+                continue
+            if not fleet.are_all_ships_available(owner, fleet_.id):
                 continue
             # TODO: This is ugly. Consider givin a direct access to Preferences
             # object.
             mission_plan = (
                 owner.manager.preferences.mission_prefs.get_mission_plan(
-                    fleet.id))
-            if not fleet.mission_id and mission_plan:
+                    fleet_.id))
+            if mission_plan:
                 go_on_config[fleet.id] = mission_plan.mission_id
         if go_on_config:
             return {'go_on_config': go_on_config}
