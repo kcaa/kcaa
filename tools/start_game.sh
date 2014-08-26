@@ -36,6 +36,7 @@ ${SERVER_BIN} \
   --backend_update_interval=${BACKEND_UPDATE_INTERVAL} \
   --kancolle_browser=${KANCOLLE_BROWSER} \
   --kcaa_browser=${KCAA_BROWSER} \
+  --show_kancolle_screen=${SHOW_KANCOLLE_SCREEN} \
   --frontend_update_interval=${FRONTEND_UPDATE_INTERVAL} \
   --chrome_binary=${CHROME_BIN} \
   --chromium_binary=${CHROMIUM_BIN} \

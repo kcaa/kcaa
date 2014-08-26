@@ -35,7 +35,7 @@ rem ==========================================================================
 
 set KANCOLLEBROWSER=chrome
 set KCAABROWSER=chrome
-set SHOWKANCOLLE_SCREEN=false
+set SHOWKANCOLLESCREEN=false
 set FRONTENDUPDATEINTERVAL=0.5
 
 rem ==========================================================================

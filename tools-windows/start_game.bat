@@ -17,6 +17,7 @@ set SERVERBIN=%cd%\..\server\server_main.py
   --backend_update_interval=%BACKENDUPDATEINTERVAL% ^
   --kancolle_browser=%KANCOLLEBROWSER% ^
   --kcaa_browser=%KCAABROWSER% ^
+  --show_kancolle_screen=%SHOWKANCOLLESCREEN% ^
   --frontend_update_interval=%FRONTENDUPDATEINTERVAL% ^
   --chrome_binary=%CHROMEBIN% ^
   --chromium_binary=%CHROMIUMBIN% ^
