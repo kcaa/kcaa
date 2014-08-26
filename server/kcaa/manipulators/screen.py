@@ -223,19 +223,19 @@ class PortMainScreen(PortScreen):
                 self.click_attack_button()
                 yield 2.0
                 self.click_expedition_button()
-                yield self.transition_to(screens.PORT_EXPEDITION)
+                yield self.wait_transition(screens.PORT_EXPEDITION)
                 return
             elif screen_id == screens.PORT_PRACTICE:
                 self.click_attack_button()
                 yield 2.0
                 self.click_practice_button()
-                yield self.transition_to(screens.PORT_PRACTICE)
+                yield self.wait_transition(screens.PORT_PRACTICE)
                 return
             elif screen_id == screens.PORT_MISSION:
                 self.click_attack_button()
                 yield 2.0
                 self.click_mission_button()
-                yield self.transition_to(screens.PORT_MISSION)
+                yield self.wait_transition(screens.PORT_MISSION)
                 return
             if screen_id in screen_map:
                 screen_map[screen_id]()
