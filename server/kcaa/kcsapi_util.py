@@ -89,6 +89,11 @@ class KCSAPIHandler(object):
             '/api_get_member/questlist': [kcsapi.quest.QuestList],
             '/api_req_quest/start': [kcsapi.model.NullHandler()],
             '/api_req_quest/stop': [kcsapi.model.NullHandler()],
+            # Expedition.
+            '/api_get_member/mapcell': [kcsapi.model.NullHandler()],
+            '/api_get_member/mapinfo': [kcsapi.model.NullHandler()],
+            '/api_req_map/start': [kcsapi.expedition.Expedition],
+            '/api_req_map/next': [kcsapi.expedition.Expedition],
             # Practice.
             '/api_get_member/practice': [kcsapi.practice.PracticeList],
             '/api_req_member/get_practice_enemyinfo':

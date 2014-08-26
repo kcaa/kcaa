@@ -47,7 +47,9 @@ class ScreenManager(object):
             screens.PORT_REBUILDING: manipulators.screen.PortOperationsScreen,
             screens.PORT_REPAIR: manipulators.screen.PortOperationsScreen,
             screens.PORT_SHIPYARD: manipulators.screen.PortOperationsScreen,
+            screens.EXPEDITION: manipulators.screen.ExpeditionScreen,
             screens.EXPEDITION_COMPASS: manipulators.screen.ExpeditionScreen,
+            screens.EXPEDITION_SAILING: manipulators.screen.ExpeditionScreen,
             screens.EXPEDITION_FORMATION: manipulators.screen.ExpeditionScreen,
             screens.EXPEDITION_COMBAT: manipulators.screen.ExpeditionScreen,
             screens.EXPEDITION_NIGHT: manipulators.screen.ExpeditionScreen,
@@ -129,6 +131,7 @@ class ManipulatorManager(object):
         self.manipulators = {
             # Expedition
             'GoOnExpedition': manipulators.expedition.GoOnExpedition,
+            'SailOnExpeditionMap': manipulators.expedition.SailOnExpeditionMap,
             # Practice
             'CheckPracticeOpponents':
             manipulators.practice.CheckPracticeOpponents,
@@ -172,6 +175,7 @@ class ManipulatorManager(object):
             # For example, EngaglePractice should be prioritized over
             # consecutive LoadFleet and GoOnPractice ones.
             'EngagePractice': -10,
+            'SailOnExpeditionMap': -10,
             # Usual manual manipulators have the default priority of 0.
             'GoOnExpedition': 0,
             'CheckPracticeOpponents': 0,

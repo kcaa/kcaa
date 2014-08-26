@@ -601,7 +601,18 @@ class PortLogisticsScreen(PortOperationsScreen):
 
 class ExpeditionScreen(Screen):
 
-    pass
+    def roll_compass(self):
+        def roll_compass_task(task):
+            self.click_somewhere()
+            yield 4.0
+        return self.do_task(roll_compass_task)
+
+    def proceed_terminal_screen(self):
+        def proceed_terminal_screen_task(task):
+            yield 7.0
+            self.click_somewhere()
+            yield self.wait_transition(screens.PORT_MAIN)
+        return self.do_task(proceed_terminal_screen_task)
 
 
 class PracticeScreen(Screen):

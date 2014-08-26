@@ -32,8 +32,8 @@ class Screen(model.KCAAObject):
         '/api_get_member/questlist': screens.PORT_QUESTLIST,
         '/api_get_member/record': screens.PORT_RECORD,
         '/api_port/port': screens.PORT_MAIN,
-        '/api_req_map/next': screens.EXPEDITION,  # TODO: special handler
-        '/api_req_map/start': screens.EXPEDITION,  # TODO: special handler
+        '/api_req_map/next': screens.EXPEDITION,
+        '/api_req_map/start': screens.EXPEDITION,
         '/api_req_mission/result': screens.MISSION_RESULT,
         '/api_req_practice/battle': screens.PRACTICE_COMBAT,
         '/api_req_practice/battle_result': screens.PRACTICE_RESULT,
