@@ -87,3 +87,4 @@ class HandlePractice(base.Manipulator):
                              practice_plan.fleet_name)
         self.add_manipulator(GoOnPractice, fleet_id, practice_id,
                              practice_plan.formation)
+        yield 0.0
