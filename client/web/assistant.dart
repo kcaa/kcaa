@@ -450,4 +450,13 @@ class Assistant extends PolymerElement {
         }));
     HttpRequest.getString(request.toString());
   }
+
+  void handleAllPractices(MouseEvent e, var detail, Element target) {
+    Uri request = serverManipulate.resolveUri(
+        new Uri(queryParameters: {
+          "type": "HandleAllPractices",
+          "fleet_id": "1",  // Always use the 1st fleet
+        }));
+    HttpRequest.getString(request.toString());
+  }
 }

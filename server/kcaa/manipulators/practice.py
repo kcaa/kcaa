@@ -73,6 +73,8 @@ class HandlePractice(base.Manipulator):
     def run(self, fleet_id, practice_id):
         fleet_id = int(fleet_id)
         practice_id = int(practice_id)
+        logger.info('Handling practice {} with fleet {}'.format(
+            practice_id, fleet_id))
         practice_list = self.objects.get('PracticeList')
         if not practice_list:
             logger.error('No practice list was found. Giving up.')
@@ -96,6 +98,22 @@ class HandlePractice(base.Manipulator):
         yield 0.0
 
 
+class HandleAllPractices(base.Manipulator):
+
+    def run(self, fleet_id):
+        fleet_id = int(fleet_id)
+        logger.info('Handling all practice with fleet {}'.format(fleet_id))
+        yield self.do_manipulator(CheckPracticeOpponents)
+        practice_list = self.objects.get('PracticeList')
+        if not practice_list:
+            logger.error('No practice list was found. Giving up.')
+            return
+        for i, practice_ in enumerate(practice_list.practices):
+            if practice_.result != practice.Practice.RESULT_NEW:
+                continue
+            self.add_manipulator(HandlePractice, fleet_id, i + 1)
+
+
 class EngagePractice(base.Manipulator):
 
     def run(self):
@@ -104,8 +122,8 @@ class EngagePractice(base.Manipulator):
         logger.info('Engaging an enemy fleet in practice.')
         # TODO: Better handle the wait. Especially, if a battle ship is present
         # this will much longer.
-        yield self.screen.wait_transition(screens.PRACTICE_RESULT,
-                                          timeout=90.0, raise_on_timeout=False)
+        yield self.screen.wait_transition(
+            screens.PRACTICE_RESULT, timeout=120.0, raise_on_timeout=False)
         if self.screen_id != screens.PRACTICE_RESULT:
             # TODO: Decide whether to go for the night combat depending on the
             # expected result.

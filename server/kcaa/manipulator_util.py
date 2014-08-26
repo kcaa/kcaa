@@ -122,6 +122,7 @@ class ManipulatorManager(object):
             manipulators.practice.CheckPracticeOpponents,
             'GoOnPractice': manipulators.practice.GoOnPractice,
             'HandlePractice': manipulators.practice.HandlePractice,
+            'HandleAllPractices': manipulators.practice.HandleAllPractices,
             'EngagePractice': manipulators.practice.EngagePractice,
             # Mission
             'GoOnMission': manipulators.mission.GoOnMission,
@@ -155,11 +156,15 @@ class ManipulatorManager(object):
             # AutoChargeFleet takes the second highest. This should precede
             # practice or missions.
             'AutoChargeFleet': -90,
+            # Battle handling takes higher priority than usual manipulators.
+            # For example, EngaglePractice should be prioritized over
+            # consecutive LoadFleet and GoOnPractice ones.
+            'EngagePractice': -10,
             # Usual manual manipulators have the default priority of 0.
             'CheckPracticeOpponents': 0,
             'GoOnPractice': 0,
             'HandlePractice': 0,
-            'EngagePractice': 0,
+            'HandleAllPractices': 0,
             'GoOnMission': 0,
             'LoadFleet': 0,
             'ChargeFleet': 0,
