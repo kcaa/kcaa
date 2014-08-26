@@ -110,7 +110,7 @@ class AutoGoOnMission(base.AutoManipulator):
         for fleet_ in fleet_list.fleets:
             if fleet_.id == 1:
                 continue
-            if not fleet.are_all_ships_available(owner, fleet_.id):
+            if not fleet.are_all_ships_available(owner, fleet_.id, False):
                 continue
             # TODO: This is ugly. Consider givin a direct access to Preferences
             # object.
