@@ -112,6 +112,9 @@ class PracticeList(model.KCAAObject):
     practices = jsonobject.JSONProperty('practices', [], value_type=list,
                                         element_type=Practice)
     """Practice instances."""
+    last_enemy_fought = jsonobject.JSONProperty('last_enemy_fought',
+                                                value_type=int)
+    """ID of the last enemy fought."""
 
     def find_practice_by_member_id(self, member_id):
         practices = filter(lambda p: p.member_id == member_id, self.practices)
@@ -154,3 +157,19 @@ class PracticeList(model.KCAAObject):
                     name=ship_def.name,
                     ship_type=ship_def.ship_type))
             practice.fleet_type = Practice.get_fleet_type(practice.ships)
+        elif api_name == '/api_req_practice/battle_result':
+            self.last_enemy_fought = int(request.api_enemy_id)
+        elif api_name == '/api_req_practice/battle_result':
+            win_rank_result_map = {
+                'E': 1,
+                'D': 2,
+                'C': 3,
+                'B': 4,
+                'A': 5,
+                'S': 6,
+            }
+            practice = self.find_practice_by_member_id(self.last_enemy_fought)
+            if not practice:
+                return
+            practice.result = (
+                win_rank_result_map[response.api_data.api_win_rank])

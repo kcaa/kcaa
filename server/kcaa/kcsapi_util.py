@@ -91,6 +91,8 @@ class KCSAPIHandler(object):
             '/api_get_member/practice': [kcsapi.practice.PracticeList],
             '/api_req_member/get_practice_enemyinfo':
             [kcsapi.practice.PracticeList],
+            '/api_req_practice/battle': [kcsapi.practice.PracticeList],
+            '/api_req_practice/battle_result': [kcsapi.practice.PracticeList],
             # Missions.
             '/api_get_member/mission': [kcsapi.mission.MissionList],
             '/api_req_mission/start': [kcsapi.model.NullHandler()],
