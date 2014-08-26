@@ -444,15 +444,13 @@
                   </template>
                 </div>
                 <div class="wide labelColumn">
-                  <div>
-                    <template if="{{practice.resultMessage != ''}}">
-                      {{practice.resultMessage}}
-                    </template>
-                    <template if="{{practice.resultMessage == ''}}">
-                      <button on-click="{{handlePractice}}"
-                              data-practice-id="{{practice.id}}">演習</button>
-                    </template>
-                  </div>
+                  <template if="{{practice.resultMessage != ''}}">
+                    {{practice.resultMessage}}
+                  </template>
+                  <template if="{{practice.resultMessage == ''}}">
+                    <button on-click="{{handlePractice}}"
+                            data-practice-id="{{practice.id}}">演習</button>
+                  </template>
                 </div>
               </div>
             </template>

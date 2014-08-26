@@ -225,7 +225,7 @@ div.table > div.trow > div > div {
   opacity: 0.7;
 }
 div.table > div.trow > div > *:first-child,
-div.table > div.trow > div > template:first-child + * {
+div.table > div.trow > div > template:nth-child(n) + * {
   font-size: 100%;
   opacity: 1;
 }
