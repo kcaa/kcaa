@@ -502,11 +502,16 @@ class JSONProperty(CustomizableJSONProperty):
         if value is not None and self._value_type is not None:
             bad_element = lambda e: not isinstance(e, self._element_type)
             if not isinstance(value, self._value_type):
-                raise TypeError(
-                    ('Property {} expected type {}, but got a value {} of '
-                     'type {}').format(
-                         self.name, self._value_type.__name__, value,
-                         value.__class__.__name__))
+                # Exception is that the value is an int and the expected type
+                # is long. It is always safe to cast it up to long.
+                if isinstance(value, int) and self._value_type == long:
+                    value = long(value)
+                else:
+                    raise TypeError(
+                        ('Property {} expected type {}, but got a value {} of '
+                         'type {}').format(
+                             self.name, self._value_type.__name__, value,
+                             value.__class__.__name__))
             elif ((issubclass(self._value_type, list) or
                    issubclass(self._value_type, tuple)) and
                     self._element_type is not None):

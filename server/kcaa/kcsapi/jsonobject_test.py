@@ -317,6 +317,16 @@ class TestJSONSerializableObject(object):
             class SomeObject(jsonobject.JSONSerializableObject):
                 a = jsonobject.JSONProperty('a', default='A', value_type=int)
 
+    def test_value_type_int_long(self):
+        # It is allowed to assign an int to a field expecting a long.
+        class SomeObject(jsonobject.JSONSerializableObject):
+            a = jsonobject.JSONProperty('a', default=123, value_type=long)
+
+        s = SomeObject()
+        assert s.a == 123
+        s.a = int(456)
+        assert s.a == 456
+
     def test_value_type_readonly(self):
         class SomeObject(jsonobject.JSONSerializableObject):
             a = jsonobject.ReadonlyJSONProperty('a', default='A',
