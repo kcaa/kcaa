@@ -6,7 +6,6 @@ import time
 
 import base
 from kcaa import screens
-from kcaa.kcsapi import mission
 
 
 logger = logging.getLogger('kcaa.manipulators.mission')
@@ -36,6 +35,7 @@ class AutoCheckMissionResult(base.AutoManipulator):
             return
         mission_list = owner.objects.get('MissionList')
         if not mission_list:
+            logger.error('No mission list was found. Giving up.')
             return
         now = long(1000 * time.time())
         count = 0
@@ -68,21 +68,6 @@ class AutoCheckMissionResult(base.AutoManipulator):
             yield self.do_manipulator(CheckMissionResult)
 
 
-# TODO: Deprecate this. Recently the mission list is passed during the
-# initialization.
-class FindMission(base.Manipulator):
-
-    def run(self, mission_list, mission_id):
-        # MAPAREA_BASE should be already fetched. We start from
-        # SOUTHWESTERN_ISLANDS.
-        for maparea in xrange(
-                mission.Mission.MAPAREA_SOUTHWESTERN_ISLANDS,
-                mission.Mission.MAPAREA_SOUTH + 1):
-            yield self.screen.select_maparea(maparea)
-            if mission_list.get_mission(mission_id):
-                return
-
-
 class GoOnMission(base.Manipulator):
 
     def run(self, fleet_id, mission_id):
@@ -96,15 +81,10 @@ class GoOnMission(base.Manipulator):
             return
         yield self.screen.change_screen(screens.PORT_MISSION)
         mission_ = mission_list.get_mission(mission_id)
-        if mission_:
-            yield self.screen.select_maparea(mission_.maparea)
-        else:
-            yield self.do_manipulator(FindMission, mission_list, mission_id)
-            mission_ = mission_list.get_mission(mission_id)
-            if not mission_:
-                logger.info('Mission {} is unknown. Giving up.'.format(
-                    mission_id))
-                return
+        if not mission_:
+            logger.error('Mission {} is unknown. Giving up.'.format(
+                mission_id))
+        yield self.screen.select_maparea(mission_.maparea)
         mission_index = mission_list.get_index_in_maparea(mission_)
         yield self.screen.select_mission(mission_index)
         yield self.screen.confirm()

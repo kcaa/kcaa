@@ -18,11 +18,11 @@ class LoadFleet(base.Manipulator):
             saved_fleet_name, fleet_id))
         ship_list = self.objects.get('ShipList')
         if not ship_list:
-            logger.info('No ship list was found. Giving up.')
+            logger.error('No ship list was found. Giving up.')
             return
         fleet_list = self.objects.get('FleetList')
         if not fleet_list:
-            logger.info('No fleet list was found. Giving up.')
+            logger.error('No fleet list was found. Giving up.')
             return
         preferences = self.objects['Preferences']
         matching_fleets = [sf for sf in preferences.fleet_prefs.saved_fleets
