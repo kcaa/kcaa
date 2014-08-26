@@ -289,9 +289,10 @@ class ManipulatorManager(object):
         self.rmo.generation += 1
 
     def log_manipulator_queue(self):
+        sorted_queue = heapq.nsmallest(len(self.queue), self.queue)
         self._logger.debug('Manipulator queue: [{}]'.format(
-            ', '.join(('{} (p: {})'.format(m.__class__.__name__, p)
-                       for p, c, m in self.queue))))
+            ', '.join(('{} (p{};c{})'.format(m.__class__.__name__, p, c)
+                       for p, c, m in sorted_queue))))
 
     def update(self, current):
         """Update manipulators.
