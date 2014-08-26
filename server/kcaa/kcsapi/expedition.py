@@ -52,3 +52,22 @@ class Expedition(model.KCAAObject):
             # - api_event_kind: additional info on the event?
             # - api_production_kind: probably the category of the found item
             # - api_enemy: enemy info (useful if submarines)
+
+
+class ExpeditionResult(model.KCAAObject):
+    """Result of the latest expedition battle."""
+
+    got_ship = jsonobject.JSONProperty('got_ship', value_type=bool)
+    """Whether got a ship as a reward."""
+    new_ship_id = jsonobject.JSONProperty('new_ship_id', value_type=int)
+    """Ship definition ID of the new ship."""
+
+    def update(self, api_name, request, response, objects, debug):
+        super(ExpeditionResult, self).update(api_name, request, response,
+                                             objects, debug)
+        if api_name == '/api_req_sortie/battleresult':
+            self.got_ship = response.api_data.api_get_flag[1] == 1
+            if self.got_ship:
+                self.new_ship_id = response.api_data.api_get_ship.api_ship_id
+            else:
+                self.new_ship_id = None

@@ -599,23 +599,7 @@ class PortLogisticsScreen(PortOperationsScreen):
         return self.do_task(charge_both_task)
 
 
-class ExpeditionScreen(Screen):
-
-    def roll_compass(self):
-        def roll_compass_task(task):
-            self.click_somewhere()
-            yield 4.0
-        return self.do_task(roll_compass_task)
-
-    def proceed_terminal_screen(self):
-        def proceed_terminal_screen_task(task):
-            yield 7.0
-            self.click_somewhere()
-            yield self.wait_transition(screens.PORT_MAIN)
-        return self.do_task(proceed_terminal_screen_task)
-
-
-class PracticeScreen(Screen):
+class EngageScreen(Screen):
 
     def avoid_night_combat(self):
         def avoid_night_combat_task(task):
@@ -636,10 +620,54 @@ class PracticeScreen(Screen):
             yield 5.0
         return self.do_task(dismiss_result_overview_task)
 
+
+class ExpeditionScreen(EngageScreen):
+
+    def roll_compass(self):
+        def roll_compass_task(task):
+            self.click_somewhere()
+            yield 4.0
+        return self.do_task(roll_compass_task)
+
+    def proceed_terminal_screen(self):
+        def proceed_terminal_screen_task(task):
+            yield 7.0
+            self.click_somewhere()
+            yield self.wait_transition(screens.PORT_MAIN)
+        return self.do_task(proceed_terminal_screen_task)
+
     def dismiss_result_details(self):
         def dismiss_result_details_task(task):
             self.click_somewhere()
-            self.wait_transition(screens.PORT_MAIN)
+            yield 2.0
+        return self.do_task(dismiss_result_details_task)
+
+    def dismiss_new_ship(self):
+        def dismiss_new_ship_task(task):
+            yield 7.0
+            self.click(750, 430)
+            yield 2.0
+        return self.do_task(dismiss_new_ship_task)
+
+    def go_for_next_battle(self):
+        def go_for_next_battle_task(task):
+            self.click(290, 245)
+            yield 2.0
+        return self.do_task(go_for_next_battle_task)
+
+    def drop_out(self):
+        def drop_out_task(task):
+            self.click(505, 245)
+            yield 2.0
+        return self.do_task(drop_out_task)
+
+
+class PracticeScreen(EngageScreen):
+
+    def dismiss_result_details(self):
+        def dismiss_result_details_task(task):
+            self.click_somewhere()
+            yield self.wait_transition(screens.PORT_MAIN)
         return self.do_task(dismiss_result_details_task)
 
 

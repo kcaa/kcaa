@@ -94,6 +94,8 @@ class KCSAPIHandler(object):
             '/api_get_member/mapinfo': [kcsapi.model.NullHandler()],
             '/api_req_map/start': [kcsapi.expedition.Expedition],
             '/api_req_map/next': [kcsapi.expedition.Expedition],
+            '/api_req_sortie/battleresult':
+            [kcsapi.expedition.ExpeditionResult],
             # Practice.
             '/api_get_member/practice': [kcsapi.practice.PracticeList],
             '/api_req_member/get_practice_enemyinfo':

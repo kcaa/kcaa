@@ -125,10 +125,10 @@ class EngagePractice(base.Manipulator):
         yield self.screen.wait_transition(
             screens.PRACTICE_RESULT, timeout=120.0, raise_on_timeout=False)
         if self.screen_id != screens.PRACTICE_RESULT:
+            self.screen.update_screen_id(screens.PRACTICE_NIGHT)
             # TODO: Decide whether to go for the night combat depending on the
             # expected result.
             logger.info('Going for the night combat.')
-            self.screen.update_screen_id(screens.PRACTICE_NIGHT)
             yield self.screen.engage_night_combat()
             yield self.screen.wait_transition(screens.PRACTICE_RESULT,
                                               timeout=60.0)

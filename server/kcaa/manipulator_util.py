@@ -132,6 +132,7 @@ class ManipulatorManager(object):
             # Expedition
             'GoOnExpedition': manipulators.expedition.GoOnExpedition,
             'SailOnExpeditionMap': manipulators.expedition.SailOnExpeditionMap,
+            'EngageExpedition': manipulators.expedition.EngageExpedition,
             # Practice
             'CheckPracticeOpponents':
             manipulators.practice.CheckPracticeOpponents,
@@ -176,6 +177,7 @@ class ManipulatorManager(object):
             # consecutive LoadFleet and GoOnPractice ones.
             'EngagePractice': -10,
             'SailOnExpeditionMap': -10,
+            'EngageExpedition': -10,
             # Usual manual manipulators have the default priority of 0.
             'GoOnExpedition': 0,
             'CheckPracticeOpponents': 0,
@@ -187,7 +189,6 @@ class ManipulatorManager(object):
             'ChargeFleet': 0,
             # Usual auto manipulators have the default priority of 0.
             'AutoGoOnMission': 0,
-            # Special manipulators have the default priority of 0.
             'AutoStartGame': 0,
         }
 
