@@ -121,20 +121,6 @@ class PortScreen(Screen):
         # instead in check_mission_result.
         self.click(200, 270)
 
-    def select_formation(self, formation):
-        # Used for expedition and practice.
-        def select_formation_task(task):
-            click_positions = [
-                (450, 185),  # FORMATION_SINGLE_LINE
-                (580, 185),  # FORMATION_DOUBLE_LINES
-                (710, 185),  # FORMATION_CIRCLE
-                (520, 345),  # FORMATION_LADDER
-                (650, 345),  # FORMATION_HORIZONTAL_LINE
-            ]
-            self.click(*click_positions[formation])
-            yield 1.0
-        return self.do_task(select_formation_task)
-
     def change_screen(self, screen_id):
         # If the current screen is unknown, go first to the port main screen,
         # and then move to the target screen.
@@ -368,6 +354,20 @@ class PortPracticeScreen(PortScreen):
             self.click(750, 30)
             yield 1.0
         return self.do_task(cancel_task)
+
+    def select_formation(self, formation):
+        # TODO: Share with ExpeditionScreen.
+        def select_formation_task(task):
+            click_positions = [
+                (450, 185),  # FORMATION_SINGLE_LINE
+                (580, 185),  # FORMATION_DOUBLE_LINES
+                (710, 185),  # FORMATION_CIRCLE
+                (520, 345),  # FORMATION_LADDER
+                (650, 345),  # FORMATION_HORIZONTAL_LINE
+            ]
+            self.click(*click_positions[formation])
+            yield 1.0
+        return self.do_task(select_formation_task)
 
 
 class PortMissionScreen(PortScreen):
@@ -623,8 +623,24 @@ class EngageScreen(Screen):
 
 class ExpeditionScreen(EngageScreen):
 
+    def select_formation(self, formation):
+        # TODO: Share with PortPracticeScreen. Probably it's better to move to
+        # EngageScreen?
+        def select_formation_task(task):
+            click_positions = [
+                (450, 185),  # FORMATION_SINGLE_LINE
+                (580, 185),  # FORMATION_DOUBLE_LINES
+                (710, 185),  # FORMATION_CIRCLE
+                (520, 345),  # FORMATION_LADDER
+                (650, 345),  # FORMATION_HORIZONTAL_LINE
+            ]
+            self.click(*click_positions[formation])
+            yield 1.0
+        return self.do_task(select_formation_task)
+
     def roll_compass(self):
         def roll_compass_task(task):
+            yield 4.0
             self.click_somewhere()
             yield 4.0
         return self.do_task(roll_compass_task)
