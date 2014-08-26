@@ -45,3 +45,7 @@ class RepairDock(model.KCAAObject):
                     id=data.api_id,
                     ship_id=data.api_ship_id,
                     eta=long(data.api_complete_time)))
+        elif api_name == '/api_req_nyukyo/start':
+            if int(request.api_highspeed) == 0:
+                slot = self.slots[int(request.api_ndock_id) - 1]
+                slot.ship_id = int(request.api_ship_id)

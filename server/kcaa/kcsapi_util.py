@@ -84,6 +84,7 @@ class KCSAPIHandler(object):
             '/api_req_hensei/change': [kcsapi.fleet.FleetList],
             # Repair docks.
             '/api_get_member/ndock': [kcsapi.repair.RepairDock],
+            '/api_req_nyukyo/start': [kcsapi.repair.RepairDock],
             # Quests.
             '/api_get_member/questlist': [kcsapi.quest.QuestList],
             '/api_req_quest/start': [kcsapi.model.NullHandler()],
