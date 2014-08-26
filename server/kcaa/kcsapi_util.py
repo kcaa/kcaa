@@ -76,7 +76,8 @@ class KCSAPIHandler(object):
             # potentially depending on ShipList.
             '/api_port/port': [kcsapi.mission.MissionList,
                                kcsapi.ship.ShipList,
-                               kcsapi.fleet.FleetList],
+                               kcsapi.fleet.FleetList,
+                               kcsapi.repair.RepairDock],
             # Fleets (deck).
             '/api_get_member/deck': [kcsapi.fleet.FleetList,
                                      kcsapi.mission.MissionList],
