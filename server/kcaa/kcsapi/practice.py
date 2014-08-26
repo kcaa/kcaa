@@ -19,21 +19,18 @@ class ShipEntry(jsonobject.JSONSerializableObject):
 
 class Practice(jsonobject.JSONSerializableObject):
 
-    id = jsonobject.ReadonlyJSONProperty('id', value_type=int)
+    id = jsonobject.JSONProperty('id', value_type=int)
     """ID."""
-    member_id = jsonobject.ReadonlyJSONProperty('member_id', value_type=int)
+    member_id = jsonobject.JSONProperty('member_id', value_type=int)
     """ID of the member (player)."""
-    enemy_name = jsonobject.ReadonlyJSONProperty('enemy_name',
-                                                 value_type=unicode)
+    enemy_name = jsonobject.JSONProperty('enemy_name', value_type=unicode)
     """Enemy name."""
-    enemy_comment = jsonobject.ReadonlyJSONProperty('enemy_comment',
-                                                    value_type=unicode)
+    enemy_comment = jsonobject.JSONProperty('enemy_comment',
+                                            value_type=unicode)
     """Enemy comment."""
-    enemy_level = jsonobject.ReadonlyJSONProperty('enemy_level',
-                                                  value_type=int)
+    enemy_level = jsonobject.JSONProperty('enemy_level', value_type=int)
     """Enemy level."""
-    enemy_rank = jsonobject.ReadonlyJSONProperty('enemy_rank',
-                                                 value_type=unicode)
+    enemy_rank = jsonobject.JSONProperty('enemy_rank', value_type=unicode)
     """Enemy rank."""
     result = jsonobject.JSONProperty('result', value_type=int)
     """Resuslt of the practice."""
@@ -127,16 +124,17 @@ class PracticeList(model.KCAAObject):
             old_practices = self.practices
             self.practices = []
             for i, data in enumerate(response.api_data):
-                practice = Practice(
-                    id=data.api_id,
-                    member_id=data.api_enemy_id,
-                    enemy_name=data.api_enemy_name,
-                    enemy_comment=data.api_enemy_comment,
-                    enemy_level=data.api_enemy_level,
-                    enemy_rank=data.api_enemy_rank,
-                    result=data.api_state)
                 if len(old_practices) > i:
-                    practice.ships = old_practices[i].ships
+                    practice = old_practices[i]
+                else:
+                    practice = Practice()
+                practice.id = data.api_id
+                practice.member_id = data.api_enemy_id
+                practice.enemy_name = data.api_enemy_name
+                practice.enemy_comment = data.api_enemy_comment
+                practice.enemy_level = data.api_enemy_level
+                practice.enemy_rank = data.api_enemy_rank
+                practice.result = data.api_state
                 self.practices.append(practice)
         elif api_name == '/api_req_member/get_practice_enemyinfo':
             ship_defs = objects['ShipDefinitionList'].ships
