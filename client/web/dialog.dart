@@ -30,7 +30,7 @@ class FriendlyScheduleFragment extends Observable {
 
   FriendlyScheduleFragment.empty() {
     start = "0:00";
-    end = "0:00";
+    end = "24:00";
   }
 
   FriendlyScheduleFragment(ScheduleFragment fragment) {
