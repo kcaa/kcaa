@@ -44,7 +44,7 @@ class Screen(object):
         This method explicitly updates the screen ID maintained by
         :class:`kcaa.kcsapi.client.Screen`. This is not required if the screen
         transition can be detected by it (like port to quest list screen), but
-        necessary if the client doesn't sent any requests.
+        necessary if the client doesn't send any requests.
         """
         self.manager.update_screen(screen_id)
 
@@ -306,7 +306,7 @@ class PortPracticeScreen(PortScreen):
     def confirm_practice(self):
         def confirm_practice_task(task):
             self.click(470, 430)
-            yield 1.0
+            yield 3.0
         return self.do_task(confirm_practice_task)
 
     def cancel(self):
@@ -543,6 +543,34 @@ class PortLogisticsScreen(PortOperationsScreen):
             self.click(705, 445)
             yield 5.0
         return self.do_task(charge_both_task)
+
+
+class PracticeScreen(Screen):
+
+    def avoid_night_combat(self):
+        def avoid_night_combat_task(task):
+            self.click(290, 245)
+            yield 2.0
+        return self.do_task(avoid_night_combat_task)
+
+    def engage_night_combat(self):
+        def engage_night_combat_task(task):
+            self.click(505, 245)
+            yield 2.0
+        return self.do_task(engage_night_combat_task)
+
+    def dismiss_result_overview(self):
+        def dismiss_result_overview_task(task):
+            yield 7.0
+            self.click_somewhere()
+            yield 5.0
+        return self.do_task(dismiss_result_overview_task)
+
+    def dismiss_result_details(self):
+        def dismiss_result_details_task(task):
+            self.click_somewhere()
+            yield 2.0
+        return self.do_task(dismiss_result_details_task)
 
 
 class MissionResultScreen(Screen):

@@ -47,6 +47,10 @@ class ScreenManager(object):
             screens.PORT_REBUILDING: manipulators.screen.PortOperationsScreen,
             screens.PORT_REPAIR: manipulators.screen.PortOperationsScreen,
             screens.PORT_SHIPYARD: manipulators.screen.PortOperationsScreen,
+            screens.PRACTICE_COMBAT: manipulators.screen.PracticeScreen,
+            screens.PRACTICE_NIGHT: manipulators.screen.PracticeScreen,
+            screens.PRACTICE_NIGHTCOMBAT: manipulators.screen.PracticeScreen,
+            screens.PRACTICE_RESULT: manipulators.screen.PracticeScreen,
             screens.MISSION_RESULT: manipulators.screen.MissionResultScreen,
         }
 
@@ -118,6 +122,7 @@ class ManipulatorManager(object):
             manipulators.practice.CheckPracticeOpponents,
             'GoOnPractice': manipulators.practice.GoOnPractice,
             'HandlePractice': manipulators.practice.HandlePractice,
+            'EngagePractice': manipulators.practice.EngagePractice,
             # Mission
             'GoOnMission': manipulators.mission.GoOnMission,
             # Organizing
@@ -154,6 +159,7 @@ class ManipulatorManager(object):
             'CheckPracticeOpponents': 0,
             'GoOnPractice': 0,
             'HandlePractice': 0,
+            'EngagePractice': 0,
             'GoOnMission': 0,
             'LoadFleet': 0,
             'ChargeFleet': 0,

@@ -37,6 +37,7 @@ class Screen(model.KCAAObject):
         '/api_req_mission/result': screens.MISSION_RESULT,
         '/api_req_practice/battle': screens.PRACTICE_COMBAT,
         '/api_req_practice/battle_result': screens.PRACTICE_RESULT,
+        '/api_req_practice/midnight_battle': screens.PRACTICE_NIGHTCOMBAT,
         '/api_req_sortie/battle': screens.EXPEDITION_COMBAT,
         '/api_req_sortie/battleresult': screens.EXPEDITION_RESULT,
         '/api_start2': screens.SPECIAL_START,

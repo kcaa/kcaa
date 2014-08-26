@@ -34,8 +34,8 @@ class GoOnPractice(base.Manipulator):
         practice_id = int(practice_id)
         formation = int(formation)
         logger.info(
-            'Making the fleet {} go on the practice {} with formation'.format(
-                fleet_id, practice_id, formation))
+            'Making the fleet {} go on the practice {} with formation {}'
+            .format(fleet_id, practice_id, formation))
         yield self.screen.change_screen(screens.PORT_PRACTICE)
         practice_list = self.objects.get('PracticeList')
         if not practice_list:
@@ -59,7 +59,6 @@ class GoOnPractice(base.Manipulator):
         yield self.screen.confirm_practice()
         if len(fleet.ship_ids) >= 4:
             yield self.screen.select_formation(formation)
-        # TODO: Handle the battle.
 
 
 class HandlePractice(base.Manipulator):
@@ -84,7 +83,30 @@ class HandlePractice(base.Manipulator):
                     practice_.fleet_type))
             return
         self.add_manipulator(organizing.LoadFleet, fleet_id,
-                             practice_plan.fleet_name)
+                             practice_plan.fleet_name.encode('utf8'))
         self.add_manipulator(GoOnPractice, fleet_id, practice_id,
                              practice_plan.formation)
+        self.add_manipulator(EngagePractice)
         yield 0.0
+
+
+class EngagePractice(base.Manipulator):
+
+    def run(self):
+        yield self.screen.wait_transition(screens.PRACTICE_COMBAT,
+                                          timeout=10.0)
+        logger.info('Engaging an enemy fleet in practice.')
+        # TODO: Better handle the wait. Especially, if a battle ship is present
+        # this will much longer.
+        yield self.screen.wait_transition(screens.PRACTICE_RESULT,
+                                          timeout=60.0, raise_on_timeout=False)
+        if self.screen_id != screens.PRACTICE_RESULT:
+            # TODO: Decide whether to go for the night combat depending on the
+            # expected result.
+            logger.info('Going for the night combat.')
+            self.screen.update_screen_id(screens.PRACTICE_NIGHT)
+            yield self.screen.engage_night_combat()
+            yield self.screen.wait_transition(screens.PRACTICE_RESULT,
+                                              timeout=60.0)
+        yield self.screen.dismiss_result_overview()
+        yield self.screen.dismiss_result_details()
