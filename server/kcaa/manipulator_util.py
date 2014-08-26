@@ -133,6 +133,7 @@ class ManipulatorManager(object):
             'GoOnExpedition': manipulators.expedition.GoOnExpedition,
             'SailOnExpeditionMap': manipulators.expedition.SailOnExpeditionMap,
             'EngageExpedition': manipulators.expedition.EngageExpedition,
+            'WarmUp': manipulators.expedition.WarmUp,
             # Practice
             'CheckPracticeOpponents':
             manipulators.practice.CheckPracticeOpponents,
@@ -180,6 +181,7 @@ class ManipulatorManager(object):
             'EngageExpedition': -10,
             # Usual manual manipulators have the default priority of 0.
             'GoOnExpedition': 0,
+            'WarmUp': 0,
             'CheckPracticeOpponents': 0,
             'GoOnPractice': 0,
             'HandlePractice': 0,

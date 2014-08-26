@@ -141,3 +141,28 @@ class EngageExpedition(base.Manipulator):
     def should_go_next(self):
         # TODO: Make a wiser decision.
         return True
+
+
+class WarmUp(base.Manipulator):
+
+    def run(self, fleet_id):
+        fleet_id = int(fleet_id)
+        if not fleet.are_all_ships_available(self, fleet_id):
+            return
+        ship_list = self.objects.get('ShipList')
+        fleet_list = self.objects.get('FleetList')
+        fleet_ = fleet_list.fleets[fleet_id - 1]
+        if len(fleet_.ship_ids) != 1:
+            logger.error('More than 1 ship in the fleet {} will not work.'
+                         .format(fleet_id))
+            return
+        # TODO: Move this kind of conversion to fleet module.
+        ships = map(lambda ship_id: ship_list.ships[str(ship_id)],
+                    fleet_.ship_ids)
+        if ships[0].vitality < 80:
+            # TODO: This kind of iteration will not work if WarmUp itself is
+            # repeatedly invoked. Maybe need to introduce a monitoring task
+            # blocked by the added manipulator?
+            self.add_manipulator(GoOnExpedition, fleet_id, 1, 1)
+            self.add_manipulator(WarmUp, fleet_id)
+        yield 0.0
