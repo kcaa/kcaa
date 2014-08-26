@@ -36,11 +36,15 @@ class GoOnPractice(base.Manipulator):
         logger.info(
             'Making the fleet {} go on the practice {} with formation {}'
             .format(fleet_id, practice_id, formation))
-        yield self.screen.change_screen(screens.PORT_PRACTICE)
         practice_list = self.objects.get('PracticeList')
         if not practice_list:
             logger.error('No practice list was found. Giving up.')
             return
+        practice_ = practice_list.practices[practice_id - 1]
+        if practice_.result != practice.Practice.RESULT_NEW:
+            logger.error('Practice {} is already done.'.format(practice_id))
+            return
+        expected_fleet_type = practice_.fleet_type
         fleet_list = self.objects.get('FleetList')
         if not fleet_list:
             logger.error('No fleet list was found. Giving up.')
@@ -48,17 +52,20 @@ class GoOnPractice(base.Manipulator):
         fleet = fleet_list.fleets[fleet_id - 1]
         # TODO: Check if the fleet is avialable for practice. Some ships may be
         # in the repair dock.
-        practice_ = practice_list.practices[practice_id - 1]
-        if practice_.result != practice.Practice.RESULT_NEW:
-            logger.error('Practice {} is already done.'.format(practice_id))
-            return
+        yield self.screen.change_screen(screens.PORT_PRACTICE)
         yield self.screen.check_opponent(practice_.id)
-        # TODO: Check if opponent fleet type expectation matches.
+        # The oppoonent changed the fleet organization. The expected type
+        # mismatches -- retry the process from the beginning.
+        if practice_.fleet_type != expected_fleet_type:
+            yield self.screen.cancel()
+            self.add_manipulator(HandlePractice, fleet_id, practice_id)
+            return
         yield self.screen.try_practice()
         yield self.screen.select_fleet(fleet_id)
         yield self.screen.confirm_practice()
         if len(fleet.ship_ids) >= 4:
             yield self.screen.select_formation(formation)
+        self.add_manipulator(EngagePractice)
 
 
 class HandlePractice(base.Manipulator):
@@ -86,7 +93,6 @@ class HandlePractice(base.Manipulator):
                              practice_plan.fleet_name.encode('utf8'))
         self.add_manipulator(GoOnPractice, fleet_id, practice_id,
                              practice_plan.formation)
-        self.add_manipulator(EngagePractice)
         yield 0.0
 
 
