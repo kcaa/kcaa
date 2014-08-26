@@ -80,6 +80,8 @@ class GoOnMission(base.Manipulator):
         if not mission_list:
             logger.info('No mission list was found. Giving up.')
             return
+        if not fleet.are_all_ships_available(self, fleet_id):
+            return
         yield self.screen.change_screen(screens.PORT_MISSION)
         mission_ = mission_list.get_mission(mission_id)
         if not mission_:
