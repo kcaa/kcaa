@@ -99,7 +99,7 @@ class EngagePractice(base.Manipulator):
         # TODO: Better handle the wait. Especially, if a battle ship is present
         # this will much longer.
         yield self.screen.wait_transition(screens.PRACTICE_RESULT,
-                                          timeout=60.0, raise_on_timeout=False)
+                                          timeout=90.0, raise_on_timeout=False)
         if self.screen_id != screens.PRACTICE_RESULT:
             # TODO: Decide whether to go for the night combat depending on the
             # expected result.
