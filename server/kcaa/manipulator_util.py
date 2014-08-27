@@ -134,6 +134,7 @@ class ManipulatorManager(object):
             'SailOnExpeditionMap': manipulators.expedition.SailOnExpeditionMap,
             'EngageExpedition': manipulators.expedition.EngageExpedition,
             'WarmUp': manipulators.expedition.WarmUp,
+            'WarmUpFleet': manipulators.expedition.WarmUpFleet,
             # Practice
             'CheckPracticeOpponents':
             manipulators.practice.CheckPracticeOpponents,
@@ -193,6 +194,10 @@ class ManipulatorManager(object):
             # Usual auto manipulators have the default priority of 0.
             'AutoGoOnMission': 0,
             'AutoStartGame': 0,
+            # Composite manipulators usually have lower priorities.
+            # TODO: This design is not clean. This is kinda workaround.
+            # Consider introducing the interruption mechanism.
+            'WarmUpFleet': 10,
         }
 
     def set_auto_manipulator_preferences(self, automan_prefs):

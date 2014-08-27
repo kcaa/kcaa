@@ -56,8 +56,12 @@ class Manipulator(task.Task):
 
         Typically the caller will not block itself.
         """
+        return self.add_manipulator_priority(
+            manipulator, None, *args, **kwargs)
+
+    def add_manipulator_priority(self, manipulator, priority, *args, **kwargs):
         return self.manager.add_manipulator(
-            manipulator(self.manager, *args, **kwargs))
+            manipulator(self.manager, *args, **kwargs), priority)
 
 
 class AutoManipulatorTriggerer(Manipulator):

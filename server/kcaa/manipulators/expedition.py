@@ -4,6 +4,7 @@ import logging
 
 import base
 import fleet
+import organizing
 from kcaa import screens
 from kcaa.kcsapi import expedition
 from kcaa.kcsapi import mission
@@ -160,9 +161,30 @@ class WarmUp(base.Manipulator):
         ships = map(lambda ship_id: ship_list.ships[str(ship_id)],
                     fleet_.ship_ids)
         if ships[0].vitality < 80:
-            # TODO: This kind of iteration will not work if WarmUp itself is
-            # repeatedly invoked. Maybe need to introduce a monitoring task
-            # blocked by the added manipulator?
+            logger.info('Warming up {}.'.format(ships[0].name.encode('utf8')))
             self.add_manipulator(GoOnExpedition, fleet_id, 1, 1)
             self.add_manipulator(WarmUp, fleet_id)
+        yield 0.0
+
+
+class WarmUpFleet(base.Manipulator):
+
+    def run(self, fleet_id):
+        fleet_id = int(fleet_id)
+        ok, good_ships, bad_ships = fleet.classify_ships(self, fleet_id)
+        good_ships = filter(lambda s: s.vitality < 80, good_ships)
+        if not ok or len(good_ships) == 0:
+            return
+        fleet_list = self.objects.get('FleetList')
+        fleet_ = fleet_list.fleets[fleet_id - 1]
+        logger.info('Warming up the fleet {}.'.format(fleet_id))
+        ship_ids_in_fleet = fleet_.ship_ids[:]
+        for good_ship in good_ships:
+            # TODO: Clean up this. This is a dirty workaround to schedule
+            # everything in order.
+            self.add_manipulator_priority(organizing.LoadShips, 10,
+                                          fleet_id, [good_ship.id])
+            self.add_manipulator_priority(WarmUp, 10, fleet_id)
+        self.add_manipulator_priority(organizing.LoadShips, 20, fleet_id,
+                                      ship_ids_in_fleet)
         yield 0.0
