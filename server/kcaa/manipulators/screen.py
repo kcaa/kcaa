@@ -306,7 +306,7 @@ class PortExpeditionScreen(PortScreen):
     def confirm_expedition(self):
         def confirm_expedition_task(task):
             self.click(635, 445)
-            yield 3.0
+            yield 7.0
         return self.do_task(confirm_expedition_task)
 
 
@@ -640,7 +640,7 @@ class ExpeditionScreen(EngageScreen):
 
     def roll_compass(self):
         def roll_compass_task(task):
-            yield 4.0
+            yield 2.0
             self.click_somewhere()
             yield 4.0
         return self.do_task(roll_compass_task)
