@@ -187,6 +187,7 @@ class ManipulatorManager(object):
             'HandlePractice': 0,
             'HandleAllPractices': 0,
             'GoOnMission': 0,
+            'LoadShips': 0,
             'LoadFleet': 0,
             'ChargeFleet': 0,
             # Usual auto manipulators have the default priority of 0.
