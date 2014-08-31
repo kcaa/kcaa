@@ -118,7 +118,7 @@ class AutoGoOnMission(base.AutoManipulator):
                 owner.manager.preferences.mission_prefs.get_mission_plan(
                     fleet_.id))
             if mission_plan:
-                go_on_config[fleet.id] = mission_plan.mission_id
+                go_on_config[fleet_.id] = mission_plan.mission_id
         if go_on_config:
             return {'go_on_config': go_on_config}
 
