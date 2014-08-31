@@ -1,12 +1,15 @@
 part of kcaa_model;
 
 class Fleet extends Observable {
+  static const int WARMUP_VITALITY = 75;
+
   @observable int id;
   @observable String name;
   // Somehow this list needs to be @observable for getting ships.length.
   @observable final List<Ship> ships = new ObservableList<Ship>();
   @observable String undertakingMission;
   @observable String missionEtaDatetimeString;
+  @observable bool canWarmUp;
   @observable bool collapsed = null;
   @observable String defaultClass;
   @observable bool ignoreFilter = true;
@@ -49,6 +52,12 @@ class Fleet extends Observable {
     } else {
       undertakingMission = null;
     }
+    canWarmUp = ships.any((Ship ship) {
+      return !ship.isUnderRepair &&
+          ship.stateClass != "fatal" &&
+          ship.stateClass != "dangerous" &&
+          ship.vitality < WARMUP_VITALITY;
+    });
     if (collapsed != null) {
       this.collapsed = collapsed;
     } else {

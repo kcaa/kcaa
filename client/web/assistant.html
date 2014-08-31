@@ -140,7 +140,6 @@
               <template if="{{model.numPracticesDone < 5}}">
                 <button on-click="{{handleAllPractices}}">全演習実行</button>
               </template>
-              <button on-click="{{warmUpFleet}}">第1艦隊をキラキラに</button>
             </div>
           </div>
         </div>
@@ -195,6 +194,9 @@
               <div class="{{fleet.defaultClass}}">
                 <button on-click="{{saveFleet}}"
                         data-fleet-id="{{fleet.id}}">艦隊を保存</button>
+                <button on-click="{{warmUpFleet}}"
+                        data-fleet-id="{{fleet.id}}"
+                        disabled?="{{!fleet.canWarmUp}}">キラキラ化</button>
               </div>
               <template ref="shiplist" bind="{{fleet}}"></template>
             </section>

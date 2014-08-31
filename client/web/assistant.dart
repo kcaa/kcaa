@@ -461,10 +461,11 @@ class Assistant extends PolymerElement {
   }
 
   void warmUpFleet(MouseEvent e, var detail, Element target) {
+    var fleetId = target.dataset["fleetId"];
     Uri request = serverManipulate.resolveUri(
         new Uri(queryParameters: {
           "type": "WarmUpFleet",
-          "fleet_id": "1",  // Always use the 1st fleet
+          "fleet_id": fleetId,
         }));
     HttpRequest.getString(request.toString());
   }
