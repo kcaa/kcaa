@@ -120,17 +120,24 @@ class EngagePractice(base.Manipulator):
         yield self.screen.wait_transition(screens.PRACTICE_COMBAT,
                                           timeout=10.0)
         logger.info('Engaging an enemy fleet in practice.')
-        # TODO: Better handle the wait. Especially, if a battle ship is present
-        # this will much longer.
-        yield self.screen.wait_transition(
-            screens.PRACTICE_RESULT, timeout=120.0, raise_on_timeout=False)
-        if self.screen_id != screens.PRACTICE_RESULT:
-            self.screen.update_screen_id(screens.PRACTICE_NIGHT)
+        # Clicks every >5 seconds in case a night battle is required for the
+        # complete win. Timeout is >5 minutes (5 sec x 60 trials).
+        # Note that this may be longer due to wait in engage_night_combat()
+        # for example.
+        for _ in xrange(60):
+            if self.screen_id == screens.PRACTICE_NIGHTCOMBAT:
+                break
+            yield self.screen.wait_transition(
+                screens.PRACTICE_RESULT, timeout=5.0, raise_on_timeout=False)
+            if self.screen_id == screens.PRACTICE_RESULT:
+                break
             # TODO: Decide whether to go for the night combat depending on the
             # expected result.
-            logger.info('Going for the night combat.')
             yield self.screen.engage_night_combat()
-            yield self.screen.wait_transition(screens.PRACTICE_RESULT,
-                                              timeout=60.0)
+        else:
+            logger.error('The battle did not finish in 5 minutes. Giving up.')
+            return
+        yield self.screen.wait_transition(screens.PRACTICE_RESULT,
+                                          timeout=180.0)
         yield self.screen.dismiss_result_overview()
         yield self.screen.dismiss_result_details()
