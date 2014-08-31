@@ -595,7 +595,7 @@ class PortLogisticsScreen(PortOperationsScreen):
     def charge_both(self):
         def charge_both_task(task):
             self.click(705, 445)
-            yield 5.0
+            yield 3.0
         return self.do_task(charge_both_task)
 
 
