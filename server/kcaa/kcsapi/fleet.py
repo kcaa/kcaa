@@ -41,9 +41,6 @@ class FleetList(model.KCAAObject):
         elif api_name == '/api_get_member/ship3':
             self.update_fleets(response.api_data.api_deck_data)
         elif api_name == '/api_req_hensei/change':
-            # TODO: Support a case where 2 ships in the same fleet are swapped.
-            # In that case a swapping ship is updated while a ship being
-            # swapped is not.
             fleet = self.fleets[int(request.api_id)-1]
             ship_index = int(request.api_ship_idx)
             ship_id = int(request.api_ship_id)
@@ -57,6 +54,12 @@ class FleetList(model.KCAAObject):
                 if ship_index >= len(fleet.ship_ids):
                     fleet.ship_ids.append(ship_id)
                 else:
+                    # First swap the ship if any.
+                    try:
+                        old_index = fleet.ship_ids.index(ship_id)
+                        fleet.ship_ids[old_index] = fleet.ship_ids[ship_index]
+                    except:
+                        pass
                     fleet.ship_ids[ship_index] = ship_id
 
     def update_fleets(self, fleet_data):
