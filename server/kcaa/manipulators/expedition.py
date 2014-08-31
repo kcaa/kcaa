@@ -11,6 +11,11 @@ from kcaa.kcsapi import mission
 from kcaa.kcsapi import ship
 
 
+# If the vitality of a ship is less than this number, the ship is considered to
+# need an warming up.
+WARMUP_VITALITY = 75
+
+
 logger = logging.getLogger('kcaa.manipulators.expedition')
 
 
@@ -172,7 +177,7 @@ class WarmUp(base.Manipulator):
         # TODO: Move this kind of conversion to fleet module.
         ships = map(lambda ship_id: ship_list.ships[str(ship_id)],
                     fleet_.ship_ids)
-        if ships[0].vitality < 80:
+        if ships[0].vitality < WARMUP_VITALITY:
             logger.info('Warming up {}.'.format(ships[0].name.encode('utf8')))
             self.add_manipulator(GoOnExpedition, fleet_id, 1, 1)
             self.add_manipulator(WarmUp, fleet_id)
@@ -184,7 +189,7 @@ class WarmUpFleet(base.Manipulator):
     def run(self, fleet_id):
         fleet_id = int(fleet_id)
         ok, good_ships, bad_ships = fleet.classify_ships(self, fleet_id)
-        good_ships = filter(lambda s: s.vitality < 80, good_ships)
+        good_ships = filter(lambda s: s.vitality < WARMUP_VITALITY, good_ships)
         if not ok or len(good_ships) == 0:
             return
         fleet_list = self.objects.get('FleetList')
