@@ -26,10 +26,18 @@ class LoadShips(base.Manipulator):
         if not fleet_list:
             logger.error('No fleet list was found. Giving up.')
             return
+        # Assuming the fleet object itself is not replaced from now on.
+        # This may break when KCSAPI changes -- beware!
+        fleet = fleet_list.fleets[fleet_id - 1]
+        if ship_ids == fleet.ship_ids:
+            logger.info('All ships are already standing by.')
+            return
         # TODO: Ensure the sort mode is Lv in the Kancolle player?
         # TODO: Check if a ship belongs to a fleet which is in a mission.
         yield self.screen.change_screen(screens.PORT_ORGANIZING)
         yield self.screen.select_fleet(fleet_id)
+        # Be sure to get the fleet again here, because the Fleet object is
+        # recreated (though FleetList itself is just updated).
         # Assuming the fleet object itself is not replaced from now on.
         # This may break when KCSAPI changes -- beware!
         fleet = fleet_list.fleets[fleet_id - 1]
@@ -49,6 +57,7 @@ class LoadShips(base.Manipulator):
                 logger.error(
                     'Failed to change the ship to {}. Currently you have {}.'
                     .format(ship_id, fleet.ship_ids[pos]))
+                logger.info(repr(fleet.ship_ids))
                 return
         num_ships = len(ship_ids)
         # Remove unnecessary ships.
