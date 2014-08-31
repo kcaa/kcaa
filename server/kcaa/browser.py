@@ -246,10 +246,10 @@ def setup_kancolle_browser(args, controller_conn, to_exit):
                         actions.click(None)
                         if covered:
                             show_game_frame_cover(browser, False)
-                            time.sleep(0.2)
+                            time.sleep(0.1)
                         actions.perform()
                         if covered:
-                            time.sleep(0.2)
+                            time.sleep(0.1)
                             show_game_frame_cover(browser, True)
                     elif command_type == COMMAND_COVER:
                         is_shown = command_args[0]
