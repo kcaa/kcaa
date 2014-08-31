@@ -50,17 +50,19 @@ class FleetList(model.KCAAObject):
             elif ship_id == -2:
                 # -2 means all the ships except the flag ship were removed.
                 del fleet.ship_ids[1:]
+            elif ship_index >= len(fleet.ship_ids):
+                fleet.ship_ids.append(ship_id)
             else:
-                if ship_index >= len(fleet.ship_ids):
-                    fleet.ship_ids.append(ship_id)
-                else:
-                    # First swap the ship if any.
+                # First swap the ship if any.
+                for another_fleet in self.fleets:
                     try:
-                        old_index = fleet.ship_ids.index(ship_id)
-                        fleet.ship_ids[old_index] = fleet.ship_ids[ship_index]
-                    except:
+                        old_index = another_fleet.ship_ids.index(ship_id)
+                        another_fleet.ship_ids[old_index] = (
+                            fleet.ship_ids[ship_index])
+                        break
+                    except ValueError:
                         pass
-                    fleet.ship_ids[ship_index] = ship_id
+                fleet.ship_ids[ship_index] = ship_id
 
     def update_fleets(self, fleet_data):
         self.fleets = []
