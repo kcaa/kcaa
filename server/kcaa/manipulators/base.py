@@ -10,11 +10,12 @@ logger = logging.getLogger('kcaa.manipulators.base')
 
 class Manipulator(task.Task):
 
-    def __init__(self, manager, *args, **kwargs):
+    def __init__(self, manager, priority, *args, **kwargs):
         # Be sure to store required fields before calling super(), because
         # super() will call run() inside it.
         self.objects = manager.objects
         self.manager = manager
+        self.priority = priority
         self._screen_manager = manager.screen_manager
         super(Manipulator, self).__init__(*args, **kwargs)
 
@@ -41,7 +42,7 @@ class Manipulator(task.Task):
         Typically the caller will block itself by yielding the return value.
         """
         return self.manager.task_manager.add(
-            manipulator(self.manager, *args, **kwargs))
+            manipulator(self.manager, 0, *args, **kwargs))
 
     def add_manipulator(self, manipulator, *args, **kwargs):
         """Schedule a manipulator.
@@ -52,16 +53,19 @@ class Manipulator(task.Task):
         :returns: task object
 
         Schedule the manipulator to be run later. This means other manipulators
-        and auto manipulators can interrupt if it has a higher priority.
+        and auto manipulators can interrupt if it has a higher priority. The
+        scheduled manipulator will run with a priority 1 less than the priority
+        of this manipulator, which makes it scheduled earlier than the sibling
+        manipulators of this.
 
         Typically the caller will not block itself.
         """
         return self.add_manipulator_priority(
-            manipulator, None, *args, **kwargs)
+            manipulator, self.priority - 1, *args, **kwargs)
 
     def add_manipulator_priority(self, manipulator, priority, *args, **kwargs):
         return self.manager.add_manipulator(
-            manipulator(self.manager, *args, **kwargs), priority)
+            manipulator(self.manager, priority, *args, **kwargs))
 
 
 class AutoManipulatorTriggerer(Manipulator):
@@ -76,7 +80,7 @@ class AutoManipulatorTriggerer(Manipulator):
             params = manipulator.can_trigger(self, *args, **kwargs)
             if params is not None:
                 logger.info('Triggering {}'.format(manipulator_name))
-                self.add_manipulator(manipulator, **params)
+                self.add_manipulator_priority(manipulator, None, **params)
             yield interval
 
     @property

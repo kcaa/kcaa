@@ -199,9 +199,8 @@ class WarmUpFleet(base.Manipulator):
         for good_ship in good_ships:
             # TODO: Clean up this. This is a dirty workaround to schedule
             # everything in order.
-            self.add_manipulator_priority(organizing.LoadShips, 10,
-                                          fleet_id, [good_ship.id])
-            self.add_manipulator_priority(WarmUp, 10, fleet_id)
-        self.add_manipulator_priority(organizing.LoadShips, 20, fleet_id,
-                                      ship_ids_in_fleet)
+            self.add_manipulator(organizing.LoadShips,
+                                 fleet_id, [good_ship.id])
+            self.add_manipulator(WarmUp, fleet_id)
+        self.add_manipulator(organizing.LoadShips, fleet_id, ship_ids_in_fleet)
         yield 0.0

@@ -166,38 +166,17 @@ class ManipulatorManager(object):
         self.suppress_auto_manipulators()
 
     def define_manipulator_priorities(self):
+        # Manipulators not listed here have the default priority of 0.
+        # Each manipulator gets a priority less than the parent when invoked
+        # with Manipulator.add_manipulator().
         self.manipulator_priorities = {
             # AutoCheckMissionResult have the highest priority because it
             # blocks all other manipulations when coming back to the port main
             # screen.
-            'AutoCheckMissionResult': -100,
+            'AutoCheckMissionResult': -10000,
             # AutoChargeFleet takes the second highest. This should precede
             # practice or missions.
-            'AutoChargeFleet': -90,
-            # Battle handling takes higher priority than usual manipulators.
-            # For example, EngaglePractice should be prioritized over
-            # consecutive LoadFleet and GoOnPractice ones.
-            'EngagePractice': -10,
-            'SailOnExpeditionMap': -10,
-            'EngageExpedition': -10,
-            # Usual manual manipulators have the default priority of 0.
-            'GoOnExpedition': 0,
-            'WarmUp': 0,
-            'CheckPracticeOpponents': 0,
-            'GoOnPractice': 0,
-            'HandlePractice': 0,
-            'HandleAllPractices': 0,
-            'GoOnMission': 0,
-            'LoadShips': 0,
-            'LoadFleet': 0,
-            'ChargeFleet': 0,
-            # Usual auto manipulators have the default priority of 0.
-            'AutoGoOnMission': 0,
-            'AutoStartGame': 0,
-            # Composite manipulators usually have lower priorities.
-            # TODO: This design is not clean. This is kinda workaround.
-            # Consider introducing the interruption mechanism.
-            'WarmUpFleet': 10,
+            'AutoChargeFleet': -9000,
         }
 
     def set_auto_manipulator_preferences(self, automan_prefs):
@@ -241,19 +220,14 @@ class ManipulatorManager(object):
                 return True
         return False
 
-    def add_manipulator(self, manipulator, priority=None):
+    def add_manipulator(self, manipulator):
         t = self.task_manager.add(manipulator)
         t.suspend()
         manipulator_name = manipulator.__class__.__name__
-        if priority is None:
-            try:
-                priority = self.manipulator_priorities[manipulator_name]
-            except KeyError:
-                self._logger.error(
-                    'Priority for manipulator {} is not defined.'.format(
-                        manipulator_name))
-                priority = 0
-        entry = (priority, self.queue_count, t)
+        if manipulator.priority is None:
+            manipulator.priority = (
+                self.manipulator_priorities.get(manipulator_name, 0))
+        entry = (manipulator.priority, self.queue_count, t)
         # This works fine for auto manipulators, but not necessarily for manual
         # manipulators (e.g. GoOnMission).
         self.scheduled_manipulators[manipulator_name] = entry
@@ -270,7 +244,7 @@ class ManipulatorManager(object):
 
     def add_auto_manipulator(self, auto_manipulator):
         t = self.task_manager.add(manipulators.base.AutoManipulatorTriggerer(
-            self, auto_manipulator))
+            self, None, auto_manipulator))
         self.running_auto_triggerer.append(t)
         return t
 
@@ -379,7 +353,7 @@ class ManipulatorManager(object):
         manipulator = self.manipulators.get(command_type)
         if manipulator:
             try:
-                self.add_manipulator(manipulator(self, **command_args))
+                self.add_manipulator(manipulator(self, None, **command_args))
             except TypeError:
                 raise TypeError(
                     'manipulator argument mismatch. type = {}, args = {}'

@@ -91,23 +91,23 @@ class TestManipulatorManager(object):
     def test_add_manipulator_preserve_order(self, manager):
         assert not manager.queue
         M1 = type('MockManipulator1', (MockManipulator,), {})
-        m1 = M1(manager)
-        manager.add_manipulator(m1, 0)
+        m1 = M1(manager, 0)
+        manager.add_manipulator(m1)
         assert manager.queue == [(0, 0, m1)]
         M2 = type('MockManipulator2', (MockManipulator,), {})
-        m2 = M2(manager)
-        manager.add_manipulator(m2, 0)
+        m2 = M2(manager, 0)
+        manager.add_manipulator(m2)
         assert manager.queue == [(0, 0, m1), (0, 1, m2)]
 
     def test_add_manipulator_prefer_higher_priority_task(self, manager):
         assert not manager.queue
         M1 = type('MockManipulator1', (MockManipulator,), {})
-        m1 = M1(manager)
-        manager.add_manipulator(m1, 0)
+        m1 = M1(manager, 0)
+        manager.add_manipulator(m1)
         assert manager.queue == [(0, 0, m1)]
         M2 = type('MockManipulator2', (MockManipulator,), {})
-        m2 = M2(manager)
-        manager.add_manipulator(m2, -100)
+        m2 = M2(manager, -100)
+        manager.add_manipulator(m2)
         assert manager.queue == [(-100, 1, m2), (0, 0, m1)]
 
 
