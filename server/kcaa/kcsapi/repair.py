@@ -25,9 +25,6 @@ class RepairDock(model.KCAAObject):
                                     element_type=RepairSlot)
     """Repair slots."""
 
-    def is_under_repair(self, ship_id):
-        return len(filter(lambda s: s.ship_id == ship_id, self.slots)) != 0
-
     def update(self, api_name, request, response, objects, debug):
         super(RepairDock, self).update(api_name, request, response, objects,
                                        debug)

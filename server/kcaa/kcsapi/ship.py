@@ -326,6 +326,9 @@ class Ship(ShipDefinition):
     """Enhanced ability by rebuilding or growth."""
     locked = jsonobject.JSONProperty('locked', value_type=bool)
     """True if this ship is locked."""
+    is_under_repair = jsonobject.JSONProperty(
+        'is_under_repair', value_type=bool)
+    """True if the ship is under repair."""
 
 
 def compare_ship_by_kancolle_level(ship_a, ship_b):
@@ -402,6 +405,12 @@ class ShipList(model.KCAAObject):
             self.ships[str(response.api_data.api_id)] = (
                 ship_defs[str(response.api_data.api_ship_id)])
             return
+        # Update is_under_repair.
+        if api_name in ('/api_port/port',
+                        '/api_get_member/ndock',
+                        '/api_req_nyukyo/start'):
+            self.update_is_under_repair(objects['RepairDock'])
+            updated_ids |= frozenset(self.ships.keys())
         # Remove ships that have gone.
         for not_updated_id in set(self.ships.iterkeys()) - updated_ids:
             del self.ships[not_updated_id]
@@ -484,3 +493,9 @@ class ShipList(model.KCAAObject):
             ship['experience'] = ship_data.api_exp
         if hasattr(ship_data, 'api_locked'):
             ship['locked'] = ship_data.api_locked != 0
+
+    def update_is_under_repair(self, repair_dock):
+        ship_ids_under_repair = frozenset(
+            map(lambda slot: slot.ship_id, repair_dock.slots))
+        for ship in self.ships.itervalues():
+            ship.is_under_repair = ship.id in ship_ids_under_repair

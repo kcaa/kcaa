@@ -37,6 +37,10 @@ class KCSAPIHandler(object):
         client may read an incomplete data. For 2 independent handlers, order
         them alphabetically.
 
+        Precedence requirements:
+        - RepairDock -> ShipList: needs to populate is_under_repair
+        - ShipList -> FleetList: due to potential dependence
+
         The reason to define handlers here, not in a module level, is to
         refresh the handler class objects to reflect what's in source files
         under kcsapi/ directory.
@@ -72,19 +76,19 @@ class KCSAPIHandler(object):
             # Like /api_start2, /api_port/port delivers most (all?) member
             # information; variant data for the player, ships, fleets, repair
             # or building docks.
-            # Note that ShipList must precede FleetList, as FleetList is
-            # potentially depending on ShipList.
             '/api_port/port': [kcsapi.mission.MissionList,
+                               kcsapi.repair.RepairDock,
                                kcsapi.ship.ShipList,
-                               kcsapi.fleet.FleetList,
-                               kcsapi.repair.RepairDock],
+                               kcsapi.fleet.FleetList],
             # Fleets (deck).
             '/api_get_member/deck': [kcsapi.fleet.FleetList,
                                      kcsapi.mission.MissionList],
             '/api_req_hensei/change': [kcsapi.fleet.FleetList],
             # Repair docks.
-            '/api_get_member/ndock': [kcsapi.repair.RepairDock],
-            '/api_req_nyukyo/start': [kcsapi.repair.RepairDock],
+            '/api_get_member/ndock': [kcsapi.repair.RepairDock,
+                                      kcsapi.ship.ShipList],
+            '/api_req_nyukyo/start': [kcsapi.repair.RepairDock,
+                                      kcsapi.ship.ShipList],
             # Quests.
             '/api_get_member/questlist': [kcsapi.quest.QuestList],
             '/api_req_quest/start': [kcsapi.model.NullHandler()],

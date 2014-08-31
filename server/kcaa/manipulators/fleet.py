@@ -23,15 +23,10 @@ def classify_ships(manipulator, fleet_id, verbose=True):
             logger.error('Fleet {} is undertaking mission {}.'.format(
                 fleet_.id, fleet_.mission_id))
         return False, [], []
-    repair_dock = manipulator.objects.get('RepairDock')
-    if not repair_dock:
-        if verbose:
-            logger.error('No repair dock was found. Giving up.')
-        return False, [], []
     good_ships, bad_ships = [], []
     for i, ship_id in enumerate(fleet_.ship_ids):
         ship = ship_list.ships[str(ship_id)]
-        if repair_dock.is_under_repair(ship_id):
+        if ship.is_under_repair:
             bad_ships.append(ship)
             if verbose:
                 logger.error('Ship {} ({}) is under repair. Cannot proceed.'
