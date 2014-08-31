@@ -134,7 +134,9 @@
           <div class="board commandBoard">
             <h3>クイックコマンド</h3>
             <div>
-              <button on-click="{{handleAllPractices}}">すべての演習を消化</button>
+              <template if="{{model.numPracticesDone < 5}}">
+                <button on-click="{{handleAllPractices}}">全演習実行</button>
+              </template>
               <button on-click="{{warmUpFleet}}">第1艦隊をキラキラに</button>
             </div>
           </div>
@@ -410,6 +412,10 @@
           <h3 data-collapsed="true">演習 ({{model.numPracticesDone}}/5)</h3>
           <div>
             <button on-click="{{checkPracticeOpponents}}">情報更新</button>
+            <button on-click="{{handleAllPractices}}"
+                    disabled?="{{model.numPracticesDone == 5}}">
+              全実行
+            </button>
             <button on-click="{{showModalDialog}}"
                     data-dialog="kcaaPracticePlanDialog">演習計画</button>
           </div>
