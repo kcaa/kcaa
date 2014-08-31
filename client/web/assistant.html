@@ -32,16 +32,19 @@
                   </template>
                 </div>
                 <div>{{ship.shipType}}</div>
-                <template if="{{ships.length > 6 &&
-                                ship.belongingFleet != null}}">
-                  <div>
-                    第{{ship.belongingFleet.id}}艦隊所属
-                    <template if="{{ship.belongingFleet.undertakingMission
-                                    != null}}">
-                      (遠征中)
-                    </template>
-                  </div>
-                </template>
+                <div>
+                  <template if="{{ships.length > 6 &&
+                                  ship.belongingFleet != null}}">
+                      第{{ship.belongingFleet.id}}艦隊所属
+                      <template if="{{ship.belongingFleet.undertakingMission
+                                      != null}}">
+                        (遠征中)
+                      </template>
+                  </template>
+                  <template if="{{ship.isUnderRepair}}">
+                    (入渠中)
+                  </template>
+                </div>
               </div>
               <div class="wide numberColumn {{ship.levelClass}}">
                 <div>{{ship.level}}<template
