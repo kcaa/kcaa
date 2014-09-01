@@ -8,8 +8,15 @@ import jsonobject
 
 class TestFleetList(object):
 
-    def test_update(self):
+    def pytest_funcarg__fleet_list(self):
         fleet_list = fleet.FleetList()
+        fleet_list.fleets.append(fleet.Fleet(
+            id=1,
+            name=u'FleetName',
+            ship_ids=[1, 2, 3]))
+        return fleet_list
+
+    def test_update(self):
         response = jsonobject.parse_text("""
             {
                 "api_data": {
@@ -36,6 +43,7 @@ class TestFleetList(object):
                 }
             }
         """)
+        fleet_list = fleet.FleetList()
         fleet_list.update('/api_port/port', None, response, None, False)
         assert len(fleet_list.fleets)
         fleet_ = fleet_list.fleets[0]
@@ -44,6 +52,18 @@ class TestFleetList(object):
         assert fleet_.ship_ids == [123, 456, 789]
         assert fleet_.mission_id == 111
         assert not fleet_.mission_complete
+
+    def test_update_ship_deployment(self, fleet_list):
+        request = jsonobject.parse_text("""
+            {
+                "api_id": "1",
+                "api_ship_idx": "3",
+                "api_ship_id": "4"
+            }
+        """)
+        fleet_list.update(
+            '/api_req_hensei/change', request, None, None, False)
+        assert fleet_list.fleets[0].ship_ids == [1, 2, 3, 4]
 
 
 def main():
