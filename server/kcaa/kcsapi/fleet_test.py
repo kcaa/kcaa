@@ -16,6 +16,18 @@ class TestFleetList(object):
             ship_ids=[1, 2, 3]))
         return fleet_list
 
+    def pytest_funcarg__fleet_list_2(self):
+        fleet_list = fleet.FleetList()
+        fleet_list.fleets.append(fleet.Fleet(
+            id=1,
+            name=u'FleetName1',
+            ship_ids=[1, 2, 3]))
+        fleet_list.fleets.append(fleet.Fleet(
+            id=2,
+            name=u'FleetName2',
+            ship_ids=[4, 5, 6, 7]))
+        return fleet_list
+
     def test_update(self):
         response = jsonobject.parse_text("""
             {
@@ -104,6 +116,21 @@ class TestFleetList(object):
         fleet_list.update(
             '/api_req_hensei/change', request, None, None, False)
         assert fleet_list.fleets[0].ship_ids == [1, 3, 2]
+
+    def test_update_ship_swapping_between_fleets(self, fleet_list_2):
+        # Swap the ship at the index 1 with the ship 5.
+        # Note that the ship 5 is in the second fleet.
+        request = jsonobject.parse_text("""
+            {
+                "api_id": "1",
+                "api_ship_idx": "1",
+                "api_ship_id": "5"
+            }
+        """)
+        fleet_list_2.update(
+            '/api_req_hensei/change', request, None, None, False)
+        assert fleet_list_2.fleets[0].ship_ids == [1, 5, 3]
+        assert fleet_list_2.fleets[1].ship_ids == [4, 2, 6, 7]
 
 
 def main():
