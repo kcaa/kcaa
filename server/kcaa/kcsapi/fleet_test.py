@@ -10,8 +10,6 @@ class TestFleetList(object):
 
     def pytest_funcarg__fleet_list(self):
         fleet_list = fleet.FleetList()
-        # Why?
-        fleet_list.fleets = []
         fleet_list.fleets.append(fleet.Fleet(
             id=1,
             name=u'FleetName',
