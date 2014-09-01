@@ -179,6 +179,17 @@ class TestJSONSerializableObject(object):
         assert t.foo == ['BAR']
         assert s.foo == ['FOO']
 
+    def test_json_property_non_reused_default_list_consistency(self):
+        class SomeObject(jsonobject.JSONSerializableObject):
+            foo = jsonobject.JSONProperty('foo', default=[])
+
+        # The getter should return the same object regardless of the timing of
+        # member access.
+        s = SomeObject()
+        foo_id = id(s.foo)
+        foo_id_2 = id(s.foo)
+        assert foo_id == foo_id_2
+
     def test_json_property_non_reused_default_dict(self):
         class SomeObject(jsonobject.JSONSerializableObject):
             # Dict passed as the default value. This should not be reused over

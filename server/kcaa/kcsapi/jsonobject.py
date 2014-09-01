@@ -523,8 +523,9 @@ class JSONProperty(CustomizableJSONProperty):
 
     def _get(self, owner):
         if not hasattr(owner, self._wrapped_variable):
-            self._set(owner, self._clone_default())
-            return self._default
+            default = self._clone_default()
+            self._set(owner, default)
+            return default
         else:
             return getattr(owner, self._wrapped_variable)
 
