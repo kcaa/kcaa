@@ -54,6 +54,7 @@ class TestFleetList(object):
         assert not fleet_.mission_complete
 
     def test_update_ship_deployment(self, fleet_list):
+        # Add the ship 4 to the end of the ship list.
         request = jsonobject.parse_text("""
             {
                 "api_id": "1",
@@ -66,6 +67,7 @@ class TestFleetList(object):
         assert fleet_list.fleets[0].ship_ids == [1, 2, 3, 4]
 
     def test_update_ship_removal(self, fleet_list):
+        # Remove the ship at the index 1 (the second ship).
         request = jsonobject.parse_text("""
             {
                 "api_id": "1",
@@ -78,6 +80,7 @@ class TestFleetList(object):
         assert fleet_list.fleets[0].ship_ids == [1, 3]
 
     def test_update_fleet_clearance(self, fleet_list):
+        # Remove all the ships except the flag ship.
         request = jsonobject.parse_text("""
             {
                 "api_id": "1",
@@ -88,6 +91,19 @@ class TestFleetList(object):
         fleet_list.update(
             '/api_req_hensei/change', request, None, None, False)
         assert fleet_list.fleets[0].ship_ids == [1]
+
+    def test_update_ship_swapping(self, fleet_list):
+        # Swap the ship at the index 1 with the ship 3.
+        request = jsonobject.parse_text("""
+            {
+                "api_id": "1",
+                "api_ship_idx": "1",
+                "api_ship_id": "3"
+            }
+        """)
+        fleet_list.update(
+            '/api_req_hensei/change', request, None, None, False)
+        assert fleet_list.fleets[0].ship_ids == [1, 3, 2]
 
 
 def main():
