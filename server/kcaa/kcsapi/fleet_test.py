@@ -77,6 +77,18 @@ class TestFleetList(object):
             '/api_req_hensei/change', request, None, None, False)
         assert fleet_list.fleets[0].ship_ids == [1, 3]
 
+    def test_update_fleet_clearance(self, fleet_list):
+        request = jsonobject.parse_text("""
+            {
+                "api_id": "1",
+                "api_ship_idx": "0",
+                "api_ship_id": "-2"
+            }
+        """)
+        fleet_list.update(
+            '/api_req_hensei/change', request, None, None, False)
+        assert fleet_list.fleets[0].ship_ids == [1]
+
 
 def main():
     import doctest
