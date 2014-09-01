@@ -10,6 +10,8 @@ class TestFleetList(object):
 
     def pytest_funcarg__fleet_list(self):
         fleet_list = fleet.FleetList()
+        # Why?
+        fleet_list.fleets = []
         fleet_list.fleets.append(fleet.Fleet(
             id=1,
             name=u'FleetName',
@@ -45,7 +47,7 @@ class TestFleetList(object):
         """)
         fleet_list = fleet.FleetList()
         fleet_list.update('/api_port/port', None, response, None, False)
-        assert len(fleet_list.fleets)
+        assert len(fleet_list.fleets) == 1
         fleet_ = fleet_list.fleets[0]
         assert fleet_.id == 1
         assert fleet_.name == 'FleetName'
@@ -64,6 +66,18 @@ class TestFleetList(object):
         fleet_list.update(
             '/api_req_hensei/change', request, None, None, False)
         assert fleet_list.fleets[0].ship_ids == [1, 2, 3, 4]
+
+    def test_update_ship_removal(self, fleet_list):
+        request = jsonobject.parse_text("""
+            {
+                "api_id": "1",
+                "api_ship_idx": "1",
+                "api_ship_id": "-1"
+            }
+        """)
+        fleet_list.update(
+            '/api_req_hensei/change', request, None, None, False)
+        assert fleet_list.fleets[0].ship_ids == [1, 3]
 
 
 def main():
