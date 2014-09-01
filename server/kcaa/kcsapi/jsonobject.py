@@ -462,6 +462,35 @@ class JSONProperty(CustomizableJSONProperty):
     >>> u = AnotherObject(bar='BARBAR')
     >>> u.bar
     'BARBAR'
+
+    However, if you set a non-primitive object (except lists, dicts, and
+    :class:`JSONSerializableObject`) as the default, beware! You may
+    mutate the default value if you directly modify it -- which is normally
+    what you don't want.
+
+    >>> class CustomClass(object):
+    ...     def __init__(self):
+    ...         self.value = 'Value'
+    ...
+    >>> class ObjectWithDangerousDefault(JSONSerializableObject):
+    ...     # Dangerous! You set a non-primitive object as the default value!
+    ...     baz = JSONProperty('baz', CustomClass())
+    ...
+    >>> v = ObjectWithDangerousDefault()
+    >>> v.baz.value
+    'Value'
+    >>> v.baz.value = 'ValueValue'
+    >>> v.baz.value
+    'ValueValue'
+    >>> w = ObjectWithDangerousDefault()
+    >>> # Expecting 'Value', but got 'ValueValue' because the default value is
+    >>> # modified.
+    >>> w.baz.value
+    'ValueValue'
+
+    To avoid this tricky bug, it's highly recommended to use only primitives
+    (bool, int, long, float, str, unicode, etc.) and lists, dicts, and
+    :class:`JSONSerializableObject`.
     """
 
     def __init__(self, name, default=None, value_type=None, element_type=None,
@@ -476,6 +505,7 @@ class JSONProperty(CustomizableJSONProperty):
         # ReadonlyJSONProperty.
         # Of course, there is a chance of conflict if we do the latter, but in
         # reality it almost never happens if we use a namespace like this:
+        # __<ClassName>_<IDofThisObject>
         self._default = default
         self._value_type = value_type
         self._element_type = element_type
@@ -489,7 +519,7 @@ class JSONProperty(CustomizableJSONProperty):
 
     def _get(self, owner):
         if not hasattr(owner, self._wrapped_variable):
-            self._set(owner, self._default)
+            self._set(owner, self._clone_default())
             return self._default
         else:
             return getattr(owner, self._wrapped_variable)
@@ -535,6 +565,21 @@ class JSONProperty(CustomizableJSONProperty):
                              '{}, but got {}').format(
                                  self.name, value,
                                  self._element_type.__name__))
+
+    def _clone_default(self):
+        """Clones the default value if needed.
+
+        Lists, maps, and :class:`JSONSerializableObject` will be cloned to
+        avoid mutating the shared default value.
+
+        This does not happen for a primitive (bool, int, or str for example)
+        and a custom class.
+        """
+        if isinstance(self._default, list):
+            return self._default[:]
+        elif isinstance(self._default, dict):
+            return self._default.copy()
+        return self._default
 
 
 class ReadonlyJSONProperty(JSONProperty):
