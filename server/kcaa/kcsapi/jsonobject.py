@@ -208,14 +208,12 @@ class JSONSerializableObject(object):
                          _ignore_unknown=_ignore_unknown)
 
     @classmethod
-    def parse(cls, obj, _ignore_unknown=False, *args, **kwargs):
+    def parse(cls, obj, _ignore_unknown=False, **kwargs):
         """Creates a typed :class:`JSONSerializableObject` from a Python
         representation of a JSON object.
 
         :param dict obj: Python representation of a JSON object
         :param bool ignore_unknown: True if ignoring unknown properties
-        :param kwargs: arbitrary positional arguments passed to the class'
-                       constructor
         :param kwargs: arbitrary keyword arguments passed to the class'
                        constructor
         :returns: Object parsed from the text
@@ -233,7 +231,7 @@ class JSONSerializableObject(object):
                 obj.__class__.__name__))
         # At first we don't initialize the object with kwargs. Instead obj is
         # used to initialize, and then kwargs specifications override them.
-        parsed_obj = cls(_initialize=False, *args, **kwargs)
+        parsed_obj = cls(_initialize=False, **kwargs)
         parsed_obj._initialize(obj, _ignore_unknown=_ignore_unknown)
         parsed_obj._initialize(parsed_obj.__overriding_data,
                                _ignore_unknown=False)
@@ -683,55 +681,6 @@ class ReadonlyJSONProperty(JSONProperty):
 
 
 # TODO: Write example code
-class DynamicJSONSerializableObject(JSONSerializableObject):
-    """Creates a dynamic :class:`JSONSerializableObject` from a Python
-    representation of a JSON object.
-
-    :param dict obj: Python representation of a JSON object
-    :param bool readonly: True if the resulted object should be readonly
-    :param bool omittable: True if a property can be omitted if the value is
-                           None
-    :param kwargs: arbitrary key-value mapping to override JSON properties
-    :raises TypeError: if obj is not a dict
-    """
-
-    def __init__(self, obj, readonly=False, omittable=True, **kwargs):
-        if not isinstance(obj, dict):
-            raise TypeError('Given obj is {}, not dict'.format(
-                obj.__class__.__name__))
-        # Dynamically create a new type, because properties (to be precise,
-        # descriptors) works if and only if owned by a class object.
-        cls = type('__{}_{}'.format(self.__class__.__name__, id(self)),
-                   (JSONSerializableObject,), dict(self.__class__.__dict__))
-        self.__class__ = cls
-        if readonly:
-            property_type = ReadonlyJSONProperty
-        else:
-            property_type = JSONProperty
-        for key, value in obj.iteritems():
-            value = DynamicJSONSerializableObject._replace_containers(
-                value, readonly=readonly)
-            setattr(cls, key, property_type(key, omittable=omittable,
-                                            default=value))
-        # Create a property if it's not in the input object.
-        for key, value in kwargs.iteritems():
-            if not hasattr(cls, key):
-                setattr(cls, key, property_type(key, default=value))
-        super(cls, self).__init__(**kwargs)
-
-    @staticmethod
-    def _replace_containers(value, readonly=False):
-        # Recursively create an object if it's a map.
-        if isinstance(value, dict):
-            return DynamicJSONSerializableObject(value, readonly=readonly)
-        elif isinstance(value, list):
-            return [DynamicJSONSerializableObject._replace_containers(
-                v, readonly=readonly) for v in value]
-        else:
-            return value
-
-
-# TODO: Write example code
 def parse_text(text, readonly=False, omittable=True, *args, **kwargs):
     """Parse JSON text and creates a dynamic :class:`JSONSerializaObject`.
 
@@ -748,24 +697,61 @@ def parse_text(text, readonly=False, omittable=True, *args, **kwargs):
     :raises ValueError: if text is ill-formed
 
     Creates a :class:`JSONSerializableObject` by parsing the *text* as a JSON.
-    It should be a valid JSON map object representation. This is a shorthand
-    for :class:`DynamicJSONSerializableObject` and lets you skip calling
-    :func:`json.loads`. Note that you can't override values with *kwargs*; it's
-    a parameter for :func:`json.loads`.
+    It should be a valid JSON map object representation. See also :func:`parse`
+    if you have a Python representation.
+
+    Note that you can't override values with *kwargs*; it's a parameter for
+    :func:`json.loads`.
     """
-    return DynamicJSONSerializableObject(json.loads(text, *args, **kwargs),
-                                         readonly=readonly,
-                                         omittable=omittable)
+    return parse(json.loads(text, *args, **kwargs),
+                 readonly=readonly, omittable=omittable)
 
-parse = DynamicJSONSerializableObject
-"""Creates a dynamic :class:`JSONSerializableObject` from a Python
-representation of a JSON object.
 
-This is an alias of :class:`DynamicJSONSerializableObject` prepared as a
-counterpart of :func:`parse_text`. Note that the difference in *args* and
-*kwargs*; this function takes *kwargs* for key-value initialization, not for
-calling :func:`json.loads`.
-"""
+def parse(obj, readonly=False, omittable=True, **kwargs):
+    """Creates a dynamic :class:`JSONSerializableObject` from a Python
+    representation of a JSON object.
+
+    :param dict obj: Python representation of a JSON object
+    :param bool readonly: True if the resulted object should be readonly
+    :param bool omittable: True if a property can be omitted if the value is
+                           None
+    :param kwargs: arbitrary key-value mapping to override JSON properties
+    :raises TypeError: if obj is not a dict
+
+    Creates a :class:`JSONSerializableObject` by parsing the Python dict passed
+    .as *obj*. See also :func:`parse_text` if you have a JSON in text.
+    """
+    if not isinstance(obj, dict):
+        raise TypeError('Given obj is {}, not dict'.format(
+            obj.__class__.__name__))
+    # Dynamically create a new type, because properties (to be precise,
+    # descriptors) works if and only if owned by a class object.
+    cls = type('__DynamicJSONSerializableObject_{}'.format(id(obj)),
+               (JSONSerializableObject,),
+               dict(JSONSerializableObject.__dict__))
+    if readonly:
+        property_type = ReadonlyJSONProperty
+    else:
+        property_type = JSONProperty
+    for key, value in obj.iteritems():
+        value = _replace_containers(value, readonly, omittable)
+        setattr(cls, key, property_type(key, omittable=omittable,
+                                        default=value))
+    # Create a property if it's not in the input object.
+    for key, value in kwargs.iteritems():
+        if not hasattr(cls, key):
+            setattr(cls, key, property_type(key, default=value))
+    return cls(**kwargs)
+
+
+def _replace_containers(value, readonly, omittable):
+    # Recursively create an object if it's a map.
+    if isinstance(value, dict):
+        return parse(value, readonly, omittable)
+    elif isinstance(value, list):
+        return [_replace_containers(v, readonly, omittable) for v in value]
+    else:
+        return value
 
 
 if __name__ == '__main__':
