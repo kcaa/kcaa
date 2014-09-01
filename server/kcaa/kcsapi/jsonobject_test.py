@@ -195,6 +195,25 @@ class TestJSONSerializableObject(object):
         assert t.foo['bar'] == 'BAZ'
         assert s.foo['bar'] == 'BAR'
 
+    def test_json_property_non_reused_default_object(self):
+        class ChildObject(jsonobject.JSONSerializableObject):
+            bar = jsonobject.JSONProperty('bar', default='BAR')
+
+        class SomeObject(jsonobject.JSONSerializableObject):
+            # Dict passed as the default value. This should not be reused over
+            # object instances.
+            foo = jsonobject.JSONProperty('foo', default=ChildObject())
+
+        s = SomeObject()
+        assert s.foo.bar == 'BAR'
+        s.foo.bar = 'BAZ'
+        assert s.foo.bar == 'BAZ'
+        t = SomeObject()
+        assert t.foo.bar == 'BAR'
+        t.foo.bar = 'QUX'
+        assert t.foo.bar == 'QUX'
+        assert s.foo.bar == 'BAZ'
+
     def test_json_property_init(self):
         class SomeObject(jsonobject.JSONSerializableObject):
             foo = jsonobject.JSONProperty('foo')

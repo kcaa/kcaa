@@ -133,6 +133,12 @@ class JSONSerializableObject(object):
         return json.dumps(self, *args, cls=_JSONSerializableObjectEncoder,
                           **kwargs)
 
+    def copy(self):
+        """Get the a shallow copy of this object.
+
+        TODO: Document and test."""
+        return self.__class__.parse(self.convert_to_dict())
+
     def convert_to_dict(self):
         """TODO: Document and test."""
         data = {}
@@ -576,6 +582,8 @@ class JSONProperty(CustomizableJSONProperty):
         if isinstance(self._default, list):
             return self._default[:]
         elif isinstance(self._default, dict):
+            return self._default.copy()
+        elif isinstance(self._default, JSONSerializableObject):
             return self._default.copy()
         return self._default
 
