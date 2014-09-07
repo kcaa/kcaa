@@ -90,25 +90,35 @@ class NullHandler(object):
 
 
 def merge_list(old_list, new_list):
+    """Merge the given 2 lists.
+
+    :param list old_list: list which contains old items
+    :param list new_list: list which contains new items
+    :returns: merged list
+
+    Merges the given 2 lists into 1 list, preferring items from *new_list* when
+    collide.
+
+    An item in the lists should have a field named *id*.
+    """
     merged = []
     if len(old_list) == 0:
         return new_list
     elif len(new_list) == 0:
         return old_list
     a, b = old_list, new_list
-    bmin, bmax = b[0].id, b[-1].id
     ai, bi = 0, 0
     while ai < len(a) and bi < len(b):
         aid, bid = a[ai].id, b[bi].id
-        # If a and b have the same ID, prefer b (new quest data).
+        # If a and b have the same ID, prefer b (new data).
         if aid == bid:
             merged.append(b[bi])
             ai += 1
             bi += 1
         elif aid < bid:
-            # Exclude old quests.
-            if aid < bmin or aid > bmax:
-                merged.append(a[ai])
+            # Do not exclude old items even when interpolating.
+            # Such a removal should be done explicitly by KCSAPI handlers.
+            merged.append(a[ai])
             ai += 1
         else:
             merged.append(b[bi])
