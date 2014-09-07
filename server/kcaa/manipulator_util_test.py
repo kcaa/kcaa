@@ -5,6 +5,7 @@ import pytest
 import kcsapi
 import manipulator_util
 import manipulators
+import screens
 
 
 SF = kcsapi.prefs.ScheduleFragment
@@ -14,6 +15,43 @@ class MockManipulator(manipulators.base.Manipulator):
 
     def run(self):
         pass
+
+
+class TestScreenManager(object):
+
+    def pytest_funcarg__manager(self, request):
+        objects = {
+            'Screen': kcsapi.client.Screen(),
+        }
+        manipulator_manager = manipulator_util.ManipulatorManager(
+            None, objects, kcsapi.prefs.Preferences(), 0)
+        return manipulator_util.ScreenManager(manipulator_manager)
+
+    def test_current_screen_id(self, manager):
+        manager.objects['Screen'].screen = screens.PORT_MAIN
+        assert manager.current_screen.screen_id == screens.PORT_MAIN
+        manager.objects['Screen'].screen = screens.PORT_MISSION
+        assert manager.current_screen.screen_id == screens.PORT_MISSION
+
+    def test_update_screen_from_object(self, manager):
+        manager.objects['Screen'].screen = screens.PORT_MAIN
+        manager.update_screen()
+        assert isinstance(manager.current_screen,
+                          manipulators.screen.PortMainScreen)
+        manager.objects['Screen'].screen = screens.PORT_MISSION
+        manager.update_screen()
+        assert isinstance(manager.current_screen,
+                          manipulators.screen.PortMissionScreen)
+
+    def test_update_screen_explicit(self, manager):
+        manager.update_screen(screens.PORT_ORGANIZING)
+        assert isinstance(manager.current_screen,
+                          manipulators.screen.PortOrganizingScreen)
+        assert manager.objects['Screen'].screen == screens.PORT_ORGANIZING
+        manager.update_screen(screens.PORT_LOGISTICS)
+        assert isinstance(manager.current_screen,
+                          manipulators.screen.PortLogisticsScreen)
+        assert manager.objects['Screen'].screen == screens.PORT_LOGISTICS
 
 
 class TestManipulatorManager(object):
