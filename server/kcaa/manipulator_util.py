@@ -44,7 +44,7 @@ class ScreenManager(object):
             screens.PORT_MISSION: manipulators.screen.PortMissionScreen,
             screens.PORT_ORGANIZING: manipulators.screen.PortOrganizingScreen,
             screens.PORT_LOGISTICS: manipulators.screen.PortLogisticsScreen,
-            screens.PORT_REBUILDING: manipulators.screen.PortOperationsScreen,
+            screens.PORT_REBUILDING: manipulators.screen.PortRebuildingScreen,
             screens.PORT_REPAIR: manipulators.screen.PortOperationsScreen,
             screens.PORT_SHIPYARD: manipulators.screen.PortOperationsScreen,
             screens.EXPEDITION: manipulators.screen.ExpeditionScreen,
@@ -149,6 +149,8 @@ class ManipulatorManager(object):
             'LoadFleet': manipulators.organizing.LoadFleet,
             # Logistics
             'ChargeFleet': manipulators.logistics.ChargeFleet,
+            # Rebuilding
+            'RebuildShip': manipulators.rebuilding.RebuildShip,
         }
 
     def define_auto_manipulators(self):

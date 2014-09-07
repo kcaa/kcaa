@@ -599,6 +599,75 @@ class PortLogisticsScreen(PortOperationsScreen):
         return self.do_task(charge_both_task)
 
 
+class PortRebuildingScreen(PortOperationsScreen):
+
+    def change_screen(self, screen_id):
+        def change_screen_task(task):
+            if screen_id == screens.PORT_REBUILDING:
+                yield 0.0
+                return
+            yield super(PortRebuildingScreen, self).change_screen(screen_id)
+            if self.screen_id == screen_id:
+                return
+            else:
+                self.raise_impossible_transition(screen_id)
+        self.assert_screen(screens.PORT_REBUILDING)
+        return self.do_task(change_screen_task)
+
+    def select_fleet(self, fleet_id):
+        def select_fleet_task(task):
+            self.click(120 * 30 * fleet_id, 115)
+            yield 1.0
+        return self.do_task(select_fleet_task)
+
+    def select_fleet_ship(self, ship_index):
+        def select_fleet_ship_task(task):
+            self.click(210, 165 + 55 * ship_index)
+            yield 1.0
+        return self.do_task(select_fleet_ship_task)
+
+    def select_ship_list(self):
+        def select_ship_list_task(task):
+            self.click(270, 115)
+            yield 1.0
+        return self.do_task(select_ship_list_task)
+
+    def try_rebuilding(self):
+        def try_rebuilding_task(task):
+            self.click(615, 440)
+            yield 2.0
+        return self.do_task(try_rebuilding_task)
+
+    def select_slot(self, slot_index):
+        def select_slot_task(task):
+            self.click(570, 140 + 60 * slot_index)
+            yield 1.0
+        return self.do_task(select_slot_task)
+
+    def finalyze_rebuilding(self):
+        def finalyze_rebuilding_task(task):
+            self.click(710, 440)
+            yield 1.0
+        return self.do_task(finalyze_rebuilding_task)
+
+    def confirm_rebuilding(self):
+        def confirm_rebuilding_task(task):
+            self.click(490, 410)
+            yield 1.0
+        return self.do_task(confirm_rebuilding_task)
+
+    def check_result(self):
+        def check_result_task(task):
+            yield 2.0
+        return self.do_task(check_result_task)
+
+    def cancel(self):
+        def cancel_task(task):
+            self.click(545, 445)
+            yield 1.0
+        return self.do_task(cancel_task)
+
+
 class EngageScreen(Screen):
 
     def avoid_night_combat(self):

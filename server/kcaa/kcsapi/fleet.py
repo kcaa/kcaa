@@ -31,6 +31,12 @@ class FleetList(model.KCAAObject):
     Note that this list has 0-origin, while other objects use 1-origin index to
     reference a fleet."""
 
+    def find_fleet_for_ship(self, ship_id):
+        for fleet in self.fleets:
+            if ship_id in fleet.ship_ids:
+                return fleet
+        return None
+
     def update(self, api_name, request, response, objects, debug):
         super(FleetList, self).update(api_name, request, response, objects,
                                       debug)
