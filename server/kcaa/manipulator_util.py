@@ -236,7 +236,8 @@ class ManipulatorManager(object):
         self.scheduled_manipulators[manipulator_name] = entry
         heapq.heappush(self.queue, entry)
         self.queue_count += 1
-        self.update_running_manipulators()
+        if self.current_task:
+            self.update_running_manipulators()
         self._logger.debug(
             'Manipulator {} scheduled.'.format(manipulator_name))
         self.log_manipulator_queue()
