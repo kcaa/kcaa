@@ -163,7 +163,7 @@ class ManipulatorManager(object):
             'AutoStartGame': manipulators.special.AutoStartGame,
         }
 
-    def register_auto_manipulators(self, interval=1.0):
+    def register_auto_manipulators(self, interval=-1):
         for manipulator in self.auto_manipulators.itervalues():
             self.add_auto_manipulator(manipulator, interval)
         self.suppress_auto_manipulators()
@@ -245,7 +245,7 @@ class ManipulatorManager(object):
     def is_manipulator_scheduled(self, manipulator_name):
         return manipulator_name in self.scheduled_manipulators
 
-    def add_auto_manipulator(self, auto_manipulator, interval=1.0):
+    def add_auto_manipulator(self, auto_manipulator, interval=-1):
         t = self.task_manager.add(manipulators.base.AutoManipulatorTriggerer(
             self, None, auto_manipulator, interval=interval))
         self.running_auto_triggerer.append(t)

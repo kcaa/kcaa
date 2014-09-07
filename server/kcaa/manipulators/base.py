@@ -70,7 +70,7 @@ class Manipulator(task.Task):
 
 class AutoManipulatorTriggerer(Manipulator):
 
-    def run(self, manipulator, interval=1.0, *args, **kwargs):
+    def run(self, manipulator, interval=-1, *args, **kwargs):
         self._manipulator = manipulator
         manipulator_name = manipulator.__name__
         while True:
