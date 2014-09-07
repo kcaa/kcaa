@@ -11,6 +11,12 @@ import screens
 SF = kcsapi.prefs.ScheduleFragment
 
 
+class MockConnection(object):
+
+    def send(self, value):
+        pass
+
+
 class MockManipulator(manipulators.base.Manipulator):
 
     def run(self):
@@ -24,7 +30,7 @@ class TestScreenManager(object):
             'Screen': kcsapi.client.Screen(),
         }
         manipulator_manager = manipulator_util.ManipulatorManager(
-            None, objects, kcsapi.prefs.Preferences(), 0)
+            MockConnection(), objects, kcsapi.prefs.Preferences(), 0)
         return manipulator_util.ScreenManager(manipulator_manager)
 
     def test_current_screen_id(self, manager):
@@ -57,8 +63,11 @@ class TestScreenManager(object):
 class TestManipulatorManager(object):
 
     def pytest_funcarg__manager(self, request):
+        objects = {
+            'RunningManipulators': kcsapi.client.RunningManipulators()
+        }
         return manipulator_util.ManipulatorManager(
-            None, {}, kcsapi.prefs.Preferences(), 0)
+            MockConnection(), objects, kcsapi.prefs.Preferences(), 0)
 
     def test_in_schedule_fragment(self):
         in_schedule_fragment = (
@@ -147,6 +156,31 @@ class TestManipulatorManager(object):
         m2 = M2(manager, -100)
         manager.add_manipulator(m2)
         assert manager.queue == [(-100, 1, m2), (0, 0, m1)]
+
+    def test_dispatch_invalid_fomat(self, manager):
+        with pytest.raises(ValueError):
+            manager.dispatch(('Manipulator',))
+        with pytest.raises(ValueError):
+            manager.dispatch(('Manipulator', {'arg': 'value'}, 'something'))
+
+    def test_dispatch_unknown_command(self, manager):
+        with pytest.raises(ValueError):
+            manager.dispatch(('NonExistentManipulator', {'arg', 'value'}))
+
+    def test_dispatch_argument_mismatch(self, manager):
+        with pytest.raises(TypeError):
+            manager.dispatch(('ChargeFleet', {}))
+        with pytest.raises(TypeError):
+            manager.dispatch(('ChargeFleet', {'non_existent_arg': 'value'}))
+
+    def test_dispatch_charge_fleet(self, manager):
+        assert manager.manipulator_queue == []
+        manager.dispatch(('ChargeFleet', {'fleet_id': '1'}))
+        manipulator_queue = manager.manipulator_queue
+        assert len(manipulator_queue) == 1
+        # Manipulator object is stored as the 3rd element.
+        assert isinstance(manipulator_queue[0][2],
+                          manipulators.logistics.ChargeFleet)
 
 
 def main():
