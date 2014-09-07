@@ -298,6 +298,22 @@ class ManipulatorManager(object):
     def manipulator_queue(self):
         return heapq.nsmallest(len(self.queue), self.queue)
 
+    def dispatch(self, command):
+        if len(command) != 2:
+            raise ValueError(
+                'Command should have the type and args: {}'.format(command))
+        command_type, command_args = command
+        manipulator = self.manipulators.get(command_type)
+        if manipulator:
+            try:
+                self.add_manipulator(manipulator(self, None, **command_args))
+            except TypeError:
+                raise TypeError(
+                    'manipulator argument mismatch. type = {}, args = {}'
+                    .format(command_type, command_args))
+        else:
+            raise ValueError('Unknown command type: {}'.format(command_type))
+
     def update(self, current):
         """Update manipulators.
 
@@ -348,22 +364,6 @@ class ManipulatorManager(object):
                            self.updated_object_types]
         self.updated_object_types.clear()
         return updated_objects
-
-    def dispatch(self, command):
-        if len(command) != 2:
-            raise ValueError(
-                'Command should have the type and args: {}'.format(command))
-        command_type, command_args = command
-        manipulator = self.manipulators.get(command_type)
-        if manipulator:
-            try:
-                self.add_manipulator(manipulator(self, None, **command_args))
-            except TypeError:
-                raise TypeError(
-                    'manipulator argument mismatch. type = {}, args = {}'
-                    .format(command_type, command_args))
-        else:
-            raise ValueError('Unknown command type: {}'.format(command_type))
 
 
 if __name__ == '__main__':
