@@ -18,8 +18,10 @@ class MockConnection(object):
 
 
 class MockManipulator(manipulators.base.Manipulator):
+    arg = 'arg_default'
 
     def run(self, arg):
+        self.arg = arg
         yield self.unit
 
 
@@ -71,6 +73,8 @@ class TestManipulatorManager(object):
         manager.manipulators = {
             'MockManipulator': MockManipulator,
         }
+        for manipulator in manager.auto_manipulators.itervalues():
+            manager.task_manager.remove(manipulator)
         return manager
 
     def test_in_schedule_fragment(self):
@@ -222,6 +226,13 @@ class TestManipulatorManager(object):
         assert manager.current_task is None
         assert manager.last_task == m
         assert not manager.is_manipulator_scheduled('MockManipulator')
+
+    def test_update_normal(self, manager):
+        m = MockManipulator(manager, 0, arg='value')
+        manager.add_manipulator(m)
+        assert m.arg == 'arg_default'
+        manager.update(0.1)
+        assert m.arg == 'value'
 
 
 def main():
