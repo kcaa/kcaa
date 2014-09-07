@@ -120,6 +120,7 @@ class ManipulatorManager(object):
         self.screen_manager = ScreenManager(self)
         self.define_manipulators()
         self.define_auto_manipulators()
+        self.register_auto_manipulators()
         self.define_manipulator_priorities()
         self.current_schedule_fragment = None
         self.rmo = kcsapi.client.RunningManipulators()
@@ -161,8 +162,10 @@ class ManipulatorManager(object):
             # Special
             'AutoStartGame': manipulators.special.AutoStartGame,
         }
+
+    def register_auto_manipulators(self, interval=1.0):
         for manipulator in self.auto_manipulators.itervalues():
-            self.add_auto_manipulator(manipulator)
+            self.add_auto_manipulator(manipulator, interval)
         self.suppress_auto_manipulators()
 
     def define_manipulator_priorities(self):
@@ -242,9 +245,9 @@ class ManipulatorManager(object):
     def is_manipulator_scheduled(self, manipulator_name):
         return manipulator_name in self.scheduled_manipulators
 
-    def add_auto_manipulator(self, auto_manipulator):
+    def add_auto_manipulator(self, auto_manipulator, interval=1.0):
         t = self.task_manager.add(manipulators.base.AutoManipulatorTriggerer(
-            self, None, auto_manipulator))
+            self, None, auto_manipulator, interval=interval))
         self.running_auto_triggerer.append(t)
         return t
 

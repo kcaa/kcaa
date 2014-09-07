@@ -234,6 +234,88 @@ class TestManipulatorManager(object):
         manager.update(0.1)
         assert m.arg == 'value'
 
+    def test_update_prefer_higher_priority_auto_manipulator(self, manager):
+        class AutoMockManipulatorA(manipulators.base.AutoManipulator):
+            started = False
+            done = False
+
+            @classmethod
+            def can_trigger(cls, owner):
+                return {}
+
+            def run(self):
+                self.started = True
+                yield self.unit
+                self.done = True
+
+        class AutoMockManipulatorB(manipulators.base.AutoManipulator):
+            @classmethod
+            def can_trigger(cls, owner):
+                return {}
+
+            def run(self):
+                yield self.unit
+
+        manager.auto_manipulators = {
+            'AutoMockManipulatorA': AutoMockManipulatorA,
+            'AutoMockManipulatorB': AutoMockManipulatorB,
+        }
+        manager.manipulator_priorities = {
+            'AutoMockManipulatorA': -10000,
+            'AutoMockManipulatorB': 0,
+        }
+        # -1 means the unit time.
+        manager.register_auto_manipulators(-1)
+        manager.set_auto_manipulator_preferences(
+            kcsapi.prefs.AutoManipulatorPreferences(
+                enabled=True,
+                schedules=[SF(start=0, end=86400)]))
+
+        assert not manager.queue
+        assert manager.current_task is None
+        manager.update(0.1)
+        assert manager.current_task is None
+        assert len(manager.queue) == 2
+        assert isinstance(manager.manipulator_queue[0][2],
+                          AutoMockManipulatorA)
+        assert isinstance(manager.manipulator_queue[1][2],
+                          AutoMockManipulatorB)
+        a1 = manager.manipulator_queue[0][2]
+        assert not a1.started
+        manager.update(0.2)
+        assert manager.current_task is a1
+        assert a1.started
+        assert not a1.done
+        assert len(manager.queue) == 1
+        assert isinstance(manager.manipulator_queue[0][2],
+                          AutoMockManipulatorB)
+        manager.update(0.3)
+        assert manager.current_task is a1
+        assert a1.done
+        assert len(manager.queue) == 1
+        assert isinstance(manager.manipulator_queue[0][2],
+                          AutoMockManipulatorB)
+        # In this time, the manager should finish the execution of a1 and
+        # schedule another instance of AutoMockManipulatorA.
+        manager.update(0.4)
+        assert manager.current_task is None
+        assert manager.last_task is a1
+        assert len(manager.queue) == 2
+        assert isinstance(manager.manipulator_queue[0][2],
+                          AutoMockManipulatorA)
+        assert isinstance(manager.manipulator_queue[1][2],
+                          AutoMockManipulatorB)
+        a2 = manager.manipulator_queue[0][2]
+        assert a2 is not a1
+        assert not a2.started
+        manager.update(0.5)
+        assert manager.current_task is a2
+        assert a2.started
+        assert not a2.done
+        assert len(manager.queue) == 1
+        assert isinstance(manager.manipulator_queue[0][2],
+                          AutoMockManipulatorB)
+
 
 def main():
     import doctest
