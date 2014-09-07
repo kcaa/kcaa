@@ -314,6 +314,39 @@ class ManipulatorManager(object):
         else:
             raise ValueError('Unknown command type: {}'.format(command_type))
 
+    def start_task_from_queue(self):
+        if self.queue:
+            self.log_manipulator_queue()
+            priority, queue_count, t = heapq.heappop(self.queue)
+            manipulator_name = t.__class__.__name__
+            self._logger.debug('Manipulator {} started.'.format(
+                manipulator_name))
+            self.current_task = t
+            t.resume()
+            if not self.last_task:
+                self.browser_conn.send((browser.COMMAND_COVER, (True,)))
+                self.leave_port()
+            self.update_running_manipulators()
+        else:
+            if self.last_task:
+                self.browser_conn.send((browser.COMMAND_COVER, (False,)))
+                self.rmo.running_manipulator = None
+                self.rmo.manipulators_in_queue = []
+                self.rmo.generation += 1
+            self.current_task = None
+            self.last_task = None
+
+    def finish_current_task(self):
+        self.last_task = self.current_task
+        self.current_task = None
+        # This removes the entry when the first instance of the
+        # manipulators that share the name have finished.
+        manipulator_name = self.last_task.__class__.__name__
+        self._logger.debug('Manipulator {} finished.'.format(
+            manipulator_name))
+        if self.is_manipulator_scheduled(manipulator_name):
+            del self.scheduled_manipulators[manipulator_name]
+
     def update(self, current):
         """Update manipulators.
 
@@ -324,39 +357,14 @@ class ManipulatorManager(object):
         self.screen_manager.update_screen()
         self.activate_auto_manipulator()
         if not self.current_task:
-            if self.queue:
-                self.log_manipulator_queue()
-                priority, queue_count, t = heapq.heappop(self.queue)
-                manipulator_name = t.__class__.__name__
-                self._logger.debug('Manipulator {} started.'.format(
-                    manipulator_name))
-                self.current_task = t
-                t.resume()
-                if not self.last_task:
-                    self.browser_conn.send((browser.COMMAND_COVER, (True,)))
-                    self.leave_port()
-                self.update_running_manipulators()
-            else:
-                if self.last_task:
-                    self.browser_conn.send((browser.COMMAND_COVER, (False,)))
-                    self.rmo.running_manipulator = None
-                    self.rmo.manipulators_in_queue = []
-                    self.rmo.generation += 1
-                self.current_task = None
-                self.last_task = None
-        self.task_manager.update(current)
+            self.start_task_from_queue()
         if (self.current_task and
                 self.current_task not in self.task_manager.tasks):
             # The current task has finished.
-            self.last_task = self.current_task
-            self.current_task = None
-            # This removes the entry when the first instance of the
-            # manipulators that share the name have finished.
-            manipulator_name = self.last_task.__class__.__name__
-            self._logger.debug('Manipulator {} finished.'.format(
-                manipulator_name))
-            if self.is_manipulator_scheduled(manipulator_name):
-                del self.scheduled_manipulators[manipulator_name]
+            # Run this before task_manager.update() to allow high-priority
+            # tasks take precedence if they still want to rerun.
+            self.finish_current_task()
+        self.task_manager.update(current)
         if self.rmo.generation > self.rmo_last_generation:
             self.updated_object_types.add('RunningManipulators')
             self.rmo_last_generation = self.rmo.generation

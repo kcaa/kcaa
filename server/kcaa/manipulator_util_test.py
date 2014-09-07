@@ -141,14 +141,18 @@ class TestManipulatorManager(object):
 
     def test_add_manipulator_preserve_order(self, manager):
         assert not manager.queue
+        assert not manager.is_manipulator_scheduled('MockManipulator1')
         M1 = type('MockManipulator1', (MockManipulator,), {})
         m1 = M1(manager, 0, arg='value')
         manager.add_manipulator(m1)
         assert manager.queue == [(0, 0, m1)]
+        assert manager.is_manipulator_scheduled('MockManipulator1')
+        assert not manager.is_manipulator_scheduled('MockManipulator2')
         M2 = type('MockManipulator2', (MockManipulator,), {})
         m2 = M2(manager, 0, arg='value')
         manager.add_manipulator(m2)
         assert manager.queue == [(0, 0, m1), (0, 1, m2)]
+        assert manager.is_manipulator_scheduled('MockManipulator2')
 
     def test_add_manipulator_prefer_higher_priority_task(self, manager):
         assert not manager.queue
@@ -185,6 +189,39 @@ class TestManipulatorManager(object):
         assert len(manipulator_queue) == 1
         # Manipulator object is stored as the 3rd element.
         assert isinstance(manipulator_queue[0][2], MockManipulator)
+
+    def test_start_task_from_queue_empty(self, manager):
+        assert manager.current_task is None
+        assert manager.last_task is None
+        assert not manager.queue
+        manager.start_task_from_queue()
+        assert manager.current_task is None
+        assert manager.last_task is None
+
+    def test_start_task_from_queue_start_running(self, manager):
+        m = manager.add_manipulator(MockManipulator(manager, 0, arg='value'))
+        assert not m.running
+        manager.start_task_from_queue()
+        assert manager.current_task == m
+        assert manager.last_task is None
+        assert m.running
+
+    def test_finish_current_task(self, manager):
+        assert manager.current_task is None
+        assert manager.last_task is None
+        assert not manager.is_manipulator_scheduled('MockManipulator')
+        m = manager.add_manipulator(MockManipulator(manager, 0, arg='value'))
+        assert manager.is_manipulator_scheduled('MockManipulator')
+        manager.start_task_from_queue()
+        # MockManipulator should end running after 1 unit time.
+        manager.task_manager.update(0.1)
+        manager.task_manager.update(0.2)
+        assert manager.current_task == m
+        assert manager.current_task not in manager.task_manager.tasks
+        manager.finish_current_task()
+        assert manager.current_task is None
+        assert manager.last_task == m
+        assert not manager.is_manipulator_scheduled('MockManipulator')
 
 
 def main():
