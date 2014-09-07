@@ -19,8 +19,8 @@ class MockConnection(object):
 
 class MockManipulator(manipulators.base.Manipulator):
 
-    def run(self):
-        pass
+    def run(self, arg):
+        yield self.unit
 
 
 class TestScreenManager(object):
@@ -66,8 +66,12 @@ class TestManipulatorManager(object):
         objects = {
             'RunningManipulators': kcsapi.client.RunningManipulators()
         }
-        return manipulator_util.ManipulatorManager(
+        manager = manipulator_util.ManipulatorManager(
             MockConnection(), objects, kcsapi.prefs.Preferences(), 0)
+        manager.manipulators = {
+            'MockManipulator': MockManipulator,
+        }
+        return manager
 
     def test_in_schedule_fragment(self):
         in_schedule_fragment = (
@@ -138,22 +142,22 @@ class TestManipulatorManager(object):
     def test_add_manipulator_preserve_order(self, manager):
         assert not manager.queue
         M1 = type('MockManipulator1', (MockManipulator,), {})
-        m1 = M1(manager, 0)
+        m1 = M1(manager, 0, arg='value')
         manager.add_manipulator(m1)
         assert manager.queue == [(0, 0, m1)]
         M2 = type('MockManipulator2', (MockManipulator,), {})
-        m2 = M2(manager, 0)
+        m2 = M2(manager, 0, arg='value')
         manager.add_manipulator(m2)
         assert manager.queue == [(0, 0, m1), (0, 1, m2)]
 
     def test_add_manipulator_prefer_higher_priority_task(self, manager):
         assert not manager.queue
         M1 = type('MockManipulator1', (MockManipulator,), {})
-        m1 = M1(manager, 0)
+        m1 = M1(manager, 0, arg='value')
         manager.add_manipulator(m1)
         assert manager.queue == [(0, 0, m1)]
         M2 = type('MockManipulator2', (MockManipulator,), {})
-        m2 = M2(manager, -100)
+        m2 = M2(manager, -100, arg='value')
         manager.add_manipulator(m2)
         assert manager.queue == [(-100, 1, m2), (0, 0, m1)]
 
@@ -169,18 +173,18 @@ class TestManipulatorManager(object):
 
     def test_dispatch_argument_mismatch(self, manager):
         with pytest.raises(TypeError):
-            manager.dispatch(('ChargeFleet', {}))
+            manager.dispatch(('MockManipulator', {}))
         with pytest.raises(TypeError):
-            manager.dispatch(('ChargeFleet', {'non_existent_arg': 'value'}))
+            manager.dispatch(('MockManipulator',
+                             {'non_existent_arg': 'value'}))
 
     def test_dispatch_charge_fleet(self, manager):
         assert manager.manipulator_queue == []
-        manager.dispatch(('ChargeFleet', {'fleet_id': '1'}))
+        manager.dispatch(('MockManipulator', {'arg': 'value'}))
         manipulator_queue = manager.manipulator_queue
         assert len(manipulator_queue) == 1
         # Manipulator object is stored as the 3rd element.
-        assert isinstance(manipulator_queue[0][2],
-                          manipulators.logistics.ChargeFleet)
+        assert isinstance(manipulator_queue[0][2], MockManipulator)
 
 
 def main():
