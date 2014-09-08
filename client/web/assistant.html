@@ -284,6 +284,13 @@
                     data-filter-type="roomInArmor">装甲</button>
           </div>
           <div>
+            ロックフィルタ:
+            <button on-click="{{filterShips}}"
+                    data-filter-type="locked">ロックあり</button>
+            <button on-click="{{filterShips}}"
+                    data-filter-type="notLocked">ロックなし</button>
+          </div>
+          <div>
             <template ref="shiplist" bind="{{model}}"></template>
           </div>
         </div>
