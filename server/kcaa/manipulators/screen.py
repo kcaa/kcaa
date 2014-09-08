@@ -706,7 +706,7 @@ class PortRebuildingScreen(PortOperationsScreen):
     def select_material_page(self, page, max_page):
         def select_material_page_task(task):
             if page == max_page:
-                self.click_page_last()
+                self.click_material_page_last()
                 yield 1.0
                 return
             self.click_material_page_reset()
