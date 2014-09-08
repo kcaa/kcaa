@@ -304,10 +304,10 @@ void handleShipList(Assistant assistant, AssistantModel model,
     presentShips.add(id);
   }
   // Remove ships that are no longer available.
-  for (var id in model.shipMap.keys) {
-    if (!presentShips.contains(id)) {
-      model.shipMap.remove(id);
-    }
+  Set<int> removedShips =
+      new Set<int>.from(model.shipMap.keys).difference(presentShips);
+  for (var id in removedShips) {
+    model.shipMap.remove(id);
   }
   reorderShipList(model);
 }
