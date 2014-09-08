@@ -176,7 +176,7 @@ class ShipDefinition(jsonobject.JSONSerializableObject):
     @property
     def rebuilding_rank(self):
         return (3 * self.rebuilding_material.anti_air +
-                2 * self.rebuilding_material.firepower +
+                3 * self.rebuilding_material.firepower +
                 2 * self.rebuilding_material.armor +
                 1 * self.rebuilding_material.thunderstroke)
 
@@ -368,6 +368,12 @@ class ShipList(model.KCAAObject):
     @property
     def max_page(self):
         return (len(self.ships) + 9) / 10
+
+    def rebuilding_enhanceable_ships(self, fleet_list):
+        return [ship for ship in self.ships.itervalues() if
+                ship.locked and not ship.is_under_repair and
+                (not fleet_list.find_fleet_for_ship(ship.id) or
+                 not fleet_list.find_fleet_for_ship(ship.id).mission_id)]
 
     def rebuilding_target_ships(self, fleet_list):
         return [ship for ship in self.ships.itervalues() if
