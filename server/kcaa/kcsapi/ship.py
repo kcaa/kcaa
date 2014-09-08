@@ -182,7 +182,7 @@ class ShipDefinition(jsonobject.JSONSerializableObject):
 
     @property
     def rebuilding_rank(self):
-        return (3 * self.rebuilding_material.anti_air +
+        return (4 * self.rebuilding_material.anti_air +
                 3 * self.rebuilding_material.firepower +
                 2 * self.rebuilding_material.armor +
                 1 * self.rebuilding_material.thunderstroke)
