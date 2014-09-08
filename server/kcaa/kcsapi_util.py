@@ -72,7 +72,6 @@ class KCSAPIHandler(object):
             '/api_req_hensei/lock': [kcsapi.ship.ShipList],
             '/api_req_hokyu/charge': [kcsapi.ship.ShipList],
             '/api_req_kaisou/powerup': [kcsapi.ship.ShipList],
-            '/api_req_kaisou/remodeling': [kcsapi.ship.ShipList],
             '/api_req_kousyou/getship': [kcsapi.ship.ShipList],
             # Port.
             # Like /api_start2, /api_port/port delivers most (all?) member

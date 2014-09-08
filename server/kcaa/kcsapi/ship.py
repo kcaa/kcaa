@@ -407,11 +407,14 @@ class ShipList(model.KCAAObject):
                 self.ships[str(ship['id'])] = Ship(**ship)
                 updated_ids.add(str(ship['id']))
         elif api_name == '/api_get_member/ship3':
-            # When remodeling, /ship3 only seems to return the flag ship info
-            # of the first fleet?
+            # This is used with /api_req_kaisou/slotset and
+            # /api_req_kaisou/remodeling.
+            # When remodeling, ship3 only returns the updated ship, though as
+            # a list.
+            ship_defs = objects['ShipDefinitionList'].ships
             ship_data = response.api_data.api_ship_data
             for data in ship_data:
-                ship = self.get_ship(data, objects).convert_to_dict()
+                ship = ship_defs[str(data.api_ship_id)].convert_to_dict()
                 ShipList.update_ship(ship, data)
                 self.ships[str(ship['id'])] = Ship(**ship)
             return
@@ -433,13 +436,6 @@ class ShipList(model.KCAAObject):
             # Remove material ships.
             for deleted_ship_id in request.api_id_items.split(','):
                 del self.ships[deleted_ship_id]
-            return
-        elif api_name == '/api_req_kaisou/remodeling':
-            # TODO: This is not enough because Ship-specific attributes (e.g.
-            # loaded_resouce) will not be initialized. Just ignore for now.
-#            ship_defs = objects['ShipDefinitionList'].ships
-#            self.ships[str(request.api_id)] = (
-#                ship_defs[str(self.ships[str(request.api_id)].upgrade_to)])
             return
         elif api_name == '/api_req_kousyou/getship':
             ship = self.get_ship(response.api_data.api_ship,
