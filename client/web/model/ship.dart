@@ -88,7 +88,8 @@ class Ship extends Observable {
 
   Ship();
 
-  void update(Map<String, dynamic> data, List<Fleet> fleets) {
+  void update(Map<String, dynamic> data, List<Fleet> fleets,
+              ShipFilterer filter) {
     id = data["id"];
     name = data["name"];
     shipType = SHIP_TYPE_MAP[data["ship_type"]];
@@ -148,7 +149,7 @@ class Ship extends Observable {
     updateBelongingFleet(fleets);
     stateClass = getStateClass();
     sortOrder = data["sort_order"];
-    filtered = true;
+    filtered = filter(this);
   }
 
   String getStateClass() {
@@ -293,6 +294,7 @@ class Ship extends Observable {
 void handleShipList(Assistant assistant, AssistantModel model,
                     Map<String, dynamic> data) {
   Set<int> presentShips = new Set<int>();
+  int numFilteredShips = 0;
   for (var shipData in (data["ships"] as Map).values) {
     var id = shipData["id"];
     var ship = model.shipMap[id];
@@ -300,9 +302,11 @@ void handleShipList(Assistant assistant, AssistantModel model,
       ship = new Ship();
       model.shipMap[id] = ship;
     }
-    ship.update(shipData, model.fleets);
+    ship.update(shipData, model.fleets, model.shipFilter);
     presentShips.add(id);
+    numFilteredShips += ship.filtered ? 1 : 0;
   }
+  model.numFilteredShips = numFilteredShips;
   // Remove ships that are no longer available.
   Set<int> removedShips =
       new Set<int>.from(model.shipMap.keys).difference(presentShips);

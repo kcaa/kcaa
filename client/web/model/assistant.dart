@@ -27,8 +27,10 @@ class AssistantModel extends Observable {
   @observable final List<Ship> ships = new ObservableList<Ship>();
   @observable bool ignoreFilter = false;
   Map<int, Ship> shipMap = new Map<int, Ship>();
+  ShipFilterer shipFilter = Ship.filterNone;
   ShipComparer shipComparer = Ship.compareByKancolleLevel;
   ShipOrderInverter shipOrderInverter = Ship.orderInDescending;
+  @observable int numFilteredShips = 0;
 
   // Fleets.
   @observable final List<Fleet> fleets = new ObservableList<Fleet>();

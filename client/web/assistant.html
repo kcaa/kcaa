@@ -230,7 +230,10 @@
       </div>
       <div class="row horizontal">
         <div class="board">
-          <h3 data-collapsed="true">艦船 ({{model.ships.length}}隻)</h3>
+          <h3 data-collapsed="true">艦船
+            (<template if="{{model.ships.length != model.numFilteredShips}}"
+             >{{model.numFilteredShips}}/</template>{{model.ships.length}}隻)
+          </h3>
           <div>
             フィルタ:
             <button on-click="{{filterShips}}"
