@@ -658,7 +658,7 @@ class PortRebuildingScreen(PortOperationsScreen):
 
     def check_rebuilding_result(self):
         def check_rebuilding_result_task(task):
-            yield 7.0
+            yield 6.0
             self.click_somewhere()
             yield 2.0
         return self.do_task(check_rebuilding_result_task)

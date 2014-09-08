@@ -81,6 +81,9 @@ class RebuildShip(base.Manipulator):
             yield self.screen.select_fleet_ship(
                 fleet.ship_ids.index(target_ship_id))
         else:
+            # First select the first fleet to cancel the effect of page
+            # skipping of the last attempt.
+            yield self.screen.select_fleet(1)
             yield self.screen.select_ship_list()
             page, in_page_index = (
                 ship_list.get_ship_position_rebuilding_target(
