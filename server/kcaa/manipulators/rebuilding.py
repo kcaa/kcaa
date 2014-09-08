@@ -62,12 +62,19 @@ class RebuildShip(base.Manipulator):
         fleet = fleet_list.find_fleet_for_ship(target_ship.id)
         if fleet and fleet.mission_id:
             logger.error('Target ship is undertaking a mission.')
-        if [s for s in material_ships if s.locked]:
-            logger.error('At least 1 material ship is locked.')
-            return
-        if [s for s in material_ships if fleet_list.find_fleet_for_ship(s.id)]:
-            logger.error('At least 1 material ship has joined a fleet.')
-            return
+        ship_list.check_all_unique()
+        for material_ship in material_ships:
+            name = material_ship.name.encode('utf8')
+            if material_ship.locked:
+                logger.error('Material ship {} is locked.'.format(name))
+                return
+            if fleet_list.find_fleet_for_ship(material_ship.id):
+                logger.error('Material ship {} has joined a fleet.'.format(
+                    name))
+                return
+            if ship_list.is_unique(material_ship):
+                logger.error('Material ship {} is unique.'.format(name))
+                return
         yield self.screen.change_screen(screens.PORT_REBUILDING)
         if fleet:
             yield self.screen.select_fleet(fleet.id)

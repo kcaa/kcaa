@@ -127,6 +127,13 @@ class ShipDefinition(jsonobject.JSONSerializableObject):
     """Rebuilding material."""
     sort_order = jsonobject.ReadonlyJSONProperty('sort_order', value_type=int)
     """Sort order, or the encyclopedia ID."""
+    signature = jsonobject.JSONProperty('signature', value_type=int)
+    """Ship signature.
+
+    A ship signature is a unique ID of ships that share the same remodeling
+    sequence. For example, if the ship model A can be upgraded to B, and B to
+    C, then all of them are guaranteed to have the same ship signature.
+    """
 
     @staticmethod
     def is_battleship(ship):
@@ -286,6 +293,15 @@ class ShipDefinitionList(model.KCAAObject):
             #   api_soukou: api_souk (redundant)
             #   api_taiku: api_tyku (redundant)
             #   api_taisen: api_tais
+        self.update_signatures()
+
+    def update_signatures(self):
+        for ship in self.ships.itervalues():
+            # Find the last ship in the remodeling sequence.
+            last_ship = ship
+            while last_ship.upgrade_to:
+                last_ship = self.ships[str(last_ship.upgrade_to)]
+            ship.signature = last_ship.id
 
 
 class Ship(ShipDefinition):
@@ -407,6 +423,20 @@ class ShipList(model.KCAAObject):
         page = 1 + ship_index / 10
         in_page_index = ship_index % 10
         return page, in_page_index
+
+    def is_unique(self, ship):
+        """Returns true if the ship is unique.
+
+        A ship will be unique if:
+        - it is the only ship which has its signature, or
+        - it is the ship with highest level among ships that share the
+          signature
+        """
+        ships_with_signature = sorted(
+            [s for s in self.ships.itervalues() if
+             s.signature == ship.signature],
+            compare_ship_by_kancolle_level, reverse=True)
+        return ships_with_signature[0].id == ship.id
 
     def update(self, api_name, request, response, objects, debug):
         super(ShipList, self).update(api_name, request, response, objects,
