@@ -402,6 +402,13 @@ class ShipList(model.KCAAObject):
             self.rebuilding_target_ships(fleet_list),
             compare_ship_by_kancolle_level))
 
+    def rebuilding_available_material_ships(self, fleet_list):
+        return [ship for ship in self.ships.itervalues() if
+                not ship.locked and
+                (not fleet_list.find_fleet_for_ship(ship.id) or
+                 not fleet_list.find_fleet_for_ship(ship.id).mission_id) and
+                not self.is_unique(ship)]
+
     def rebuilding_material_ships(self, ship_ids_already_added=[]):
         return [ship for ship in self.ships.itervalues() if
                 not ship.locked and ship.id not in ship_ids_already_added]

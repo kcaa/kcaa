@@ -67,9 +67,10 @@ class RebuildShip(base.Manipulator):
             if material_ship.locked:
                 logger.error('Material ship {} is locked.'.format(name))
                 return
-            if fleet_list.find_fleet_for_ship(material_ship.id):
-                logger.error('Material ship {} has joined a fleet.'.format(
-                    name))
+            fleet = fleet_list.find_fleet_for_ship(material_ship.id)
+            if fleet and fleet.mission_id:
+                logger.error('Material ship {} is undertaking a mission.'
+                             .format(name))
                 return
             if ship_list.is_unique(material_ship):
                 logger.error('Material ship {} is unique.'.format(name))
@@ -117,7 +118,7 @@ class EnhanceBestShip(base.Manipulator):
             ship_list.rebuilding_enhanceable_ships(fleet_list),
             ship.compare_ship_by_kancolle_level, reverse=True)
         material_candidates = sorted(
-            ship_list.rebuilding_material_ships(),
+            ship_list.rebuilding_available_material_ships(fleet_list),
             ship.compare_ship_by_rebuilding_rank)
         material_pool = compute_rebuilding_gain(material_candidates)
         logger.debug('Material pool: {}'.format(material_pool.json()))
