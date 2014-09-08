@@ -45,6 +45,10 @@ class ScreenManager(object):
             screens.PORT_ORGANIZING: manipulators.screen.PortOrganizingScreen,
             screens.PORT_LOGISTICS: manipulators.screen.PortLogisticsScreen,
             screens.PORT_REBUILDING: manipulators.screen.PortRebuildingScreen,
+            screens.PORT_REBUILDING_REBUILDRESULT:
+            manipulators.screen.PortRebuildingScreen,
+            screens.PORT_REBUILDING_REMODELRESULT:
+            manipulators.screen.PortRebuildingScreen,
             screens.PORT_REPAIR: manipulators.screen.PortOperationsScreen,
             screens.PORT_SHIPYARD: manipulators.screen.PortOperationsScreen,
             screens.EXPEDITION: manipulators.screen.ExpeditionScreen,

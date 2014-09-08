@@ -65,11 +65,13 @@ class KCSAPIHandler(object):
             # Encyclopedia.
             '/api_get_member/picture_book': [kcsapi.model.NullHandler()],
             # Ships.
+            # TODO: /api_req_sortie/battleresult.
             '/api_get_member/ship2': [kcsapi.ship.ShipList],
             '/api_get_member/ship3': [kcsapi.ship.ShipList,
                                       kcsapi.fleet.FleetList],
             '/api_req_hensei/lock': [kcsapi.ship.ShipList],
             '/api_req_hokyu/charge': [kcsapi.ship.ShipList],
+            '/api_req_kaisou/powerup': [kcsapi.ship.ShipList],
             '/api_req_kaisou/remodeling': [kcsapi.ship.ShipList],
             '/api_req_kousyou/getship': [kcsapi.ship.ShipList],
             # Port.

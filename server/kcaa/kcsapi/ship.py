@@ -351,17 +351,45 @@ class ShipList(model.KCAAObject):
     def get_ship_position(self, ship_id):
         if str(ship_id) not in self.ships:
             return None, None
-        sorted_ships = sorted(
-            self.ships.values(), compare_ship_by_kancolle_level, reverse=True)
+        return self._compute_page_position(ship_id, sorted(
+            self.ships.values(), compare_ship_by_kancolle_level, reverse=True))
+
+    @property
+    def max_page(self):
+        return (len(self.ships) + 9) / 10
+
+    def rebuilding_target_ships(self, fleet_list):
+        return [ship for ship in self.ships.itervalues() if
+                not fleet_list.find_fleet_for_ship(ship.id)]
+
+    def get_ship_position_rebuilding_target(self, ship_id, fleet_list):
+        if str(ship_id) not in self.ships:
+            return None, None
+        return self._compute_page_position(ship_id, sorted(
+            self.rebuilding_target_ships(fleet_list),
+            compare_ship_by_kancolle_level))
+
+    def rebuilding_material_ships(self, ship_ids_already_added=[]):
+        return [ship for ship in self.ships.itervalues() if
+                not ship.locked and ship.id not in ship_ids_already_added]
+
+    def get_ship_position_rebuilding(self, ship_id, ship_ids_already_added):
+        if str(ship_id) not in self.ships:
+            return None, None
+        return self._compute_page_position(ship_id, sorted(
+            self.rebuilding_material_ships(ship_ids_already_added),
+            compare_ship_by_kancolle_level))
+
+    def max_page_rebuilding(self, ship_ids_already_added):
+        return (len(self.rebuilding_material_ships(ship_ids_already_added))
+                + 9) / 10
+
+    def _compute_page_position(self, ship_id, sorted_ships):
         sorted_ship_ids = [ship.id for ship in sorted_ships]
         ship_index = sorted_ship_ids.index(ship_id)
         page = 1 + ship_index / 10
         in_page_index = ship_index % 10
         return page, in_page_index
-
-    @property
-    def max_page(self):
-        return (len(self.ships) + 9) / 10
 
     def update(self, api_name, request, response, objects, debug):
         super(ShipList, self).update(api_name, request, response, objects,
@@ -396,6 +424,15 @@ class ShipList(model.KCAAObject):
                 ship = self.ships[str(ship_data.api_id)]
                 ship.loaded_resource.fuel = ship_data.api_fuel
                 ship.loaded_resource.ammo = ship_data.api_bull
+            return
+        elif api_name == '/api_req_kaisou/powerup':
+            ship_data = response.api_data.api_ship
+            ship = self.ships[str(ship_data.api_id)].convert_to_dict()
+            ShipList.update_ship(ship, ship_data)
+            self.ships[str(ship['id'])] = Ship(**ship)
+            # Remove material ships.
+            for deleted_ship_id in request.api_id_items.split(','):
+                del self.ships[deleted_ship_id]
             return
         elif api_name == '/api_req_kaisou/remodeling':
             # TODO: This is not enough because Ship-specific attributes (e.g.

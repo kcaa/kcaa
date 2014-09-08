@@ -73,12 +73,20 @@ class RebuildShip(base.Manipulator):
                 fleet.ship_ids.index(target_ship_id))
         else:
             yield self.screen.select_ship_list()
-            # TODO: Handle selecting a ship
+            page, in_page_index = (
+                ship_list.get_ship_position_rebuilding_target(
+                    target_ship_id, fleet_list))
+            yield self.screen.select_page(page)
+            yield self.screen.select_ship(in_page_index)
         yield self.screen.try_rebuilding()
         for i, material_ship in enumerate(material_ships):
             yield self.screen.select_slot(i)
-            # TODO: Handle selecting a ship
+            max_page = ship_list.max_page_rebuilding(material_ship_ids[:i])
+            page, in_page_index = ship_list.get_ship_position_rebuilding(
+                material_ship.id, material_ship_ids[:i])
+            yield self.screen.select_material_page(page, max_page)
+            yield self.screen.select_material_ship(in_page_index)
         yield self.screen.finalyze_rebuilding()
         yield self.screen.confirm_rebuilding()
-        yield self.screen.check_result()
+        yield self.screen.check_rebuilding_result()
         yield self.screen.cancel()

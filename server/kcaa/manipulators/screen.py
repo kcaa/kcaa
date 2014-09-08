@@ -616,7 +616,7 @@ class PortRebuildingScreen(PortOperationsScreen):
 
     def select_fleet(self, fleet_id):
         def select_fleet_task(task):
-            self.click(120 * 30 * fleet_id, 115)
+            self.click(120 + 30 * fleet_id, 115)
             yield 1.0
         return self.do_task(select_fleet_task)
 
@@ -653,19 +653,107 @@ class PortRebuildingScreen(PortOperationsScreen):
     def confirm_rebuilding(self):
         def confirm_rebuilding_task(task):
             self.click(490, 410)
-            yield 1.0
+            yield self.wait_transition(screens.PORT_REBUILDING_REBUILDRESULT)
         return self.do_task(confirm_rebuilding_task)
 
-    def check_result(self):
-        def check_result_task(task):
+    def check_rebuilding_result(self):
+        def check_rebuilding_result_task(task):
+            yield 7.0
+            self.click_somewhere()
             yield 2.0
-        return self.do_task(check_result_task)
+        return self.do_task(check_rebuilding_result_task)
 
     def cancel(self):
         def cancel_task(task):
             self.click(545, 445)
-            yield 1.0
+            self.update_screen_id(screens.PORT_REBUILDING)
+            yield 2.0
         return self.do_task(cancel_task)
+
+    def select_page(self, page):
+        def select_page_task(task):
+            if page <= 3:
+                self.click_page(page - 1)
+                yield 1.0
+                return
+            current_page = 1
+            while page - current_page >= 3:
+                self.click_page_skip_3()
+                current_page += 3
+                yield 1.0
+            while page > current_page:
+                self.click_page_next()
+                current_page += 1
+                yield 1.0
+        return self.do_task(select_page_task)
+
+    def select_ship(self, index):
+        def select_ship_task(task):
+            self.click(210, 150 + 29 * index)
+            yield 2.0
+        return self.do_task(select_ship_task)
+
+    def click_page(self, position):
+        # position ranges from 0 to 2.
+        self.click(180 + 35 * position, 450)
+
+    def click_page_next(self):
+        self.click_page(2)
+
+    def click_page_skip_3(self):
+        self.click(275, 450)
+
+    def select_material_page(self, page, max_page):
+        def select_material_page_task(task):
+            if page == max_page:
+                self.click_page_last()
+                yield 1.0
+                return
+            self.click_material_page_reset()
+            yield 1.0
+            if page <= 5:
+                self.click_material_page(page - 1)
+                yield 1.0
+                return
+            current_page = 1
+            while page - current_page >= 5:
+                self.click_material_page_skip_5()
+                current_page += 5
+                yield 1.0
+            while page - current_page >= 2:
+                self.click_material_page_next_2()
+                current_page += 2
+                yield 1.0
+            while page > current_page:
+                self.click_material_page_next()
+                current_page += 1
+                yield 1.0
+        return self.do_task(select_material_page_task)
+
+    def select_material_ship(self, index):
+        def select_material_ship_task(task):
+            self.click(600, 140 + 30 * index)
+            yield 2.0
+        return self.do_task(select_material_ship_task)
+
+    def click_material_page(self, position):
+        # position ranges from 0 to 4.
+        self.click(558 + 32 * position, 450)
+
+    def click_material_page_reset(self):
+        self.click(480, 450)
+
+    def click_material_page_last(self):
+        self.click(760, 450)
+
+    def click_material_page_next(self):
+        self.click_material_page(3)
+
+    def click_material_page_next_2(self):
+        self.click_material_page(4)
+
+    def click_material_page_skip_5(self):
+        self.click(725, 450)
 
 
 class EngageScreen(Screen):

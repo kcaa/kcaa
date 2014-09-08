@@ -44,6 +44,12 @@ class TestScreen(object):
         ])
         assert screen.screen == screens.MISSION_RESULT
 
+    def test_rebuliding_result(self):
+        screen = client.Screen()
+        assert screen.screen == screens.UNKNOWN
+        self.update(screen, '/api_req_kaisou/powerup')
+        assert screen.screen == screens.PORT_REBUILDING_REBUILDRESULT
+
 
 def main():
     import doctest
