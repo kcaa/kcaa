@@ -182,13 +182,16 @@ class Ship extends Observable {
 
   // Compare ships by Kancolle level.
   // First sort by level (not considering experience gauge), then by sort order
-  // (encyclopedia order). This order is consistent with "Lv" in Kancolle
-  // player.
+  // (encyclopedia order), and then the ship instance ID. This order is
+  // consistent with "Lv" in Kancolle player.
   static int compareByKancolleLevel(Ship a, Ship b) {
     if (a.level != b.level) {
      return a.level.compareTo(b.level);
+    } else if (a.sortOrder != b.sortOrder) {
+      return -a.sortOrder.compareTo(b.sortOrder);
+    } else {
+      return -a.id.compareTo(b.id);
     }
-    return -a.sortOrder.compareTo(b.sortOrder);
   }
 
   static int compareByFuel(Ship a, Ship b) {

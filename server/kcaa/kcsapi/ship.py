@@ -332,11 +332,13 @@ class Ship(ShipDefinition):
 
 
 def compare_ship_by_kancolle_level(ship_a, ship_b):
-    if ship_a.level != ship_b.level:
-        return ship_a.level - ship_b.level
     # Note that this is reversed. When sorted by the level in descending order,
     # a ship with smaller sort_order comes first. Here we do the reverse here.
-    return ship_b.sort_order - ship_a.sort_order
+    if ship_a.level != ship_b.level:
+        return ship_a.level - ship_b.level
+    if ship_a.sort_order != ship_b.sort_order:
+        return -(ship_a.sort_order - ship_b.sort_order)
+    return -(ship_a.id - ship_b.id)
 
 
 class ShipList(model.KCAAObject):
