@@ -62,7 +62,6 @@ class RebuildShip(base.Manipulator):
         fleet = fleet_list.find_fleet_for_ship(target_ship.id)
         if fleet and fleet.mission_id:
             logger.error('Target ship is undertaking a mission.')
-        ship_list.check_all_unique()
         for material_ship in material_ships:
             name = material_ship.name.encode('utf8')
             if material_ship.locked:
