@@ -398,14 +398,17 @@ class ShipList(model.KCAAObject):
                 ship.loaded_resource.ammo = ship_data.api_bull
             return
         elif api_name == '/api_req_kaisou/remodeling':
-            ship_defs = objects['ShipDefinitionList'].ships
-            self.ships[str(request.api_id)] = (
-                ship_defs[str(self.ships[str(request.api_id)].upgrade_to)])
+            # TODO: This is not enough because Ship-specific attributes (e.g.
+            # loaded_resouce) will not be initialized. Just ignore for now.
+#            ship_defs = objects['ShipDefinitionList'].ships
+#            self.ships[str(request.api_id)] = (
+#                ship_defs[str(self.ships[str(request.api_id)].upgrade_to)])
             return
         elif api_name == '/api_req_kousyou/getship':
-            ship_defs = objects['ShipDefinitionList'].ships
-            self.ships[str(response.api_data.api_id)] = (
-                ship_defs[str(response.api_data.api_ship_id)])
+            ship = self.get_ship(response.api_data.api_ship,
+                                 objects).convert_to_dict()
+            ShipList.update_ship(ship, response.api_data.api_ship)
+            self.ships[str(ship['id'])] = Ship(**ship)
             return
         # Update is_under_repair.
         if api_name in ('/api_port/port',
