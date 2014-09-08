@@ -173,6 +173,13 @@ class ShipDefinition(jsonobject.JSONSerializableObject):
             ShipDefinition.SHIP_TYPE_LIGHT_AIRCRAFT_CARRIER,
             ShipDefinition.SHIP_TYPE_AIRCRAFT_BATTLESHIP)
 
+    @property
+    def rebuilding_rank(self):
+        return (3 * self.rebuilding_material.anti_air +
+                2 * self.rebuilding_material.firepower +
+                2 * self.rebuilding_material.armor +
+                1 * self.rebuilding_material.thunderstroke)
+
 
 class ShipDefinitionList(model.KCAAObject):
     """List of ship definitions."""
@@ -339,6 +346,10 @@ def compare_ship_by_kancolle_level(ship_a, ship_b):
     if ship_a.sort_order != ship_b.sort_order:
         return -(ship_a.sort_order - ship_b.sort_order)
     return -(ship_a.id - ship_b.id)
+
+
+def compare_ship_by_rebuilding_rank(ship_a, ship_b):
+    return ship_a.rebuilding_rank - ship_b.rebuilding_rank
 
 
 class ShipList(model.KCAAObject):

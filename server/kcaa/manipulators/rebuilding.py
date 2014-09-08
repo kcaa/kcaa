@@ -63,8 +63,10 @@ class RebuildShip(base.Manipulator):
         if [s for s in material_ships if fleet_list.find_fleet_for_ship(s.id)]:
             logger.error('At least 1 material ship has joined a fleet.')
             return
-        logger.info('Rebuilding {} with expected gain {}'.format(
+        logger.info('Rebuilding {} with material ships {}.'.format(
             target_ship.name.encode('utf8'),
+            ', '.join(s.name.encode('utf8') for s in material_ships)))
+        logger.info('Expected gain: {}'.format(
             compute_rebuilding_gain(material_ships).json()))
         yield self.screen.change_screen(screens.PORT_REBUILDING)
         if fleet:
@@ -90,3 +92,81 @@ class RebuildShip(base.Manipulator):
         yield self.screen.confirm_rebuilding()
         yield self.screen.check_rebuilding_result()
         yield self.screen.cancel()
+
+
+class EnhanceBestShip(base.Manipulator):
+
+    def run(self):
+        logger.info(
+            'Trying to enhance the best ship which has the room to grow.')
+        ship_list = self.objects.get('ShipList')
+        if not ship_list:
+            logger.error('No ship list was found. Giving up.')
+            return
+        fleet_list = self.objects.get('FleetList')
+        if not fleet_list:
+            logger.error('No fleet list was found. Giving up.')
+            return
+        target_candidates = sorted(
+            ship_list.rebuilding_target_ships(fleet_list),
+            ship.compare_ship_by_kancolle_level, reverse=True)
+        material_candidates = sorted(
+            ship_list.rebuilding_material_ships(),
+            ship.compare_ship_by_rebuilding_rank, reverse=True)
+        material_pool = compute_rebuilding_gain(material_candidates)
+        logger.debug('Material pool: {}'.format(material_pool.json()))
+        for target_ship in target_candidates:
+            firepower_room = (target_ship.firepower.maximum -
+                              (target_ship.firepower.baseline +
+                               target_ship.enhanced_ability.firepower))
+            thunderstroke_room = (target_ship.thunderstroke.maximum -
+                                  (target_ship.thunderstroke.baseline +
+                                   target_ship.enhanced_ability.thunderstroke))
+            anti_air_room = (target_ship.anti_air.maximum -
+                             (target_ship.anti_air.baseline +
+                              target_ship.enhanced_ability.anti_air))
+            armor_room = (target_ship.armor.maximum -
+                          (target_ship.armor.baseline +
+                           target_ship.enhanced_ability.armor))
+            firepower_ok = firepower_room > 0 and material_pool.firepower > 0
+            thunderstroke_ok = (thunderstroke_room > 0 and
+                                material_pool.thunderstroke > 0)
+            anti_air_ok = anti_air_room > 0 and material_pool.anti_air > 0
+            armor_ok = armor_room > 0 and material_pool.armor > 0
+            if (not firepower_ok and not thunderstroke_ok and
+                    not anti_air_ok and not armor_ok):
+                logger.debug('{} has no room to grow.'.format(
+                    target_ship.name.encode('utf8')))
+                continue
+            logger.debug(
+                '{} has the room to grow. firepower: {}, thunderstroke: {}, '
+                'anti_air: {}, armor: {}'.format(
+                    target_ship.name.encode('utf8'),
+                    firepower_room, thunderstroke_room, anti_air_room,
+                    armor_room))
+            material_ships = []
+            for material_ship in material_candidates:
+                gain = compute_rebuilding_gain(
+                    material_ships + [material_ship])
+                gain_no_exceed = (gain.firepower <= firepower_room and
+                                  gain.thunderstroke <= thunderstroke_room and
+                                  gain.anti_air <= anti_air_room and
+                                  gain.armor <= armor_room)
+                if gain_no_exceed:
+                    material_ships.append(material_ship)
+                if len(material_ships) == 5:
+                    break
+            else:
+                logger.debug(
+                    '{} does not have 5 ships to enhance its room: {}'.format(
+                        target_ship.name.encode('utf8'),
+                        ', '.join(s.name.encode('utf8') for s in
+                                  material_ships)))
+                logger.debug('Expected gain: {}'.format(
+                    compute_rebuilding_gain(material_ships).json()))
+                continue
+            yield self.do_manipulator(RebuildShip, target_ship.id,
+                                      [s.id for s in material_ships])
+            return
+        else:
+            logger.error('No ship has the room to grow.')

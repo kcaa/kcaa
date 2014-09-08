@@ -155,6 +155,7 @@ class ManipulatorManager(object):
             'ChargeFleet': manipulators.logistics.ChargeFleet,
             # Rebuilding
             'RebuildShip': manipulators.rebuilding.RebuildShip,
+            'EnhanceBestShip': manipulators.rebuilding.EnhanceBestShip,
         }
 
     def define_auto_manipulators(self):

@@ -473,4 +473,12 @@ class Assistant extends PolymerElement {
         }));
     HttpRequest.getString(request.toString());
   }
+
+  void enhanceBestShip(MouseEvent e, var detail, Element target) {
+    Uri request = serverManipulate.resolveUri(
+        new Uri(queryParameters: {
+          "type": "EnhanceBestShip",
+        }));
+    HttpRequest.getString(request.toString());
+  }
 }
