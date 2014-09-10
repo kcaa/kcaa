@@ -19,6 +19,11 @@ WARMUP_VITALITY = 75
 logger = logging.getLogger('kcaa.manipulators.expedition')
 
 
+def is_ship_ok_for_warm_up(ship_):
+    return (not ship.ShipDefinition.is_submarine(ship_) and
+            (ship_.level >= 10 or ship_.firepower.current >= 20))
+
+
 class GoOnExpedition(base.Manipulator):
 
     def run(self, fleet_id, maparea_id, map_id):
@@ -223,7 +228,7 @@ class WarmUpIdleShips(base.Manipulator):
                 break
             fleet_ = fleet_list.find_fleet_for_ship(candidate_ship.id)
             if (candidate_ship.vitality >= WARMUP_VITALITY or
-                    candidate_ship.level < 10 or
+                    not is_ship_ok_for_warm_up(candidate_ship) or
                     not fleet.is_ship_ready(candidate_ship, fleet_,
                                             verbose=False)):
                 continue
