@@ -182,6 +182,16 @@ class EnhanceBestShip(base.Manipulator):
                 if has_improvement(capped_gain, last_gain) and gain_no_waste:
                     material_ships.append(material_ship)
                     last_gain = capped_gain
+                # If the least useful material becomes a mere waste due to the
+                # newly added material, remove it from the list.
+                while len(material_ships) > 1:
+                    gain_r = compute_rebuilding_gain(material_ships[1:])
+                    capped_gain_r = compute_capped_gain(gain_r, gain_cap)
+                    if has_improvement(capped_gain, capped_gain_r):
+                        break
+                    # Now the first material ship turned to be a mere waste;
+                    # there is no drop in gain even it is removed.
+                    del material_ships[0]
                 if len(material_ships) == 5:
                     break
             else:
