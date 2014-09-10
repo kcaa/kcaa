@@ -27,6 +27,44 @@ def compute_rebuilding_gain(material_ships):
         armor=compute_gain_with_bonus(armor))
 
 
+def compute_gain_cap(target_ship):
+    return ship.AbilityEnhancement(
+        firepower=(target_ship.firepower.maximum -
+                   (target_ship.firepower.baseline +
+                    target_ship.enhanced_ability.firepower)),
+        thunderstroke=(target_ship.thunderstroke.maximum -
+                       (target_ship.thunderstroke.baseline +
+                        target_ship.enhanced_ability.thunderstroke)),
+        anti_air=(target_ship.anti_air.maximum -
+                  (target_ship.anti_air.baseline +
+                   target_ship.enhanced_ability.anti_air)),
+        armor=(target_ship.armor.maximum -
+               (target_ship.armor.baseline +
+                target_ship.enhanced_ability.armor)))
+
+
+def can_enhance(gain_cap, material_pool):
+    return ((gain_cap.firepower > 0 and material_pool.firepower > 0) or
+            (gain_cap.thunderstroke > 0 and material_pool.thunderstroke > 0) or
+            (gain_cap.anti_air > 0 and material_pool.anti_air > 0) or
+            (gain_cap.armor > 0 and material_pool.armor > 0))
+
+
+def compute_capped_gain(gain, gain_cap):
+    return ship.AbilityEnhancement(
+        firepower=min(gain.firepower, gain_cap.firepower),
+        thunderstroke=min(gain.thunderstroke, gain_cap.thunderstroke),
+        anti_air=min(gain.anti_air, gain_cap.anti_air),
+        armor=min(gain.armor, gain_cap.armor))
+
+
+def has_improvement(gain_a, gain_b):
+    return (gain_a.firepower > gain_b.firepower or
+            gain_a.thunderstroke > gain_b.thunderstroke or
+            gain_a.anti_air > gain_b.anti_air or
+            gain_a.armor > gain_b.armor)
+
+
 class RebuildShip(base.Manipulator):
 
     def run(self, target_ship_id, material_ship_ids):
@@ -127,47 +165,21 @@ class EnhanceBestShip(base.Manipulator):
         material_pool = compute_rebuilding_gain(material_candidates)
         logger.debug('Material pool: {}'.format(material_pool.json()))
         for target_ship in target_candidates:
-            firepower_room = (target_ship.firepower.maximum -
-                              (target_ship.firepower.baseline +
-                               target_ship.enhanced_ability.firepower))
-            thunderstroke_room = (target_ship.thunderstroke.maximum -
-                                  (target_ship.thunderstroke.baseline +
-                                   target_ship.enhanced_ability.thunderstroke))
-            anti_air_room = (target_ship.anti_air.maximum -
-                             (target_ship.anti_air.baseline +
-                              target_ship.enhanced_ability.anti_air))
-            armor_room = (target_ship.armor.maximum -
-                          (target_ship.armor.baseline +
-                           target_ship.enhanced_ability.armor))
-            firepower_ok = firepower_room > 0 and material_pool.firepower > 0
-            thunderstroke_ok = (thunderstroke_room > 0 and
-                                material_pool.thunderstroke > 0)
-            anti_air_ok = anti_air_room > 0 and material_pool.anti_air > 0
-            armor_ok = armor_room > 0 and material_pool.armor > 0
-            if (not firepower_ok and not thunderstroke_ok and
-                    not anti_air_ok and not armor_ok):
+            gain_cap = compute_gain_cap(target_ship)
+            if not can_enhance(gain_cap, material_pool):
                 continue
             material_ships = []
             last_gain = compute_rebuilding_gain([])
             for material_ship in material_candidates:
                 gain = compute_rebuilding_gain(
                     material_ships + [material_ship])
-                capped_gain = ship.AbilityEnhancement(
-                    firepower=min(gain.firepower, firepower_room),
-                    thunderstroke=min(gain.thunderstroke, thunderstroke_room),
-                    anti_air=min(gain.anti_air, anti_air_room),
-                    armor=min(gain.armor, armor_room))
+                capped_gain = compute_capped_gain(gain, gain_cap)
                 # There should be additional improvement.
-                gain_improvement = (
-                    capped_gain.firepower > last_gain.firepower or
-                    capped_gain.thunderstroke > last_gain.thunderstroke or
-                    capped_gain.anti_air > last_gain.anti_air or
-                    capped_gain.armor > last_gain.armor)
-                # Anti air and firepower enhancements are relatively rare. Try
-                # not to exceed them.
-                gain_no_waste = (gain.firepower <= firepower_room and
-                                 gain.anti_air <= anti_air_room)
-                if gain_improvement and gain_no_waste:
+                # Even that's true, anti air and firepower enhancements are
+                # relatively rare. Try not to exceed them.
+                gain_no_waste = (gain.firepower <= gain_cap.firepower and
+                                 gain.anti_air <= gain_cap.anti_air)
+                if has_improvement(capped_gain, last_gain) and gain_no_waste:
                     material_ships.append(material_ship)
                     last_gain = capped_gain
                 if len(material_ships) == 5:
@@ -176,18 +188,11 @@ class EnhanceBestShip(base.Manipulator):
                 # Using less than 5 ships is considered "mottainai".
                 # It may be acceptable when the ship is reaching the enhance
                 # limit.
-                if (len(material_ship) < 5 and
-                        (last_gain.firepower < firepower_room or
-                         last_gain.thunderstroke < thunderstroke_room or
-                         last_gain.anti_air < anti_air_room or
-                         last_gain.armor < armor_room)):
+                if (len(material_ships) < 5 and
+                        has_improvement(gain_cap, last_gain)):
                     continue
-            logger.info(
-                '{} has the room to grow. firepower: {}, thunderstroke: {}, '
-                'anti_air: {}, armor: {}'.format(
-                    target_ship.name.encode('utf8'),
-                    firepower_room, thunderstroke_room, anti_air_room,
-                    armor_room))
+            logger.info('{} has the room to grow: {}'.format(
+                target_ship.name.encode('utf8'), gain_cap.json()))
             logger.info('Expected capped gain: {}'.format(last_gain.json()))
             yield self.do_manipulator(RebuildShip, target_ship.id,
                                       [s.id for s in material_ships])
