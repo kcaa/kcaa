@@ -52,6 +52,7 @@ class Ship extends Observable {
     "normalState": makeFilterByState(""),
     "dangerousState": makeFilterByState("dangerous"),
     "fatalState": makeFilterByState("fatal"),
+    "canWarmUp": filterCanWarmUp,
     "roomInFirepower": filterRoomInFirepower,
     "roomInThunderstroke": filterRoomInThunderstroke,
     "roomInAntiAir": filterRoomInAntiAir,
@@ -274,6 +275,11 @@ class Ship extends Observable {
 
   static ShipFilterer makeFilterByState(String stateClass) {
     return (Ship s) => s.stateClass == stateClass;
+  }
+
+  static bool filterCanWarmUp(Ship s) {
+    return (s.stateClass == "good" || s.stateClass == "") &&
+        s.vitality < Fleet.WARMUP_VITALITY;
   }
 
   static bool filterRoomInFirepower(Ship s) {
