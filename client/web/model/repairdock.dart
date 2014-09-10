@@ -12,6 +12,8 @@ class RepairSlot extends Observable {
     id = data["id"];
     if (data["ship_id"] != 0) {
       ship = shipMap[data["ship_id"]];
+    } else {
+      ship = null;
     }
 
     // ETA.
@@ -19,6 +21,9 @@ class RepairSlot extends Observable {
       eta = new DateTime.fromMillisecondsSinceEpoch(data["eta"], isUtc: true)
         .toLocal();
       etaDatetimeString = formatShortTime(eta);
+    } else {
+      eta = null;
+      etaDatetimeString = null;
     }
   }
 }
