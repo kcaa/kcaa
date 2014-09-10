@@ -166,6 +166,8 @@ class ManipulatorManager(object):
         self.auto_manipulators = {
             # Logistics
             'AutoChargeFleet': manipulators.logistics.AutoChargeFleet,
+            # Repair
+            'AutoRepairShips': manipulators.repair.AutoRepairShips,
             # Mission
             'AutoCheckMissionResult':
             manipulators.mission.AutoCheckMissionResult,
@@ -184,13 +186,21 @@ class ManipulatorManager(object):
         # Each manipulator gets a priority less than the parent when invoked
         # with Manipulator.add_manipulator().
         self.manipulator_priorities = {
-            # AutoCheckMissionResult have the highest priority because it
+            # AutoCheckMissionResult has the highest priority because it
             # blocks all other manipulations when coming back to the port main
             # screen.
             'AutoCheckMissionResult': -10000,
             # AutoChargeFleet takes the second highest. This should precede
             # practice or missions.
             'AutoChargeFleet': -9000,
+            # AutoRepairShips should have a lower priority than WarmUp.
+            # Priority of -1 ensures that this doesn't bother the current
+            # WarmUp call chain, but precedes consequent WarmUp invocations.
+            # TODO: Consider fixing this; this is hacky.
+            'AutoRepairShips': -1,
+            # AutoGoOnMission should not bother other manipulators. It can run
+            # when idle.
+            'AutoGoOnMission': 10000,
         }
 
     def set_auto_manipulator_preferences(self, automan_prefs):
