@@ -76,6 +76,7 @@ class RebuildShip(base.Manipulator):
                 logger.error('Material ship {} is unique.'.format(name))
                 return
         yield self.screen.change_screen(screens.PORT_REBUILDING)
+        fleet = fleet_list.find_fleet_for_ship(target_ship.id)
         if fleet:
             yield self.screen.select_fleet(fleet.id)
             yield self.screen.select_fleet_ship(
