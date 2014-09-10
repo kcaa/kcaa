@@ -224,7 +224,7 @@ class WarmUpIdleShips(base.Manipulator):
             fleet_ = fleet_list.find_fleet_for_ship(candidate_ship.id)
             if (candidate_ship.vitality >= WARMUP_VITALITY or
                     candidate_ship.level < 10 or
-                    fleet_ and fleet_.mission_id):
+                    not fleet.is_ship_ready(candidate_ship, fleet_)):
                 continue
             ships_to_warm_up.append(candidate_ship)
         if not ships_to_warm_up:
