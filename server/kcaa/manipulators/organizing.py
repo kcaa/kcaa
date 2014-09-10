@@ -10,14 +10,12 @@ logger = logging.getLogger('kcaa.manipulators.organization')
 
 
 class LoadShips(base.Manipulator):
-    """Load the given ships to the fleet.
-
-    This is a kind of "private" manipulator, not accessible through the client
-    API as ship_ids is not a primitive (it expects a list).
-    """
+    """Load the given ships to the fleet."""
 
     def run(self, fleet_id, ship_ids):
         fleet_id = int(fleet_id)
+        if not isinstance(ship_ids, list):
+            ship_ids = [int(ship_id) for ship_id in ship_ids.split(',')]
         ship_list = self.objects.get('ShipList')
         if not ship_list:
             logger.error('No ship list was found. Giving up.')

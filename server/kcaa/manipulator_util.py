@@ -150,6 +150,7 @@ class ManipulatorManager(object):
             # Mission
             'GoOnMission': manipulators.mission.GoOnMission,
             # Organizing
+            'LoadShips': manipulators.organizing.LoadShips,
             'LoadFleet': manipulators.organizing.LoadFleet,
             # Logistics
             'ChargeFleet': manipulators.logistics.ChargeFleet,
