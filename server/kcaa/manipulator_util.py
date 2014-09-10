@@ -164,6 +164,8 @@ class ManipulatorManager(object):
 
     def define_auto_manipulators(self):
         self.auto_manipulators = {
+            # Expedition
+            'AutoWarmUpIdleShips': manipulators.expedition.AutoWarmUpIdleShips,
             # Logistics
             'AutoChargeFleet': manipulators.logistics.AutoChargeFleet,
             # Repair
@@ -194,10 +196,16 @@ class ManipulatorManager(object):
             # practice or missions.
             'AutoChargeFleet': -9000,
             # AutoRepairShips should have a lower priority than WarmUp.
-            # Priority of -1 ensures that this doesn't bother the current
+            # Priority of -2 ensures that this doesn't bother the current
             # WarmUp call chain, but precedes consequent WarmUp invocations.
-            # TODO: Consider fixing this; this is hacky.
-            'AutoRepairShips': -1,
+            # Note that the top-level WarmUp is called from WarmUpFleet or
+            # WarmUpIdleShips, which have priority of -1.
+            # TODO: Consider fixing this; this is too hacky.
+            'AutoRepairShips': -2,
+            # AutoWarmUpIdleShips can run only when idle, but should precede
+            # AutoGoOnMission to make sure all ships are in good condition
+            # before going on missions.
+            'AutoWarmUpIdleShips': 9000,
             # AutoGoOnMission should not bother other manipulators. It can run
             # when idle.
             'AutoGoOnMission': 10000,

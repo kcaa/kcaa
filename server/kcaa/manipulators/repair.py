@@ -77,8 +77,8 @@ class AutoRepairShips(base.AutoManipulator):
         if not empty_slots:
             return
         ships_to_repair = sorted(
-            [s for s in ship_list.damaged_ships(fleet_list) if not
-             s.is_under_repair],
+            [s for s in ship_list.damaged_ships(fleet_list) if
+             not s.is_under_repair],
             ship.compare_ship_by_hitpoint_ratio)[:len(empty_slots)]
         if ships_to_repair:
             return {'ship_ids': [s.id for s in ships_to_repair]}

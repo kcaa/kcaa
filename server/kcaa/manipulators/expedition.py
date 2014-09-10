@@ -224,16 +224,47 @@ class WarmUpIdleShips(base.Manipulator):
             fleet_ = fleet_list.find_fleet_for_ship(candidate_ship.id)
             if (candidate_ship.vitality >= WARMUP_VITALITY or
                     candidate_ship.level < 10 or
-                    not fleet.is_ship_ready(candidate_ship, fleet_)):
+                    not fleet.is_ship_ready(candidate_ship, fleet_,
+                                            verbose=False)):
                 continue
             ships_to_warm_up.append(candidate_ship)
         if not ships_to_warm_up:
             logger.error('No ship is idle or can warm up.')
             return
-        logger.info('Warming up idling ships: {}'.format(', '.join(
+        logger.info('Warming up idle ships: {}'.format(', '.join(
             s.name.encode('utf8') for s in ships_to_warm_up)))
         for ship_to_warm_up in ships_to_warm_up:
             self.add_manipulator(organizing.LoadShips,
                                  fleet_id, [ship_to_warm_up.id])
             self.add_manipulator(WarmUp, fleet_id)
         yield 0.0
+
+
+class AutoWarmUpIdleShips(base.AutoManipulator):
+
+    @classmethod
+    def can_trigger(cls, owner):
+        if not screens.in_category(owner.screen_id, screens.PORT):
+            return
+        ship_list = owner.objects.get('ShipList')
+        if not ship_list:
+            return
+        fleet_list = owner.objects.get('FleetList')
+        if not fleet_list:
+            return
+        repair_dock = owner.objects.get('RepairDock')
+        if not repair_dock:
+            return
+        # Do not run when no repair slot is available; a ship may be damaged
+        # during warming up, and this could pile up damaged ships.
+        # Note that ships that are scheduled for repair may not be in the slots
+        # yet at this time (right after getting back to port). They will be
+        # added by AutoRepairShips.
+        empty_slots = [slot for slot in repair_dock.slots if not slot.ship_id]
+        ships_to_repair = [s for s in ship_list.damaged_ships(fleet_list) if
+                           not s.is_under_repair]
+        if len(empty_slots) > len(ships_to_repair):
+            return {'num_ships': len(empty_slots) - len(ships_to_repair)}
+
+    def run(self, num_ships):
+        yield self.do_manipulator(WarmUpIdleShips, 1, num_ships)
