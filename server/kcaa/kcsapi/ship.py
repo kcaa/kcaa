@@ -14,6 +14,10 @@ class Variable(jsonobject.JSONSerializableObject):
     maximum = jsonobject.ReadonlyJSONProperty('maximum', value_type=int)
     """Maximum value."""
 
+    @property
+    def ratio(self):
+        return float(self.current) / self.maximum
+
 
 class AbilityEnhancement(jsonobject.JSONSerializableObject):
 
@@ -364,6 +368,10 @@ def compare_ship_by_kancolle_level(ship_a, ship_b):
     return -(ship_a.id - ship_b.id)
 
 
+def compare_ship_by_hitpoint_ratio(ship_a, ship_b):
+    return int(100 * (ship_a.hitpoint.ratio - ship_b.hitpoint.ratio))
+
+
 def compare_ship_by_rebuilding_rank(ship_a, ship_b):
     return ship_a.rebuilding_rank - ship_b.rebuilding_rank
 
@@ -423,6 +431,22 @@ class ShipList(model.KCAAObject):
     def max_page_rebuilding(self, ship_ids_already_added):
         return (len(self.rebuilding_material_ships(ship_ids_already_added))
                 + 9) / 10
+
+    def damaged_ships(self, fleet_list):
+        return [ship for ship in self.ships.itervalues() if
+                not ship.is_under_repair and
+                ship.hitpoint.current < ship.hitpoint.maximum and
+                (not fleet_list.find_fleet_for_ship(ship.id) or
+                 not fleet_list.find_fleet_for_ship(ship.id).mission_id)]
+
+    def get_ship_position_repair(self, ship_id, fleet_list):
+        # TODO: Test this with the case if a damaged ship is undertaking a
+        # mission.
+        if str(ship_id) not in self.ships:
+            return None, None
+        return self._compute_page_position(ship_id, sorted(
+            self.damaged_ships(fleet_list),
+            compare_ship_by_hitpoint_ratio))
 
     def _compute_page_position(self, ship_id, sorted_ships):
         sorted_ship_ids = [ship.id for ship in sorted_ships]

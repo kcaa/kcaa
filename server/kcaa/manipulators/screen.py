@@ -756,6 +756,86 @@ class PortRebuildingScreen(PortOperationsScreen):
         self.click(725, 450)
 
 
+class PortRepairScreen(PortOperationsScreen):
+
+    def change_screen(self, screen_id):
+        def change_screen_task(task):
+            if screen_id == screens.PORT_REPAIR:
+                yield 0.0
+                return
+            yield super(PortRepairScreen, self).change_screen(screen_id)
+            if self.screen_id == screen_id:
+                return
+            else:
+                self.raise_impossible_transition(screen_id)
+        self.assert_screen(screens.PORT_REPAIR)
+        return self.do_task(change_screen_task)
+
+    def select_slot(self, slot_id):
+        def select_slot_task(task):
+            self.click(255, 90 + 80 * slot_id)
+            yield 2.0
+        return self.do_task(select_slot_task)
+
+    def select_page(self, page):
+        def select_page_task(task):
+            self.click_page_reset()
+            yield 1.0
+            if page <= 5:
+                self.click_page(page - 1)
+                yield 1.0
+                return
+            current_page = 1
+            while page - current_page >= 5:
+                self.click_page_skip_5()
+                current_page += 5
+                yield 1.0
+            while page - current_page >= 2:
+                self.click_page_next_2()
+                current_page += 2
+                yield 1.0
+            while page > current_page:
+                self.click_page_next()
+                current_page += 1
+                yield 1.0
+        return self.do_task(select_page_task)
+
+    def select_ship(self, index):
+        def select_ship_task(task):
+            self.click(500, 140 + 31 * index)
+            yield 2.0
+        return self.do_task(select_ship_task)
+
+    def try_repair(self):
+        def try_repair_task(task):
+            self.click(685, 440)
+            yield 2.0
+        return self.do_task(try_repair_task)
+
+    def confirm_repair(self):
+        def confirm_repair_task(task):
+            self.click(505, 400)
+            # TODO: This is better to wait nyukyo KCSAPI.
+            yield 3.0
+        return self.do_task(confirm_repair_task)
+
+    def click_page(self, position):
+        # position ranges from 0 to 4.
+        self.click(516 + 32 * position, 460)
+
+    def click_page_reset(self):
+        self.click(435, 460)
+
+    def click_page_next(self):
+        self.click_page(3)
+
+    def click_page_next_2(self):
+        self.click_page(4)
+
+    def click_page_skip_5(self):
+        self.click(680, 460)
+
+
 class EngageScreen(Screen):
 
     def avoid_night_combat(self):
