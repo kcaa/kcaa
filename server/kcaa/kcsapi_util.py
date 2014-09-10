@@ -88,6 +88,8 @@ class KCSAPIHandler(object):
             # Repair docks.
             '/api_get_member/ndock': [kcsapi.repair.RepairDock,
                                       kcsapi.ship.ShipList],
+            '/api_req_nyukyo/speedchange': [kcsapi.repair.RepairDock,
+                                            kcsapi.ship.ShipList],
             '/api_req_nyukyo/start': [kcsapi.repair.RepairDock,
                                       kcsapi.ship.ShipList],
             # Quests.

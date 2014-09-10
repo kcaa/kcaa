@@ -527,6 +527,7 @@ class ShipList(model.KCAAObject):
         # Update is_under_repair.
         if api_name in ('/api_port/port',
                         '/api_get_member/ndock',
+                        '/api_req_nyukyo/speedchange',
                         '/api_req_nyukyo/start'):
             self.update_is_under_repair(objects['RepairDock'])
             updated_ids |= frozenset(self.ships.keys())

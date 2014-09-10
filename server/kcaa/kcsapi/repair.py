@@ -43,6 +43,11 @@ class RepairDock(model.KCAAObject):
                     id=data.api_id,
                     ship_id=data.api_ship_id,
                     eta=long(data.api_complete_time)))
+        elif api_name == '/api_req_nyukyo/speedchange':
+            slot = self.slots[int(request.api_ndock_id) - 1]
+            old_ship_ids_in_dock |= slot.ship_id
+            slot.ship_id = 0
+            slot.eta = 0L
         elif api_name == '/api_req_nyukyo/start':
             if int(request.api_highspeed) == 0:
                 # Is this required? ndock will follow right after this.
