@@ -197,10 +197,43 @@ class WarmUpFleet(base.Manipulator):
         logger.info('Warming up the fleet {}.'.format(fleet_id))
         ship_ids_in_fleet = fleet_.ship_ids[:]
         for good_ship in good_ships:
-            # TODO: Clean up this. This is a dirty workaround to schedule
-            # everything in order.
             self.add_manipulator(organizing.LoadShips,
                                  fleet_id, [good_ship.id])
             self.add_manipulator(WarmUp, fleet_id)
         self.add_manipulator(organizing.LoadShips, fleet_id, ship_ids_in_fleet)
+        yield 0.0
+
+
+class WarmUpIdleShips(base.Manipulator):
+
+    def run(self, fleet_id, num_ships):
+        fleet_id = int(fleet_id)
+        num_ships = int(num_ships)
+        ok, _, _ = fleet.classify_ships(self, fleet_id)
+        if not ok:
+            return
+        ship_list = self.objects.get('ShipList')
+        fleet_list = self.objects.get('FleetList')
+        candidate_ships = sorted(
+            ship_list.ships.itervalues(),
+            ship.compare_ship_by_kancolle_level, reverse=True)
+        ships_to_warm_up = []
+        for candidate_ship in candidate_ships:
+            if len(ships_to_warm_up) >= num_ships:
+                break
+            fleet_ = fleet_list.find_fleet_for_ship(candidate_ship.id)
+            if (candidate_ship.vitality >= WARMUP_VITALITY or
+                    candidate_ship.level < 10 or
+                    fleet_ and fleet_.mission_id):
+                continue
+            ships_to_warm_up.append(candidate_ship)
+        if not ships_to_warm_up:
+            logger.error('No ship is idle or can warm up.')
+            return
+        logger.info('Warming up idling ships: {}'.format(', '.join(
+            s.name.encode('utf8') for s in ships_to_warm_up)))
+        for ship_to_warm_up in ships_to_warm_up:
+            self.add_manipulator(organizing.LoadShips,
+                                 fleet_id, [ship_to_warm_up.id])
+            self.add_manipulator(WarmUp, fleet_id)
         yield 0.0

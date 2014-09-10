@@ -481,4 +481,14 @@ class Assistant extends PolymerElement {
         }));
     HttpRequest.getString(request.toString());
   }
+
+  void warmUpIdleShips(MouseEvent e, var detail, Element target) {
+    Uri request = serverManipulate.resolveUri(
+        new Uri(queryParameters: {
+          "type": "WarmUpIdleShips",
+          "fleet_id": "1",
+          "num_ships": "6",
+        }));
+    HttpRequest.getString(request.toString());
+  }
 }

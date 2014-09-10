@@ -140,6 +140,7 @@ class ManipulatorManager(object):
             'EngageExpedition': manipulators.expedition.EngageExpedition,
             'WarmUp': manipulators.expedition.WarmUp,
             'WarmUpFleet': manipulators.expedition.WarmUpFleet,
+            'WarmUpIdleShips': manipulators.expedition.WarmUpIdleShips,
             # Practice
             'CheckPracticeOpponents':
             manipulators.practice.CheckPracticeOpponents,
