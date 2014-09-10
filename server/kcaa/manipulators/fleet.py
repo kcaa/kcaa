@@ -22,6 +22,7 @@ def is_ship_ready(ship, verbose=True):
             logger.error('Ship {} has low vitality. Cannot proceed.'.format(
                 ship.name.encode('utf8')))
         return False
+    return True
 
 
 def classify_ships(manipulator, fleet_id, verbose=True):
