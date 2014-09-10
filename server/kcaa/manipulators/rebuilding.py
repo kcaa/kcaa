@@ -173,7 +173,14 @@ class EnhanceBestShip(base.Manipulator):
                     break
             else:
                 # Using less than 5 ships is considered "mottainai".
-                continue
+                # It may be acceptable when the ship is reaching the enhance
+                # limit.
+                if (len(material_ship) < 5 and
+                        (last_gain.firepower < firepower_room or
+                         last_gain.thunderstroke < thunderstroke_room or
+                         last_gain.anti_air < anti_air_room or
+                         last_gain.armor < armor_room)):
+                    continue
             logger.info(
                 '{} has the room to grow. firepower: {}, thunderstroke: {}, '
                 'anti_air: {}, armor: {}'.format(
