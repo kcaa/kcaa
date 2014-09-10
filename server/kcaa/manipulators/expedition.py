@@ -265,7 +265,7 @@ class AutoWarmUpIdleShips(base.AutoManipulator):
         # Note that ships that are scheduled for repair may not be in the slots
         # yet at this time (right after getting back to port). They will be
         # added by AutoRepairShips.
-        empty_slots = [slot for slot in repair_dock.slots if not slot.ship_id]
+        empty_slots = [slot for slot in repair_dock.slots if not slot.in_use]
         ships_to_repair = [s for s in ship_list.damaged_ships(fleet_list) if
                            not s.is_under_repair]
         if len(empty_slots) > len(ships_to_repair):

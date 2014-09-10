@@ -36,7 +36,7 @@ class RepairShips(base.Manipulator):
                     ship_.name.encode('utf8')))
                 continue
             ships_to_repair.append(ship_)
-        empty_slots = [slot for slot in repair_dock.slots if not slot.ship_id]
+        empty_slots = [slot for slot in repair_dock.slots if not slot.in_use]
         if len(ships_to_repair) > len(empty_slots):
             logger.info(
                 'Repair of {} ships requested, but only {} repair slots are '
@@ -73,7 +73,7 @@ class AutoRepairShips(base.AutoManipulator):
         repair_dock = owner.objects.get('RepairDock')
         if not repair_dock:
             return
-        empty_slots = [slot for slot in repair_dock.slots if not slot.ship_id]
+        empty_slots = [slot for slot in repair_dock.slots if not slot.in_use]
         if not empty_slots:
             return
         ships_to_repair = sorted(
