@@ -433,8 +433,11 @@ class ShipList(model.KCAAObject):
                 + 9) / 10
 
     def damaged_ships(self, fleet_list):
+        """Gets damaged ships.
+
+        This does return ships under repair.
+        """
         return [ship for ship in self.ships.itervalues() if
-                not ship.is_under_repair and
                 ship.hitpoint.current < ship.hitpoint.maximum and
                 (not fleet_list.find_fleet_for_ship(ship.id) or
                  not fleet_list.find_fleet_for_ship(ship.id).mission_id)]
