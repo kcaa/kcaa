@@ -94,7 +94,7 @@ class EngageExpedition(base.Manipulator):
 
     def run(self):
         yield self.screen.wait_transition(screens.EXPEDITION_COMBAT,
-                                          timeout=10.0)
+                                          timeout=20.0)
         logger.info('Engaging an enemy fleet in expedition.')
         expedition_ = self.objects.get('Expedition')
         fleet_list = self.objects.get('FleetList')
