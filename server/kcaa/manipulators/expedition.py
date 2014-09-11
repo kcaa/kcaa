@@ -19,9 +19,12 @@ WARMUP_VITALITY = 75
 logger = logging.getLogger('kcaa.manipulators.expedition')
 
 
-def is_ship_ok_for_warm_up(ship_):
-    return (not ship.ShipDefinition.is_submarine(ship_) and
+def can_warm_up(ship_, fleet_list):
+    fleet_ = fleet_list.find_fleet_for_ship(ship_.id)
+    return (ship_.vitality < WARMUP_VITALITY and
+            fleet.is_ship_ready(ship_, fleet_, verbose=False) and
             ship_.locked and
+            not ship.ShipDefinition.is_submarine(ship_) and
             (ship_.level >= 10 or ship_.firepower.current >= 20))
 
 
@@ -227,11 +230,7 @@ class WarmUpIdleShips(base.Manipulator):
         for candidate_ship in candidate_ships:
             if len(ships_to_warm_up) >= num_ships:
                 break
-            fleet_ = fleet_list.find_fleet_for_ship(candidate_ship.id)
-            if (candidate_ship.vitality >= WARMUP_VITALITY or
-                    not is_ship_ok_for_warm_up(candidate_ship) or
-                    not fleet.is_ship_ready(candidate_ship, fleet_,
-                                            verbose=False)):
+            if not can_warm_up(candidate_ship, fleet_list):
                 continue
             ships_to_warm_up.append(candidate_ship)
         if not ships_to_warm_up:
@@ -269,8 +268,11 @@ class AutoWarmUpIdleShips(base.AutoManipulator):
         empty_slots = [slot for slot in repair_dock.slots if not slot.in_use]
         ships_to_repair = [s for s in ship_list.damaged_ships(fleet_list) if
                            not s.is_under_repair]
-        if len(empty_slots) > len(ships_to_repair):
-            return {'num_ships': len(empty_slots) - len(ships_to_repair)}
+        ships_to_warm_up = [s for s in ship_list.ships.itervalues() if
+                            can_warm_up(s, fleet_list)]
+        if len(empty_slots) > len(ships_to_repair) and ships_to_warm_up:
+            return {'num_ships': min(len(empty_slots) - len(ships_to_repair),
+                                     len(ships_to_warm_up))}
 
     def run(self, num_ships):
         yield self.do_manipulator(WarmUpIdleShips, 1, num_ships)
