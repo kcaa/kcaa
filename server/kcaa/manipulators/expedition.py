@@ -21,6 +21,7 @@ logger = logging.getLogger('kcaa.manipulators.expedition')
 
 def is_ship_ok_for_warm_up(ship_):
     return (not ship.ShipDefinition.is_submarine(ship_) and
+            ship_.locked and
             (ship_.level >= 10 or ship_.firepower.current >= 20))
 
 
