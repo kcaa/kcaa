@@ -369,7 +369,7 @@ def compare_ship_by_kancolle_level(ship_a, ship_b):
 
 
 def compare_ship_by_hitpoint_ratio(ship_a, ship_b):
-    return int(100 * (ship_a.hitpoint.ratio - ship_b.hitpoint.ratio))
+    return cmp(ship_a.hitpoint.ratio, ship_b.hitpoint.ratio)
 
 
 def compare_ship_by_rebuilding_rank(ship_a, ship_b):
