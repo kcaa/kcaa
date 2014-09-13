@@ -251,6 +251,8 @@ class AutoWarmUpIdleShips(base.AutoManipulator):
     def can_trigger(cls, owner):
         if not screens.in_category(owner.screen_id, screens.PORT):
             return
+        if owner.manager.is_manipulator_scheduled('WarmUp'):
+            return
         ship_list = owner.objects.get('ShipList')
         if not ship_list:
             return
