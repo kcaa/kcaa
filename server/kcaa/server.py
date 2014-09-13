@@ -14,6 +14,7 @@ class KCAAHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
     GET_OBJECTS = '/get_objects'
     GET_NEW_OBJECTS = '/get_new_objects'
+    GET_OBJECT_TYPES = '/get_object_types'
     GET_OBJECT = '/get_object'
     CLICK = '/click'
     RELOAD_KCSAPI = '/reload_kcsapi'
@@ -42,6 +43,8 @@ class KCAAHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             self.handle_get_objects(o)
         elif o.path == KCAAHTTPRequestHandler.GET_NEW_OBJECTS:
             self.handle_get_new_objects(o)
+        elif o.path == KCAAHTTPRequestHandler.GET_OBJECT_TYPES:
+            self.handle_get_object_types(o)
         elif o.path == KCAAHTTPRequestHandler.GET_OBJECT:
             self.handle_get_object(o)
         elif o.path == KCAAHTTPRequestHandler.CLICK:
@@ -68,8 +71,7 @@ class KCAAHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         self.send_response(200)
         self.send_header('Content-Type', 'text/json; charset=UTF-8')
         self.end_headers()
-        self.wfile.write(json.dumps(sorted(list(
-            self.server.objects.iterkeys()))))
+        self.wfile.write(json.dumps(self.server.objects))
 
     def handle_get_new_objects(self, o):
         if self.command != 'GET':
@@ -78,9 +80,24 @@ class KCAAHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         self.send_response(200)
         self.send_header('Content-Type', 'text/json; charset=UTF-8')
         self.end_headers()
-        self.wfile.write(json.dumps(sorted(list(self.server.new_objects))))
+        self.wfile.write(json.dumps(
+            {object_type: self.server.objects[object_type]
+             for object_type in self.server.new_objects}))
+        self.server.new_objects.clear()
+
+    def handle_get_object_types(self, o):
+        # This is no longer required for the client, but useful for debugging.
+        if self.command != 'GET':
+            self.send_error(501, 'Unknown method: {}'.format(self.command))
+            return
+        self.send_response(200)
+        self.send_header('Content-Type', 'text/json; charset=UTF-8')
+        self.end_headers()
+        self.wfile.write(json.dumps(sorted(list(
+            self.server.objects.iterkeys()))))
 
     def handle_get_object(self, o):
+        # This is no longer required for the client, but useful for debugging.
         if self.command != 'GET':
             self.send_error(501, 'Unknown method: {}'.format(self.command))
             return

@@ -28,6 +28,7 @@ class Assistant extends PolymerElement {
   Uri serverRoot;
   Uri serverGetObjects;
   Uri serverGetNewObjects;
+  Uri serverGetObjectTypes;
   Uri serverGetObject;
   Uri serverReloadKCSAPIModules;
   Uri serverReloadManipulatorModules;
@@ -82,6 +83,7 @@ class Assistant extends PolymerElement {
     serverRoot = clientRoot.resolve("/");
     serverGetObjects = serverRoot.resolve("get_objects");
     serverGetNewObjects = serverRoot.resolve("get_new_objects");
+    serverGetObjectTypes = serverRoot.resolve("get_object_types");
     serverGetObject = serverRoot.resolve("get_object");
     serverReloadKCSAPIModules = serverRoot.resolve("reload_kcsapi");
     serverReloadManipulatorModules = serverRoot.resolve("reload_manipulators");
@@ -226,43 +228,34 @@ class Assistant extends PolymerElement {
     model.numFilteredShips = numFilteredShips;
   }
 
-  Future handleObject(String objectType) {
+  void handleObject(String objectType, String data) {
     var handler = OBJECT_HANDLERS[objectType];
     if (handler != null) {
-      return getObject(objectType, false).then((Map<String, dynamic> data) {
-        handler(this, model, data);
-      });
-    } else {
-      return new Future.value(null);
+      handler(this, model, JSON.decode(data));
     }
   }
 
   void handleObjects(Uri objectsUri) {
     HttpRequest.getString(objectsUri.toString())
       .then((String content) {
-        Set<String> objectTypes =
-            (JSON.decode(content) as List<String>).toSet();
+        var objects = JSON.decode(content) as Map<String, String>;
         // Handle referenced objects first.
-        Future handlerChain = new Future.value();
         for (var referencedObject in REFERENCED_OBJECTS) {
-          if (objectTypes.contains(referencedObject)) {
-            handlerChain = handlerChain.then((_) {
-              return handleObject(referencedObject);
-            });
-            objectTypes.remove(referencedObject);
+          if (objects.containsKey(referencedObject)) {
+            handleObject(referencedObject, objects[referencedObject]);
+            objects.remove(referencedObject);
           }
         }
         // Then handle the rest.
-        handlerChain.then((_) {
-          for (var objectType in objectTypes) {
-            handleObject(objectType);
-          }
-        });
+        for (var objectType in objects.keys) {
+          handleObject(objectType, objects[objectType]);
+        }
       });
   }
 
   void updateAvailableObjects() {
-    HttpRequest.getString(serverGetObjects.toString())
+    // Update the list of available objects in the debug info section.
+    HttpRequest.getString(serverGetObjectTypes.toString())
       .then((String content) {
         List<String> objectTypes = JSON.decode(content);
         var newObjectFound = false;
@@ -276,6 +269,7 @@ class Assistant extends PolymerElement {
         }
       });
 
+    // Actually handles the new objects.
     handleObjects(serverGetNewObjects);
   }
 
