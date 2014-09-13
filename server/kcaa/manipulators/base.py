@@ -41,6 +41,8 @@ class Manipulator(task.Task):
 
         Typically the caller will block itself by yielding the return value.
         """
+        logger.debug('Manipulator.do_manipulator({}, *{}, **{})'.format(
+            manipulator.__name__, args, kwargs))
         return self.manager.task_manager.add(
             manipulator(self.manager, 0, *args, **kwargs))
 
@@ -64,6 +66,9 @@ class Manipulator(task.Task):
             manipulator, self.priority - 1, *args, **kwargs)
 
     def add_manipulator_priority(self, manipulator, priority, *args, **kwargs):
+        logger.debug(
+            'Manipulator.add__manipulator_priority({}, priority={}, *{}, **{})'
+            .format(manipulator.__name__, priority, args, kwargs))
         return self.manager.add_manipulator(
             manipulator(self.manager, priority, *args, **kwargs))
 
