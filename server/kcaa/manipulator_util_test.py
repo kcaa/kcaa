@@ -169,6 +169,35 @@ class TestManipulatorManager(object):
         manager.add_manipulator(m2)
         assert manager.queue == [(-100, 1, m2), (0, 0, m1)]
 
+    def test_is_manipulator_scheduled_multiple_entries(self, manager):
+        assert not manager.is_manipulator_scheduled('MockManipulator')
+        m1 = MockManipulator(manager, 0, arg='value1')
+        manager.add_manipulator(m1)
+        assert manager.is_manipulator_scheduled('MockManipulator')
+        m2 = MockManipulator(manager, 0, arg='value2')
+        manager.add_manipulator(m2)
+        assert manager.is_manipulator_scheduled('MockManipulator')
+        manager.update(0.1)
+        assert manager.current_task is m1
+        assert manager.is_manipulator_scheduled('MockManipulator')
+        manager.update(0.2)
+        assert manager.current_task is m1
+        assert manager.is_manipulator_scheduled('MockManipulator')
+        manager.update(0.3)
+        assert manager.current_task is None
+        assert manager.last_task is m1
+        assert manager.is_manipulator_scheduled('MockManipulator')
+        manager.update(0.4)
+        assert manager.current_task is m2
+        assert manager.is_manipulator_scheduled('MockManipulator')
+        manager.update(0.5)
+        assert manager.current_task is m2
+        assert manager.is_manipulator_scheduled('MockManipulator')
+        manager.update(0.6)
+        assert manager.current_task is None
+        assert manager.last_task is m2
+        assert not manager.is_manipulator_scheduled('MockManipulator')
+
     def test_dispatch_invalid_fomat(self, manager):
         with pytest.raises(ValueError):
             manager.dispatch(('Manipulator',))
@@ -206,7 +235,7 @@ class TestManipulatorManager(object):
         m = manager.add_manipulator(MockManipulator(manager, 0, arg='value'))
         assert not m.running
         manager.start_task_from_queue()
-        assert manager.current_task == m
+        assert manager.current_task is m
         assert manager.last_task is None
         assert m.running
 
@@ -220,11 +249,11 @@ class TestManipulatorManager(object):
         # MockManipulator should end running after 1 unit time.
         manager.task_manager.update(0.1)
         manager.task_manager.update(0.2)
-        assert manager.current_task == m
+        assert manager.current_task is m
         assert manager.current_task not in manager.task_manager.tasks
         manager.finish_current_task()
         assert manager.current_task is None
-        assert manager.last_task == m
+        assert manager.last_task is m
         assert not manager.is_manipulator_scheduled('MockManipulator')
 
     def test_update_normal(self, manager):

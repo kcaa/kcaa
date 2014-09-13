@@ -260,8 +260,7 @@ class ManipulatorManager(object):
             manipulator.priority = (
                 self.manipulator_priorities.get(manipulator_name, 0))
         entry = (manipulator.priority, self.queue_count, t)
-        # This works fine for auto manipulators, but not necessarily for manual
-        # manipulators (e.g. GoOnMission).
+        # This overwrites if there is a preceding manipulator.
         self.scheduled_manipulators[manipulator_name] = entry
         heapq.heappush(self.queue, entry)
         self.queue_count += 1
@@ -377,7 +376,9 @@ class ManipulatorManager(object):
         manipulator_name = self.last_task.__class__.__name__
         self._logger.debug('Manipulator {} finished.'.format(
             manipulator_name))
-        if self.is_manipulator_scheduled(manipulator_name):
+        if (self.is_manipulator_scheduled(manipulator_name) and
+                self.scheduled_manipulators[manipulator_name][2] is
+                self.last_task):
             del self.scheduled_manipulators[manipulator_name]
 
     def update(self, current):
