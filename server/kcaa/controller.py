@@ -71,7 +71,7 @@ def control(args, to_exit):
     pk = DummyProcess()
     pc = DummyProcess()
     try:
-        logenv.setup_logger(args.debug)
+        logenv.setup_logger(args.debug, args.log_file, args.log_level)
         logger = logging.getLogger('kcaa.controller')
         preferences = load_preferences(args, logger)
         har_manager = proxy_util.HarManager(args, 3.0)
@@ -131,7 +131,7 @@ def control(args, to_exit):
                     try:
                         manipulator_manager.dispatch(command_args)
                     except:
-                        traceback.print_exc()
+                        logger.error(traceback.format_exc())
                 elif command_type == COMMAND_SET_PREFERENCES:
                     preferences = kcsapi.prefs.Preferences.parse_text(
                         command_args[0])
@@ -172,11 +172,11 @@ def control(args, to_exit):
                 # Do not reload modules automatically because the bug should be
                 # still there. You can always reload modules explicitly with
                 # the reload button in the KCAA control window.
-                traceback.print_exc()
+                logger.error(traceback.format_exc())
     except (KeyboardInterrupt, SystemExit):
         logger.info('SIGINT received in the controller process. Exiting...')
     except:
-        traceback.print_exc()
+        logger.error(traceback.format_exc())
     to_exit.set()
     ps.join()
     pk.join()

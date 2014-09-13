@@ -27,7 +27,7 @@ set SERVERBIN=%cd%\..\server\server_main.py
   --preferences=%PREFERENCES% ^
   --credentials=%CREDENTIALS% ^
   --debug=%DEBUG% ^
-  2>&1 ^
-  | tee.bat log.txt
+  --log_file=%LOGFILE% ^
+  --log_level=%LOGLEVEL%
 
 echo Server exited. Close this window!

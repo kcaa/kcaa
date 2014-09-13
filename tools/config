@@ -64,3 +64,5 @@ CREDENTIALS=
 # ============================================================================
 
 DEBUG=false
+LOG_FILE=log.txt
+LOG_LEVEL=DEBUG

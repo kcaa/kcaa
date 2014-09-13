@@ -10,7 +10,8 @@ import kcaa
 def main(argv):
     args = kcaa.flags.parse_args(argv[1:])
 
-    logger = kcaa.logenv.setup_logger(args.debug)
+    logger = kcaa.logenv.setup_logger(
+        args.debug, args.log_file, args.log_level)
     logger.debug('Logger setup finished.')
 
     to_exit = multiprocessing.Event()

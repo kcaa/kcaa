@@ -254,7 +254,7 @@ def setup(args, logger):
 def handle_server(args, to_exit, controller_conn, object_queue):
     httpd = None
     try:
-        logenv.setup_logger(args.debug)
+        logenv.setup_logger(args.debug, args.log_file, args.log_level)
         logger = logging.getLogger('kcaa.server')
         httpd, root_url = setup(args, logger)
         httpd.new_objects = set()
@@ -275,7 +275,7 @@ def handle_server(args, to_exit, controller_conn, object_queue):
     except (KeyboardInterrupt, SystemExit):
         logger.info('SIGINT received in the server process. Exiting...')
     except:
-        traceback.print_exc()
+        logger.error(traceback.format_exc())
     to_exit.set()
     if httpd:
         httpd.server_close()

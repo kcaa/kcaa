@@ -218,7 +218,7 @@ def show_game_frame_cover(browser, is_shown):
 
 def setup_kancolle_browser(args, controller_conn, to_exit):
     try:
-        logenv.setup_logger(args.debug)
+        logenv.setup_logger(args.debug, args.log_file, args.log_level)
         logger = logging.getLogger('kcaa.browser')
         monitor = BrowserMonitor(
             'Kancolle', open_kancolle_browser(args, logger), 3)
@@ -285,7 +285,7 @@ def setup_kancolle_browser(args, controller_conn, to_exit):
         logger.info('SIGINT received in the Kancolle browser process. '
                     'Exiting...')
     except:
-        traceback.print_exc()
+        logger.error(traceback.format_exc())
     to_exit.set()
     try:
         monitor.close()
@@ -308,7 +308,7 @@ def open_kcaa_browser(args, root_url, logger):
 
 def setup_kcaa_browser(args, root_url, to_exit):
     try:
-        logenv.setup_logger(args.debug)
+        logenv.setup_logger(args.debug, args.log_file, args.log_level)
         logger = logging.getLogger('kcaa.browser')
         kcaa_browser = open_kcaa_browser(args, root_url, logger)
         if not kcaa_browser:
@@ -328,7 +328,7 @@ def setup_kcaa_browser(args, root_url, to_exit):
     except (KeyboardInterrupt, SystemExit):
         logger.info('SIGINT received in the KCAA browser process. Exiting...')
     except:
-        traceback.print_exc()
+        logger.error(traceback.format_exc())
     to_exit.set()
     try:
         monitor.close()

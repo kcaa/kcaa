@@ -72,4 +72,11 @@ def parse_args(argv):
                         help='True if showing various debug information. This '
                              'is useful for developing, but would reduce '
                              'performance.')
+    parser.add_argument('--log_file', default='log.txt',
+                        help='Log file. If empty, no log will be written but '
+                             'you usually should avoid it as the debug log '
+                             'really helps when a problem arises.')
+    parser.add_argument('--log_level', default='DEBUG',
+                        help='Log level. Usually this should be DEBUG to '
+                             'help debugging an issue later.')
     return parser.parse_args(argv)

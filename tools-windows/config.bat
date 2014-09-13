@@ -67,3 +67,5 @@ rem Debug
 rem ==========================================================================
 
 set DEBUG=false
+set LOGFILE=log.txt
+set LOGLEVEL=DEBUG

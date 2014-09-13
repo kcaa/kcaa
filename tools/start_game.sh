@@ -46,5 +46,5 @@ ${SERVER_BIN} \
   --preferences=${PREFERENCES} \
   --credentials=${CREDENTIALS} \
   --debug=${DEBUG} \
-  2>&1 \
-  | tee ${SCRIPT_DIR}/log.txt
+  --log_file=${LOG_FILE} \
+  --log_level=${LOG_LEVEL}
