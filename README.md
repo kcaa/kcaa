@@ -3,7 +3,7 @@
 KCAA (pronounced as *K-car*) is an assistant tool for playing
 [Kancolle](http://www.dmm.com/netgame/feature/kancolle.html) (Kantai
 Collection), aimed to do simple tasks for you so that you can focus on what you
-really should do -- resource management and making decisions.
+really should do -- resource management and decision making.
 
 Currently supported key features are
 - Fleets and ships with vital parameters at a glance
