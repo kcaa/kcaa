@@ -45,7 +45,7 @@ class RepairDock(model.KCAAObject):
                     eta=long(data.api_complete_time)))
         elif api_name == '/api_req_nyukyo/speedchange':
             slot = self.slots[int(request.api_ndock_id) - 1]
-            old_ship_ids_in_dock |= slot.ship_id
+            old_ship_ids_in_dock.add(slot.ship_id)
             slot.ship_id = 0
             slot.eta = 0L
         elif api_name == '/api_req_nyukyo/start':
@@ -55,7 +55,7 @@ class RepairDock(model.KCAAObject):
                 slot.ship_id = int(request.api_ship_id)
             else:
                 # Mark this ship has completed repair.
-                old_ship_ids_in_dock |= int(request.api_ship_id)
+                old_ship_ids_in_dock.add(request.api_ship_id)
         # Update ship hitpoints which completed repair.
         ship_ids_in_dock = frozenset(slot.ship_id for slot in self.slots)
         if ship_ids_in_dock < old_ship_ids_in_dock:
