@@ -64,6 +64,28 @@ class TestRepairDock(object):
         ship_100 = ship_list.ships['100']
         assert ship_100.hitpoint.current == ship_100.hitpoint.maximum
 
+    def test_update_repair_end_ndock(self, repair_dock, ship_list):
+        response = jsonobject.parse_text("""{
+            "api_data": [
+                {
+                    "api_id": 1,
+                    "api_ship_id": 0,
+                    "api_complete_time": 0
+                },
+                {
+                    "api_id": 2,
+                    "api_ship_id": 0,
+                    "api_complete_time": 0
+                }
+            ]
+        }""")
+        objects = {'ShipList': ship_list}
+        repair_dock.update(
+            '/api_get_member/ndock', None, response, objects, False)
+        assert repair_dock.slots[0].ship_id == 0
+        ship_100 = ship_list.ships['100']
+        assert ship_100.hitpoint.current == ship_100.hitpoint.maximum
+
 
 def main():
     import doctest
