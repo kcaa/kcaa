@@ -4,7 +4,7 @@ import logging
 import traceback
 
 from kcaa import screens
-from kcaa.kcsapi import mission
+from kcaa import kcsapi
 
 
 class Screen(object):
@@ -388,7 +388,7 @@ class PortMissionScreen(PortScreen):
     def select_maparea(self, maparea_id):
         def select_maparea_task(task):
             # Limited time map areas.
-            if maparea_id >= mission.Mission.MAPAREA_2014_SPRING:
+            if maparea_id >= kcsapi.Mission.MAPAREA_2014_SPRING:
                 self.click(495, 435)
             else:
                 self.click(85 + 65 * maparea_id, 435)

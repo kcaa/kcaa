@@ -5,10 +5,8 @@ import logging
 import base
 import fleet
 import organizing
+from kcaa import kcsapi
 from kcaa import screens
-from kcaa.kcsapi import expedition
-from kcaa.kcsapi import mission
-from kcaa.kcsapi import ship
 
 
 # If the vitality of a ship is less than this number, the ship is considered to
@@ -24,7 +22,7 @@ def can_warm_up(ship_, fleet_list):
     return (ship_.vitality < WARMUP_VITALITY and
             fleet.is_ship_ready(ship_, fleet_, verbose=False) and
             ship_.locked and
-            not ship.ShipDefinition.is_submarine(ship_) and
+            not kcsapi.ShipDefinition.is_submarine(ship_) and
             (ship_.level >= 10 or ship_.firepower.current >= 20))
 
 
@@ -37,7 +35,7 @@ class GoOnExpedition(base.Manipulator):
         logger.info('Making the fleet {} go on the expedition {}-{}'.format(
             fleet_id, maparea_id, map_id))
         # TODO: Move maparea definition to a separate module like kcsapic.
-        if maparea_id > mission.Mission.MAPAREA_SOUTH:
+        if maparea_id > kcsapi.Mission.MAPAREA_SOUTH:
             logger.error('Maparea {} is not supported.'.format(maparea_id))
         if not fleet.are_all_ships_available(self, fleet_id):
             return
@@ -55,7 +53,7 @@ class SailOnExpeditionMap(base.Manipulator):
 
     def run(self):
         yield self.screen.wait_transition(screens.EXPEDITION, timeout=10.0)
-        expedition_ = self.objects.get('Expedition')
+        expedition = self.objects.get('Expedition')
         if not expedition:
             logger.error('No expedition info was found. Giving up.')
             return
@@ -63,20 +61,20 @@ class SailOnExpeditionMap(base.Manipulator):
         if not fleet_list:
             logger.error('No fleet list was found. Giving up.')
             return
-        if expedition_.needs_compass:
+        if expedition.needs_compass:
             self.screen.update_screen_id(screens.EXPEDITION_COMPASS)
             yield self.screen.roll_compass()
         # Save the current info early not to be overwritten.
-        event = expedition_.event
-        is_terminal = expedition_.is_terminal
+        event = expedition.event
+        is_terminal = expedition.is_terminal
         self.screen.update_screen_id(screens.EXPEDITION_SAILING)
         # TODO: Handle a special sailing animation (e.g. spotter aircraft), if
         # needed. Expedition object should have such information.
         yield 4.0
-        if event in (expedition.Expedition.EVENT_BATTLE,
-                     expedition.Expedition.EVENT_BATTLE_BOSS):
+        if event in (kcsapi.Expedition.EVENT_BATTLE,
+                     kcsapi.Expedition.EVENT_BATTLE_BOSS):
             yield 3.0
-            fleet = fleet_list.fleets[expedition_.fleet_id - 1]
+            fleet = fleet_list.fleets[expedition.fleet_id - 1]
             if len(fleet.ship_ids) >= 4:
                 yield self.screen.select_formation(self.choose_formation())
             self.add_manipulator(EngageExpedition)
@@ -100,15 +98,15 @@ class EngageExpedition(base.Manipulator):
         yield self.screen.wait_transition(screens.EXPEDITION_COMBAT,
                                           timeout=20.0)
         logger.info('Engaging an enemy fleet in expedition.')
-        expedition_ = self.objects.get('Expedition')
+        expedition = self.objects.get('Expedition')
         fleet_list = self.objects.get('FleetList')
         ship_list = self.objects.get('ShipList')
         if not ship_list:
             logger.error('No ship list was found. Giving up.')
             return
-        fleet_ = fleet_list.fleets[expedition_.fleet_id - 1]
+        fleet_ = fleet_list.fleets[expedition.fleet_id - 1]
         to_go_for_night_combat = self.should_go_night_combat(
-            expedition_, fleet_, ship_list)
+            expedition, fleet_, ship_list)
         if to_go_for_night_combat:
             logger.info('Going for the night combat.')
         else:
@@ -143,7 +141,7 @@ class EngageExpedition(base.Manipulator):
         yield self.screen.dismiss_result_details()
         if expedition_result.got_ship:
             yield self.screen.dismiss_new_ship()
-        if expedition_.is_terminal:
+        if expedition.is_terminal:
             yield self.screen.wait_transition(screens.PORT_MAIN)
             return
         if self.should_go_next():
@@ -152,14 +150,14 @@ class EngageExpedition(base.Manipulator):
         else:
             yield self.screen.drop_out()
 
-    def should_go_night_combat(self, expedition_, fleet_, ship_list):
+    def should_go_night_combat(self, expedition, fleet_, ship_list):
         ships = map(lambda ship_id: ship_list.ships[str(ship_id)],
                     fleet_.ship_ids)
         # TODO: Use a wiser decision. This is a quick hack to avoid making a
         # fleet of a single aircraft carrier to go for night combat.
-        if ship.ShipDefinition.is_aircraft_carrier(ships[0]):
+        if kcsapi.ShipDefinition.is_aircraft_carrier(ships[0]):
             return False
-        if expedition_.event == expedition.Expedition.EVENT_BATTLE_BOSS:
+        if expedition.event == kcsapi.Expedition.EVENT_BATTLE_BOSS:
             return True
         # TODO: Make a wiser decision. Consider the expected result, ship
         # health. Maybe good to be conservative.
@@ -225,7 +223,7 @@ class WarmUpIdleShips(base.Manipulator):
         fleet_list = self.objects.get('FleetList')
         candidate_ships = sorted(
             ship_list.ships.itervalues(),
-            ship.compare_ship_by_kancolle_level, reverse=True)
+            kcsapi.ship.compare_ship_by_kancolle_level, reverse=True)
         ships_to_warm_up = []
         for candidate_ship in candidate_ships:
             if len(ships_to_warm_up) >= num_ships:

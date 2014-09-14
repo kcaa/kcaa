@@ -14,6 +14,38 @@ import resource
 import ship
 
 
+def is_class_object(attr, name):
+    # Why no quick, easy and stable measure to do this?
+    return (isinstance(attr, object) and
+            name[0].isupper() and
+            (hasattr(attr, '__dict__') or hasattr(attr, '__slots__')))
+
+
+def expand_modules():
+    import logging
+    import types
+    logger = logging.getLogger('kcaa.kcsapi')
+    public_classes = {}
+    for module in globals().itervalues():
+        if not isinstance(module, types.ModuleType):
+            continue
+        class_names = []
+        for name in dir(module):
+            attr = getattr(module, name)
+            if not is_class_object(attr, name):
+                continue
+            if (name in public_classes and
+                    public_classes[name].__name__ != attr.__name__):
+                raise TypeError('Name collision in kcsapi: {} and {}'.format(
+                    repr(public_classes[name]), repr(attr)))
+            public_classes[name] = attr
+            class_names.append(name)
+        logger.info('Expanded module {}: {}'.format(
+            module.__name__, ', '.join(class_names)))
+    for name, public_class in public_classes.iteritems():
+        globals()[name] = public_class
+
+
 def reload_modules():
     """Reload KCSAPI handler modules.
 
@@ -59,11 +91,16 @@ def reload_modules():
     # Now, the rest of imported modules are safe to reload in an arbitrary
     # order.
     import types
-    for key, value in globals().items():
-        if (isinstance(value, types.ModuleType) and
-                value not in referenced_modules):
-            reload(value)
-            logger.info('Reloaded module {}'.format(value.__name__))
+    for module in globals().itervalues():
+        if (not isinstance(module, types.ModuleType) or
+                module in referenced_modules):
+            continue
+        reload(module)
+        logger.info('Reloaded module {}'.format(module.__name__))
+    expand_modules()
+
+
+expand_modules()
 
 
 def main():

@@ -4,7 +4,7 @@ import logging
 
 import base
 from kcaa import screens
-from kcaa.kcsapi import ship
+from kcaa import kcsapi
 
 
 logger = logging.getLogger('kcaa.manipulators.repair')
@@ -79,7 +79,7 @@ class AutoRepairShips(base.AutoManipulator):
         ships_to_repair = sorted(
             [s for s in ship_list.damaged_ships(fleet_list) if
              not s.is_under_repair],
-            ship.compare_ship_by_hitpoint_ratio)[:len(empty_slots)]
+            kcsapi.ship.compare_ship_by_hitpoint_ratio)[:len(empty_slots)]
         if ships_to_repair:
             return {'ship_ids': [s.id for s in ships_to_repair]}
 

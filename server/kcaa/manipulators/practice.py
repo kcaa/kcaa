@@ -5,8 +5,8 @@ import logging
 import base
 import fleet
 import organizing
+from kcaa import kcsapi
 from kcaa import screens
-from kcaa.kcsapi import practice
 
 
 logger = logging.getLogger('kcaa.manipulators.practice')
@@ -21,10 +21,10 @@ class CheckPracticeOpponents(base.Manipulator):
         if not practice_list:
             logger.error('No practice list was found. Giving up.')
             return
-        for practice_ in practice_list.practices:
-            if practice_.result != practice.Practice.RESULT_NEW:
+        for practice in practice_list.practices:
+            if practice.result != kcsapi.Practice.RESULT_NEW:
                 continue
-            yield self.screen.check_opponent(practice_.id)
+            yield self.screen.check_opponent(practice.id)
             yield self.screen.cancel()
 
 
@@ -41,11 +41,11 @@ class GoOnPractice(base.Manipulator):
         if not practice_list:
             logger.error('No practice list was found. Giving up.')
             return
-        practice_ = practice_list.practices[practice_id - 1]
-        if practice_.result != practice.Practice.RESULT_NEW:
+        practice = practice_list.practices[practice_id - 1]
+        if practice.result != kcsapi.Practice.RESULT_NEW:
             logger.error('Practice {} is already done.'.format(practice_id))
             return
-        expected_fleet_type = practice_.fleet_type
+        expected_fleet_type = practice.fleet_type
         if not fleet.are_all_ships_available(self, fleet_id):
             return
         fleet_list = self.objects.get('FleetList')
@@ -53,10 +53,10 @@ class GoOnPractice(base.Manipulator):
         # TODO: Check if the fleet is avialable for practice. Some ships may be
         # in the repair dock.
         yield self.screen.change_screen(screens.PORT_PRACTICE)
-        yield self.screen.check_opponent(practice_.id)
+        yield self.screen.check_opponent(practice.id)
         # The oppoonent changed the fleet organization. The expected type
         # mismatches -- retry the process from the beginning.
-        if practice_.fleet_type != expected_fleet_type:
+        if practice.fleet_type != expected_fleet_type:
             yield self.screen.cancel()
             self.add_manipulator(HandlePractice, fleet_id, practice_id)
             return
@@ -79,17 +79,17 @@ class HandlePractice(base.Manipulator):
         if not practice_list:
             logger.error('No practice list was found. Giving up.')
             return
-        practice_ = practice_list.practices[practice_id - 1]
-        if practice_.result != practice.Practice.RESULT_NEW:
+        practice = practice_list.practices[practice_id - 1]
+        if practice.result != kcsapi.Practice.RESULT_NEW:
             logger.error('Practice {} is already done.'.format(practice_id))
             return
         practice_plan = (
             self.manager.preferences.practice_prefs.get_practice_plan(
-                practice_.fleet_type))
+                practice.fleet_type))
         if not practice_plan:
             logger.error(
                 'No practice plan for the opponent fleet type {}'.format(
-                    practice_.fleet_type))
+                    practice.fleet_type))
             return
         self.add_manipulator(organizing.LoadFleet, fleet_id,
                              practice_plan.fleet_name.encode('utf8'))
@@ -108,8 +108,8 @@ class HandleAllPractices(base.Manipulator):
         if not practice_list:
             logger.error('No practice list was found. Giving up.')
             return
-        for i, practice_ in enumerate(practice_list.practices):
-            if practice_.result != practice.Practice.RESULT_NEW:
+        for i, practice in enumerate(practice_list.practices):
+            if practice.result != kcsapi.Practice.RESULT_NEW:
                 continue
             self.add_manipulator(HandlePractice, fleet_id, i + 1)
 

@@ -4,7 +4,7 @@ import logging
 
 import base
 from kcaa import screens
-from kcaa.kcsapi import ship
+from kcaa import kcsapi
 
 
 logger = logging.getLogger('kcaa.manipulators.rebuilding')
@@ -20,7 +20,7 @@ def compute_rebuilding_gain(material_ships):
                         material_ships)
     anti_air = sum(s.rebuilding_material.anti_air for s in material_ships)
     armor = sum(s.rebuilding_material.armor for s in material_ships)
-    return ship.AbilityEnhancement(
+    return kcsapi.AbilityEnhancement(
         firepower=compute_gain_with_bonus(firepower),
         thunderstroke=compute_gain_with_bonus(thunderstroke),
         anti_air=compute_gain_with_bonus(anti_air),
@@ -28,7 +28,7 @@ def compute_rebuilding_gain(material_ships):
 
 
 def compute_gain_cap(target_ship):
-    return ship.AbilityEnhancement(
+    return kcsapi.AbilityEnhancement(
         firepower=(target_ship.firepower.maximum -
                    (target_ship.firepower.baseline +
                     target_ship.enhanced_ability.firepower)),
@@ -51,7 +51,7 @@ def can_enhance(gain_cap, material_pool):
 
 
 def compute_capped_gain(gain, gain_cap):
-    return ship.AbilityEnhancement(
+    return kcsapi.AbilityEnhancement(
         firepower=min(gain.firepower, gain_cap.firepower),
         thunderstroke=min(gain.thunderstroke, gain_cap.thunderstroke),
         anti_air=min(gain.anti_air, gain_cap.anti_air),

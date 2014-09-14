@@ -58,69 +58,69 @@ class KCSAPIHandler(object):
             # Initialization, or account information.
             # /api_start2 now delivers most (all?) master information;
             # invariant data required for modelling, rendering and everything.
-            '/api_auth_member/logincheck': [kcsapi.model.NullHandler()],
-            '/api_req_member/get_incentive': [kcsapi.model.NullHandler()],
-            '/api_start2': [kcsapi.mission.MissionList,
-                            kcsapi.ship.ShipDefinitionList],
+            '/api_auth_member/logincheck': [kcsapi.NullHandler()],
+            '/api_req_member/get_incentive': [kcsapi.NullHandler()],
+            '/api_start2': [kcsapi.MissionList,
+                            kcsapi.ShipDefinitionList],
             # Encyclopedia.
-            '/api_get_member/picture_book': [kcsapi.model.NullHandler()],
+            '/api_get_member/picture_book': [kcsapi.NullHandler()],
             # Ships.
             # TODO: /api_req_sortie/battleresult.
-            '/api_get_member/ship2': [kcsapi.ship.ShipList],
-            '/api_get_member/ship3': [kcsapi.ship.ShipList,
-                                      kcsapi.fleet.FleetList],
-            '/api_req_hensei/lock': [kcsapi.ship.ShipList],
-            '/api_req_hokyu/charge': [kcsapi.ship.ShipList],
-            '/api_req_kaisou/powerup': [kcsapi.ship.ShipList],
-            '/api_req_kousyou/getship': [kcsapi.ship.ShipList],
+            '/api_get_member/ship2': [kcsapi.ShipList],
+            '/api_get_member/ship3': [kcsapi.ShipList,
+                                      kcsapi.FleetList],
+            '/api_req_hensei/lock': [kcsapi.ShipList],
+            '/api_req_hokyu/charge': [kcsapi.ShipList],
+            '/api_req_kaisou/powerup': [kcsapi.ShipList],
+            '/api_req_kousyou/getship': [kcsapi.ShipList],
             # Port.
             # Like /api_start2, /api_port/port delivers most (all?) member
             # information; variant data for the player, ships, fleets, repair
             # or building docks.
-            '/api_port/port': [kcsapi.mission.MissionList,
-                               kcsapi.repair.RepairDock,
-                               kcsapi.ship.ShipList,
-                               kcsapi.fleet.FleetList],
+            '/api_port/port': [kcsapi.MissionList,
+                               kcsapi.RepairDock,
+                               kcsapi.ShipList,
+                               kcsapi.FleetList],
             # Fleets (deck).
-            '/api_get_member/deck': [kcsapi.fleet.FleetList,
-                                     kcsapi.mission.MissionList],
-            '/api_req_hensei/change': [kcsapi.fleet.FleetList],
+            '/api_get_member/deck': [kcsapi.FleetList,
+                                     kcsapi.MissionList],
+            '/api_req_hensei/change': [kcsapi.FleetList],
             # Repair docks.
-            '/api_get_member/ndock': [kcsapi.repair.RepairDock,
-                                      kcsapi.ship.ShipList],
-            '/api_req_nyukyo/speedchange': [kcsapi.repair.RepairDock,
-                                            kcsapi.ship.ShipList],
-            '/api_req_nyukyo/start': [kcsapi.repair.RepairDock,
-                                      kcsapi.ship.ShipList],
+            '/api_get_member/ndock': [kcsapi.RepairDock,
+                                      kcsapi.ShipList],
+            '/api_req_nyukyo/speedchange': [kcsapi.RepairDock,
+                                            kcsapi.ShipList],
+            '/api_req_nyukyo/start': [kcsapi.RepairDock,
+                                      kcsapi.ShipList],
             # Quests.
-            '/api_get_member/questlist': [kcsapi.quest.QuestList],
-            '/api_req_quest/start': [kcsapi.model.NullHandler()],
-            '/api_req_quest/stop': [kcsapi.model.NullHandler()],
+            '/api_get_member/questlist': [kcsapi.QuestList],
+            '/api_req_quest/start': [kcsapi.NullHandler()],
+            '/api_req_quest/stop': [kcsapi.NullHandler()],
             # Expedition.
-            '/api_get_member/mapcell': [kcsapi.model.NullHandler()],
-            '/api_get_member/mapinfo': [kcsapi.model.NullHandler()],
-            '/api_req_map/start': [kcsapi.expedition.Expedition],
-            '/api_req_map/next': [kcsapi.expedition.Expedition],
+            '/api_get_member/mapcell': [kcsapi.NullHandler()],
+            '/api_get_member/mapinfo': [kcsapi.NullHandler()],
+            '/api_req_map/start': [kcsapi.Expedition],
+            '/api_req_map/next': [kcsapi.Expedition],
             '/api_req_sortie/battleresult':
-            [kcsapi.expedition.ExpeditionResult],
+            [kcsapi.ExpeditionResult],
             # Practice.
-            '/api_get_member/practice': [kcsapi.practice.PracticeList],
+            '/api_get_member/practice': [kcsapi.PracticeList],
             '/api_req_member/get_practice_enemyinfo':
-            [kcsapi.practice.PracticeList],
-            '/api_req_practice/battle': [kcsapi.practice.PracticeList],
-            '/api_req_practice/battle_result': [kcsapi.practice.PracticeList],
+            [kcsapi.PracticeList],
+            '/api_req_practice/battle': [kcsapi.PracticeList],
+            '/api_req_practice/battle_result': [kcsapi.PracticeList],
             # Missions.
-            '/api_get_member/mission': [kcsapi.mission.MissionList],
-            '/api_req_mission/start': [kcsapi.model.NullHandler()],
-            '/api_req_mission/result': [kcsapi.model.NullHandler()],
+            '/api_get_member/mission': [kcsapi.MissionList],
+            '/api_req_mission/start': [kcsapi.NullHandler()],
+            '/api_req_mission/result': [kcsapi.NullHandler()],
             # Items.
             #'/api_get_member/useitem': [],
             # Furnitures.
-            '/api_get_member/furniture': [kcsapi.model.NullHandler()],
+            '/api_get_member/furniture': [kcsapi.NullHandler()],
         }
         # Eager handlers accept all KCSAPI responses regardless of API URL.
         self.kcsapi_eager_handlers = [
-            kcsapi.client.Screen,
+            kcsapi.Screen,
         ]
 
     def serialize_objects(self):
@@ -188,7 +188,7 @@ class KCSAPIHandler(object):
             handlers = self.kcsapi_handlers[api_name]
             self._logger.debug('Accessed KCSAPI: {}'.format(api_name))
         except KeyError:
-            handlers = [kcsapi.model.DefaultHandler(api_name)]
+            handlers = [kcsapi.DefaultHandler(api_name)]
             self._logger.debug('Unknown KCSAPI:  {}'.format(api_name))
         for handler in handlers + self.kcsapi_eager_handlers:
             object_type = handler.__name__
