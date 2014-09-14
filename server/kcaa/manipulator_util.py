@@ -153,6 +153,7 @@ class ManipulatorManager(object):
             # Organizing
             'LoadShips': manipulators.organizing.LoadShips,
             'LoadFleet': manipulators.organizing.LoadFleet,
+            'LockShips': manipulators.organizing.LockShips,
             # Logistics
             'ChargeFleet': manipulators.logistics.ChargeFleet,
             # Rebuilding

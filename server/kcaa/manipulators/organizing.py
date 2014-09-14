@@ -24,8 +24,6 @@ class LoadShips(base.Manipulator):
         if not fleet_list:
             logger.error('No fleet list was found. Giving up.')
             return
-        # Assuming the fleet object itself is not replaced from now on.
-        # This may break when KCSAPI changes -- beware!
         fleet = fleet_list.fleets[fleet_id - 1]
         if ship_ids == fleet.ship_ids:
             logger.info('All ships are already standing by.')
@@ -55,7 +53,7 @@ class LoadShips(base.Manipulator):
                 logger.error(
                     'Failed to change the ship to {}. Currently you have {}.'
                     .format(ship_id, fleet.ship_ids[pos]))
-                logger.info(repr(fleet.ship_ids))
+                logger.debug(repr(fleet.ship_ids))
                 return
         num_ships = len(ship_ids)
         # Remove unnecessary ships.
@@ -89,3 +87,33 @@ class LoadFleet(base.Manipulator):
         saved_fleet = matching_fleets[0]
         ship_ids = map(lambda sr: sr.id, saved_fleet.ship_requirements)
         yield self.do_manipulator(LoadShips, fleet_id, ship_ids)
+
+
+class LockShips(base.Manipulator):
+
+    def run(self, ship_ids, locked):
+        if not isinstance(ship_ids, list):
+            ship_ids = [int(ship_id) for ship_id in ship_ids.split(',')]
+        if not isinstance(locked, bool):
+            locked = locked == 'true'
+        ship_list = self.objects.get('ShipList')
+        if not ship_list:
+            logger.error('No ship list was found. Giving up.')
+            return
+        ships = [ship_list.ships[str(ship_id)] for ship_id in ship_ids]
+        if not [s for s in ships if s.locked != locked]:
+            logger.error('All ships are already {}.'.format(
+                'locked' if locked else 'unlocked'))
+            return
+        yield self.screen.change_screen(screens.PORT_ORGANIZING)
+        yield self.screen.change_member(0)
+        for ship_id in ship_ids:
+            page, index = ship_list.get_ship_position(ship_id)
+            yield self.screen.select_page(page, ship_list.max_page)
+            yield self.screen.toggle_lock(index)
+            ship = ship_list.ships[str(ship_id)]
+            if ship.locked != locked:
+                logger.error('Failed to {} the ship {} ().'.format(
+                    'lock' if locked else 'unlock', ship.name.encode('utf8')))
+                return
+        self.screen.unfocus_ship_selection()

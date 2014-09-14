@@ -533,11 +533,23 @@ class PortOrganizingScreen(PortOperationsScreen):
             yield 2.0
         return self.do_task(select_ship_task)
 
+    def toggle_lock(self, index):
+        def toggle_lock_task(task):
+            self.click(760, 168 + 28 * index)
+            yield 2.0
+        return self.do_task(toggle_lock_task)
+
     def confirm(self):
         def confirm_task(task):
             self.click(695, 445)
             yield 3.0
         return self.do_task(confirm_task)
+
+    def unfocus_ship_selection(self):
+        def unfocus_ship_selection_task(task):
+            self.click(200, 160)
+            yield 2.0
+        return self.do_task(unfocus_ship_selection_task)
 
     def click_page(self, position):
         # position ranges from 0 to 4.
