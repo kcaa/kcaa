@@ -117,3 +117,24 @@ class LockShips(base.Manipulator):
                     'lock' if locked else 'unlock', ship.name.encode('utf8')))
                 return
         self.screen.unfocus_ship_selection()
+
+
+class AutoLockUniqueShips(base.AutoManipulator):
+
+    @classmethod
+    def can_trigger(cls, owner):
+        if not screens.in_category(owner.screen_id, screens.PORT):
+            return
+        ship_list = owner.objects.get('ShipList')
+        if not ship_list:
+            return
+        ship_ids_to_lock = []
+        for ship in ship_list.ships.itervalues():
+            if not ship.locked and ship_list.is_unique(ship):
+                ship_ids_to_lock.append(ship.id)
+        if ship_ids_to_lock:
+            return {'ship_ids': ship_ids_to_lock}
+
+    def run(self, ship_ids):
+        yield 1.0
+        yield self.do_manipulator(LockShips, ship_ids, True)

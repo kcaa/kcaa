@@ -167,6 +167,8 @@ class ManipulatorManager(object):
         self.auto_manipulators = {
             # Expedition
             'AutoWarmUpIdleShips': manipulators.expedition.AutoWarmUpIdleShips,
+            # Organizing
+            'AutoLockUniqueShips': manipulators.organizing.AutoLockUniqueShips,
             # Logistics
             'AutoChargeFleet': manipulators.logistics.AutoChargeFleet,
             # Repair
@@ -196,6 +198,10 @@ class ManipulatorManager(object):
             # AutoChargeFleet takes the second highest. This should precede
             # practice or missions.
             'AutoChargeFleet': -9000,
+            # AutoLockUniqueShips must precede rebuilding manipulators,
+            # especially AutoEnhanceBestShip or the like that may use a new
+            # unique ship.
+            'AutoLockUniqueShips': -8000,
             # AutoRepairShips should have a lower priority than WarmUp.
             # Priority of -2 ensures that this doesn't bother the current
             # WarmUp call chain, but precedes consequent WarmUp invocations.
