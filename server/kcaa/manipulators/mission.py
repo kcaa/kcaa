@@ -37,25 +37,24 @@ class AutoCheckMissionResult(base.AutoManipulator):
             return
         mission_list = owner.objects.get('MissionList')
         if not mission_list:
-            logger.error('No mission list was found. Giving up.')
             return
         now = long(1000 * time.time())
         count = 0
-        for mission_ in mission_list.missions:
-            if mission_.eta and mission_.eta - cls.precursor_duration < now:
+        for mission in mission_list.missions:
+            if mission.eta and mission.eta - cls.precursor_duration < now:
                 count += 1
         if cls.verbose and (count > 0 or
                             now - cls.interval > cls.last_updated):
             cls.last_updated = now
             mission_num = 0
             etas = []
-            for mission_ in mission_list.missions:
-                if mission_.eta:
+            for mission in mission_list.missions:
+                if mission.eta:
                     mission_num += 1
-                    etas.append(mission_.eta)
+                    etas.append(mission.eta)
                     logger.debug('ETA{}: {}'.format(
                         mission_num,
-                        datetime.datetime.fromtimestamp(mission_.eta / 1000)
+                        datetime.datetime.fromtimestamp(mission.eta / 1000)
                         .strftime(cls.datetime_pattern)))
             if etas:
                 min_eta = min(etas)
@@ -84,12 +83,12 @@ class GoOnMission(base.Manipulator):
         if not fleet.are_all_ships_available(self, fleet_id):
             return
         yield self.screen.change_screen(screens.PORT_MISSION)
-        mission_ = mission_list.get_mission(mission_id)
-        if not mission_:
+        mission = mission_list.get_mission(mission_id)
+        if not mission:
             logger.error('Mission {} is unknown. Giving up.'.format(
                 mission_id))
-        yield self.screen.select_maparea(mission_.maparea)
-        mission_index = mission_list.get_index_in_maparea(mission_)
+        yield self.screen.select_maparea(mission.maparea)
+        mission_index = mission_list.get_index_in_maparea(mission)
         yield self.screen.select_mission(mission_index)
         yield self.screen.confirm()
         yield self.screen.select_fleet(fleet_id)

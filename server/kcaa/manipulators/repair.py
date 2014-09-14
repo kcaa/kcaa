@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import logging
+import time
 
 import base
 from kcaa import screens
@@ -85,3 +86,30 @@ class AutoRepairShips(base.AutoManipulator):
 
     def run(self, ship_ids):
         yield self.do_manipulator(RepairShips, ship_ids)
+
+
+class AutoCheckRepairResult(base.AutoManipulator):
+
+    # Repair can be completed 60 seconds earlier than the reported ETA.
+    # This is not mandatory, unlike AutoCheckMissionResult, as the completion
+    # of repair does not block anything.
+    precursor_duration = 60000
+
+    @classmethod
+    def can_trigger(cls, owner):
+        if not screens.in_category(owner.screen_id, screens.PORT):
+            return
+        repair_dock = owner.objects.get('RepairDock')
+        if not repair_dock:
+            return
+        now = long(1000 * time.time())
+        to_check = False
+        for slot in repair_dock.slots:
+            if slot.in_use and slot.eta - cls.precursor_duration < now:
+                to_check = True
+        if to_check:
+            return {}
+
+    def run(self):
+        yield 1.0
+        yield self.screen.change_screen(screens.PORT_REPAIR)

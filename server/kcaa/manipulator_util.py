@@ -173,6 +173,7 @@ class ManipulatorManager(object):
             'AutoChargeFleet': manipulators.logistics.AutoChargeFleet,
             # Repair
             'AutoRepairShips': manipulators.repair.AutoRepairShips,
+            'AutoCheckRepairResult': manipulators.repair.AutoCheckRepairResult,
             # Mission
             'AutoCheckMissionResult':
             manipulators.mission.AutoCheckMissionResult,
@@ -202,6 +203,8 @@ class ManipulatorManager(object):
             # especially AutoEnhanceBestShip or the like that may use a new
             # unique ship.
             'AutoLockUniqueShips': -8000,
+            # AutoCheckRepairResult can be anywhere.
+            'AutoCheckRepairResult': -1000,
             # AutoRepairShips should have a lower priority than WarmUp.
             # Priority of -2 ensures that this doesn't bother the current
             # WarmUp call chain, but precedes consequent WarmUp invocations.
