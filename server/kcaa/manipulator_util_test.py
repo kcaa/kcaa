@@ -198,6 +198,36 @@ class TestManipulatorManager(object):
         assert manager.last_task is m2
         assert not manager.is_manipulator_scheduled('MockManipulator')
 
+    def test_is_manipulator_scheduled_higher_priority_finish_earlier(
+            self, manager):
+        assert not manager.is_manipulator_scheduled('MockManipulator')
+        m1 = MockManipulator(manager, 0, arg='value1')
+        manager.add_manipulator(m1)
+        assert manager.is_manipulator_scheduled('MockManipulator')
+        m2 = MockManipulator(manager, -1, arg='value2')
+        manager.add_manipulator(m2)
+        assert manager.is_manipulator_scheduled('MockManipulator')
+        manager.update(0.1)
+        assert manager.current_task is m2
+        assert manager.is_manipulator_scheduled('MockManipulator')
+        manager.update(0.2)
+        assert manager.current_task is m2
+        assert manager.is_manipulator_scheduled('MockManipulator')
+        manager.update(0.3)
+        assert manager.current_task is None
+        assert manager.last_task is m2
+        assert manager.is_manipulator_scheduled('MockManipulator')
+        manager.update(0.4)
+        assert manager.current_task is m1
+        assert manager.is_manipulator_scheduled('MockManipulator')
+        manager.update(0.5)
+        assert manager.current_task is m1
+        assert manager.is_manipulator_scheduled('MockManipulator')
+        manager.update(0.6)
+        assert manager.current_task is None
+        assert manager.last_task is m1
+        assert not manager.is_manipulator_scheduled('MockManipulator')
+
     def test_dispatch_invalid_fomat(self, manager):
         with pytest.raises(ValueError):
             manager.dispatch(('Manipulator',))

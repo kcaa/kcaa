@@ -260,15 +260,17 @@ class ManipulatorManager(object):
             manipulator.priority = (
                 self.manipulator_priorities.get(manipulator_name, 0))
         entry = (manipulator.priority, self.queue_count, t)
-        # This overwrites if there is a preceding manipulator.
-        self.scheduled_manipulators[manipulator_name] = entry
         heapq.heappush(self.queue, entry)
         self.queue_count += 1
         if self.current_task:
             self.update_running_manipulators()
+        # Always keep the last entry in scheduled_manipulators.
+        last_entry = self.scheduled_manipulators.get(manipulator_name, None)
+        if not last_entry or entry > last_entry:
+            self.scheduled_manipulators[manipulator_name] = entry
+        self.log_manipulator_queue()
         self._logger.debug(
             'Manipulator {} scheduled.'.format(manipulator_name))
-        self.log_manipulator_queue()
         return t
 
     def is_manipulator_scheduled(self, manipulator_name):
