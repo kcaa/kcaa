@@ -86,6 +86,8 @@ class MissionPlan(jsonobject.JSONSerializableObject):
     """Fleet ID."""
     mission_id = jsonobject.JSONProperty('mission_id', value_type=int)
     """Mission ID."""
+    fleet_name = jsonobject.JSONProperty('fleet_name', value_type=unicode)
+    """Name of the fleet to go mission."""
 
 
 class MissionPreferences(jsonobject.JSONSerializableObject):

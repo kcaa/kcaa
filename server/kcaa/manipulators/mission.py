@@ -6,6 +6,7 @@ import time
 
 import base
 import fleet
+import organizing
 from kcaa import screens
 
 
@@ -101,6 +102,8 @@ class AutoGoOnMission(base.AutoManipulator):
     def can_trigger(cls, owner):
         if not screens.in_category(owner.screen_id, screens.PORT):
             return
+        if owner.manager.is_manipulator_scheduled('GoOnMission'):
+            return
         fleet_list = owner.objects.get('FleetList')
         if not fleet_list:
             return
@@ -110,6 +113,9 @@ class AutoGoOnMission(base.AutoManipulator):
         for fleet_ in fleet_list.fleets:
             if fleet_.id == 1:
                 continue
+            # TODO: This is not enough. Check the availability after loading
+            # the fleet for this mission. GoOnMission will prevent at the last
+            # step though.
             if not fleet.are_all_ships_available(owner, fleet_.id, False):
                 continue
             # TODO: This is ugly. Consider givin a direct access to Preferences
@@ -118,11 +124,14 @@ class AutoGoOnMission(base.AutoManipulator):
                 owner.manager.preferences.mission_prefs.get_mission_plan(
                     fleet_.id))
             if mission_plan:
-                go_on_config[fleet_.id] = mission_plan.mission_id
+                go_on_config[fleet_.id] = mission_plan
         if go_on_config:
             return {'go_on_config': go_on_config}
 
     def run(self, go_on_config):
         yield 1.0
-        for fleet_id, mission_id in go_on_config.iteritems():
-            yield self.do_manipulator(GoOnMission, fleet_id, mission_id)
+        for fleet_id, mission_plan in go_on_config.iteritems():
+            self.add_manipulator(organizing.LoadFleet, fleet_id,
+                                 mission_plan.fleet_name.encode('utf8'))
+            self.add_manipulator(GoOnMission, fleet_id,
+                                 mission_plan.mission_id)

@@ -60,8 +60,9 @@ class PracticePrefs extends Observable {
 class MissionPlan extends Observable {
   @observable int fleetId;
   @observable int missionId;
+  @observable String fleetName;
 
-  MissionPlan(this.fleetId, this.missionId);
+  MissionPlan(this.fleetId, this.missionId, this.fleetName);
 }
 
 class MissionPrefs extends Observable {
@@ -106,6 +107,7 @@ class Preferences extends Observable {
         "mission_plans": missionPrefs.missionPlans.map((missionPlan) => {
           "fleet_id": missionPlan.fleetId,
           "mission_id": missionPlan.missionId,
+          "fleet_name": missionPlan.fleetName,
         }).toList(),
       },
     });
@@ -140,7 +142,8 @@ void handlePreferences(Assistant assistant, AssistantModel model,
   for (var missionPlan in data["mission_prefs"]["mission_plans"]) {
     MissionPlan missionPlanObject = new MissionPlan(
         missionPlan["fleet_id"],
-        missionPlan["mission_id"]);
+        missionPlan["mission_id"],
+        missionPlan["fleet_name"]);
     prefs.missionPrefs.missionPlans.add(missionPlanObject);
   }
   model.preferences = prefs;
