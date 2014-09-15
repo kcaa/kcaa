@@ -62,6 +62,8 @@ class KCSAPIHandler(object):
             '/api_req_member/get_incentive': [kcsapi.NullHandler()],
             '/api_start2': [kcsapi.MissionList,
                             kcsapi.ShipDefinitionList],
+            # Player info.
+            '/api_get_member/basic': [kcsapi.player.PlayerInfo],
             # Encyclopedia.
             '/api_get_member/picture_book': [kcsapi.NullHandler()],
             # Ships.
@@ -80,7 +82,8 @@ class KCSAPIHandler(object):
             '/api_port/port': [kcsapi.MissionList,
                                kcsapi.RepairDock,
                                kcsapi.ShipList,
-                               kcsapi.FleetList],
+                               kcsapi.FleetList,
+                               kcsapi.PlayerInfo],
             # Fleets (deck).
             '/api_get_member/deck': [kcsapi.FleetList,
                                      kcsapi.MissionList],

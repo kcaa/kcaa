@@ -7,6 +7,7 @@ import fleet
 import jsonobject
 import mission
 import model
+import player
 import practice
 import prefs
 import quest
@@ -113,6 +114,7 @@ def main():
     doctest.testmod(jsonobject)
     doctest.testmod(mission)
     doctest.testmod(model)
+    doctest.testmod(player)
     doctest.testmod(practice)
     doctest.testmod(prefs)
     doctest.testmod(quest)
