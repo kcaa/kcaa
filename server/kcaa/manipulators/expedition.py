@@ -104,9 +104,15 @@ class EngageExpedition(base.Manipulator):
         if not ship_list:
             logger.error('No ship list was found. Giving up.')
             return
+        battle = self.objects.get('Battle')
+        if not battle:
+            logger.error('No battle was found. Giving up.')
+            return
         fleet_ = fleet_list.fleets[expedition.fleet_id - 1]
+        ships = map(lambda ship_id: ship_list.ships[str(ship_id)],
+                    fleet_.ship_ids)
         to_go_for_night_combat = self.should_go_night_combat(
-            expedition, fleet_, ship_list)
+            expedition, battle, ships)
         if to_go_for_night_combat:
             logger.info('Going for the night combat.')
         else:
@@ -115,6 +121,7 @@ class EngageExpedition(base.Manipulator):
         # complete win. Timeout is >5 minutes (5 sec x 60 trials).
         # Note that this may be longer due to wait in engage_night_combat()
         # for example.
+        # TODO: Utilize battle.need_midnight_battle.
         for _ in xrange(60):
             if self.screen_id == screens.EXPEDITION_NIGHTCOMBAT:
                 break
@@ -122,8 +129,6 @@ class EngageExpedition(base.Manipulator):
                 screens.EXPEDITION_RESULT, timeout=5.0, raise_on_timeout=False)
             if self.screen_id == screens.EXPEDITION_RESULT:
                 break
-            # TODO: Decide whether to go for the night combat depending on the
-            # expected result.
             if to_go_for_night_combat:
                 yield self.screen.engage_night_combat()
             else:
@@ -144,28 +149,33 @@ class EngageExpedition(base.Manipulator):
         if expedition.is_terminal:
             yield self.screen.wait_transition(screens.PORT_MAIN)
             return
-        if self.should_go_next():
+        if self.should_go_next(expedition, battle, ships):
             yield self.screen.go_for_next_battle()
             self.add_manipulator(SailOnExpeditionMap)
         else:
             yield self.screen.drop_out()
 
-    def should_go_night_combat(self, expedition, fleet_, ship_list):
-        ships = map(lambda ship_id: ship_list.ships[str(ship_id)],
-                    fleet_.ship_ids)
-        # TODO: Use a wiser decision. This is a quick hack to avoid making a
-        # fleet of a single aircraft carrier to go for night combat.
-        if kcsapi.ShipDefinition.is_aircraft_carrier(ships[0]):
+    def should_go_night_combat(self, expedition, battle, ships):
+        expected_result = kcsapi.battle.expect_result(
+            ships, battle.enemy_ships)
+        if expected_result == kcsapi.Battle.RESULT_S:
             return False
+        # TODO: Do not gor for night combat if rest of the enemy ships are
+        # submarines.
+        available_ships = [s for s in ships if s.can_attack_midnight]
+        if not available_ships:
+            return False
+        enemy_alive_ships = [s for s in battle.enemy_ships if s.alive]
+        if len(available_ships) >= len(enemy_alive_ships) - 1:
+            return True
         if expedition.event == kcsapi.Expedition.EVENT_BATTLE_BOSS:
             return True
-        # TODO: Make a wiser decision. Consider the expected result, ship
-        # health. Maybe good to be conservative.
         return False
 
-    def should_go_next(self):
-        # TODO: Make a wiser decision.
-        return True
+    def should_go_next(self, expedition, battle, ships):
+        fatal_ships = [s for s in ships if
+                       s.hitpoint.current < 0.25 * s.hitpoint.maximum]
+        return not fatal_ships
 
 
 class WarmUp(base.Manipulator):

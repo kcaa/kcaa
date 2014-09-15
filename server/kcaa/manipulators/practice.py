@@ -120,6 +120,20 @@ class EngagePractice(base.Manipulator):
         yield self.screen.wait_transition(screens.PRACTICE_COMBAT,
                                           timeout=10.0)
         logger.info('Engaging an enemy fleet in practice.')
+        fleet_list = self.objects.get('FleetList')
+        ship_list = self.objects.get('ShipList')
+        if not ship_list:
+            logger.error('No ship list was found. Giving up.')
+            return
+        battle = self.objects.get('Battle')
+        if not battle:
+            logger.error('No battle was found. Giving up.')
+            return
+        fleet_ = fleet_list.fleets[battle.fleet_id - 1]
+        ships = map(lambda ship_id: ship_list.ships[str(ship_id)],
+                    fleet_.ship_ids)
+        to_go_for_night_combat = self.should_go_night_combat(
+            battle, ships)
         # Clicks every >5 seconds in case a night battle is required for the
         # complete win. Timeout is >5 minutes (5 sec x 60 trials).
         # Note that this may be longer due to wait in engage_night_combat()
@@ -131,9 +145,10 @@ class EngagePractice(base.Manipulator):
                 screens.PRACTICE_RESULT, timeout=5.0, raise_on_timeout=False)
             if self.screen_id == screens.PRACTICE_RESULT:
                 break
-            # TODO: Decide whether to go for the night combat depending on the
-            # expected result.
-            yield self.screen.engage_night_combat()
+            if to_go_for_night_combat:
+                yield self.screen.engage_night_combat()
+            else:
+                yield self.screen.avoid_night_combat()
         else:
             logger.error('The battle did not finish in 5 minutes. Giving up.')
             return
@@ -141,3 +156,18 @@ class EngagePractice(base.Manipulator):
                                           timeout=180.0)
         yield self.screen.dismiss_result_overview()
         yield self.screen.dismiss_result_details()
+
+    def should_go_night_combat(self, battle, ships):
+        expected_result = kcsapi.battle.expect_result(
+            ships, battle.enemy_ships)
+        if expected_result >= kcsapi.Battle.RESULT_B:
+            return False
+        # TODO: Do not gor for night combat if rest of the enemy ships are
+        # submarines.
+        available_ships = [s for s in ships if s.can_attack_midnight]
+        if not available_ships:
+            return False
+        enemy_alive_ships = [s for s in battle.enemy_ships if s.alive]
+        if len(available_ships) >= len(enemy_alive_ships) - 1:
+            return True
+        return False

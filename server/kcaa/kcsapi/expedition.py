@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import battle
 import jsonobject
 import model
 
@@ -57,6 +58,8 @@ class Expedition(model.KCAAObject):
 class ExpeditionResult(model.KCAAObject):
     """Result of the latest expedition battle."""
 
+    result = jsonobject.JSONProperty('result', value_type=int)
+    """Resuslt of the battle."""
     got_ship = jsonobject.JSONProperty('got_ship', value_type=bool)
     """Whether got a ship as a reward."""
     new_ship_id = jsonobject.JSONProperty('new_ship_id', value_type=int)
@@ -66,6 +69,8 @@ class ExpeditionResult(model.KCAAObject):
         super(ExpeditionResult, self).update(api_name, request, response,
                                              objects, debug)
         if api_name == '/api_req_sortie/battleresult':
+            self.result = battle.Battle.get_result_for_win_rank(
+                response.api_data.api_win_rank)
             self.got_ship = response.api_data.api_get_flag[1] == 1
             if self.got_ship:
                 self.new_ship_id = response.api_data.api_get_ship.api_ship_id

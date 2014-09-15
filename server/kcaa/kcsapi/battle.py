@@ -28,6 +28,21 @@ def deal_enemy_damage_in_phase(phase, ships):
         attackee.hitpoint.current -= attack.damage
 
 
+def expect_result(ships, enemy_ships):
+    enemy_alive_ships = [s for s in enemy_ships if s.alive]
+    friend_alive_ships = [s for s in ships if s.alive]
+    if not enemy_alive_ships and friend_alive_ships == ships:
+        return Battle.RESULT_S
+    if len(enemy_ships) == 6 and len(enemy_alive_ships) <= 2:
+        return Battle.RESULT_A
+    if len(enemy_ships) < 6 and 2 * len(enemy_alive_ships) <= len(enemy_ships):
+        return Battle.RESULT_A
+    if not enemy_ships[0].alive:
+        return Battle.RESULT_B
+    # The rest of results (losses) are not of interest.
+    return Battle.RESULT_C
+
+
 class AircraftAttack(jsonobject.JSONSerializableObject):
     """Details of aircraft attack."""
 
@@ -214,6 +229,24 @@ class Battle(model.KCAAObject):
     enemy_ships = jsonobject.JSONProperty(
         'enemy_ships', value_type=list, element_type=ship.Ship)
     """Enemy ships."""
+
+    RESULT_E = 1
+    RESULT_D = 2
+    RESULT_C = 3
+    RESULT_B = 4
+    RESULT_A = 5
+    RESULT_S = 6
+
+    @staticmethod
+    def get_result_for_win_rank(win_rank):
+        return {
+            'E': Battle.RESULT_E,
+            'D': Battle.RESULT_D,
+            'C': Battle.RESULT_C,
+            'B': Battle.RESULT_B,
+            'A': Battle.RESULT_A,
+            'S': Battle.RESULT_S,
+        }[win_rank]
 
     def update(self, api_name, request, response, objects, debug):
         super(Battle, self).update(api_name, request, response, objects, debug)

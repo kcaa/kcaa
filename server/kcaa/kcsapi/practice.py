@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import battle
 import jsonobject
 import model
 import ship
@@ -35,12 +36,6 @@ class Practice(jsonobject.JSONSerializableObject):
     result = jsonobject.JSONProperty('result', value_type=int)
     """Resuslt of the practice."""
     RESULT_NEW = 0
-    RESULT_E = 1
-    RESULT_D = 2
-    RESULT_C = 3
-    RESULT_B = 4
-    RESULT_A = 5
-    RESULT_S = 6
     fleet_name = jsonobject.JSONProperty('fleet_name', value_type=unicode)
     """Fleet name."""
     ships = jsonobject.JSONProperty('ships', value_type=list,
@@ -160,16 +155,8 @@ class PracticeList(model.KCAAObject):
         elif api_name == '/api_req_practice/battle':
             self.last_enemy_fought = int(request.api_enemy_id)
         elif api_name == '/api_req_practice/battle_result':
-            win_rank_result_map = {
-                'E': 1,
-                'D': 2,
-                'C': 3,
-                'B': 4,
-                'A': 5,
-                'S': 6,
-            }
             practice = self.find_practice_by_member_id(self.last_enemy_fought)
             if not practice:
                 return
-            practice.result = (
-                win_rank_result_map[response.api_data.api_win_rank])
+            practice.result = battle.Battle.get_result_for_win_rank(
+                response.api_data.api_win_rank)
