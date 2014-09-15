@@ -2,6 +2,30 @@
 
 import jsonobject
 import model
+import ship
+
+
+def initialize_enemy_ships(data):
+    enemy_ships = []
+    for i in xrange(1, len(data.api_ship_lv)):
+        if data.api_ship_lv[i] == -1:
+            continue
+        enemy_ships.append(ship.Ship(
+            level=data.api_ship_lv[i],
+            hitpoint=ship.Variable(
+                current=data.api_nowhps[i + 6],
+                maximum=data.api_maxhps[i + 6])))
+    return enemy_ships
+
+
+def deal_enemy_damage_in_phase(phase, ships):
+    if not phase:
+        return
+    for attack in phase.attacks:
+        if attack.attackee_lid < 7:
+            continue
+        attackee = ships[attack.attackee_lid - 7]
+        attackee.hitpoint.current -= attack.damage
 
 
 class AircraftAttack(jsonobject.JSONSerializableObject):
@@ -187,6 +211,9 @@ class Battle(model.KCAAObject):
     need_midnight_battle = jsonobject.JSONProperty(
         'need_midnight_battle', value_type=bool)
     """Whether to need a midnight battle to fully defeat the enemy."""
+    enemy_ships = jsonobject.JSONProperty(
+        'enemy_ships', value_type=list, element_type=ship.Ship)
+    """Enemy ships."""
 
     def update(self, api_name, request, response, objects, debug):
         super(Battle, self).update(api_name, request, response, objects, debug)
@@ -216,6 +243,7 @@ class Battle(model.KCAAObject):
                 attacks=ThunderstrokeAttack.create_list_from_raigeki(
                     data.api_raigeki))
         self.need_midnight_battle = data.api_midnight_flag != 0
+        self.update_enemy_ships(data)
 
         # api_dock_id: fleet ID (note: typo on deck)
         # api_eKyouka: enemy enhanced parameters?
@@ -269,10 +297,19 @@ class Battle(model.KCAAObject):
         #   api_frai: target of thunderstroke attack (1-6: enemy)
         #   api_fydam: damage dealt to enemy
         # api_search: aircraft scout?
-        # api_ship_ke: ? (related to enemy ship equipment?)
+        # api_ship_ke: ? (related to enemy ship type or equipment?)
         # api_ship_lv: enemy ship levels?
         # api_stage_flag: ?
         # api_support_flag: the presence of support fleet?
+
+    def update_enemy_ships(self, data):
+        self.enemy_ships = initialize_enemy_ships(data)
+        deal_enemy_damage_in_phase(self.aircraft_phase, self.enemy_ships)
+        deal_enemy_damage_in_phase(self.opening_thunderstroke_phase,
+                                   self.enemy_ships)
+        for gunfire_phase in self.gunfire_phases:
+            deal_enemy_damage_in_phase(gunfire_phase, self.enemy_ships)
+        deal_enemy_damage_in_phase(self.thunderstroke_phase, self.enemy_ships)
 
 
 class MidnightBattle(model.KCAAObject):
@@ -283,6 +320,9 @@ class MidnightBattle(model.KCAAObject):
     """ID of the fleet which joined this battle."""
     phase = jsonobject.JSONProperty('phase', value_type=GunfirePhase)
     """Gunfire/thunderstroke phase."""
+    enemy_ships = jsonobject.JSONProperty(
+        'enemy_ships', value_type=list, element_type=ship.Ship)
+    """Enemy ships."""
 
     def update(self, api_name, request, response, objects, debug):
         super(MidnightBattle, self).update(api_name, request, response,
@@ -291,6 +331,7 @@ class MidnightBattle(model.KCAAObject):
         self.fleet_id = int(data.api_deck_id)
         self.phase = GunfirePhase(
             attacks=GunfireAttack.create_list_from_hougeki(data.api_hougeki))
+        self.update_enemy_ships(data)
         # Mostly the same as ExpeditionBattle.
         # api_deck_id: same
         # api_eKyouka: same
@@ -310,3 +351,7 @@ class MidnightBattle(model.KCAAObject):
         # api_ship_ke: same?
         # api_ship_lv: same
         # api_touch_plane: clutter?
+
+    def update_enemy_ships(self, data):
+        self.enemy_ships = initialize_enemy_ships(data)
+        deal_enemy_damage_in_phase(self.phase, self.enemy_ships)

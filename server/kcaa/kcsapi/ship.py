@@ -345,6 +345,8 @@ class Ship(ShipDefinition):
         """
         loaded = self.loaded_resource
         capacity = self.resource_capacity
+        if not loaded or not capacity:
+            return None
         return resource.ResourcePercentage(
             fuel=round(float(loaded.fuel) / capacity.fuel, 1),
             ammo=round(float(loaded.ammo) / capacity.ammo, 1))
@@ -356,6 +358,10 @@ class Ship(ShipDefinition):
     is_under_repair = jsonobject.JSONProperty(
         'is_under_repair', value_type=bool)
     """True if the ship is under repair."""
+
+    @property
+    def alive(self):
+        return self.hitpoint.current > 0
 
 
 def compare_ship_by_kancolle_level(ship_a, ship_b):
@@ -632,15 +638,12 @@ class ShipList(model.KCAAObject):
     def update_battle(self, battle, fleet_list):
         fleet = fleet_list.fleets[battle.fleet_id - 1]
         ships = [self.ships[str(ship_id)] for ship_id in fleet.ship_ids]
-        if battle.aircraft_phase:
-            ShipList.deal_damage_in_phase(battle.aircraft_phase, ships)
-        if battle.opening_thunderstroke_phase:
-            ShipList.deal_damage_in_phase(battle.opening_thunderstroke_phase,
-                                          ships)
+        ShipList.deal_damage_in_phase(battle.aircraft_phase, ships)
+        ShipList.deal_damage_in_phase(battle.opening_thunderstroke_phase,
+                                      ships)
         for gunfire_phase in battle.gunfire_phases:
             ShipList.deal_damage_in_phase(gunfire_phase, ships)
-        if battle.thunderstroke_phase:
-            ShipList.deal_damage_in_phase(battle.thunderstroke_phase, ships)
+        ShipList.deal_damage_in_phase(battle.thunderstroke_phase, ships)
 
     def update_midnight_battle(self, battle, fleet_list):
         fleet = fleet_list.fleets[battle.fleet_id - 1]
@@ -649,6 +652,8 @@ class ShipList(model.KCAAObject):
 
     @staticmethod
     def deal_damage_in_phase(phase, ships):
+        if not phase:
+            return
         for attack in phase.attacks:
             if attack.attackee_lid > 6:
                 continue
