@@ -83,7 +83,8 @@ class KCSAPIHandler(object):
                                kcsapi.RepairDock,
                                kcsapi.ShipList,
                                kcsapi.FleetList,
-                               kcsapi.PlayerInfo],
+                               kcsapi.PlayerInfo,
+                               kcsapi.PlayerResources],
             # Fleets (deck).
             '/api_get_member/deck': [kcsapi.FleetList,
                                      kcsapi.MissionList],

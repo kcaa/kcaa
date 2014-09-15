@@ -79,3 +79,39 @@ class PlayerInfo(model.KCAAObject):
             self.num_missions = data.api_ms_count
             self.num_mission_successes = data.api_ms_success
             self.furniture_coins = data.api_fcoin
+
+
+class PlayerResources(model.KCAAObject):
+    """Resources available for the player."""
+
+    fuel = jsonobject.JSONProperty('fuel', value_type=int)
+    """Fuel."""
+    ammo = jsonobject.JSONProperty('ammo', value_type=int)
+    """Ammo."""
+    steel = jsonobject.JSONProperty('steel', value_type=int)
+    """Steel."""
+    bauxite = jsonobject.JSONProperty('bauxite', value_type=int)
+    """Bauxite."""
+    build_booster = jsonobject.JSONProperty('build_booster', value_type=int)
+    """Build booster."""
+    repair_booster = jsonobject.JSONProperty('repair_booster', value_type=int)
+    """Repair booster."""
+    build_material = jsonobject.JSONProperty('buidl_material', value_type=int)
+    """Build material."""
+
+    def update(self, api_name, request, response, objects, debug):
+        super(PlayerResources, self).update(api_name, request, response,
+                                            objects, debug)
+        id_to_field = [
+            'fuel',
+            'ammo',
+            'steel',
+            'bauxite',
+            'build_booster',
+            'repair_booster',
+            'build_material',
+        ]
+        for data in response.api_data.api_material:
+            if data.api_id < 1 or data.api_id > len(id_to_field):
+                continue
+            setattr(self, id_to_field[data.api_id - 1], data.api_value)
