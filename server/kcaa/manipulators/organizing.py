@@ -57,9 +57,12 @@ class LoadShips(base.Manipulator):
                 return
         num_ships = len(ship_ids)
         # Remove unnecessary ships.
-        for _ in xrange(num_ships_in_fleet - num_ships):
-            yield self.screen.change_member(num_ships)
-            yield self.screen.select_ship(-1)
+        if num_ships == 1:
+            yield self.screen.detach_all_ships()
+        else:
+            for _ in xrange(num_ships_in_fleet - num_ships):
+                yield self.screen.change_member(num_ships)
+                yield self.screen.select_ship(-1)
 
 
 class LoadFleet(base.Manipulator):
