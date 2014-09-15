@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import battle
 import client
 import expedition
 import fleet
@@ -105,6 +106,7 @@ expand_modules()
 
 def main():
     import doctest
+    doctest.testmod(battle)
     doctest.testmod(client)
     doctest.testmod(expedition)
     doctest.testmod(fleet)
