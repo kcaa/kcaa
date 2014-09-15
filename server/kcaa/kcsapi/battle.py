@@ -66,14 +66,14 @@ class AircraftAttack(jsonobject.JSONSerializableObject):
             attacks.append(AircraftAttack(
                 attackee_lid=i,
                 hit_type=kouku.api_fcl_flag[i],
-                damage=kouku.api_fdam[i]))
+                damage=int(kouku.api_fdam[i])))
         for i in xrange(1, len(kouku.api_edam)):
             if kouku.api_edam[i] == 0:
                 continue
             attacks.append(AircraftAttack(
                 attackee_lid=i + 6,
                 hit_type=kouku.api_ecl_flag[i],
-                damage=kouku.api_edam[i]))
+                damage=int(kouku.api_edam[i])))
         return attacks
 
 
@@ -186,7 +186,7 @@ class ThunderstrokeAttack(jsonobject.JSONSerializableObject):
                 attacker_lid=i,
                 attackee_lid=raigeki.api_frai[i] + 6,
                 hit_type=raigeki.api_fcl[i],
-                damage=raigeki.api_fydam[i]))
+                damage=int(raigeki.api_fydam[i])))
         for i in xrange(1, len(raigeki.api_erai)):
             if raigeki.api_erai[i] == 0:
                 continue
@@ -194,7 +194,7 @@ class ThunderstrokeAttack(jsonobject.JSONSerializableObject):
                 attacker_lid=i + 6,
                 attackee_lid=raigeki.api_erai[i],
                 hit_type=raigeki.api_ecl[i],
-                damage=raigeki.api_eydam[i]))
+                damage=int(raigeki.api_eydam[i])))
         return attacks
 
 
