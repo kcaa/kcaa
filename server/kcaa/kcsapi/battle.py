@@ -4,6 +4,48 @@ import jsonobject
 import model
 
 
+class AircraftAttack(jsonobject.JSONSerializableObject):
+    """Details of aircraft attack."""
+
+    attackee_lid = jsonobject.JSONProperty('attackee_lid', value_type=int)
+    """Local ship ID of the attackee.
+
+    Local ID represents the position of a ship. 1-6 represents the friend ships
+    in the fleet, and 7-12 means the enemy ships."""
+    hit_type = jsonobject.JSONProperty('hit_type', value_type=int)
+    """Hit type."""
+    HIT_TYPE_NORMAL = 0
+    damage = jsonobject.JSONProperty('damage', value_type=int)
+    """Damage dealt."""
+
+    @staticmethod
+    def create_list_from_kouku(kouku):
+        attacks = []
+        for i in xrange(1, len(kouku.api_fdam)):
+            if kouku.api_fdam[i] == 0:
+                continue
+            attacks.append(AircraftAttack(
+                attackee_lid=i,
+                hit_type=kouku.api_fcl_flag[i],
+                damage=kouku.api_fdam[i]))
+        for i in xrange(1, len(kouku.api_edam)):
+            if kouku.api_edam[i] == 0:
+                continue
+            attacks.append(AircraftAttack(
+                attackee_lid=i + 6,
+                hit_type=kouku.api_ecl_flag[i],
+                damage=kouku.api_edam[i]))
+        return attacks
+
+
+class AircraftPhase(jsonobject.JSONSerializableObject):
+    """Details of aircraft battle phase."""
+
+    attacks = jsonobject.JSONProperty('attacks', value_type=list,
+                                      element_type=AircraftAttack)
+    """Aircraft attacks, ordered arbitrarily."""
+
+
 class GunfireHit(jsonobject.JSONSerializableObject):
     """Details of gunfire attack."""
 
@@ -36,7 +78,8 @@ class GunfireAttack(jsonobject.JSONSerializableObject):
     """Local ship ID of the attackee."""
     attack_type = jsonobject.JSONProperty('attack_type', value_type=int)
     """Attack type."""
-    ATTACK_TYPE_GUNFIRE = 0
+    ATTACK_TYPE_NORMAL = 0
+    ATTACK_TYPE_SCOUT_FEEDBACK = 2
     hits = jsonobject.JSONProperty('hits', value_type=list,
                                    element_type=GunfireHit)
     """Hits of this attack."""
@@ -129,29 +172,52 @@ class Battle(model.KCAAObject):
 
     fleet_id = jsonobject.JSONProperty('fleet_id', value_type=int)
     """ID of the fleet which joined this battle."""
+    aircraft_phase = jsonobject.JSONProperty(
+        'aircraft_phase', value_type=AircraftPhase)
+    """Aircraft phase."""
+    opening_thunderstroke_phase = jsonobject.JSONProperty(
+        'opening_thunderstroke_phase', value_type=ThunderstrokePhase)
+    """Opening thunderstroke phase."""
     gunfire_phases = jsonobject.JSONProperty('gunfire_phases', value_type=list,
                                              element_type=GunfirePhase)
     """Gunfire phases."""
     thunderstroke_phase = jsonobject.JSONProperty(
         'thunderstroke_phase', value_type=ThunderstrokePhase)
     """Thunderstroke phase."""
+    need_midnight_battle = jsonobject.JSONProperty(
+        'need_midnight_battle', value_type=bool)
+    """Whether to need a midnight battle to fully defeat the enemy."""
 
     def update(self, api_name, request, response, objects, debug):
         super(Battle, self).update(api_name, request, response, objects, debug)
         data = response.api_data
         self.fleet_id = data.api_dock_id
-        self.gunfire_phases = []
-        if data.api_hougeki1:
-            self.gunfire_phases.append(GunfirePhase(
-                attacks=GunfireAttack.create_list_from_hougeki(
-                    data.api_hougeki1)))
+        # Aircraft attack phase.
+        if data.api_kouku.api_stage3:
+            self.aircraft_phase = AircraftPhase(
+                attacks=AircraftAttack.create_list_from_kouku(
+                    data.api_kouku.api_stage3))
+        # Opening thunderstroke phase.
+        self.opening_thunderstroke_phase = None
+        if data.api_opening_atack:
+            self.opening_thunderstroke_phase = ThunderstrokePhase(
+                attacks=ThunderstrokeAttack.create_list_from_raigeki(
+                    data.api_opening_atack))
+        # Gunfire phases.
+        hougekis = [data.api_hougeki1, data.api_hougeki2, data.api_hougeki3]
+        self.gunfire_phases = (
+            [GunfirePhase(
+                attacks=GunfireAttack.create_list_from_hougeki(hougeki))
+             for hougeki in hougekis if hougeki])
+        # Thunderstroke phase.
         self.thunderstroke_phase = None
         if data.api_raigeki:
             self.thunderstroke_phase = ThunderstrokePhase(
                 attacks=ThunderstrokeAttack.create_list_from_raigeki(
                     data.api_raigeki))
+        self.need_midnight_battle = data.api_midnight_flag != 0
 
-        # api_dock_id: fleet ID (typo of api_deck_id)
+        # api_dock_id: fleet ID (note: typo on deck)
         # api_eKyouka: enemy enhanced parameters?
         # api_eParam: enemy current parameters (4 primary values)
         # api_eSlot: enemy equipments
@@ -177,10 +243,22 @@ class Battle(model.KCAAObject):
         #     api_f_count: number of aircrafts from friend?
         #     api_f_lostcount: number of lost aircrafts from friend?
         #     api_touch_plane: scout contacting result?
+        #   api_stage2: anti air gunfire phase
+        #     api_e_count: number of aircrafts from enemy?
+        #     api_e_lostcount: number of lost aircrafts from enemy?
+        #     api_f_count: number of aircrafts from friend?
+        #     api_f_lostcount: number of lost aircrafts from friend?
+        #   api_stage3: attack aircraft and dive bomber phase
+        #     api_ebak_flag: enemy bomber affected ships
+        #     api_ecl_flag: enemy hit types
+        #     api_edam: enemy suffered damage
+        #     api_erai_flag: enemy attacker affected ships
+        #     api_f*: same for friend
         # api_maxhps: ship max hitpoints
         # api_midnight_flag: possibility of midnight battle
         # api_nowhps: ship current hitpoints (at the beginning)
         # api_opening_flag: the presence of opening thunderstroke phase?
+        # api_opening_atack: opening thunderstroke fight (note: typo on attack)
         # api_raigeki: thunderstroke fight
         #   api_ecl: hit? (0: miss, 1: hit, 2: critical hit)
         #   api_edam: damage that enemy suffered

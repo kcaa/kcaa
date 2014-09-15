@@ -632,6 +632,11 @@ class ShipList(model.KCAAObject):
     def update_battle(self, battle, fleet_list):
         fleet = fleet_list.fleets[battle.fleet_id - 1]
         ships = [self.ships[str(ship_id)] for ship_id in fleet.ship_ids]
+        if battle.aircraft_phase:
+            ShipList.deal_damage_in_phase(battle.aircraft_phase, ships)
+        if battle.opening_thunderstroke_phase:
+            ShipList.deal_damage_in_phase(battle.opening_thunderstroke_phase,
+                                          ships)
         for gunfire_phase in battle.gunfire_phases:
             ShipList.deal_damage_in_phase(gunfire_phase, ships)
         if battle.thunderstroke_phase:
