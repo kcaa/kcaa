@@ -209,3 +209,22 @@ class EnhanceBestShip(base.Manipulator):
             return
         else:
             logger.error('No ship has the room to grow.')
+
+
+class AutoEnhanceBestShip(base.AutoManipulator):
+
+    @classmethod
+    def can_trigger(cls, owner):
+        if not screens.in_category(owner.screen_id, screens.PORT):
+            return
+        ship_list = owner.objects.get('ShipList')
+        if not ship_list:
+            return
+        player_info = owner.objects.get('PlayerInfo')
+        if not player_info:
+            return
+        if player_info.max_ships - len(ship_list.ships) < 5:
+            return {}
+
+    def run(self):
+        yield self.do_manipulator(EnhanceBestShip)

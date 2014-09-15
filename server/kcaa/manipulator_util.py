@@ -171,6 +171,8 @@ class ManipulatorManager(object):
             'AutoLockUniqueShips': manipulators.organizing.AutoLockUniqueShips,
             # Logistics
             'AutoChargeFleet': manipulators.logistics.AutoChargeFleet,
+            # Rebuilding
+            'AutoEnhanceBestShip': manipulators.rebuilding.AutoEnhanceBestShip,
             # Repair
             'AutoRepairShips': manipulators.repair.AutoRepairShips,
             'AutoCheckRepairResult': manipulators.repair.AutoCheckRepairResult,
@@ -203,6 +205,9 @@ class ManipulatorManager(object):
             # especially AutoEnhanceBestShip or the like that may use a new
             # unique ship.
             'AutoLockUniqueShips': -8000,
+            # AutoEnhanceBestShip should precede AutoWarmUpIdleShips, and
+            # recede AutoLockUniqueShips.
+            'AutoEnhanceBestShip': -2000,
             # AutoCheckRepairResult can be anywhere.
             'AutoCheckRepairResult': -1000,
             # AutoRepairShips should have a lower priority than WarmUp.
