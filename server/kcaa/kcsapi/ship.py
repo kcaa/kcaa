@@ -524,6 +524,15 @@ class ShipList(model.KCAAObject):
             ShipList.update_ship(ship, response.api_data.api_ship)
             self.ships[str(ship['id'])] = Ship(**ship)
             return
+        elif api_name in ('/api_req_sortie/battle',
+                          '/api_req_practice/battle'):
+            self.update_battle(objects['Battle'], objects['FleetList'])
+            return
+        elif api_name in ('/api_req_battle_midnight/battle',
+                          '/api_req_practice/midnight_battle'):
+            self.update_midnight_battle(objects['MidnightBattle'],
+                                        objects['FleetList'])
+            return
         # Update is_under_repair.
         if api_name in ('/api_port/port',
                         '/api_get_member/ndock',
@@ -619,3 +628,24 @@ class ShipList(model.KCAAObject):
             map(lambda slot: slot.ship_id, repair_dock.slots))
         for ship in self.ships.itervalues():
             ship.is_under_repair = ship.id in ship_ids_under_repair
+
+    def update_battle(self, battle, fleet_list):
+        fleet = fleet_list.fleets[battle.fleet_id - 1]
+        ships = [self.ships[str(ship_id)] for ship_id in fleet.ship_ids]
+        for gunfire_phase in battle.gunfire_phases:
+            ShipList.deal_damage_in_phase(gunfire_phase, ships)
+        if battle.thunderstroke_phase:
+            ShipList.deal_damage_in_phase(battle.thunderstroke_phase, ships)
+
+    def update_midnight_battle(self, battle, fleet_list):
+        fleet = fleet_list.fleets[battle.fleet_id - 1]
+        ships = [self.ships[str(ship_id)] for ship_id in fleet.ship_ids]
+        ShipList.deal_damage_in_phase(battle.phase, ships)
+
+    @staticmethod
+    def deal_damage_in_phase(phase, ships):
+        for attack in phase.attacks:
+            if attack.attackee_lid > 6:
+                continue
+            attackee = ships[attack.attackee_lid - 1]
+            attackee.hitpoint.current -= attack.damage

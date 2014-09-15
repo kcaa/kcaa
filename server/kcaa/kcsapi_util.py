@@ -67,7 +67,6 @@ class KCSAPIHandler(object):
             # Encyclopedia.
             '/api_get_member/picture_book': [kcsapi.NullHandler()],
             # Ships.
-            # TODO: /api_req_sortie/battleresult.
             '/api_get_member/ship2': [kcsapi.ShipList],
             '/api_get_member/ship3': [kcsapi.ShipList,
                                       kcsapi.FleetList],
@@ -103,14 +102,14 @@ class KCSAPIHandler(object):
             # Expedition.
             '/api_get_member/mapcell': [kcsapi.NullHandler()],
             '/api_get_member/mapinfo': [kcsapi.NullHandler()],
+            '/api_req_battle_midnight/battle': [kcsapi.MidnightBattle,
+                                                kcsapi.ShipList],
             '/api_req_map/start': [kcsapi.Expedition],
             '/api_req_map/next': [kcsapi.Expedition],
             '/api_req_sortie/battle': [kcsapi.Battle,
                                        kcsapi.ShipList],
             '/api_req_sortie/battleresult':
             [kcsapi.ExpeditionResult],
-            '/api_req_sortie/midnight_battle': [kcsapi.Battle,
-                                                kcsapi.ShipList],
             # Practice.
             '/api_get_member/practice': [kcsapi.PracticeList],
             '/api_req_member/get_practice_enemyinfo':
@@ -119,7 +118,7 @@ class KCSAPIHandler(object):
                                          kcsapi.Battle,
                                          kcsapi.ShipList],
             '/api_req_practice/battle_result': [kcsapi.PracticeList],
-            '/api_req_practice/midnight_battle': [kcsapi.Battle,
+            '/api_req_practice/midnight_battle': [kcsapi.MidnightBattle,
                                                   kcsapi.ShipList],
             # Missions.
             '/api_get_member/mission': [kcsapi.MissionList],
