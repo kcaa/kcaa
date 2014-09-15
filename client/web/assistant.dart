@@ -485,4 +485,19 @@ class Assistant extends PolymerElement {
         }));
     HttpRequest.getString(request.toString());
   }
+
+  void goOnExpedition(MouseEvent e, var detail, Element target) {
+    var fleetId = target.dataset["fleetId"];
+    var mapareaId =
+        (target.parent.querySelector(".mapareaId") as InputElement).value;
+    var mapId = (target.parent.querySelector(".mapId") as InputElement).value;
+    Uri request = serverManipulate.resolveUri(
+        new Uri(queryParameters: {
+          "type": "GoOnExpedition",
+          "fleet_id": fleetId,
+          "maparea_id": mapareaId,
+          "map_id": mapId,
+        }));
+    HttpRequest.getString(request.toString());
+  }
 }
