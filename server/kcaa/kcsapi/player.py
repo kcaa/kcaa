@@ -96,7 +96,7 @@ class PlayerResources(model.KCAAObject):
     """Build booster."""
     repair_booster = jsonobject.JSONProperty('repair_booster', value_type=int)
     """Repair booster."""
-    build_material = jsonobject.JSONProperty('buidl_material', value_type=int)
+    build_material = jsonobject.JSONProperty('build_material', value_type=int)
     """Build material."""
 
     def update(self, api_name, request, response, objects, debug):
