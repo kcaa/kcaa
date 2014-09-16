@@ -457,6 +457,7 @@ class ShipList(model.KCAAObject):
         This does not include ships under repair or away for mission.
         """
         return [ship for ship in self.damaged_ships() if
+                not ship.is_under_repair and
                 (not fleet_list.find_fleet_for_ship(ship.id) or
                  not fleet_list.find_fleet_for_ship(ship.id).mission_id)]
 
