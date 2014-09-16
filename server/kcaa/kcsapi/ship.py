@@ -364,9 +364,13 @@ class Ship(ShipDefinition):
         return self.hitpoint.current > 0
 
     @property
+    def fatal(self):
+        return self.hitpoint.current <= 0.25 * self.hitpoint.maximum
+
+    @property
     def can_attack_midnight(self):
         return (not ShipDefinition.is_aircraft_carrier(self) and
-                self.hitpoint.current >= 0.25 * self.hitpoint.maximum)
+                not self.fatal)
 
 
 def compare_ship_by_kancolle_level(ship_a, ship_b):

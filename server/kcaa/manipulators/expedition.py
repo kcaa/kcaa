@@ -173,8 +173,7 @@ class EngageExpedition(base.Manipulator):
         return False
 
     def should_go_next(self, expedition, battle, ships):
-        fatal_ships = [s for s in ships if
-                       s.hitpoint.current < 0.25 * s.hitpoint.maximum]
+        fatal_ships = [s for s in ships if s.fatal]
         return not fatal_ships
 
 
