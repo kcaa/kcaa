@@ -269,6 +269,11 @@ class ShipDefinitionList(model.KCAAObject):
             #   api_touchs
             # Suspicious fields:
             #   api_broken: Required resources and time to repair?
+            #     a: 1?
+            #     b: coeff for repair time?
+            #        repair time (sec) = lv * 5 * b * hp + 30
+            #     c: ?
+            #     d: ?
             #   api_cnum: Number in the ship class?
             #   api_ctype: Ship class?
             #   api_defeq: Default equipment?
