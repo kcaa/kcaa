@@ -389,7 +389,13 @@ def compare_ship_by_kancolle_level(ship_a, ship_b):
 
 
 def compare_ship_by_hitpoint_ratio(ship_a, ship_b):
-    return cmp(ship_a.hitpoint.ratio, ship_b.hitpoint.ratio)
+    if ship_a.hitpoint.ratio != ship_b.hitpoint.ratio:
+        return cmp(ship_a.hitpoint.ratio, ship_b.hitpoint.ratio)
+    # Non-damaged ships are sorted by the similar order as kancolle level.
+    # Note that this is not reversed.
+    if ship_a.sort_order != ship_b.sort_order:
+        return ship_a.sort_order - ship_b.sort_order
+    return ship_a.id - ship_b.id
 
 
 def compare_ship_by_rebuilding_rank(ship_a, ship_b):
