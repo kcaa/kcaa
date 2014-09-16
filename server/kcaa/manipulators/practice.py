@@ -50,8 +50,6 @@ class GoOnPractice(base.Manipulator):
             return
         fleet_list = self.objects.get('FleetList')
         fleet_ = fleet_list.fleets[fleet_id - 1]
-        # TODO: Check if the fleet is avialable for practice. Some ships may be
-        # in the repair dock.
         yield self.screen.change_screen(screens.PORT_PRACTICE)
         yield self.screen.check_opponent(practice.id)
         # The oppoonent changed the fleet organization. The expected type

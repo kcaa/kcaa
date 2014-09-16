@@ -477,8 +477,6 @@ class ShipList(model.KCAAObject):
                  not fleet_list.find_fleet_for_ship(ship.id).mission_id)]
 
     def get_ship_position_repair(self, ship_id, fleet_list):
-        # TODO: Test this with the case if a damaged ship is undertaking a
-        # mission.
         if str(ship_id) not in self.ships:
             return None, None
         return self._compute_page_position(ship_id, sorted(
