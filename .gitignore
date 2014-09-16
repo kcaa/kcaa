@@ -8,6 +8,7 @@ bin_v*/
 client/build/
 client/packages
 client/pubspec.lock
+client/web/dialog/packages
 client/web/model/packages
 client/web/packages
 client_deployed/

@@ -4,7 +4,7 @@ description: 'KCAA: Kancolle Automated Assistant'
 dependencies:
   bootjack: any
   intl: any
-  polymer: '>=0.11.0 <0.12.0'
+  polymer: '>=0.14.0 <0.15.0'
 transformers:
 - polymer:
     entry_points: web/index.html

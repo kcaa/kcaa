@@ -1,0 +1,41 @@
+<!-- Be sure to use the path starting from the parent path.
+     It seems it is mandatory that all custom elements sources the same
+     polymer.html in terms of the path representation. -->
+<link rel="import" href="../packages/polymer/polymer.html">
+<meta charset="utf-8">
+<polymer-element name="kcaa-schedule-dialog">
+  <template>
+    <link rel="stylesheet" href="packages/bootjack/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../kcaa.css">
+    <link rel="stylesheet" href="dialog.css">
+    <div class="modal-header">
+      <button class="close" on-click="{{close}}">&times;</button>
+      <h3 class="modal-title">自動操作補助のスケジュール</h3>
+    </div>
+    <div class="modal-body">
+      <div>
+        <label>
+          <input type="checkbox" checked="{{enabled}}" for="enabled"> 有効
+        </label>
+      </div>
+      <template repeat="{{schedule in schedules | enumerate}}">
+        <div>
+          <input type="text" value="{{schedule.value.start}}" size="5"
+                 on-change="{{validateSchedule}}"> から
+          <input type="text" value="{{schedule.value.end}}" size="5"
+                 on-change="{{validateSchedule}}"> まで
+          <button on-click="{{removeSchedule}}" data-index="{{schedule.index}}">
+            &times; 削除
+          </button>
+        </div>
+      </template>
+      <div><button on-click="{{addSchedule}}">+ 追加</button></div>
+      <div class="errorMessage">{{errorMessage}}</div>
+    </div>
+    <div class="modal-footer">
+      <button class="cancel" on-click="{{close}}">Cancel</button>
+      <button on-click="{{ok}}">OK</button>
+    </div>
+  </template>
+  <script type="application/dart" src="schedule_dialog.dart"></script>
+</polymer-element>

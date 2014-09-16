@@ -1,3 +1,5 @@
+library kcaa_assistant;
+
 import 'dart:async';
 import 'dart:convert';
 import 'dart:html';
@@ -5,7 +7,7 @@ import 'package:bootjack/bootjack.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:polymer/polymer.dart';
 
-import 'dialog.dart';
+import 'dialog/dialog.dart';
 import 'model/assistant.dart';
 import 'util.dart';
 
