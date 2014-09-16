@@ -443,13 +443,20 @@ class ShipList(model.KCAAObject):
         return (len(self.rebuilding_material_ships(ship_ids_already_added))
                 + 9) / 10
 
-    def damaged_ships(self, fleet_list):
+    def damaged_ships(self):
         """Gets damaged ships.
 
-        This does return ships under repair.
+        This does return ships under repair or away for mission.
         """
         return [ship for ship in self.ships.itervalues() if
-                ship.hitpoint.current < ship.hitpoint.maximum and
+                ship.hitpoint.current < ship.hitpoint.maximum]
+
+    def repairable_ships(self, fleet_list):
+        """Gets repairable ships.
+
+        This does not include ships under repair or away for mission.
+        """
+        return [ship for ship in self.damaged_ships() if
                 (not fleet_list.find_fleet_for_ship(ship.id) or
                  not fleet_list.find_fleet_for_ship(ship.id).mission_id)]
 
@@ -459,7 +466,7 @@ class ShipList(model.KCAAObject):
         if str(ship_id) not in self.ships:
             return None, None
         return self._compute_page_position(ship_id, sorted(
-            self.damaged_ships(fleet_list),
+            self.damaged_ships(),
             compare_ship_by_hitpoint_ratio))
 
     def _compute_page_position(self, ship_id, sorted_ships):

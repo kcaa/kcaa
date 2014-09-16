@@ -28,11 +28,12 @@ class RepairShips(base.Manipulator):
         if not repair_dock:
             logger.error('No repair dock was found. Giving up.')
             return
-        damaged_ship_ids = [s.id for s in ship_list.damaged_ships(fleet_list)]
+        repairable_ship_ids = (
+            [s.id for s in ship_list.repairable_ships(fleet_list)])
         ships_to_repair = []
         for ship_id in ship_ids:
             ship_ = ship_list.ships[str(ship_id)]
-            if ship_.is_under_repair or ship_.id not in damaged_ship_ids:
+            if ship_.id not in repairable_ship_ids:
                 logger.error('Ship {} is not repairable.'.format(
                     ship_.name.encode('utf8')))
                 continue
@@ -78,8 +79,7 @@ class AutoRepairShips(base.AutoManipulator):
         if not empty_slots:
             return
         ships_to_repair = sorted(
-            [s for s in ship_list.damaged_ships(fleet_list) if
-             not s.is_under_repair],
+            ship_list.repairable_ships(fleet_list),
             kcsapi.ship.compare_ship_by_hitpoint_ratio)[:len(empty_slots)]
         if ships_to_repair:
             return {'ship_ids': [s.id for s in ships_to_repair]}
