@@ -347,6 +347,7 @@ class PortPracticeScreen(PortScreen):
         def confirm_practice_task(task):
             self.click(470, 430)
             yield 3.0
+            self.update_screen_id(screens.PRACTICE)
         return self.do_task(confirm_practice_task)
 
     def cancel(self):

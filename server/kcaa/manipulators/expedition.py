@@ -46,7 +46,7 @@ class GoOnExpedition(base.Manipulator):
         yield self.screen.try_expedition()
         yield self.screen.select_fleet(fleet_id)
         yield self.screen.confirm_expedition()
-        self.add_manipulator(SailOnExpeditionMap)
+        yield self.do_manipulator(SailOnExpeditionMap)
 
 
 class SailOnExpeditionMap(base.Manipulator):
@@ -77,7 +77,7 @@ class SailOnExpeditionMap(base.Manipulator):
             fleet = fleet_list.fleets[expedition.fleet_id - 1]
             if len(fleet.ship_ids) >= 4:
                 yield self.screen.select_formation(self.choose_formation())
-            self.add_manipulator(EngageExpedition)
+            yield self.do_manipulator(EngageExpedition)
             return
         if is_terminal:
             self.screen.update_screen_id(screens.EXPEDITION_TERMINAL)
@@ -85,7 +85,7 @@ class SailOnExpeditionMap(base.Manipulator):
             return
         # This cell is a nonterminal cell without a battle. The next KCSAPI
         # /api_req_map/next should be received. Iterate on.
-        self.add_manipulator(SailOnExpeditionMap)
+        yield self.do_manipulator(SailOnExpeditionMap)
 
     def choose_formation(self):
         # TODO: Make a smarter decision.
@@ -151,7 +151,7 @@ class EngageExpedition(base.Manipulator):
             return
         if self.should_go_next(expedition, battle, ships):
             yield self.screen.go_for_next_battle()
-            self.add_manipulator(SailOnExpeditionMap)
+            yield self.do_manipulator(SailOnExpeditionMap)
         else:
             yield self.screen.drop_out()
 

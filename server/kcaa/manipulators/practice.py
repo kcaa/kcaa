@@ -63,7 +63,7 @@ class GoOnPractice(base.Manipulator):
         yield self.screen.confirm_practice()
         if len(fleet_.ship_ids) >= 4:
             yield self.screen.select_formation(formation)
-        self.add_manipulator(EngagePractice)
+        yield self.do_manipulator(EngagePractice)
 
 
 class HandlePractice(base.Manipulator):
