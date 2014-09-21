@@ -356,20 +356,6 @@ class PortPracticeScreen(PortScreen):
             yield 1.0
         return self.do_task(cancel_task)
 
-    def select_formation(self, formation):
-        # TODO: Share with ExpeditionScreen.
-        def select_formation_task(task):
-            click_positions = [
-                (450, 185),  # FORMATION_SINGLE_LINE
-                (580, 185),  # FORMATION_DOUBLE_LINES
-                (710, 185),  # FORMATION_CIRCLE
-                (520, 345),  # FORMATION_LADDER
-                (650, 345),  # FORMATION_HORIZONTAL_LINE
-            ]
-            self.click(*click_positions[formation])
-            yield 1.0
-        return self.do_task(select_formation_task)
-
 
 class PortMissionScreen(PortScreen):
 
@@ -851,6 +837,19 @@ class PortRepairScreen(PortOperationsScreen):
 
 class EngageScreen(Screen):
 
+    def select_formation(self, formation):
+        def select_formation_task(task):
+            click_positions = [
+                (450, 185),  # FORMATION_SINGLE_LINE
+                (580, 185),  # FORMATION_DOUBLE_LINES
+                (710, 185),  # FORMATION_CIRCLE
+                (520, 345),  # FORMATION_LADDER
+                (650, 345),  # FORMATION_HORIZONTAL_LINE
+            ]
+            self.click(*click_positions[formation])
+            yield 1.0
+        return self.do_task(select_formation_task)
+
     def avoid_night_combat(self):
         def avoid_night_combat_task(task):
             self.click(290, 245)
@@ -872,21 +871,6 @@ class EngageScreen(Screen):
 
 
 class ExpeditionScreen(EngageScreen):
-
-    def select_formation(self, formation):
-        # TODO: Share with PortPracticeScreen. Probably it's better to move to
-        # EngageScreen?
-        def select_formation_task(task):
-            click_positions = [
-                (450, 185),  # FORMATION_SINGLE_LINE
-                (580, 185),  # FORMATION_DOUBLE_LINES
-                (710, 185),  # FORMATION_CIRCLE
-                (520, 345),  # FORMATION_LADDER
-                (650, 345),  # FORMATION_HORIZONTAL_LINE
-            ]
-            self.click(*click_positions[formation])
-            yield 1.0
-        return self.do_task(select_formation_task)
 
     def roll_compass(self):
         def roll_compass_task(task):
