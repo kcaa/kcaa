@@ -132,26 +132,24 @@ class EngagePractice(base.Manipulator):
                     fleet_.ship_ids)
         to_go_for_night_combat = self.should_go_night_combat(
             battle, ships)
-        # Clicks every >5 seconds in case a night battle is required for the
-        # complete win. Timeout is >5 minutes (5 sec x 60 trials).
-        # Note that this may be longer due to wait in engage_night_combat()
-        # for example.
-        for _ in xrange(60):
-            if self.screen_id == screens.PRACTICE_NIGHTCOMBAT:
-                break
-            yield self.screen.wait_transition(
-                screens.PRACTICE_RESULT, timeout=5.0, raise_on_timeout=False)
-            if self.screen_id == screens.PRACTICE_RESULT:
-                break
-            if to_go_for_night_combat:
-                yield self.screen.engage_night_combat()
+        if battle.need_midnight_battle:
+            # Clicks every >5 seconds in case a night battle is required for
+            # the complete win. Timeout is >5 minutes (5 sec x 60 trials).
+            # Note that this may be longer due to wait in engage_night_combat()
+            # for example.
+            for _ in xrange(60):
+                if self.screen_id == screens.PRACTICE_NIGHTCOMBAT:
+                    break
+                if to_go_for_night_combat:
+                    yield self.screen.engage_night_combat()
+                else:
+                    yield self.screen.avoid_night_combat()
             else:
-                yield self.screen.avoid_night_combat()
-        else:
-            logger.error('The battle did not finish in 5 minutes. Giving up.')
-            return
+                logger.error(
+                    'The battle did not finish in 5 minutes. Giving up.')
+                return
         yield self.screen.wait_transition(screens.PRACTICE_RESULT,
-                                          timeout=180.0)
+                                          timeout=300.0)
         yield self.screen.dismiss_result_overview()
         yield self.screen.dismiss_result_details()
 
