@@ -253,6 +253,7 @@ class Battle(model.KCAAObject):
         data = response.api_data
         self.fleet_id = data.api_dock_id
         # Aircraft attack phase.
+        self.aircraft_phase = None
         if data.api_kouku.api_stage3:
             self.aircraft_phase = AircraftPhase(
                 attacks=AircraftAttack.create_list_from_kouku(
