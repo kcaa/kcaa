@@ -66,6 +66,8 @@ class AutoRepairShips(base.AutoManipulator):
     def can_trigger(cls, owner):
         if not screens.in_category(owner.screen_id, screens.PORT):
             return
+        if owner.screen_id == screens.PORT_REPAIR:
+            return
         ship_list = owner.objects.get('ShipList')
         if not ship_list:
             return
