@@ -67,7 +67,7 @@ class Manipulator(task.Task):
 
     def add_manipulator_priority(self, manipulator, priority, *args, **kwargs):
         logger.debug(
-            'Manipulator.add__manipulator_priority({}, priority={}, *{}, **{})'
+            'Manipulator.add_manipulator_priority({}, priority={}, *{}, **{})'
             .format(manipulator.__name__, priority, args, kwargs))
         return self.manager.add_manipulator(
             manipulator(self.manager, priority, *args, **kwargs))
