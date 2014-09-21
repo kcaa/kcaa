@@ -281,8 +281,11 @@ class ManipulatorManager(object):
         if self.current_task:
             self.update_running_manipulators()
         # Always keep the last entry in scheduled_manipulators.
+        # Note that the current task will be the last entry if the same
+        # manipulator is recursively called; exclude such case.
         last_entry = self.scheduled_manipulators.get(manipulator_name, None)
-        if not last_entry or entry > last_entry:
+        if (not last_entry or last_entry[2] is self.current_task or
+                entry > last_entry):
             self.scheduled_manipulators[manipulator_name] = entry
         self.log_manipulator_queue()
         self._logger.debug(
