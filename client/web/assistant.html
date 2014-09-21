@@ -108,10 +108,13 @@
                   なし
                 </template>
                 <template if="{{model.runningManipulator != null}}">
-                  {{model.runningManipulator}}
-                  <template if="{{model.manipulatorsInQueue.length > 0}}">
-                    (+{{model.manipulatorsInQueue.length}})
-                  </template>
+                  <span title="{{model.runningManipulator}}
+                               {{model.manipulatorsInQueue.join('\n')}}">
+                    {{model.runningManipulator}}
+                    <template if="{{model.manipulatorsInQueue.length > 0}}">
+                      (+{{model.manipulatorsInQueue.length}})
+                    </template>
+                  </span>
                 </template>
               </div>
               <div>操作補助:
