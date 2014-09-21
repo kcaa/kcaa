@@ -123,12 +123,19 @@ class EngageExpedition(base.Manipulator):
             # Note that this may be longer due to wait in engage_night_combat()
             # for example.
             for _ in xrange(60):
-                if self.screen_id == screens.EXPEDITION_NIGHTCOMBAT:
+                if self.screen_id in (screens.EXPEDITION_NIGHTCOMBAT,
+                                      screens.EXPEDITION_RESULT):
                     break
                 if to_go_for_night_combat:
                     yield self.screen.engage_night_combat()
+                    yield self.screen.wait_transition(
+                        screens.EXPEDITION_NIGHTCOMBAT, timeout=5.0,
+                        raise_on_timeout=False)
                 else:
                     yield self.screen.avoid_night_combat()
+                    yield self.screen.wait_transition(
+                        screens.EXPEDITION_RESULT, timeout=5.0,
+                        raise_on_timeout=False)
             else:
                 logger.error(
                     'The battle did not finish in 5 minutes. Giving up.')
