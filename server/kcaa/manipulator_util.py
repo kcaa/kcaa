@@ -63,6 +63,7 @@ class ScreenManager(object):
             screens.EXPEDITION_REWARDS: manipulators.screen.ExpeditionScreen,
             screens.EXPEDITION_CONTINUE: manipulators.screen.ExpeditionScreen,
             screens.EXPEDITION_TERMINAL: manipulators.screen.ExpeditionScreen,
+            screens.PRACTICE: manipulators.screen.PracticeScreen,
             screens.PRACTICE_COMBAT: manipulators.screen.PracticeScreen,
             screens.PRACTICE_NIGHT: manipulators.screen.PracticeScreen,
             screens.PRACTICE_NIGHTCOMBAT: manipulators.screen.PracticeScreen,
