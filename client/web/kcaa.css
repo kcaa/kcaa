@@ -46,6 +46,7 @@ div.board > *:first-child {
   margin-top: 0;
 }
 div.commandBoard button {
+  margin-top: 5px;
   text-align: center;
   width: 100%;
 }
