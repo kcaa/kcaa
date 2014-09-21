@@ -905,10 +905,17 @@ class ExpeditionScreen(EngageScreen):
             yield 2.0
         return self.do_task(go_for_next_battle_task)
 
+    def forcedly_drop_out(self):
+        def forcedly_drop_out_task(task):
+            yield 5.0
+            self.click_somewhere()
+            yield self.wait_transition(screens.PORT_MAIN)
+        return self.do_task(forcedly_drop_out_task)
+
     def drop_out(self):
         def drop_out_task(task):
             self.click(505, 245)
-            yield 2.0
+            yield self.wait_transition(screens.PORT_MAIN)
         return self.do_task(drop_out_task)
 
 

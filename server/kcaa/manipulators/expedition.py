@@ -149,9 +149,13 @@ class EngageExpedition(base.Manipulator):
         yield self.screen.dismiss_result_overview()
         yield self.screen.dismiss_result_details()
         if expedition_result.got_ship:
+            self.screen.update_screen_id(screens.EXPEDITION_REWARDS)
             yield self.screen.dismiss_new_ship()
         if expedition.is_terminal:
             yield self.screen.wait_transition(screens.PORT_MAIN)
+            return
+        if ships[0].fatal:
+            yield self.screen.forcedly_drop_out()
             return
         if self.should_go_next(expedition, battle, ships):
             yield self.screen.go_for_next_battle()
