@@ -47,6 +47,11 @@ class FleetOrganizationDialog extends KcaaDialog {
       errorMessage = "この艦隊は演習計画に組み込まれています。先に計画から外してください。";
       return;
     }
+    if (model.preferences.missionPrefs.missionPlans.any(
+        (missionPlan) => missionPlan.fleetName == fleet.name)) {
+      errorMessage = "この艦隊は遠征計画に組み込まれています。先に計画から外してください。";
+      return;
+    }
     model.preferences.fleetPrefs.savedFleets.removeWhere(
         (savedFleet) => savedFleet == fleet);
     assistant.savePreferences();
