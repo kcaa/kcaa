@@ -406,6 +406,7 @@ class Assistant extends PolymerElement {
     var dialog = querySelector("#${dialogName}") as KcaaDialog;
     dialog.show(target);
     dialog.classes.remove("hidden");
+    e.preventDefault();
   }
 
   void savePreferences() {

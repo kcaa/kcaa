@@ -224,7 +224,14 @@
                                 model.preferences.fleetPrefs.savedFleets}}">
               <div class="trow">
                 <div class="description">
-                  <div class="title">{{savedFleet.name}}</div>
+                  <div class="title">
+                    <a href="#"
+                       on-click="{{showModalDialog}}"
+                       data-dialog="kcaaFleetOrganizationDialog"
+                       data-fleet-name="{{savedFleet.name}}">
+                      {{savedFleet.name}}
+                    </a>
+                  </div>
                   <!-- TODO: Fill this from the backend data. -->
                   <div>汎用型</div>
                 </div>

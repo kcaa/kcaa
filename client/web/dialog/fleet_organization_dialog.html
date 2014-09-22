@@ -1,0 +1,102 @@
+<!-- Be sure to use the path starting from the parent path.
+     It seems it is mandatory that all custom elements sources the same
+     polymer.html in terms of the path representation. -->
+<link rel="import" href="../packages/polymer/polymer.html">
+<meta charset="utf-8">
+<polymer-element name="kcaa-fleet-organization-dialog">
+  <template>
+    <!-- TODO: Reuse ship list table. -->
+    <template id="shiplist">
+      <div class="table shipList {{defaultClass}}">
+        <div class="trow thead">
+          <div data-type="name" class="description">名前</div>
+          <div data-type="level" class="wide">レベル</div>
+          <div data-type="vitality">戦意</div>
+          <div data-type="hp">HP</div>
+          <div data-type="firepower">火力</div>
+          <div data-type="thunderstroke">雷装</div>
+          <div data-type="antiair">対空</div>
+          <div data-type="armor">装甲</div>
+        </div>
+        <template repeat="{{ship in ships}}">
+          <template if="{{ignoreFilter || ship.filtered}}">
+            <div class="trow {{ship.stateClass}}">
+              <div class="description">
+                <div class="title {{ship.lockedClass}}">
+                  {{ship.name}}
+                  <template if="{{debug}}">
+                    <span class="subordinate">({{ship.id}})</span>
+                  </template>
+                </div>
+                <div>{{ship.shipType}}</div>
+                <div>
+                  <template if="{{ships.length > 6 &&
+                                  ship.belongingFleet != null}}">
+                      第{{ship.belongingFleet.id}}艦隊所属
+                      <template if="{{ship.belongingFleet.undertakingMission
+                                      != null}}">
+                        (遠征中)
+                      </template>
+                  </template>
+                  <template if="{{ship.isUnderRepair}}">
+                    (入渠中)
+                  </template>
+                </div>
+              </div>
+              <div class="wide numberColumn {{ship.levelClass}}">
+                <div>{{ship.level}}<template
+                  if="{{ship.experienceGauge != null}}"><span
+                  class="subordinate">.{{ship.experienceGauge}}</span>
+                  </template></div>
+                <template if="{{ship.upgradeLevel != 0}}">
+                  <div>改: {{ship.upgradeLevel}}</div>
+                </template>
+              </div>
+              <div class="numberColumn">{{ship.vitality}}</div>
+              <div class="numberColumn">
+                <div>{{ship.hpPercentageString}}%</div>
+                <div>{{ship.hp}}/{{ship.maxHp}}</div>
+              </div>
+              <div class="numberColumn {{ship.firepowerClass}}">
+                <div>{{ship.firepower}}</div>
+                <div>{{ship.enhancedFirepower}}/{{ship.maxFirepower}}</div>
+              </div>
+              <div class="numberColumn {{ship.thunderstrokeClass}}">
+                <div>{{ship.thunderstroke}}</div>
+                <div>
+                  {{ship.enhancedThunderstroke}}/{{ship.maxThunderstroke}}
+                </div>
+              </div>
+              <div class="numberColumn {{ship.antiAirClass}}">
+                <div>{{ship.antiAir}}</div>
+                <div>{{ship.enhancedAntiAir}}/{{ship.maxAntiAir}}</div>
+              </div>
+              <div class="numberColumn {{ship.armorClass}}">
+                <div>{{ship.armor}}</div>
+                <div>{{ship.enhancedArmor}}/{{ship.maxArmor}}</div>
+              </div>
+            </div>
+          </template>
+        </template>
+      </div>
+    </template>
+
+    <link rel="stylesheet" href="packages/bootjack/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../kcaa.css">
+    <link rel="stylesheet" href="dialog.css">
+    <link rel="stylesheet" href="../shiplist.css">
+    <div class="modal-header">
+      <button class="close" on-click="{{close}}">&times;</button>
+      <h3 class="modal-title">艦隊編成 - {{fleet.name}}</h3>
+    </div>
+    <div class="modal-body">
+      <h4>編成予測</h4>
+      <template ref="shiplist" bind></template>
+    </div>
+    <div class="modal-footer">
+      <button class="cancel" on-click="{{close}}">Cancel</button>
+      <button on-click="{{ok}}">OK</button>
+    </div>
+  </template>
+  <script type="application/dart" src="fleet_organization_dialog.dart"></script>
+</polymer-element>
