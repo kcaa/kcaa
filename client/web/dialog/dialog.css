@@ -1,6 +1,9 @@
 .modal-body > * {
   margin-top: 5px;
 }
+.modal-body > h4 {
+  margin-top: 20px;
+}
 
 .errorMessage {
   color: red;

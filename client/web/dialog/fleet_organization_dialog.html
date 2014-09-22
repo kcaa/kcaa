@@ -92,6 +92,13 @@
     <div class="modal-body">
       <h4>編成予測</h4>
       <template ref="shiplist" bind></template>
+      <h4>削除</h4>
+      <div>
+        <input type="text" value="{{fleetNameToDelete}}"
+               id="fleetNameToDelete">を本当に
+        <button on-click="{{delete}}">削除</button>
+      </div>
+      <div class="errorMessage">{{errorMessage}}</div>
     </div>
     <div class="modal-footer">
       <button class="cancel" on-click="{{close}}">Cancel</button>
