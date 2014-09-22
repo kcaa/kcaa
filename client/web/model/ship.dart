@@ -15,12 +15,13 @@ class Ship extends Observable {
     11: "正規空母",
     12: "超弩級戦艦",
     13: "潜水艦",
-    14: "潜水母艦",
+    14: "潜水空母",
     15: "補給艦",
     16: "水上機母艦",
     17: "揚陸艦",
     18: "装甲空母",
     19: "工作艦",
+    20: "潜水母艦",
   };
 
   static final SHIP_COMPARER = <String, ShipComparer>{

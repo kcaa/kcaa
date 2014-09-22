@@ -59,6 +59,7 @@ class ShipDefinition(jsonobject.JSONSerializableObject):
     SHIP_TYPE_LANDING_SHIP = 17
     SHIP_TYPE_ARMORED_AIRCRAFT_CARRIER = 18
     SHIP_TYPE_REPAIR_SHIP = 19
+    SHIP_TYPE_SUBMARINE_TENDER = 20
     rarity = jsonobject.ReadonlyJSONProperty('rarity', value_type=int)
     """Rarity."""
     RARITY_UNKNOWN = 0
