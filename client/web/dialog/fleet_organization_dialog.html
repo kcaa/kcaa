@@ -87,7 +87,18 @@
     <link rel="stylesheet" href="../shiplist.css">
     <div class="modal-header">
       <button class="close" on-click="{{close}}">&times;</button>
-      <h3 class="modal-title">艦隊編成 - {{fleet.name}}</h3>
+      <h3 class="modal-title">
+        艦隊編成 -
+        <template if="{{editingFleetName}}">
+          <input type="text" value="{{newFleetName}}">
+          <button on-click="{{renameFleet}}" class="action">&#10004;</button>
+          <button on-click="{{cancelRenaming}}" class="action">&#10008;</button>
+        </template>
+        <template if="{{!editingFleetName}}">
+          {{fleet.name}}
+          <button on-click="{{editFleetName}}" class="action">&#9998;</button>
+        </template>
+        </h3>
     </div>
     <div class="modal-body">
       <h4>編成予測</h4>
