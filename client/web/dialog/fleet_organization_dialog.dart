@@ -3,7 +3,6 @@ import 'package:polymer/polymer.dart';
 
 import 'dialog.dart';
 import '../model/assistant.dart';
-import '../util.dart';
 
 @CustomTag('kcaa-fleet-organization-dialog')
 class FleetOrganizationDialog extends KcaaDialog {
@@ -73,6 +72,18 @@ class FleetOrganizationDialog extends KcaaDialog {
 
   void cancelRenaming() {
     editingFleetName = false;
+  }
+
+  void loadFleet(MouseEvent e, var detail, Element target) {
+    // TODO: Reuse Assistant.loadFleet (probably by moving to util?)
+    var fleetId = target.dataset["fleetId"];
+    Uri request = assistant.serverManipulate.resolveUri(
+        new Uri(queryParameters: {
+          "type": "LoadFleet",
+          "fleet_id": fleetId,
+          "saved_fleet_name": fleet.name,
+        }));
+    HttpRequest.getString(request.toString());
   }
 
   void delete() {

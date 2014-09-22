@@ -103,6 +103,16 @@
     <div class="modal-body">
       <h4>編成予測</h4>
       <template ref="shiplist" bind></template>
+      <h4>再現</h4>
+      <div>
+        <template repeat="{{fleet in model.fleets}}">
+          <button on-click="{{loadFleet}}"
+                  data-fleet-id="{{fleet.id}}"
+                  disabled?="{{fleet.undertakingMission != null}}">
+            第{{fleet.id}}艦隊
+          </button>
+        </template>
+      </div>
       <h4>削除</h4>
       <div>
         <input type="text" value="{{fleetNameToDelete}}"
