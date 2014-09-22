@@ -177,6 +177,9 @@ class ManipulatorManager(object):
             # Repair
             'AutoRepairShips': manipulators.repair.AutoRepairShips,
             'AutoCheckRepairResult': manipulators.repair.AutoCheckRepairResult,
+            # Practice
+            'AutoCheckPracticeOpponents':
+            manipulators.practice.AutoCheckPracticeOpponents,
             # Mission
             'AutoCheckMissionResult':
             manipulators.mission.AutoCheckMissionResult,
@@ -216,8 +219,15 @@ class ManipulatorManager(object):
             # WarmUp call chain, but precedes consequent WarmUp invocations.
             # Note that the top-level WarmUp is called from WarmUpFleet or
             # WarmUpIdleShips, which have priority of -1.
-            # TODO: Consider fixing this; this is too hacky.
+            # TODO: Consider fixing this; this is too hacky. This can be solved
+            # by separating the 'hard' version and 'soft' version. Hard version
+            # takes higher priority and repairs fatal ships. Soft version has
+            # less lower prirority and repairs slightly damages ships when
+            # idle.
             'AutoRepairShips': -2,
+            # AutoCheckPracticeOpponents run when idle. It's quick, so it can
+            # precede other low priority ones.
+            'AutoCheckPracticeOpponents': 1000,
             # AutoWarmUpIdleShips can run only when idle, but should precede
             # AutoGoOnMission to make sure all ships are in good condition
             # before going on missions.
@@ -234,8 +244,7 @@ class ManipulatorManager(object):
         self.auto_manipulators_schedules = automan_prefs.schedules
         self._logger.info(
             'AutoManipulator schedules: {}.'.format(automan_prefs.schedules))
-        now = datetime.datetime.now()
-        seconds_in_today = 3600 * now.hour + 60 * now.minute + now.second
+        seconds_in_today = self.seconds_in_today
         self._logger.info('Current time: {}'.format(seconds_in_today))
         self.current_schedule_fragment = None
         # Update RunningManipulators object.
@@ -250,12 +259,17 @@ class ManipulatorManager(object):
                 seconds_in_today < schedule_fragment.end):
             return True
 
+    @property
+    def seconds_in_today(self):
+        # TODO: Move this out to util module?
+        now = datetime.datetime.now()
+        return 3600 * now.hour + 60 * now.minute + now.second
+
     def are_auto_manipulator_scheduled(self, seconds_in_today=None):
         if not self.auto_manipulators_enabled:
             return False
         if seconds_in_today is None:
-            now = datetime.datetime.now()
-            seconds_in_today = 3600 * now.hour + 60 * now.minute + now.second
+            seconds_in_today = self.seconds_in_today
         if self.current_schedule_fragment:
             if ManipulatorManager.in_schedule_fragment(
                     seconds_in_today, self.current_schedule_fragment):

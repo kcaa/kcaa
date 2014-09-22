@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import datetime
 import logging
 
 import base
@@ -26,6 +27,37 @@ class CheckPracticeOpponents(base.Manipulator):
                 continue
             yield self.screen.check_opponent(practice.id)
             yield self.screen.cancel()
+
+
+class AutoCheckPracticeOpponents(base.AutoManipulator):
+
+    schedules = [datetime.time(3, 5),
+                 datetime.time(15, 5)]
+
+    next_update = None
+
+    @classmethod
+    def can_trigger(cls, owner):
+        if not screens.in_category(owner.screen_id, screens.PORT):
+            return
+        now = datetime.datetime.now()
+        if cls.next_update is not None and now < cls.next_update:
+            return
+        t = now.time()
+        for next_schedule in cls.schedules:
+            if t < next_schedule:
+                cls.next_update = datetime.datetime.combine(
+                    now.date(), next_schedule)
+                break
+        else:
+            cls.next_update = datetime.datetime.combine(
+                now.date() + datetime.timedelta(days=1), cls.schedules[0])
+        logger.debug(
+            'Next practice update is scheduled at {}'.format(cls.next_update))
+        return {}
+
+    def run(self):
+        yield self.do_manipulator(CheckPracticeOpponents)
 
 
 class GoOnPractice(base.Manipulator):
