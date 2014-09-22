@@ -180,6 +180,8 @@ class ManipulatorManager(object):
             # Practice
             'AutoCheckPracticeOpponents':
             manipulators.practice.AutoCheckPracticeOpponents,
+            'AutoHandleAllPractices':
+            manipulators.practice.AutoHandleAllPractices,
             # Mission
             'AutoCheckMissionResult':
             manipulators.mission.AutoCheckMissionResult,
@@ -225,9 +227,12 @@ class ManipulatorManager(object):
             # less lower prirority and repairs slightly damages ships when
             # idle.
             'AutoRepairShips': -2,
-            # AutoCheckPracticeOpponents run when idle. It's quick, so it can
+            # AutoCheckPracticeOpponents runs when idle. It's quick, so it can
             # precede other low priority ones.
             'AutoCheckPracticeOpponents': 1000,
+            # AutoHandleAllPractices runs when idle. It may take some time, and
+            # thus should precede other time-consuming low priority tasks.
+            'AutoHandleAllPractices': 2000,
             # AutoWarmUpIdleShips can run only when idle, but should precede
             # AutoGoOnMission to make sure all ships are in good condition
             # before going on missions.

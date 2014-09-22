@@ -41,7 +41,8 @@ class AutoCheckPracticeOpponents(base.AutoManipulator):
         if not screens.in_category(owner.screen_id, screens.PORT):
             return
         now = datetime.datetime.now()
-        if cls.next_update is not None and now < cls.next_update:
+        initial_run = cls.next_update is None
+        if not initial_run and now < cls.next_update:
             return
         t = now.time()
         for next_schedule in cls.schedules:
@@ -54,7 +55,8 @@ class AutoCheckPracticeOpponents(base.AutoManipulator):
                 now.date() + datetime.timedelta(days=1), cls.schedules[0])
         logger.debug(
             'Next practice update is scheduled at {}'.format(cls.next_update))
-        return {}
+        if not initial_run or 'PracticeList' not in owner.objects:
+            return {}
 
     def run(self):
         yield self.do_manipulator(CheckPracticeOpponents)
@@ -142,6 +144,42 @@ class HandleAllPractices(base.Manipulator):
             if practice.result != kcsapi.Practice.RESULT_NEW:
                 continue
             self.add_manipulator(HandlePractice, fleet_id, i + 1)
+
+
+# TODO: Add a new subclass of AutoManipulator, named ScheduledManipulator. The
+# most of infrastructural code of this can be shared with
+# AutoCheckPracticeOpponents and probably QuestList checker.
+class AutoHandleAllPractices(base.AutoManipulator):
+
+    schedules = [datetime.time(2, 30),
+                 datetime.time(14, 30)]
+
+    next_update = None
+
+    @classmethod
+    def can_trigger(cls, owner):
+        if not screens.in_category(owner.screen_id, screens.PORT):
+            return
+        now = datetime.datetime.now()
+        initial_run = cls.next_update is None
+        if not initial_run and now < cls.next_update:
+            return
+        t = now.time()
+        for next_schedule in cls.schedules:
+            if t < next_schedule:
+                cls.next_update = datetime.datetime.combine(
+                    now.date(), next_schedule)
+                break
+        else:
+            cls.next_update = datetime.datetime.combine(
+                now.date() + datetime.timedelta(days=1), cls.schedules[0])
+        logger.debug(
+            'Next auto practice is scheduled at {}'.format(cls.next_update))
+        if not initial_run:
+            return {}
+
+    def run(self):
+        yield self.do_manipulator(HandleAllPractices, 1)
 
 
 class EngagePractice(base.Manipulator):
