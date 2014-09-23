@@ -793,4 +793,17 @@ ShipPredicate.not_._value_type = ShipPredicate
 
 
 class ShipSorter(jsonobject.JSONSerializableObject):
-    pass
+
+    name = jsonobject.JSONProperty('name', value_type=unicode)
+    """Name."""
+    reversed = jsonobject.JSONProperty('reverse', value_type=bool)
+    """Reversed or not.
+
+    By default the sorter sorts ships in ascending order of the metric that it
+    cares about (i.e. from smallest to largest). When this property is true,
+    the order is reversed (i.e. from largest to smallest).
+    """
+
+    def sort(self, ships):
+        # TODO: Implement.
+        pass

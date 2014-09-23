@@ -28,12 +28,16 @@ class SavedFleet extends Observable {
   @observable String name;
   @observable final List<ShipRequirement> shipRequirements =
       new ObservableList<ShipRequirement>();
+
+  // TODO: Remove this.
+  dynamic shipRequirementsContent;
 }
 
 class FleetPrefs extends Observable {
   @observable final List<SavedFleet> savedFleets =
       new ObservableList<SavedFleet>();
 
+  // TODO: Update.
   void saveFleet(String name, Iterable<Ship> ships) {
     SavedFleet savedFleet = new SavedFleet();
     savedFleet.name = name;
@@ -90,10 +94,10 @@ class Preferences extends Observable {
       "fleet_prefs": {
         "saved_fleets": fleetPrefs.savedFleets.map((savedFleet) => {
           "name": savedFleet.name,
-          "ship_requirements":
-              savedFleet.shipRequirements.map((shipRequirement) => {
+          "ship_requirements": savedFleet.shipRequirementsContent,
+              /*savedFleet.shipRequirements.map((shipRequirement) => {
             "id": shipRequirement.id,
-          }).toList(),
+          }).toList(),*/
         }).toList(),
       },
       "practice_prefs": {
@@ -126,10 +130,11 @@ void handlePreferences(Assistant assistant, AssistantModel model,
   for (var savedFleet in data["fleet_prefs"]["saved_fleets"]) {
     SavedFleet savedFleetObject = new SavedFleet();
     savedFleetObject.name = savedFleet["name"];
-    for (var shipRequirement in savedFleet["ship_requirements"]) {
+    savedFleetObject.shipRequirementsContent = savedFleet["ship_requirements"];
+/*    for (var shipRequirement in savedFleet["ship_requirements"]) {
       savedFleetObject.shipRequirements.add(
           new ShipRequirement(shipRequirement["id"]));
-    }
+    }*/
     prefs.fleetPrefs.savedFleets.add(savedFleetObject);
   }
   for (var practicePlan in data["practice_prefs"]["practice_plans"]) {

@@ -88,7 +88,12 @@ class LoadFleet(base.Manipulator):
                 saved_fleet_name))
             return
         saved_fleet = matching_fleets[0]
-        ship_ids = map(lambda sr: sr.id, saved_fleet.ship_requirements)
+        ships = saved_fleet.get_ships(ship_list)
+        if not ships:
+            logger.error('Saved fleet {} cannot be loaded.'.format(
+                saved_fleet_name))
+            return
+        ship_ids = [ship.id for ship in ships]
         yield self.do_manipulator(LoadShips, fleet_id, ship_ids)
 
 

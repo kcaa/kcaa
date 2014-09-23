@@ -2,6 +2,7 @@
 
 import jsonobject
 import model
+import ship
 
 
 class ScheduleFragment(jsonobject.JSONSerializableObject):
@@ -34,16 +35,55 @@ class AutoManipulatorPreferences(jsonobject.JSONSerializableObject):
 
 
 class ShipRequirement(jsonobject.JSONSerializableObject):
-    id = jsonobject.JSONProperty('id', value_type=int)
-    """ID of the ship."""
+
+    predicate = jsonobject.JSONProperty(
+        'predicate', value_type=ship.ShipPredicate)
+    """Predicate."""
+    sorter = jsonobject.JSONProperty('sorter', value_type=ship.ShipSorter)
+    """Sorter."""
+    omittable = jsonobject.JSONProperty('omittable', False, value_type=bool)
+    """Omittable.
+
+    An omittable ship can be omitted if no ship meets the condition required in
+    the predicate. A slot with the omitted ship is filled up with the ships
+    following that slot.
+    """
 
 
 class SavedFleet(jsonobject.JSONSerializableObject):
+
     name = jsonobject.JSONProperty('name', value_type=unicode)
     """Name of the fleet."""
+    global_predicate = jsonobject.JSONProperty(
+        'global_predicate', value_type=ship.ShipPredicate)
+    """Global predicate applied to all of ship selections.
+
+    A global predicate is applied as AND operator for all ship selections
+    defined here. This is usually used for selecting only available ships (no
+    repair, no mission and not fatal etc.).
+    """
     ship_requirements = jsonobject.JSONProperty(
         'ship_requirements', [], value_type=list, element_type=ShipRequirement)
     """Ship requirements."""
+
+    def get_ships(self, ship_list):
+        # TODO: Unit test.
+        ships = []
+        for ship_requirement in self.ship_requirements:
+            predicate = ship_requirement.predicate
+            if self.global_predicate:
+                predicate = ship.ShipPredicate(and_=[
+                    self.global_predicate, predicate])
+            applicable_ships = [s for s in ship_list.ships.itervalues()
+                                if predicate.apply(s)]
+            ship_requirement.sorter.sort(applicable_ships)
+            if not applicable_ships:
+                if not ship_requirement.omittable:
+                    return None
+                ships.append(None)
+            else:
+                ships.append(applicable_ships[0])
+        return [s for s in ships if s]
 
 
 class FleetPreferences(jsonobject.JSONSerializableObject):
@@ -68,6 +108,7 @@ class PracticePlan(jsonobject.JSONSerializableObject):
 
 
 class PracticePreferences(jsonobject.JSONSerializableObject):
+
     practice_plans = jsonobject.JSONProperty(
         'practice_plans', [], value_type=list, element_type=PracticePlan)
     """Practice plans."""
@@ -82,6 +123,7 @@ class PracticePreferences(jsonobject.JSONSerializableObject):
 
 
 class MissionPlan(jsonobject.JSONSerializableObject):
+
     fleet_id = jsonobject.JSONProperty('fleet_id', value_type=int)
     """Fleet ID."""
     mission_id = jsonobject.JSONProperty('mission_id', value_type=int)
@@ -91,6 +133,7 @@ class MissionPlan(jsonobject.JSONSerializableObject):
 
 
 class MissionPreferences(jsonobject.JSONSerializableObject):
+
     mission_plans = jsonobject.JSONProperty(
         'mission_plans', [], value_type=list, element_type=MissionPlan)
     """Mission plans."""
