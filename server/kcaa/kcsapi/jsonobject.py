@@ -88,7 +88,10 @@ class JSONSerializableObject(object):
         if not name_mapping:
             return {key: key for key in dir(cls)}
         name_map = {}
-        for key, value in cls.__dict__.iteritems():
+        # Note that vars(cls) or cls.__dict__ is not enough. It doesn't provide
+        # the variables in ascendant classes.
+        for key in dir(cls):
+            value = getattr(cls, key)
             if not isinstance(value, CustomizableJSONProperty):
                 name_map[key] = key
                 continue

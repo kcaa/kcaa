@@ -572,6 +572,17 @@ class TestJSONSerializableObject(object):
         assert t.foo == 123
         assert t.bar == 456
 
+    def test_parse_field_in_parent(self):
+        class SomeObject(jsonobject.JSONSerializableObject):
+            foo = jsonobject.JSONProperty('foo', value_type=int)
+
+        class AnotherObject(SomeObject):
+            bar = jsonobject.JSONProperty('bar', value_type=int)
+
+        s = AnotherObject.parse_text('{"foo": 123, "bar": 456}')
+        assert s.foo == 123
+        assert s.bar == 456
+
     def test_instance_json_property(self):
         class SomeObject(jsonobject.JSONSerializableObject):
             # Though it's not recommended for most use cases, JSON properties
