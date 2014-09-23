@@ -132,6 +132,81 @@ class TestShipPredicate(object):
         assert sp.apply(ship.Ship(ship_type=13, level=10))
         assert sp.apply(ship.Ship(ship_type=13, level=11))
 
+    def test_apply_not_submarines_or_enough_thunderstroke_and_armor(self):
+        # This is a test for an example realistic predicate, written in JSON.
+        sp = SP.parse_text("""{
+            "or": [
+                {
+                    "not": {
+                        "or": [
+                            {
+                                "property_filter": {
+                                    "property": "ship_type",
+                                    "value": 13,
+                                    "operator": 0
+                                }
+                            },
+                            {
+                                "property_filter": {
+                                    "property": "ship_type",
+                                    "value": 14,
+                                    "operator": 0
+                                }
+                            },
+                            {
+                                "property_filter": {
+                                    "property": "ship_type",
+                                    "value": 20,
+                                    "operator": 0
+                                }
+                            }
+                        ]
+                    }
+                },
+                {
+                    "and": [
+                        {
+                            "property_filter": {
+                                "property": "thunderstroke.current",
+                                "value": 70,
+                                "operator": 5
+                            }
+                        },
+                        {
+                            "property_filter": {
+                                "property": "armor.current",
+                                "value": 15,
+                                "operator": 5
+                            }
+                        }
+                    ]
+                }
+            ]
+        }""")
+        # Not submarine, OK to pass.
+        assert sp.apply(ship.Ship(
+            ship_type=2,
+            thunderstroke=ship.Variable(current=10),
+            armor=ship.Variable(current=10)))
+        # These are submarines and not enough parameters. NG to pass.
+        assert not sp.apply(ship.Ship(
+            ship_type=13,
+            thunderstroke=ship.Variable(current=10),
+            armor=ship.Variable(current=10)))
+        assert not sp.apply(ship.Ship(
+            ship_type=14,
+            thunderstroke=ship.Variable(current=10),
+            armor=ship.Variable(current=10)))
+        assert not sp.apply(ship.Ship(
+            ship_type=20,
+            thunderstroke=ship.Variable(current=10),
+            armor=ship.Variable(current=10)))
+        # Submarine but enough parameters. OK to pass.
+        assert sp.apply(ship.Ship(
+            ship_type=13,
+            thunderstroke=ship.Variable(current=70),
+            armor=ship.Variable(current=15)))
+
 
 def main():
     import doctest

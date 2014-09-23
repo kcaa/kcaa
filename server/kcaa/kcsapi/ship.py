@@ -744,25 +744,21 @@ class ShipPredicate(jsonobject.JSONSerializableObject):
 
     Only one of the conditions is valid for one predicate at a time.
     """
-    # element_type is not written for some members due to Flake8 bug.
 
     or_ = jsonobject.JSONProperty('or', value_type=list)
     """OR conditions.
 
     This predicate itself will be true if any of the child predicates is true.
-    Expects ShipPredicate list.
     """
     and_ = jsonobject.JSONProperty('and', value_type=list)
     """AND conditions.
 
     This predicate itself will be true if all of the child predicates are true.
-    Expects ShipPredicate list.
     """
     not_ = jsonobject.JSONProperty('not')
     """NOT condition.
 
     This predicate itself will be true if the child predicate is false.
-    Expects ShipPredicate.
     """
     property_filter = jsonobject.JSONProperty(
         'property_filter', value_type=ShipPropertyFilter)
@@ -786,6 +782,14 @@ class ShipPredicate(jsonobject.JSONSerializableObject):
             return self.property_filter.apply(ship)
         # TODO: Consider ship filter.
         return False
+
+
+# These value or element types cannot be set in the class body. Sounds like a
+# flaw in language design...
+# For now this hack resolves the issue.
+ShipPredicate.or_._element_type = ShipPredicate
+ShipPredicate.and_._element_type = ShipPredicate
+ShipPredicate.not_._value_type = ShipPredicate
 
 
 class ShipSorter(jsonobject.JSONSerializableObject):
