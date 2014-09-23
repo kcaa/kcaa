@@ -730,3 +730,60 @@ class ShipPropertyFilter(jsonobject.JSONSerializableObject):
             return False
         return ShipPropertyFilter.get_property_value(
             getattr(target, property_spec[0]), property_spec[1:])
+
+
+class ShipFilter(jsonobject.JSONSerializableObject):
+    pass
+
+
+class ShipPredicate(jsonobject.JSONSerializableObject):
+    """Predicate for ship selection.
+
+    A ship predicate is a notation to determine if a certain condition is met
+    with the given ship.
+
+    Only one of the conditions is valid for one predicate at a time.
+    """
+    # element_type is not written for some members due to Flake8 bug.
+
+    or_ = jsonobject.JSONProperty('or', value_type=list)
+    """OR conditions.
+
+    This predicate itself will be true if any of the child predicates is true.
+    Expects ShipPredicate list.
+    """
+    and_ = jsonobject.JSONProperty('and', value_type=list)
+    """AND conditions.
+
+    This predicate itself will be true if all of the child predicates are true.
+    Expects ShipPredicate list.
+    """
+    not_ = jsonobject.JSONProperty('not')
+    """NOT condition.
+
+    This predicate itself will be true if the child predicate is false.
+    Expects ShipPredicate.
+    """
+    property_filter = jsonobject.JSONProperty(
+        'property_filter', value_type=ShipPropertyFilter)
+    """Property filter.
+
+    This predicate itself will be true if the given filter yields true."""
+    filter = jsonobject.JSONProperty('filter', value_type=ShipFilter)
+    """Ship filter.
+
+    This predicate itself will be true if the given filter yields true."""
+
+    def apply(self, ship):
+        """Apply the predicate to the given ship."""
+        # TODO: Consider OR.
+        # TODO: Consider AND.
+        # TODO: Consider NOT.
+        if self.property_filter is not None:
+            return self.property_filter.apply(ship)
+        # TODO: Consider ship filter.
+        return False
+
+
+class ShipSorter(jsonobject.JSONSerializableObject):
+    pass

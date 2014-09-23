@@ -6,6 +6,7 @@ import ship
 
 
 SPF = ship.ShipPropertyFilter
+SP = ship.ShipPredicate
 
 
 class TestShipPropertyFilter(object):
@@ -83,6 +84,19 @@ class TestShipPropertyFilter(object):
         s = ship.Ship(hitpoint=ship.Variable(current=52, maximum=53))
         assert SPF.get_property_value(s, ['hitpoint', 'current']) == 52
         assert SPF.get_property_value(s, ['hitpoint', 'maximum']) == 53
+
+
+class TestShipPredicate(object):
+
+    def test_apply_empty(self):
+        sp = SP()
+        assert not sp.apply(ship.Ship(id=123))
+
+    def test_apply_property_filter_id_equal(self):
+        sp = SP(property_filter=SPF(
+            property=u'id', value=123, operator=SPF.OPERATOR_EQUAL))
+        assert sp.apply(ship.Ship(id=123))
+        assert not sp.apply(ship.Ship(id=124))
 
 
 def main():
