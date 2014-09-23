@@ -11,30 +11,52 @@ SPF = ship.ShipPropertyFilter
 class TestShipPropertyFilter(object):
 
     def test_apply_id_equal_match(self):
-        s = ship.Ship(id=123)
         spf = SPF(property=u'id', value=123, operator=SPF.OPERATOR_EQUAL)
-        assert spf.apply(s)
+        assert spf.apply(ship.Ship(id=123))
 
     def test_apply_id_equal_no_match(self):
-        s = ship.Ship(id=123)
         spf = SPF(property=u'id', value=124, operator=SPF.OPERATOR_EQUAL)
-        assert not spf.apply(s)
+        assert not spf.apply(ship.Ship(id=123))
 
     def test_apply_non_existing_property(self):
-        s = ship.Ship(id=123)
         spf = SPF(property=u'id_non_existing', value=124,
                   operator=SPF.OPERATOR_EQUAL)
-        assert not spf.apply(s)
+        assert not spf.apply(ship.Ship(id=123))
 
     def test_apply_non_existing_operator(self):
-        s = ship.Ship(id=123)
         spf = SPF(property=u'id', value=123, operator=-1)
-        assert not spf.apply(s)
+        assert not spf.apply(ship.Ship(id=123))
 
-    def test_apply_name(self):
-        s = ship.Ship(name=u'foo')
+    def test_apply_name_equal(self):
         spf = SPF(property=u'name', value=u'foo', operator=SPF.OPERATOR_EQUAL)
-        assert spf.apply(s)
+        assert spf.apply(ship.Ship(name=u'foo'))
+
+    def test_apply_level_less_than(self):
+        spf = SPF(property=u'level', value=77, operator=SPF.OPERATOR_LESS_THAN)
+        assert spf.apply(ship.Ship(level=76))
+        assert not spf.apply(ship.Ship(level=77))
+        assert not spf.apply(ship.Ship(level=78))
+
+    def test_apply_level_less_than_equal(self):
+        spf = SPF(property=u'level', value=77,
+                  operator=SPF.OPERATOR_LESS_THAN_EQUAL)
+        assert spf.apply(ship.Ship(level=76))
+        assert spf.apply(ship.Ship(level=77))
+        assert not spf.apply(ship.Ship(level=78))
+
+    def test_apply_level_greater_than(self):
+        spf = SPF(property=u'level', value=77,
+                  operator=SPF.OPERATOR_GREATER_THAN)
+        assert not spf.apply(ship.Ship(level=76))
+        assert not spf.apply(ship.Ship(level=77))
+        assert spf.apply(ship.Ship(level=78))
+
+    def test_apply_level_greater_than_equal(self):
+        spf = SPF(property=u'level', value=77,
+                  operator=SPF.OPERATOR_GREATER_THAN_EQUAL)
+        assert not spf.apply(ship.Ship(level=76))
+        assert spf.apply(ship.Ship(level=77))
+        assert spf.apply(ship.Ship(level=78))
 
 
 def main():
