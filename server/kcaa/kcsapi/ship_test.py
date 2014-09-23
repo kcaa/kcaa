@@ -77,6 +77,12 @@ class TestShipPropertyFilter(object):
 
     def test_get_property_value_id(self):
         assert SPF.get_property_value(ship.Ship(id=123), ['id']) == 123
+        assert SPF.get_property_value(ship.Ship(id=124), ['id']) == 124
+
+    def test_get_property_nested_hitpoint(self):
+        s = ship.Ship(hitpoint=ship.Variable(current=52, maximum=53))
+        assert SPF.get_property_value(s, ['hitpoint', 'current']) == 52
+        assert SPF.get_property_value(s, ['hitpoint', 'maximum']) == 53
 
 
 def main():
