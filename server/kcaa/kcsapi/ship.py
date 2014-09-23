@@ -776,7 +776,8 @@ class ShipPredicate(jsonobject.JSONSerializableObject):
 
     def apply(self, ship):
         """Apply the predicate to the given ship."""
-        # TODO: Consider OR.
+        if self.or_:
+            return any(or_.apply(ship) for or_ in self.or_)
         # TODO: Consider AND.
         if self.not_:
             return not self.not_.apply(ship)

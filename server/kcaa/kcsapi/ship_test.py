@@ -104,6 +104,20 @@ class TestShipPredicate(object):
         assert not sp.apply(ship.Ship(id=123))
         assert sp.apply(ship.Ship(id=124))
 
+    def test_apply_property_or_filter_id_equal(self):
+        sp = SP(or_=[
+            SP(property_filter=SPF(
+                property=u'ship_type', value=2, operator=SPF.OPERATOR_EQUAL)),
+            SP(property_filter=SPF(
+                property=u'ship_type', value=3, operator=SPF.OPERATOR_EQUAL)),
+            SP(property_filter=SPF(
+                property=u'ship_type', value=4, operator=SPF.OPERATOR_EQUAL))])
+        assert not sp.apply(ship.Ship(ship_type=1))
+        assert sp.apply(ship.Ship(ship_type=2))
+        assert sp.apply(ship.Ship(ship_type=3))
+        assert sp.apply(ship.Ship(ship_type=4))
+        assert not sp.apply(ship.Ship(ship_type=5))
+
 
 def main():
     import doctest
