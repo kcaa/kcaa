@@ -25,7 +25,7 @@ def setup_logger(debug, log_file, log_level):
     if _logger:
         return _logger
     logger = logging.getLogger('kcaa')
-    logger.setLevel(logging.DEBUG if debug else logging.INFO)
+    logger.setLevel(logging.DEBUG)
     handler = logging.StreamHandler(sys.stderr)
     handler.setLevel(logging.DEBUG if debug else logging.INFO)
     formatter = ShortLogFormatter()
