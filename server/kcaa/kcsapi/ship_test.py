@@ -18,6 +18,12 @@ class TestShipPropertyFilter(object):
         spf = SPF(property=u'id', value=124, operator=SPF.OPERATOR_EQUAL)
         assert not spf.apply(ship.Ship(id=123))
 
+    def test_apply_id_equal_none(self):
+        # We consider that the filter condition checking if a value is None
+        # (null) always return False. Such a filter is tricky.
+        spf = SPF(property=u'id', value=None, operator=SPF.OPERATOR_EQUAL)
+        assert not spf.apply(ship.Ship(id=None))
+
     def test_apply_non_existing_property(self):
         spf = SPF(property=u'id_non_existing', value=124,
                   operator=SPF.OPERATOR_EQUAL)
@@ -57,6 +63,14 @@ class TestShipPropertyFilter(object):
         assert not spf.apply(ship.Ship(level=76))
         assert spf.apply(ship.Ship(level=77))
         assert spf.apply(ship.Ship(level=78))
+
+    def test_apply_hitpoint_current_equal(self):
+        spf = SPF(property=u'hitpoint.current', value=52,
+                  operator=SPF.OPERATOR_EQUAL)
+        assert spf.apply(ship.Ship(hitpoint=ship.Variable(current=52)))
+
+    def test_get_property_value_id(self):
+        assert SPF.get_property_value(ship.Ship(id=123), ['id']) == 123
 
 
 def main():

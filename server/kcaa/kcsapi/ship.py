@@ -710,11 +710,21 @@ class ShipPropertyFilter(jsonobject.JSONSerializableObject):
     }
 
     def apply(self, ship):
-        property_name = self.property.encode('utf8')
-        if not hasattr(ship, property_name):
+        property_spec = self.property.encode('utf8').split('.')
+        property_value = ShipPropertyFilter.get_property_value(
+            ship, property_spec)
+        if property_value is None:
             return False
         operator = ShipPropertyFilter.OPERATOR_MAP.get(self.operator)
         if not operator:
             return False
-        property_value = getattr(ship, property_name)
         return operator(property_value, self.value)
+
+    @staticmethod
+    def get_property_value(target, property_spec):
+        if not property_spec:
+            return target
+        if target is None or not hasattr(target, property_spec[0]):
+            return False
+        return ShipPropertyFilter.get_property_value(
+            getattr(target, property_spec[0]), property_spec[1:])
