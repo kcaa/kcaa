@@ -57,16 +57,17 @@ class JSONSerializableObject(object):
         else:
             self.__overriding_data = kwargs
 
-    def _initialize(self, data, _ignore_unknown=False):
+    def _initialize(self, data, _ignore_unknown=False, _name_mapping=False):
         self_class = self.__class__
+        name_map = self_class._build_name_map(_name_mapping)
         for key, value in data.iteritems():
-            if not hasattr(self_class, key):
+            if key not in name_map:
                 if _ignore_unknown:
                     continue
                 else:
                     raise AttributeError('{}.{} not found'.format(
                         self_class.__name__, key))
-            member = getattr(self_class, key)
+            member = getattr(self_class, name_map[key])
             member_class = member.__class__
             if not issubclass(member_class, CustomizableJSONProperty):
                 raise AttributeError(
@@ -79,8 +80,20 @@ class JSONSerializableObject(object):
             if issubclass(member_class, ReadonlyJSONProperty):
                 member._initialize(self, value)
             elif member.fset:
-                setattr(self, key, value)
+                setattr(self, name_map[key], value)
             # Ignore getter-only CustomizableJSONProperty.
+
+    @classmethod
+    def _build_name_map(cls, name_mapping):
+        if not name_mapping:
+            return {key: key for key in dir(cls)}
+        name_map = {}
+        for key, value in cls.__dict__.iteritems():
+            if not isinstance(value, CustomizableJSONProperty):
+                name_map[key] = key
+                continue
+            name_map[value.name] = key
+        return name_map
 
     @staticmethod
     def _replace_containers(value, value_type, element_type,
@@ -219,7 +232,7 @@ class JSONSerializableObject(object):
         representation of a JSON object.
 
         :param dict obj: Python representation of a JSON object
-        :param bool ignore_unknown: True if ignoring unknown properties
+        :param bool _ignore_unknown: True if ignoring unknown properties
         :param kwargs: arbitrary keyword arguments passed to the class'
                        constructor
         :returns: Object parsed from the text
@@ -238,9 +251,10 @@ class JSONSerializableObject(object):
         # At first we don't initialize the object with kwargs. Instead obj is
         # used to initialize, and then kwargs specifications override them.
         parsed_obj = cls(_initialize=False, **kwargs)
-        parsed_obj._initialize(obj, _ignore_unknown=_ignore_unknown)
+        parsed_obj._initialize(obj, _ignore_unknown=_ignore_unknown,
+                               _name_mapping=True)
         parsed_obj._initialize(parsed_obj.__overriding_data,
-                               _ignore_unknown=False)
+                               _ignore_unknown=False, _name_mapping=True)
         return parsed_obj
 
 

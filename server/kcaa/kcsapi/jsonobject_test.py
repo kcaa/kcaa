@@ -543,6 +543,35 @@ class TestJSONSerializableObject(object):
         with pytest.raises(TypeError):
             s.bar[0] = SomeObject(foo=3)
 
+    def test_parse_different_name(self):
+        class SomeObject(jsonobject.JSONSerializableObject):
+            # There may be a case where the property name in Python and JSON
+            # differs, especially if the name is keywords like "or", "and" or
+            # such.
+            foo_ = jsonobject.JSONProperty('foo', value_type=int)
+
+        s = SomeObject.parse_text('{"foo": 123}')
+        assert s.foo_ == 123
+        # From Python code, foo_ should be accessible as is.
+        t = SomeObject(foo_=456)
+        assert t.foo_ == 456
+
+    def test_parse_swapped_name(self):
+        class SomeObject(jsonobject.JSONSerializableObject):
+            # These name are swapped in JSON world. Such a situation should
+            # never happen in reality, but in the specification, this is still
+            # allowed.
+            foo = jsonobject.JSONProperty('bar', value_type=int)
+            bar = jsonobject.JSONProperty('foo', value_type=int)
+
+        s = SomeObject.parse_text('{"foo": 123, "bar": 456}')
+        assert s.foo == 456
+        assert s.bar == 123
+        # From Python code, they should be treated as is.
+        t = SomeObject(foo=123, bar=456)
+        assert t.foo == 123
+        assert t.bar == 456
+
     def test_instance_json_property(self):
         class SomeObject(jsonobject.JSONSerializableObject):
             # Though it's not recommended for most use cases, JSON properties
