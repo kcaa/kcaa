@@ -98,6 +98,12 @@ class TestShipPredicate(object):
         assert sp.apply(ship.Ship(id=123))
         assert not sp.apply(ship.Ship(id=124))
 
+    def test_apply_not_property_filter_id_equal(self):
+        sp = SP(not_=SP(property_filter=SPF(
+            property=u'id', value=123, operator=SPF.OPERATOR_EQUAL)))
+        assert not sp.apply(ship.Ship(id=123))
+        assert sp.apply(ship.Ship(id=124))
+
 
 def main():
     import doctest

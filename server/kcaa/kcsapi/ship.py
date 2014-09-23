@@ -778,8 +778,9 @@ class ShipPredicate(jsonobject.JSONSerializableObject):
         """Apply the predicate to the given ship."""
         # TODO: Consider OR.
         # TODO: Consider AND.
-        # TODO: Consider NOT.
-        if self.property_filter is not None:
+        if self.not_:
+            return not self.not_.apply(ship)
+        if self.property_filter:
             return self.property_filter.apply(ship)
         # TODO: Consider ship filter.
         return False
