@@ -697,12 +697,14 @@ class ShipPropertyFilter(jsonobject.JSONSerializableObject):
     operator = jsonobject.JSONProperty('operator', value_type=int)
     """Operator."""
     OPERATOR_EQUAL = 0
-    OPERATOR_LESS_THAN = 1
-    OPERATOR_LESS_THAN_EQUAL = 2
-    OPERATOR_GREATER_THAN = 3
-    OPERATOR_GREATER_THAN_EQUAL = 4
+    OPERATOR_NOT_EQUAL = 1
+    OPERATOR_LESS_THAN = 2
+    OPERATOR_LESS_THAN_EQUAL = 3
+    OPERATOR_GREATER_THAN = 4
+    OPERATOR_GREATER_THAN_EQUAL = 5
     OPERATOR_MAP = {
         OPERATOR_EQUAL: lambda a, b: a == b,
+        OPERATOR_NOT_EQUAL: lambda a, b: a != b,
         OPERATOR_LESS_THAN: lambda a, b: a < b,
         OPERATOR_LESS_THAN_EQUAL: lambda a, b: a <= b,
         OPERATOR_GREATER_THAN: lambda a, b: a > b,

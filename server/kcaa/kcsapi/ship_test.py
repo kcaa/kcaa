@@ -37,6 +37,12 @@ class TestShipPropertyFilter(object):
         spf = SPF(property=u'name', value=u'foo', operator=SPF.OPERATOR_EQUAL)
         assert spf.apply(ship.Ship(name=u'foo'))
 
+    def test_apply_level_not_equal(self):
+        spf = SPF(property=u'level', value=77, operator=SPF.OPERATOR_NOT_EQUAL)
+        assert spf.apply(ship.Ship(level=76))
+        assert not spf.apply(ship.Ship(level=77))
+        assert spf.apply(ship.Ship(level=78))
+
     def test_apply_level_less_than(self):
         spf = SPF(property=u'level', value=77, operator=SPF.OPERATOR_LESS_THAN)
         assert spf.apply(ship.Ship(level=76))
