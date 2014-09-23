@@ -686,3 +686,27 @@ class ShipList(model.KCAAObject):
                 continue
             attackee = ships[attack.attackee_lid - 1]
             attackee.hitpoint.current -= attack.damage
+
+
+class ShipPropertyFilter(jsonobject.JSONSerializableObject):
+
+    property = jsonobject.JSONProperty('property', value_type=unicode)
+    """Property."""
+    value = jsonobject.JSONProperty('value')
+    """Value."""
+    operator = jsonobject.JSONProperty('operator', value_type=int)
+    """Operator."""
+    OPERATOR_EQUAL = 0
+    OPERATOR_MAP = {
+        OPERATOR_EQUAL: lambda a, b: a == b,
+    }
+
+    def apply(self, ship):
+        property_name = self.property.encode('utf8')
+        if not hasattr(ship, property_name):
+            return False
+        operator = ShipPropertyFilter.OPERATOR_MAP.get(self.operator)
+        if not operator:
+            return False
+        property_value = getattr(ship, property_name)
+        return operator(property_value, self.value)
