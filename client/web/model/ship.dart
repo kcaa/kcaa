@@ -308,7 +308,7 @@ class Ship extends Observable {
   }
 }
 
-class ShipPropertyFilter {
+class ShipPropertyFilter extends Observable {
   @observable String property;
   @observable dynamic value;
   @observable int operator;
@@ -350,7 +350,7 @@ class ShipPropertyFilter {
   }
 }
 
-class ShipFilter {
+class ShipFilter extends Observable {
   ShipFilter.fromJSON(Map<String, dynamic> data) {
   }
 
@@ -359,7 +359,7 @@ class ShipFilter {
   }
 }
 
-class ShipPredicate {
+class ShipPredicate extends Observable {
   @observable final List<ShipPredicate> or =
       new ObservableList<ShipPredicate>();
   @observable final List<ShipPredicate> and =
@@ -421,7 +421,7 @@ class ShipPredicate {
   }
 }
 
-class ShipSorter {
+class ShipSorter extends Observable {
   @observable String name;
   @observable bool reversed;
 
