@@ -308,6 +308,108 @@ class Ship extends Observable {
   }
 }
 
+class ShipPropertyFilter {
+  @observable String property;
+  @observable dynamic value;
+  @observable int operator;
+  static final Map<int, String> OPERATOR_MAP = <int, String>{
+    0: "=",
+    1: "!=",
+    2: "<",
+    3: "<=",
+    4: ">",
+    5: ">=",
+  };
+
+  ShipPropertyFilter.fromJSON(Map<String, dynamic> data) {
+    property = data["property"];
+    value = data["value"];
+    operator = data["operator"];
+  }
+
+  Map<String, dynamic> toJSONEncodable() {
+    return {
+      "property": property,
+      "value": value,
+      "operator": operator,
+    };
+  }
+}
+
+class ShipFilter {
+  ShipFilter.fromJSON(Map<String, dynamic> data) {
+  }
+
+  Map<String, dynamic> toJSONEncodable() {
+    return null;
+  }
+}
+
+class ShipPredicate {
+  @observable final List<ShipPredicate> or =
+      new ObservableList<ShipPredicate>();
+  @observable final List<ShipPredicate> and =
+      new ObservableList<ShipPredicate>();
+  @observable ShipPredicate not;
+  @observable ShipPropertyFilter propertyFilter;
+  @observable ShipFilter filter;
+
+  ShipPredicate.fromJSON(Map<String, dynamic> data) {
+    if (data == null) {
+      return;
+    }
+    if (data.containsKey("or")) {
+      for (var orData in data["or"]) {
+        or.add(new ShipPredicate.fromJSON(orData));
+      }
+    }
+    if (data.containsKey("and")) {
+      for (var andData in data["and"]) {
+        and.add(new ShipPredicate.fromJSON(andData));
+      }
+    }
+    if (data.containsKey("not")) {
+      not = new ShipPredicate.fromJSON(data["not"]);
+    }
+    if (data.containsKey("property_filter")) {
+      propertyFilter = new ShipPropertyFilter.fromJSON(data["property_filter"]);
+    }
+    if (data.containsKey("filter")) {
+      filter = new ShipFilter.fromJSON(data["filter"]);
+    }
+  }
+
+  Map<String, dynamic> toJSONEncodable() {
+    return {
+      "or": !or.isEmpty ?
+          or.map((predicate) => predicate.toJSONEncodable()).toList() : null,
+      "and": !and.isEmpty ?
+          and.map((predicate) => predicate.toJSONEncodable()).toList() : null,
+      "not": not != null ? not.toJSONEncodable() : null,
+      "property_filter":
+        propertyFilter != null ? propertyFilter.toJSONEncodable() : null,
+      "filter": filter != null ? filter.toJSONEncodable() : null,
+    };
+  }
+}
+
+class ShipSorter {
+  @observable String name;
+  @observable bool reversed;
+
+  ShipSorter.fromJSON(Map<String, dynamic> data) {
+    name = data["name"];
+    reversed = data["reversed"];
+  }
+
+  Map<String, dynamic> toJSONEncodable() {
+    return {
+      "name": name,
+      "reversed": reversed,
+    };
+  }
+}
+
 void handleShipList(Assistant assistant, AssistantModel model,
                     Map<String, dynamic> data) {
   Set<int> presentShips = new Set<int>();

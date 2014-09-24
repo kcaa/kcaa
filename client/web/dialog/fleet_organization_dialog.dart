@@ -25,8 +25,8 @@ class FleetOrganizationDialog extends KcaaDialog {
     var fleetName = target.dataset["fleetName"];
     fleet = model.preferences.fleetPrefs.savedFleets.firstWhere(
         (savedFleet) => savedFleet.name == fleetName);
-    ships = new ObservableList<Ship>.from(fleet.shipRequirements.map(
-        (requirement) => model.shipMap[requirement.id]));
+    ships = new ObservableList<Ship>.from([] /*fleet.shipRequirements.map(
+        (requirement) => model.shipMap[requirement.id])*/);
     debug = model.debug;
 
     editingFleetName = false;

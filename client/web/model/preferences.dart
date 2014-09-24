@@ -19,18 +19,20 @@ class AutomanPrefs extends Observable {
 }
 
 class ShipRequirement extends Observable {
-  @observable int id;
+  @observable ShipPredicate predicate;
+  @observable ShipSorter sorter;
+  @observable bool omittable;
 
-  ShipRequirement(this.id);
+  ShipRequirement(this.predicate, this.sorter, this.omittable);
 }
 
 class SavedFleet extends Observable {
   @observable String name;
+  @observable ShipPredicate globalPredicate;
   @observable final List<ShipRequirement> shipRequirements =
       new ObservableList<ShipRequirement>();
 
-  // TODO: Remove this.
-  dynamic shipRequirementsContent;
+  SavedFleet(this.name, this.globalPredicate);
 }
 
 class FleetPrefs extends Observable {
@@ -39,10 +41,9 @@ class FleetPrefs extends Observable {
 
   // TODO: Update.
   void saveFleet(String name, Iterable<Ship> ships) {
-    SavedFleet savedFleet = new SavedFleet();
-    savedFleet.name = name;
+    SavedFleet savedFleet = new SavedFleet(name, null);
     for (var ship in ships) {
-      savedFleet.shipRequirements.add(new ShipRequirement(ship.id));
+      //savedFleet.shipRequirements.add(new ShipRequirement(ship.id));
     }
     savedFleets.add(savedFleet);
   }
@@ -94,10 +95,13 @@ class Preferences extends Observable {
       "fleet_prefs": {
         "saved_fleets": fleetPrefs.savedFleets.map((savedFleet) => {
           "name": savedFleet.name,
-          "ship_requirements": savedFleet.shipRequirementsContent,
-              /*savedFleet.shipRequirements.map((shipRequirement) => {
-            "id": shipRequirement.id,
-          }).toList(),*/
+          "global_predicate": savedFleet.globalPredicate.toJSONEncodable(),
+          "ship_requirements":
+              savedFleet.shipRequirements.map((shipRequirement) => {
+            "predicate": shipRequirement.predicate.toJSONEncodable(),
+            "sorter": shipRequirement.sorter.toJSONEncodable(),
+            "omittable": shipRequirement.omittable,
+          }).toList(),
         }).toList(),
       },
       "practice_prefs": {
@@ -128,13 +132,16 @@ void handlePreferences(Assistant assistant, AssistantModel model,
         new ScheduleFragment(schedule["start"], schedule["end"]));
   }
   for (var savedFleet in data["fleet_prefs"]["saved_fleets"]) {
-    SavedFleet savedFleetObject = new SavedFleet();
-    savedFleetObject.name = savedFleet["name"];
-    savedFleetObject.shipRequirementsContent = savedFleet["ship_requirements"];
-/*    for (var shipRequirement in savedFleet["ship_requirements"]) {
+    SavedFleet savedFleetObject = new SavedFleet(
+        savedFleet["name"],
+        new ShipPredicate.fromJSON(savedFleet["global_predicate"]));
+    for (var shipRequirement in savedFleet["ship_requirements"]) {
       savedFleetObject.shipRequirements.add(
-          new ShipRequirement(shipRequirement["id"]));
-    }*/
+          new ShipRequirement(
+              new ShipPredicate.fromJSON(shipRequirement["predicate"]),
+              new ShipSorter.fromJSON(shipRequirement["sorter"]),
+              shipRequirement["omittable"]));
+    }
     prefs.fleetPrefs.savedFleets.add(savedFleetObject);
   }
   for (var practicePlan in data["practice_prefs"]["practice_plans"]) {
