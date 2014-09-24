@@ -796,7 +796,7 @@ class ShipSorter(jsonobject.JSONSerializableObject):
 
     name = jsonobject.JSONProperty('name', value_type=unicode)
     """Name."""
-    reversed = jsonobject.JSONProperty('reverse', value_type=bool)
+    reversed = jsonobject.JSONProperty('reversed', value_type=bool)
     """Reversed or not.
 
     By default the sorter sorts ships in ascending order of the metric that it
