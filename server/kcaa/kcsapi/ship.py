@@ -781,7 +781,7 @@ class ShipPredicate(jsonobject.JSONSerializableObject):
         if self.property_filter:
             return self.property_filter.apply(ship)
         # TODO: Consider ship filter.
-        return False
+        return True
 
 
 # These value or element types cannot be set in the class body. Sounds like a

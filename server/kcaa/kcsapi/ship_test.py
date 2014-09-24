@@ -89,8 +89,9 @@ class TestShipPropertyFilter(object):
 class TestShipPredicate(object):
 
     def test_apply_empty(self):
+        # An empty predicate is always considered true.
         sp = SP()
-        assert not sp.apply(ship.Ship(id=123))
+        assert sp.apply(ship.Ship(id=123))
 
     def test_apply_property_filter_id_equal(self):
         sp = SP(property_filter=SPF(
