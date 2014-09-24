@@ -33,20 +33,21 @@ class SavedFleet extends Observable {
       new ObservableList<ShipRequirement>();
 
   SavedFleet(this.name, this.globalPredicate);
+
+  SavedFleet.fromShips(this.name, this.globalPredicate, Iterable<Ship> ships) {
+    for (var ship in ships) {
+      var predicate = new ShipPredicate.fromPropertyFilter(
+          new ShipPropertyFilter.shipId(ship.id));
+      var sorter = new ShipSorter.level(true);
+      var omittable = false;
+      shipRequirements.add(new ShipRequirement(predicate, sorter, omittable));
+    }
+  }
 }
 
 class FleetPrefs extends Observable {
   @observable final List<SavedFleet> savedFleets =
       new ObservableList<SavedFleet>();
-
-  // TODO: Update.
-  void saveFleet(String name, Iterable<Ship> ships) {
-    SavedFleet savedFleet = new SavedFleet(name, null);
-    for (var ship in ships) {
-      //savedFleet.shipRequirements.add(new ShipRequirement(ship.id));
-    }
-    savedFleets.add(savedFleet);
-  }
 }
 
 class PracticePlan extends Observable {
@@ -95,7 +96,8 @@ class Preferences extends Observable {
       "fleet_prefs": {
         "saved_fleets": fleetPrefs.savedFleets.map((savedFleet) => {
           "name": savedFleet.name,
-          "global_predicate": savedFleet.globalPredicate.toJSONEncodable(),
+          "global_predicate": savedFleet.globalPredicate != null ?
+              savedFleet.globalPredicate.toJSONEncodable() : null,
           "ship_requirements":
               savedFleet.shipRequirements.map((shipRequirement) => {
             "predicate": shipRequirement.predicate.toJSONEncodable(),

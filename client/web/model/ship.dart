@@ -320,6 +320,20 @@ class ShipPropertyFilter {
     4: ">",
     5: ">=",
   };
+  static const int OPERATOR_EQUAL = 0;
+  static const int OPERATOR_NOT_EQUAL = 1;
+  static const int OPERATOR_LESS_THAN= 2;
+  static const int OPERATOR_LESS_THAN_EQUAL = 3;
+  static const int OPERATOR_GREATER_THAN = 4;
+  static const int OPERATOR_GREATER_THAN_EQUAL = 5;
+
+  ShipPropertyFilter(this.property, this.value, this.operator);
+
+  ShipPropertyFilter.shipId(int id) {
+    property = "id";
+    value = id;
+    operator = OPERATOR_EQUAL;
+  }
 
   ShipPropertyFilter.fromJSON(Map<String, dynamic> data) {
     property = data["property"];
@@ -353,6 +367,20 @@ class ShipPredicate {
   @observable ShipPredicate not;
   @observable ShipPropertyFilter propertyFilter;
   @observable ShipFilter filter;
+
+  ShipPredicate.fromOR(Iterable<ShipPredicate> predicates) {
+    or.addAll(predicates);
+  }
+
+  ShipPredicate.fromAND(Iterable<ShipPredicate> predicates) {
+    and.addAll(predicates);
+  }
+
+  ShipPredicate.fromNOT(this.not);
+
+  ShipPredicate.fromPropertyFilter(this.propertyFilter);
+
+  ShipPredicate.fromFilter(this.filter);
 
   ShipPredicate.fromJSON(Map<String, dynamic> data) {
     if (data == null) {
@@ -396,6 +424,12 @@ class ShipPredicate {
 class ShipSorter {
   @observable String name;
   @observable bool reversed;
+
+  ShipSorter(this.name, this.reversed);
+
+  ShipSorter.level(this.reversed) {
+    name = "kancolle_level";
+  }
 
   ShipSorter.fromJSON(Map<String, dynamic> data) {
     name = data["name"];

@@ -418,7 +418,13 @@ class Assistant extends PolymerElement {
   void saveFleet(MouseEvent e, var detail, Element target) {
     var fleetId = int.parse(target.dataset["fleetId"]);
     var fleet = model.fleets[fleetId - 1];
-    model.preferences.fleetPrefs.saveFleet(fleet.name, fleet.ships);
+    // TODO: Show up the fleet organization dialog with this initial setting.
+    if (model.preferences.fleetPrefs.savedFleets.any((savedFleet) =>
+        savedFleet.name == fleet.name)) {
+      return;
+    }
+    model.preferences.fleetPrefs.savedFleets.add(
+        new SavedFleet.fromShips(fleet.name, null, fleet.ships));
     savePreferences();
   }
 
