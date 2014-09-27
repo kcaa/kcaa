@@ -80,6 +80,7 @@ class LoadFleet(base.Manipulator):
         if not fleet_list:
             logger.error('No fleet list was found. Giving up.')
             return
+        # TODO: Just request SavedFleetShips.
         preferences = self.manager.preferences
         matching_fleets = [sf for sf in preferences.fleet_prefs.saved_fleets
                            if sf.name == unicode_saved_fleet_name]

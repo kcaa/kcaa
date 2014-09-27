@@ -1,8 +1,13 @@
 #!/usr/bin/env python
 
+import logging
+
 import jsonobject
 import model
 import resource
+
+
+logger = logging.getLogger('kcaa.kcsapi.ship')
 
 
 class Variable(jsonobject.JSONSerializableObject):
@@ -807,3 +812,36 @@ class ShipSorter(jsonobject.JSONSerializableObject):
     def sort(self, ships):
         # TODO: Implement.
         pass
+
+
+class SavedFleetShips(model.KCAARequestableObject):
+
+    ship_ids = jsonobject.JSONProperty('ship_ids', value_type=list,
+                                       element_type=int)
+    """IDs of ships to be loaded."""
+
+    @property
+    def required_objects(self):
+        return ['ShipList', 'Preferences']
+
+    def request(self, objects, fleet_name):
+        super(SavedFleetShips, self).request(objects)
+        unicode_fleet_name = fleet_name.decode('utf8')
+        preferences = objects['Preferences']
+        matching_fleets = [sf for sf in preferences.fleet_prefs.saved_fleets
+                           if sf.name == unicode_fleet_name]
+        if not matching_fleets:
+            logger.error('Saved fleet {} is not found.'.format(
+                fleet_name))
+            return None
+        saved_fleet = matching_fleets[0]
+        ship_list = objects['ShipList']
+        # TODO: Try to return an incomplete ship list even when some of the
+        # ships are not loadable.
+        ships = saved_fleet.get_ships(ship_list)
+        if not ships:
+            logger.error('Saved fleet {} cannot be loaded.'.format(
+                fleet_name))
+            return None
+        self.ship_ids = [ship.id for ship in ships]
+        return self

@@ -16,6 +16,7 @@ class KCAAHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
     GET_NEW_OBJECTS = '/get_new_objects'
     GET_OBJECT_TYPES = '/get_object_types'
     GET_OBJECT = '/get_object'
+    REQUEST_OBJECT = '/request_object'
     CLICK = '/click'
     RELOAD_KCSAPI = '/reload_kcsapi'
     RELOAD_MANIPULATORS = '/reload_manipulators'
@@ -47,6 +48,8 @@ class KCAAHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             self.handle_get_object_types(o)
         elif o.path == KCAAHTTPRequestHandler.GET_OBJECT:
             self.handle_get_object(o)
+        elif o.path == KCAAHTTPRequestHandler.REQUEST_OBJECT:
+            self.handle_request_object(o)
         elif o.path == KCAAHTTPRequestHandler.CLICK:
             self.handle_click(o)
         elif o.path == KCAAHTTPRequestHandler.RELOAD_KCSAPI:
@@ -120,6 +123,34 @@ class KCAAHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             self.wfile.write(data)
         except KeyError:
             self.send_error(404)
+
+    def handle_request_object(self, o):
+        if self.command != 'GET':
+            self.send_error(501, 'Unknown method: {}'.format(self.command))
+            return
+        queries = urlparse.parse_qs(o.query)
+        try:
+            command_type = queries['type'][0]
+            del queries['type']
+        except KeyError:
+            self.send_error(400, 'Missing parameter: type')
+            return
+        command_args = {}
+        for key, values in queries.iteritems():
+            if len(values) == 1:
+                command_args[key] = values[0]
+            else:
+                command_args[key] = values
+        self.server.controller_conn.send((controller.COMMAND_REQUEST_OBJECT,
+                                          (command_type, command_args)))
+        obj = self.server.controller_conn.recv()
+        if obj:
+            self.send_response(200)
+            self.send_header('Content-Type', 'text/plain')
+            self.end_headers()
+            self.wfile.write(obj)
+        else:
+            self.send_error(400, 'Request failed: {}'.format(command_type))
 
     def handle_click(self, o):
         if self.command != 'GET':

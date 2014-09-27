@@ -28,6 +28,7 @@ class KCSAPIHandler(object):
         self.debug = debug
         self.objects = {'Preferences': preferences}
         self.define_handlers()
+        self.define_requestables()
 
     def define_handlers(self):
         """Define KCSAPI handlers.
@@ -134,6 +135,11 @@ class KCSAPIHandler(object):
             kcsapi.Screen,
         ]
 
+    def define_requestables(self):
+        self.requestables = {
+            'SavedFleetShips': kcsapi.SavedFleetShips,
+        }
+
     def serialize_objects(self):
         """Serialize objects so that the client can deserialize and restore the
         state."""
@@ -230,3 +236,19 @@ class KCSAPIHandler(object):
                 continue
             for obj in self.dispatch(api_name, request, response):
                 yield obj
+
+    def request(self, command):
+        if len(command) != 2:
+            raise ValueError(
+                'Command should have the type and args: {}'.format(command))
+        command_type, command_args = command
+        requestable = self.requestables.get(command_type)
+        if requestable:
+            try:
+                return requestable().request(self.objects, **command_args)
+            except TypeError:
+                raise TypeError(
+                    'Requestable argument mismatch. type = {}, args = {}'
+                    .format(command_type, command_args))
+        else:
+            raise ValueError('Unknown command type: {}'.format(command_type))

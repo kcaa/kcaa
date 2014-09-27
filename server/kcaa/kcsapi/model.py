@@ -89,6 +89,24 @@ class NullHandler(object):
         return None
 
 
+class KCAARequestableObject(jsonobject.JSONSerializableObject):
+
+    @jsonproperty
+    def object_type(self):
+        return self.__class__.__name__
+
+    @property
+    def required_objects(self):
+        return []
+
+    def request(self, objects):
+        for required_object in self.required_objects:
+            if required_object not in objects:
+                raise ValueError(
+                    'Requestable {} requires {} but none was found'.format(
+                        self.object_type, required_object))
+
+
 def merge_list(old_list, new_list):
     """Merge the given 2 lists.
 

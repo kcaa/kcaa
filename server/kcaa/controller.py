@@ -15,6 +15,7 @@ import proxy_util
 import server
 
 
+COMMAND_REQUEST_OBJECT = 'request_object'
 COMMAND_CLICK = 'click'
 COMMAND_RELOAD_KCSAPI = 'reload_kcsapi'
 COMMAND_RELOAD_MANIPULATORS = 'reload_manipulators'
@@ -106,7 +107,15 @@ def control(args, to_exit):
                 break
             while server_conn.poll():
                 command_type, command_args = server_conn.recv()
-                if command_type == COMMAND_CLICK:
+                if command_type == COMMAND_REQUEST_OBJECT:
+                    try:
+                        requestable = kcsapi_handler.request(command_args)
+                        if requestable:
+                            server_conn.send(requestable.json())
+                    except:
+                        logger.error(traceback.format_exc())
+                        server_conn.send(None)
+                elif command_type == COMMAND_CLICK:
                     # This command is currently dead. If there is a reasonable
                     # means to get the clicked position in the client, this is
                     # supposed to feed that information to the fake client
