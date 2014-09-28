@@ -140,8 +140,9 @@ class FleetDeployment(jsonobject.JSONSerializableObject):
             ship_requirement.sorter.sort(applicable_ships)
             if not applicable_ships:
                 if not ship_requirement.omittable:
-                    return None
-                ships.append(None)
+                    ships.append(ship.Ship(id=-1))
+                else:
+                    ships.append(ship.Ship(id=0))
             else:
                 ships.append(applicable_ships[0])
         return [s for s in ships if s]
@@ -165,13 +166,7 @@ class SavedFleetDeploymentShipIdList(ship.ShipIdList):
             return None
         fleet_deployment = matching_fleets[0]
         ship_list = objects['ShipList']
-        # TODO: Try to return an incomplete ship list even when some of the
-        # ships are not loadable.
         ships = fleet_deployment.get_ships(ship_list)
-        if not ships:
-            logger.error('Saved fleet {} cannot be loaded.'.format(
-                fleet_name))
-            return None
         self.ship_ids = [ship.id for ship in ships]
         return self
 
@@ -187,9 +182,5 @@ class FleetDeploymentShipIdList(ship.ShipIdList):
         fleet_deployment = FleetDeployment.parse_text(fleet_deployment)
         ship_list = objects['ShipList']
         ships = fleet_deployment.get_ships(ship_list)
-        if not ships:
-            logger.error('Fleet deployment {} cannot be loaded.'.format(
-                fleet_deployment.json()))
-            return None
         self.ship_ids = [ship.id for ship in ships]
         return self

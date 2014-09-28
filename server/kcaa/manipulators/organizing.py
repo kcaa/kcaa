@@ -3,6 +3,7 @@
 import logging
 
 import base
+from kcaa import kcsapi
 from kcaa import screens
 
 
@@ -69,32 +70,20 @@ class LoadFleet(base.Manipulator):
 
     def run(self, fleet_id, saved_fleet_name):
         fleet_id = int(fleet_id)
-        unicode_saved_fleet_name = saved_fleet_name.decode('utf8')
         logger.info('Loading saved fleet {} to fleet {}'.format(
             saved_fleet_name, fleet_id))
         ship_list = self.objects.get('ShipList')
         if not ship_list:
             logger.error('No ship list was found. Giving up.')
             return
-        fleet_list = self.objects.get('FleetList')
-        if not fleet_list:
-            logger.error('No fleet list was found. Giving up.')
-            return
-        # TODO: Just request SavedFleetShips.
-        preferences = self.manager.preferences
-        matching_fleets = [sf for sf in preferences.fleet_prefs.saved_fleets
-                           if sf.name == unicode_saved_fleet_name]
-        if not matching_fleets:
-            logger.error('No saved fleet named {} was found'.format(
-                saved_fleet_name))
-            return
-        saved_fleet = matching_fleets[0]
-        ships = saved_fleet.get_ships(ship_list)
-        if not ships:
+        # TODO: Move the underlying logic to some util.
+        ship_ids = kcsapi.SavedFleetDeploymentShipIdList().request(
+            self.objects, saved_fleet_name).ship_ids
+        if any([ship_id < 0 for ship_id in ship_ids]):
             logger.error('Saved fleet {} cannot be loaded.'.format(
                 saved_fleet_name))
             return
-        ship_ids = [ship.id for ship in ships]
+        ship_ids = [ship_id for ship_id in ship_ids if ship_id != 0]
         yield self.do_manipulator(LoadShips, fleet_id, ship_ids)
 
 

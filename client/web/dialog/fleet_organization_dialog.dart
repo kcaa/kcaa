@@ -22,6 +22,21 @@ class FleetOrganizationDialog extends KcaaDialog {
 
   FleetOrganizationDialog.created() : super.created();
 
+  Ship getShip(int shipId) {
+    var ship = model.shipMap[shipId];
+    if (ship == null) {
+      ship = new Ship();
+      if (shipId == 0) {
+        ship.name = "該当なし(省略可)";
+        ship.stateClass = "dangerous";
+      } else {
+        ship.name = "該当なし(省略不可)";
+        ship.stateClass = "fatal";
+      }
+    }
+    return ship;
+  }
+
   @override
   void show(Element target) {
     var fleetName = target.dataset["fleetName"];
@@ -35,7 +50,7 @@ class FleetOrganizationDialog extends KcaaDialog {
     assistant.requestObject("SavedFleetDeploymentShipIdList",
         {"fleet_name": fleetName}).then((Map<String, dynamic> data) {
       for (var shipId in data["ship_ids"]) {
-        ships.add(model.shipMap[shipId]);
+        ships.add(getShip(shipId));
       }
     });
     debug = model.debug;
@@ -104,7 +119,8 @@ class FleetOrganizationDialog extends KcaaDialog {
             (Map<String, dynamic> data) {
       ships.clear();
       for (var shipId in data["ship_ids"]) {
-        ships.add(model.shipMap[shipId]);
+        print(shipId);
+        ships.add(getShip(shipId));
       }
     });
   }
