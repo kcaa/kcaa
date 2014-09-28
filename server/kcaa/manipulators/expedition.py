@@ -22,7 +22,6 @@ def can_warm_up(ship_, fleet_list):
     return (ship_.vitality < WARMUP_VITALITY and
             fleet.is_ship_ready(ship_, fleet_, verbose=False) and
             ship_.locked and
-            not kcsapi.ShipDefinition.is_submarine(ship_) and
             (ship_.level >= 10 or ship_.firepower.current >= 20))
 
 
