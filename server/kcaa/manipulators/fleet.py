@@ -6,30 +6,6 @@ import logging
 logger = logging.getLogger('kcaa.manipulators.fleet')
 
 
-def is_ship_ready(ship, verbose=True):
-    if ship.is_under_repair:
-        if verbose:
-            logger.error('Ship {} is under repair. Cannot proceed.'.format(
-                ship.name.encode('utf8')))
-        return False
-    if ship.hitpoint.current <= 0.5 * ship.hitpoint.maximum:
-        if verbose:
-            logger.error('Ship {} has low hit point. Cannot proceed.'.format(
-                ship.name.encode('utf8')))
-        return False
-    if ship.vitality < 30:
-        if verbose:
-            logger.error('Ship {} has low vitality. Cannot proceed.'.format(
-                ship.name.encode('utf8')))
-        return False
-    if ship.away_for_mission:
-        if verbose:
-            logger.error('Ship {} is away for mission'.format(
-                ship.name.encode('utf8')))
-        return False
-    return True
-
-
 def classify_ships(manipulator, fleet_id, verbose=True):
     ship_list = manipulator.objects.get('ShipList')
     if not ship_list:
@@ -50,7 +26,7 @@ def classify_ships(manipulator, fleet_id, verbose=True):
     good_ships, bad_ships = [], []
     for i, ship_id in enumerate(fleet_.ship_ids):
         ship = ship_list.ships[str(ship_id)]
-        if not is_ship_ready(ship, verbose):
+        if not ship.ready:
             bad_ships.append(ship)
             continue
         good_ships.append(ship)

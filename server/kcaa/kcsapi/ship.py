@@ -374,6 +374,14 @@ class Ship(ShipDefinition):
     """True if the ship is away for mission."""
 
     @property
+    def ready(self):
+        return (self.locked and
+                not self.is_under_repair and
+                not self.away_for_mission and
+                self.hitpoint.ratio > 0.5 and
+                self.vitality >= 30)
+
+    @property
     def alive(self):
         return self.hitpoint.current > 0
 

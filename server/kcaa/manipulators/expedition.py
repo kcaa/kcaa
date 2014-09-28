@@ -19,7 +19,7 @@ logger = logging.getLogger('kcaa.manipulators.expedition')
 
 def can_warm_up(ship_):
     return (ship_.vitality < WARMUP_VITALITY and
-            fleet.is_ship_ready(ship_, verbose=False) and
+            ship_.ready and
             ship_.locked and
             (ship_.level >= 10 or ship_.firepower.current >= 20))
 

@@ -332,6 +332,7 @@ class ShipPropertyFilter extends Observable {
        ["speed", "航行速度"],
        ["firing_range", "射程"],
        ["slot_count", "装備スロット数"],
+       ["ready", "出撃可能"],
        ["locked", "ロック"],
        ["is_under_repair", "修理中"],
        ["away_for_mission", "遠征中"]]);
@@ -365,6 +366,7 @@ class ShipPropertyFilter extends Observable {
     "speed": int.parse,
     "firing_range": int.parse,
     "slot_count": int.parse,
+    "ready": parseBool,
     "locked": parseBool,
     "is_under_repair": parseBool,
     "away_for_mission": parseBool,
