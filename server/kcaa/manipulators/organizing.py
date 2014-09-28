@@ -32,7 +32,13 @@ class LoadShips(base.Manipulator):
             logger.info('All ships are already standing by.')
             return
         # TODO: Ensure the sort mode is Lv in the Kancolle player?
-        # TODO: Check if a ship belongs to a fleet which is in a mission.
+        ships = [ship_list.ships.get(ship_id) for ship_id in ship_ids]
+        if any(s is None for s in ships):
+            logger.error('Some ships are missing.')
+            return
+        if any(s.away_for_mission for s in ships):
+            logger.error('Some ships are away for mission.')
+            return
         yield self.screen.change_screen(screens.PORT_ORGANIZING)
         yield self.screen.select_fleet(fleet_id)
         # Be sure to get the fleet again here, because the Fleet object is
