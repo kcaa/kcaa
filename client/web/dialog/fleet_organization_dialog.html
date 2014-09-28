@@ -81,6 +81,32 @@
       </div>
     </template>
 
+    <!-- TODO: Move this to the shared templates file. -->
+    <!-- TODO: Can selectionUpdated be handled with a more generic observer
+               pattern? -->
+    <template id="selection">
+      <select value="{{value}}" on-change="{{selectionUpdated}}">
+        <option template repeat="{{candidate in candidates}}"
+                value="{{candidate.id}}">
+          {{candidate.name}}
+        </option>
+      </select>
+    </template>
+
+    <template id="ship-property-filter">
+      <div>
+        <template ref="selection" bind="{{property}}"></template>
+        <template ref="selection" bind="{{operator}}"></template>
+        <input type="text" value="{{value}}">
+      </div>
+    </template>
+
+    <template id="ship-predicate">
+      <template if="{{propertyFilter != null}}"
+                ref="ship-property-filter" bind="{{propertyFilter}}">
+      </template>
+    </template>
+
     <link rel="stylesheet" href="packages/bootjack/css/bootstrap.min.css">
     <link rel="stylesheet" href="../kcaa.css">
     <link rel="stylesheet" href="dialog.css">
@@ -113,6 +139,35 @@
       </div>
       <h4>編成予測</h4>
       <template ref="shiplist" bind></template>
+      <h4>編成設定</h4>
+      <div class="table">
+        <div class="trow thead">
+          <div>決定順</div>
+          <div>並び順</div>
+          <div class="description">条件</div>
+        </div>
+        <template repeat="{{req in fleet.shipRequirements | enumerate}}">
+          <div class="trow">
+            <div class="numberColumn">{{req.index + 1}}</div>
+            <div class="numberColumn">{{req.index + 1}}</div>
+            <div class="description">
+              <template ref="ship-predicate" bind="{{req.value.predicate}}">
+              </template>
+              <div>
+                <template ref="selection" bind="{{req.value.sorter.name}}">
+                </template>
+                が
+                <template ref="selection" bind="{{req.value.sorter.reversed}}">
+                </template>
+                <label>
+                  <input type="checkbox" checked?="{{req.value.omittable}}">
+                  見つからなければ省略可
+                </label>
+              </div>
+            </div>
+          </div>
+        </template>
+      </div>
       <h4>削除</h4>
       <div>
         <input type="text" value="{{fleetNameToDelete}}"

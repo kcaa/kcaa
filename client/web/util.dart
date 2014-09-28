@@ -1,6 +1,9 @@
 library kcaa_util;
 
 import 'dart:async';
+import 'dart:html';
+
+import 'package:polymer/polymer.dart';
 
 const MILLISECOND = const Duration(milliseconds: 1);
 
@@ -31,6 +34,36 @@ class ReverseMapBuilder<K, V> {
       reverseMap[map[key]] = key;
     }
     return reverseMap;
+  }
+}
+
+class Candidate<E> extends Observable {
+  @observable E id;
+  @observable String name;
+
+  Candidate(this.id, this.name);
+}
+
+typedef void Updator<E>(E value, Element target);
+
+class KSelection<E> extends Observable {
+  @observable E value;
+  @observable final List<Candidate> candidates;
+
+  KSelection(this.candidates);
+}
+
+class KSelectionBuilder<E> {
+  KSelection<E> buildFrom(List list) {
+    var candidates = new ObservableList<Candidate<E>>();
+    for (List entry in list) {
+      if (entry.length != 2) {
+        throw new Exception(
+            "Candidate entry must has 2 elements, but got ${entry}");
+      }
+      candidates.add(new Candidate<E>(entry[0], entry[1]));
+    }
+    return new KSelection(candidates);
   }
 }
 

@@ -87,6 +87,13 @@ class FleetOrganizationDialog extends KcaaDialog {
     close();
   }
 
+  void selectionUpdated(Event e, var detail, SelectElement target) {
+    print(target.value);
+  }
+
+  void updateExpectation(Event e, var detail, Element target) {
+  }
+
   void delete() {
     if (fleetNameToDelete != fleet.name) {
       errorMessage = "確認のため、削除したい艦隊の名前を正確に入力してください。";
