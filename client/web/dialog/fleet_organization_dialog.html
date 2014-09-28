@@ -140,6 +140,11 @@
       <h4>編成予測</h4>
       <template ref="shiplist" bind></template>
       <h4>編成設定</h4>
+      <div>
+        必須条件:
+        <template ref="ship-predicate" bind="{{fleet.globalPredicate}}">
+        </template>
+      </div>
       <div class="table">
         <div class="trow thead">
           <div>決定順</div>

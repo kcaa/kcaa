@@ -102,7 +102,7 @@ class FleetDeployment extends Observable {
     return {
       "name": name,
       "global_predicate": globalPredicate != null ?
-          globalPredicate.toJSONEncodable() : null,
+          globalPredicate.toJSONEncodable() : new ShipPredicate.fromJSON(null),
       "ship_requirements": shipRequirements.map((shipRequirement) => {
         "predicate": shipRequirement.predicate.toJSONEncodable(),
         "sorter": shipRequirement.sorter.toJSONEncodable(),

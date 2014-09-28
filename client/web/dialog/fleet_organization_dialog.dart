@@ -7,7 +7,8 @@ import '../model/assistant.dart';
 
 @CustomTag('kcaa-fleet-organization-dialog')
 class FleetOrganizationDialog extends KcaaDialog {
-  @observable FleetDeployment fleet;
+  @observable FleetDeployment fleet =
+      new FleetDeployment(null, new ShipPredicate.fromJSON(null));
   int fleetIndexInPrefs;
   @observable final List<Ship> ships = new ObservableList<Ship>();
 
