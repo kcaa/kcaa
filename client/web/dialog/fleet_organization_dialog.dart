@@ -88,7 +88,7 @@ class FleetOrganizationDialog extends KcaaDialog {
   }
 
   void selectionUpdated(Event e, var detail, SelectElement target) {
-    print(target.value);
+    updateExpectation(e, detail, target);
   }
 
   void updateExpectation(Event e, var detail, Element target) {

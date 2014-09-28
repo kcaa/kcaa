@@ -97,7 +97,7 @@
       <div>
         <template ref="selection" bind="{{property}}"></template>
         <template ref="selection" bind="{{operator}}"></template>
-        <input type="text" value="{{value}}">
+        <input type="text" value="{{value}}" on-changed="{{updateExpectation}}">
       </div>
     </template>
 
@@ -160,7 +160,8 @@
                 <template ref="selection" bind="{{req.value.sorter.reversed}}">
                 </template>
                 <label>
-                  <input type="checkbox" checked?="{{req.value.omittable}}">
+                  <input type="checkbox" checked?="{{req.value.omittable}}"
+                         on-changed="{{updateExpectation}}">
                   見つからなければ省略可
                 </label>
               </div>
