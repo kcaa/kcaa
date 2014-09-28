@@ -32,11 +32,11 @@ class LoadShips(base.Manipulator):
             logger.info('All ships are already standing by.')
             return
         # TODO: Ensure the sort mode is Lv in the Kancolle player?
-        ships = [ship_list.ships.get(ship_id) for ship_id in ship_ids]
-        if any(s is None for s in ships):
+        ships = [ship_list.ships.get(str(ship_id)) for ship_id in ship_ids]
+        if any([s is None for s in ships]):
             logger.error('Some ships are missing.')
             return
-        if any(s.away_for_mission for s in ships):
+        if any([s.away_for_mission for s in ships]):
             logger.error('Some ships are away for mission.')
             return
         yield self.screen.change_screen(screens.PORT_ORGANIZING)
@@ -93,15 +93,15 @@ class LoadFleet(base.Manipulator):
         fleet_deployment = matching_fleets[0]
         ships = [s for s in fleet_deployment.get_ships(ship_list) if
                  s.id != 0]
-        if any(s.id < 0 for s in ships):
+        if any([s.id < 0 for s in ships]):
             logger.error('Saved fleet {} has missing ships.'.format(
                 saved_fleet_name))
             return
-        if any(s.away_for_mission for s in ships):
+        if any([s.away_for_mission for s in ships]):
             logger.error('Saved fleet {} has a ship away for mission.'.format(
                 saved_fleet_name))
             return
-        ship_ids = [ship_id for ship_id in ships]
+        ship_ids = [s.id for s in ships]
         yield self.do_manipulator(LoadShips, fleet_id, ship_ids)
 
 
