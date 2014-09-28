@@ -18,14 +18,6 @@ class AutomanPrefs extends Observable {
       new ObservableList<ScheduleFragment>();
 }
 
-class ShipRequirement extends Observable {
-  @observable ShipPredicate predicate;
-  @observable ShipSorter sorter;
-  @observable bool omittable;
-
-  ShipRequirement(this.predicate, this.sorter, this.omittable);
-}
-
 class FleetPrefs extends Observable {
   @observable final List<FleetDeployment> savedFleets =
       new ObservableList<FleetDeployment>();

@@ -95,22 +95,6 @@ class FleetList(model.KCAAObject):
                 mission_complete=mission_complete))
 
 
-class ShipRequirement(jsonobject.JSONSerializableObject):
-
-    predicate = jsonobject.JSONProperty(
-        'predicate', value_type=ship.ShipPredicate)
-    """Predicate."""
-    sorter = jsonobject.JSONProperty('sorter', value_type=ship.ShipSorter)
-    """Sorter."""
-    omittable = jsonobject.JSONProperty('omittable', False, value_type=bool)
-    """Omittable.
-
-    An omittable ship can be omitted if no ship meets the condition required in
-    the predicate. A slot with the omitted ship is filled up with the ships
-    following that slot.
-    """
-
-
 class FleetDeployment(jsonobject.JSONSerializableObject):
 
     name = jsonobject.JSONProperty('name', value_type=unicode)
@@ -124,7 +108,8 @@ class FleetDeployment(jsonobject.JSONSerializableObject):
     repair, no mission and not fatal etc.).
     """
     ship_requirements = jsonobject.JSONProperty(
-        'ship_requirements', [], value_type=list, element_type=ShipRequirement)
+        'ship_requirements', [], value_type=list,
+        element_type=ship.ShipRequirement)
     """Ship requirements."""
 
     def get_ships(self, ship_list):

@@ -814,6 +814,21 @@ class ShipSorter(jsonobject.JSONSerializableObject):
         pass
 
 
+class ShipRequirement(jsonobject.JSONSerializableObject):
+
+    predicate = jsonobject.JSONProperty('predicate', value_type=ShipPredicate)
+    """Predicate."""
+    sorter = jsonobject.JSONProperty('sorter', value_type=ShipSorter)
+    """Sorter."""
+    omittable = jsonobject.JSONProperty('omittable', False, value_type=bool)
+    """Omittable.
+
+    An omittable ship can be omitted if no ship meets the condition required in
+    the predicate. A slot with the omitted ship is filled up with the ships
+    following that slot.
+    """
+
+
 class ShipIdList(model.KCAARequestableObject):
 
     ship_ids = jsonobject.JSONProperty('ship_ids', value_type=list,

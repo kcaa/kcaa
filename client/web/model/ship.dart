@@ -447,6 +447,14 @@ class ShipSorter extends Observable {
   }
 }
 
+class ShipRequirement extends Observable {
+  @observable ShipPredicate predicate;
+  @observable ShipSorter sorter;
+  @observable bool omittable;
+
+  ShipRequirement(this.predicate, this.sorter, this.omittable);
+}
+
 void handleShipList(Assistant assistant, AssistantModel model,
                     Map<String, dynamic> data) {
   Set<int> presentShips = new Set<int>();
