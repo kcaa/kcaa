@@ -7,7 +7,7 @@ import '../model/assistant.dart';
 @CustomTag('kcaa-fleet-organization-dialog')
 class FleetOrganizationDialog extends KcaaDialog {
   @observable SavedFleet fleet;
-  @observable List<Ship> ships;
+  @observable final List<Ship> ships = new ObservableList<Ship>();
 
   @observable final String defaultClass = "";
   @observable final bool ignoreFilter = true;
@@ -25,8 +25,13 @@ class FleetOrganizationDialog extends KcaaDialog {
     var fleetName = target.dataset["fleetName"];
     fleet = model.preferences.fleetPrefs.savedFleets.firstWhere(
         (savedFleet) => savedFleet.name == fleetName);
-    ships = new ObservableList<Ship>.from([] /*fleet.shipRequirements.map(
-        (requirement) => model.shipMap[requirement.id])*/);
+    ships.clear();
+    assistant.requestObject("SavedFleetShips", {"fleet_name": fleetName})
+        .then((Map<String, dynamic> data) {
+      for (var shipId in data["ship_ids"]) {
+        ships.add(model.shipMap[shipId]);
+      }
+    });
     debug = model.debug;
 
     editingFleetName = false;

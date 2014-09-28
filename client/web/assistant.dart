@@ -32,6 +32,7 @@ class Assistant extends PolymerElement {
   Uri serverGetNewObjects;
   Uri serverGetObjectTypes;
   Uri serverGetObject;
+  Uri serverRequestObject;
   Uri serverReloadKCSAPIModules;
   Uri serverReloadManipulatorModules;
   Uri serverManipulate;
@@ -87,6 +88,7 @@ class Assistant extends PolymerElement {
     serverGetNewObjects = serverRoot.resolve("get_new_objects");
     serverGetObjectTypes = serverRoot.resolve("get_object_types");
     serverGetObject = serverRoot.resolve("get_object");
+    serverRequestObject = serverRoot.resolve("request_object");
     serverReloadKCSAPIModules = serverRoot.resolve("reload_kcsapi");
     serverReloadManipulatorModules = serverRoot.resolve("reload_manipulators");
     serverManipulate = serverRoot.resolve("manipulate");
@@ -305,6 +307,20 @@ class Assistant extends PolymerElement {
 
   void getObjectFromName(Event e, var detail, Element target) {
     getObject(target.text, true);
+  }
+
+  Future<Map<String, dynamic>> requestObject(
+      String type, Map<String, String> parameters) {
+    parameters.addAll(<String, String> {
+      "type": type,
+    });
+    var request = serverRequestObject.resolveUri(
+        new Uri(queryParameters: parameters));
+    return HttpRequest.getString(request.toString())
+        .then((String content) {
+          var json = JSON.decode(content);
+          return json;
+        });
   }
 
   void passModelToDialogs() {
