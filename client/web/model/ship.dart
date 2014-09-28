@@ -407,12 +407,14 @@ class ShipFilter extends Observable {
 class ShipPredicate extends Observable {
   @observable KSelection type = new KSelection.from(
       [["true", "TRUE"],
+       ["false", "FALSE"],
        ["or", "OR"],
        ["and", "AND"],
        ["not", "NOT"],
        ["propertyFilter", "プロパティフィルタ"],
        ["filter", "定義済みフィルタ"]]);
   @observable bool true_ = false;
+  @observable bool false_ = false;
   @observable final List<ShipPredicate> or =
       new ObservableList<ShipPredicate>();
   @observable final List<ShipPredicate> and =
@@ -425,6 +427,11 @@ class ShipPredicate extends Observable {
   ShipPredicate.fromTRUE() {
     type.value = "true";
     true_ = true;
+  }
+
+  ShipPredicate.fromFALSE() {
+    type.value = "false";
+    false_ = true;
   }
 
   ShipPredicate.fromOR(Iterable<ShipPredicate> predicates) {
@@ -454,6 +461,12 @@ class ShipPredicate extends Observable {
       type.value = "true";
       true_ = true;
       return;
+    } else if (data["true"] != null) {
+      type.value = "true";
+      true_ = true;
+    } else if (data["false"] != null) {
+      type.value = "false";
+      false_ = true;
     } else if (data["or"] != null) {
       type.value = "or";
       for (var orData in data["or"]) {
@@ -482,6 +495,8 @@ class ShipPredicate extends Observable {
   Map<String, dynamic> toJSONEncodable() {
     if (type.value == "true") {
       return {"true": true};
+    } else if (type.value == "false") {
+        return {"false": true};
     } else if (type.value == "or") {
       return {"or": or.map((predicate) =>
           predicate.toJSONEncodable()).toList()};

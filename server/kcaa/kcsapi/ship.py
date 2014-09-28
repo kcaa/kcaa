@@ -742,6 +742,11 @@ class ShipPredicate(jsonobject.JSONSerializableObject):
 
     This predicate itself will be always true.
     """
+    false_ = jsonobject.JSONProperty('false', value_type=bool)
+    """FALSE condition.
+
+    This predicate itself will be always false.
+    """
     or_ = jsonobject.JSONProperty('or', value_type=list)
     """OR conditions.
 
@@ -771,6 +776,8 @@ class ShipPredicate(jsonobject.JSONSerializableObject):
         """Apply the predicate to the given ship."""
         if self.true_:
             return True
+        if self.false_:
+            return False
         if self.or_:
             return any(or_.apply(ship) for or_ in self.or_)
         if self.and_:
