@@ -112,6 +112,8 @@ def control(args, to_exit):
                         requestable = kcsapi_handler.request(command_args)
                         if requestable:
                             server_conn.send(requestable.json())
+                        else:
+                            server_conn.send(None)
                     except:
                         logger.error(traceback.format_exc())
                         server_conn.send(None)
