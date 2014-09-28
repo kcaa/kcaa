@@ -111,6 +111,10 @@ class HandlePractice(base.Manipulator):
         if not practice_list:
             logger.error('No practice list was found. Giving up.')
             return
+        ship_list = self.objects.get('ShipList')
+        if not ship_list:
+            logger.error('No ship list was found. Giving up.')
+            return
         practice = practice_list.practices[practice_id - 1]
         if practice.result != kcsapi.Practice.RESULT_NEW:
             logger.error('Practice {} is already done.'.format(practice_id))
@@ -122,6 +126,15 @@ class HandlePractice(base.Manipulator):
             logger.error(
                 'No practice plan for the opponent fleet type {}'.format(
                     practice.fleet_type))
+            return
+        matching_fleets = [
+            sf for sf in self.manager.preferences.fleet_prefs.saved_fleets
+            if sf.name == practice_plan.fleet_name]
+        if not matching_fleets:
+            return
+        fleet_deployment = matching_fleets[0]
+        if not fleet_deployment.are_all_ships_ready(ship_list):
+            logger.error('Fleet is not ready.')
             return
         self.add_manipulator(organizing.LoadFleet, fleet_id,
                              practice_plan.fleet_name.encode('utf8'))
