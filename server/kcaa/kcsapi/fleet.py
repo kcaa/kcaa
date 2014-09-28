@@ -149,7 +149,7 @@ class FleetDeployment(jsonobject.JSONSerializableObject):
         return ships
 
     def are_all_ships_ready(self, ship_list):
-        return all(s.ready for s in self.get_ships(ship_list))
+        return all(s.id >= 0 and s.ready for s in self.get_ships(ship_list))
 
 
 class SavedFleetDeploymentShipIdList(ship.ShipIdList):

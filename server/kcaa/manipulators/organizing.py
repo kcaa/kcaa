@@ -3,7 +3,6 @@
 import logging
 
 import base
-from kcaa import kcsapi
 from kcaa import screens
 
 
@@ -26,6 +25,9 @@ class LoadShips(base.Manipulator):
             logger.error('No fleet list was found. Giving up.')
             return
         fleet = fleet_list.fleets[fleet_id - 1]
+        if fleet.mission_id:
+            logger.error('Fleet is away for mission.')
+            return
         if ship_ids == fleet.ship_ids:
             logger.info('All ships are already standing by.')
             return
@@ -70,20 +72,30 @@ class LoadFleet(base.Manipulator):
 
     def run(self, fleet_id, saved_fleet_name):
         fleet_id = int(fleet_id)
+        unicode_fleet_name = saved_fleet_name.decode('utf8')
         logger.info('Loading saved fleet {} to fleet {}'.format(
             saved_fleet_name, fleet_id))
         ship_list = self.objects.get('ShipList')
         if not ship_list:
             logger.error('No ship list was found. Giving up.')
             return
-        # TODO: Move the underlying logic to some util.
-        ship_ids = kcsapi.SavedFleetDeploymentShipIdList().request(
-            self.objects, saved_fleet_name).ship_ids
-        if any([ship_id < 0 for ship_id in ship_ids]):
-            logger.error('Saved fleet {} cannot be loaded.'.format(
+        matching_fleets = [
+            sf for sf in self.manager.preferences.fleet_prefs.saved_fleets
+            if sf.name == unicode_fleet_name]
+        if not matching_fleets:
+            return
+        fleet_deployment = matching_fleets[0]
+        ships = [s for s in fleet_deployment.get_ships(ship_list) if
+                 s.id != 0]
+        if any(s.id < 0 for s in ships):
+            logger.error('Saved fleet {} has missing ships.'.format(
                 saved_fleet_name))
             return
-        ship_ids = [ship_id for ship_id in ship_ids if ship_id != 0]
+        if any(s.away_for_mission for s in ships):
+            logger.error('Saved fleet {} has a ship away for mission.'.format(
+                saved_fleet_name))
+            return
+        ship_ids = [ship_id for ship_id in ships]
         yield self.do_manipulator(LoadShips, fleet_id, ship_ids)
 
 
