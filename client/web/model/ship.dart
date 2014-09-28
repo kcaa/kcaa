@@ -372,8 +372,6 @@ class ShipPropertyFilter extends Observable {
     "away_for_mission": parseBool,
   };
 
-  ShipPropertyFilter(this.property, this.value, this.operator);
-
   ShipPropertyFilter.shipId(int id) {
     property.value = "id";
     value = id.toString();

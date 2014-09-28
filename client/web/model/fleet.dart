@@ -76,7 +76,8 @@ class FleetDeployment extends Observable {
 
   FleetDeployment(this.name, this.globalPredicate);
 
-  FleetDeployment.fromShips(this.name, this.globalPredicate, Iterable<Ship> ships) {
+  FleetDeployment.fromShips(this.name, Iterable<Ship> ships) {
+    globalPredicate = new ShipPredicate.fromTRUE();
     for (var ship in ships) {
       var predicate = new ShipPredicate.fromPropertyFilter(
           new ShipPropertyFilter.shipId(ship.id));
@@ -101,8 +102,7 @@ class FleetDeployment extends Observable {
   Map<String, dynamic> toJSONEncodable() {
     return {
       "name": name,
-      "global_predicate": globalPredicate != null ?
-          globalPredicate.toJSONEncodable() : new ShipPredicate.fromJSON(null),
+      "global_predicate": globalPredicate.toJSONEncodable(),
       "ship_requirements": shipRequirements.map((shipRequirement) => {
         "predicate": shipRequirement.predicate.toJSONEncodable(),
         "sorter": shipRequirement.sorter.toJSONEncodable(),
