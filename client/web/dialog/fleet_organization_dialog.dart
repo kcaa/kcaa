@@ -40,11 +40,6 @@ class FleetOrganizationDialog extends KcaaDialog {
     $["fleetNameToDelete"].classes.remove("invalid");
   }
 
-  void ok() {
-    // TODO: Update saved fleet requirements.
-    close();
-  }
-
   void editFleetName() {
     editingFleetName = true;
     newFleetName = fleet.name;
