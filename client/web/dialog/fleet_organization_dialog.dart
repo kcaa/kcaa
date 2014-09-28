@@ -89,6 +89,7 @@ class FleetOrganizationDialog extends KcaaDialog {
           "saved_fleet_name": fleet.name,
         }));
     HttpRequest.getString(request.toString());
+    close();
   }
 
   void delete() {
