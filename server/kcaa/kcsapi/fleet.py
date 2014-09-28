@@ -129,14 +129,14 @@ class FleetDeployment(jsonobject.JSONSerializableObject):
 
     def get_ships(self, ship_list):
         # TODO: Unit test.
+        ship_pool = ship_list.ships.values()
+        if self.global_predicate:
+            ship_pool = [s for s in ship_pool if
+                         self.global_predicate.apply(s)]
         ships = []
         for ship_requirement in self.ship_requirements:
             predicate = ship_requirement.predicate
-            if self.global_predicate:
-                predicate = ship.ShipPredicate(and_=[
-                    self.global_predicate, predicate])
-            applicable_ships = [s for s in ship_list.ships.itervalues()
-                                if predicate.apply(s)]
+            applicable_ships = [s for s in ship_pool if predicate.apply(s)]
             ship_requirement.sorter.sort(applicable_ships)
             if not applicable_ships:
                 if not ship_requirement.omittable:
@@ -145,6 +145,7 @@ class FleetDeployment(jsonobject.JSONSerializableObject):
                     ships.append(ship.Ship(id=0))
             else:
                 ships.append(applicable_ships[0])
+                ship_pool.remove(applicable_ships[0])
         return [s for s in ships if s]
 
 
