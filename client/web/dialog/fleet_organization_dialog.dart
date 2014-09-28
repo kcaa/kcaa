@@ -114,14 +114,21 @@ class FleetOrganizationDialog extends KcaaDialog {
   }
 
   void updateExpectation(Event e, var detail, Element target) {
-    assistant.requestObject("FleetDeploymentShipIdList",
-        {"fleet_deployment": JSON.encode(fleet.toJSONEncodable())}).then(
-            (Map<String, dynamic> data) {
-      ships.clear();
-      for (var shipId in data["ship_ids"]) {
-        ships.add(getShip(shipId));
-      }
-    });
+    try {
+      var fleetDeployment = JSON.encode(fleet.toJSONEncodable());
+      target.classes.remove("invalid");
+      assistant.requestObject("FleetDeploymentShipIdList",
+          {"fleet_deployment": fleetDeployment}).then(
+              (Map<String, dynamic> data) {
+        ships.clear();
+        for (var shipId in data["ship_ids"]) {
+          ships.add(getShip(shipId));
+        }
+      });
+    } catch (FormatException) {
+      target.classes.add("invalid");
+      return;
+    }
   }
 
   void delete() {

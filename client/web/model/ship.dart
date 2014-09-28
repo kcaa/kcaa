@@ -310,7 +310,28 @@ class Ship extends Observable {
 
 class ShipPropertyFilter extends Observable {
   @observable KSelection property = new KSelectionBuilder().buildFrom(
-      [["id", "艦船"]]);
+      [["id", "艦船"],
+       ["ship_id", "艦名"],
+       ["signature", "進化系統"],
+       ["ship_type", "艦種"],
+       ["level", "レベル"],
+       ["resource_capacity.fuel", "燃料積載量"],
+       ["resource_capacity.ammo", "弾薬積載量"],
+       ["hitpoint.maximum", "最大HP"],
+       ["vitality", "戦意"],
+       ["firepower.current", "火力"],
+       ["thunderstroke.current", "雷装"],
+       ["anti_air.current", "対空"],
+       ["armor.current", "装甲"],
+       ["avoidance.current", "回避"],
+       ["anti_submarine.current", "対潜"],
+       ["scouting.current", "索敵"],
+       ["luck.current", "運"],
+       ["speed", "航行速度"],
+       ["firing_range", "射程"],
+       ["slot_count", "装備スロット数"],
+       ["locked", "ロック"],
+       ["is_under_repair", "修理中"]]);
   @observable String value;
   @observable KSelection operator = new KSelectionBuilder().buildFrom(
       [["0", "="],
@@ -319,8 +340,30 @@ class ShipPropertyFilter extends Observable {
        ["3", "<="],
        ["4", ">"],
        ["5", ">="]]);
+  static bool parseBool(String value) => value == "true";
   static final Map<String, Function> VALUE_PARSER_MAP = <String, Function> {
     "id": int.parse,
+    "ship_id": int.parse,
+    "signature": int.parse,
+    "ship_type": int.parse,
+    "level": int.parse,
+    "resource_capacity.fuel": int.parse,
+    "resource_capacity.ammo": int.parse,
+    "hitpoint.maximum": int.parse,
+    "vitality": int.parse,
+    "firepower.current": int.parse,
+    "thunderstroke.current": int.parse,
+    "anti_air.current": int.parse,
+    "armor.current": int.parse,
+    "avoidance.current": int.parse,
+    "anti_submarine.current": int.parse,
+    "scouting.current": int.parse,
+    "luck.current": int.parse,
+    "speed": int.parse,
+    "firing_range": int.parse,
+    "slot_count": int.parse,
+    "locked": parseBool,
+    "is_under_repair": parseBool,
   };
 
   ShipPropertyFilter(this.property, this.value, this.operator);
