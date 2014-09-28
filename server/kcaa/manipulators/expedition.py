@@ -17,10 +17,9 @@ WARMUP_VITALITY = 75
 logger = logging.getLogger('kcaa.manipulators.expedition')
 
 
-def can_warm_up(ship_, fleet_list):
-    fleet_ = fleet_list.find_fleet_for_ship(ship_.id)
+def can_warm_up(ship_):
     return (ship_.vitality < WARMUP_VITALITY and
-            fleet.is_ship_ready(ship_, fleet_, verbose=False) and
+            fleet.is_ship_ready(ship_, verbose=False) and
             ship_.locked and
             (ship_.level >= 10 or ship_.firepower.current >= 20))
 
@@ -236,7 +235,6 @@ class WarmUpIdleShips(base.Manipulator):
         if not ok:
             return
         ship_list = self.objects.get('ShipList')
-        fleet_list = self.objects.get('FleetList')
         candidate_ships = sorted(
             ship_list.ships.itervalues(),
             kcsapi.ship.ShipSorter.kancolle_level, reverse=True)
@@ -244,7 +242,7 @@ class WarmUpIdleShips(base.Manipulator):
         for candidate_ship in candidate_ships:
             if len(ships_to_warm_up) >= num_ships:
                 break
-            if not can_warm_up(candidate_ship, fleet_list):
+            if not can_warm_up(candidate_ship):
                 continue
             ships_to_warm_up.append(candidate_ship)
         if not ships_to_warm_up:
@@ -284,7 +282,7 @@ class AutoWarmUpIdleShips(base.AutoManipulator):
         empty_slots = [slot for slot in repair_dock.slots if not slot.in_use]
         ships_to_repair = ship_list.repairable_ships(fleet_list)
         ships_to_warm_up = [s for s in ship_list.ships.itervalues() if
-                            can_warm_up(s, fleet_list)]
+                            can_warm_up(s)]
         if len(empty_slots) > len(ships_to_repair) and ships_to_warm_up:
             return {'num_ships': min(len(empty_slots) - len(ships_to_repair),
                                      len(ships_to_warm_up))}
