@@ -382,23 +382,23 @@ class ShipPredicate extends Observable {
     if (data == null) {
       return;
     }
-    if (data.containsKey("or")) {
+    if (data["or"] != null) {
       for (var orData in data["or"]) {
         or.add(new ShipPredicate.fromJSON(orData));
       }
     }
-    if (data.containsKey("and")) {
+    if (data["and"] != null) {
       for (var andData in data["and"]) {
         and.add(new ShipPredicate.fromJSON(andData));
       }
     }
-    if (data.containsKey("not")) {
+    if (data["not"] != null) {
       not = new ShipPredicate.fromJSON(data["not"]);
     }
-    if (data.containsKey("property_filter")) {
+    if (data["property_filter"] != null) {
       propertyFilter = new ShipPropertyFilter.fromJSON(data["property_filter"]);
     }
-    if (data.containsKey("filter")) {
+    if (data["filter"] != null) {
       filter = new ShipFilter.fromJSON(data["filter"]);
     }
   }

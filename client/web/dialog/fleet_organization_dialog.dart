@@ -8,6 +8,7 @@ import '../model/assistant.dart';
 @CustomTag('kcaa-fleet-organization-dialog')
 class FleetOrganizationDialog extends KcaaDialog {
   @observable FleetDeployment fleet;
+  int fleetIndexInPrefs;
   @observable final List<Ship> ships = new ObservableList<Ship>();
 
   @observable final String defaultClass = "";
@@ -25,11 +26,11 @@ class FleetOrganizationDialog extends KcaaDialog {
   void show(Element target) {
     var fleetName = target.dataset["fleetName"];
     // Be sure to create a clone.
-    fleet = model.preferences.fleetPrefs.savedFleets.firstWhere(
+    var fleetInPrefs = model.preferences.fleetPrefs.savedFleets.firstWhere(
         (savedFleet) => savedFleet.name == fleetName);
-/*    fleet = new FleetDeployment.fromJSON(
-        model.preferences.fleetPrefs.savedFleets.firstWhere(
-            (savedFleet) => savedFleet.name == fleetName).toJSONEncodable());*/
+    fleetIndexInPrefs =
+        model.preferences.fleetPrefs.savedFleets.indexOf(fleetInPrefs);
+    fleet = new FleetDeployment.fromJSON(fleetInPrefs.toJSONEncodable());
     ships.clear();
     assistant.requestObject("SavedFleetDeploymentShipIdList",
         {"fleet_name": fleetName}).then((Map<String, dynamic> data) {
@@ -71,6 +72,7 @@ class FleetOrganizationDialog extends KcaaDialog {
       }
     }
     fleet.name = newFleetName;
+    model.preferences.fleetPrefs.savedFleets[fleetIndexInPrefs] = fleet;
     assistant.savePreferences();
     editingFleetName = false;
   }
@@ -123,8 +125,7 @@ class FleetOrganizationDialog extends KcaaDialog {
       errorMessage = "この艦隊は遠征計画に組み込まれています。先に計画から外してください。";
       return;
     }
-    model.preferences.fleetPrefs.savedFleets.removeWhere(
-        (savedFleet) => savedFleet == fleet);
+    model.preferences.fleetPrefs.savedFleets.removeAt(fleetIndexInPrefs);
     assistant.savePreferences();
     close();
   }
