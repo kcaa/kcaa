@@ -5,6 +5,18 @@
   margin-top: 20px;
 }
 
+fieldset {
+  border: 1px solid hsl(0, 0%, 80%);
+  border-radius: 5px;
+  padding: 0 5px 5px 5px;
+}
+legend {
+  border: 0;
+  font-size: 1em;
+  margin: 0;
+  width: auto;
+}
+
 .errorMessage {
   color: red;
   font-weight: bold;

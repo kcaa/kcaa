@@ -94,17 +94,22 @@
     </template>
 
     <template id="ship-property-filter">
-      <div>
-        <template ref="selection" bind="{{property}}"></template>
-        <template ref="selection" bind="{{operator}}"></template>
-        <input type="text" value="{{value}}" on-change="{{updateExpectation}}">
-      </div>
+      <template ref="selection" bind="{{property}}"></template>
+      <template ref="selection" bind="{{operator}}"></template>
+      <input type="text" value="{{value}}" on-change="{{updateExpectation}}">
     </template>
 
     <template id="ship-predicate">
-      <template if="{{propertyFilter != null}}"
-                ref="ship-property-filter" bind="{{propertyFilter}}">
-      </template>
+      <fieldset>
+        <legend><template ref="selection" bind="{{type}}"></template></legend>
+        <template if="{{type.value == 'or'}}">
+          <template repeat="{{orElement in or}}" ref="ship-predicate"
+                    bind="{{orElement}}"></template>
+        </template>
+        <template if="{{type.value == 'propertyFilter'}}"
+                  ref="ship-property-filter" bind="{{propertyFilter}}">
+        </template>
+      </fieldset>
     </template>
 
     <link rel="stylesheet" href="packages/bootjack/css/bootstrap.min.css">
@@ -173,6 +178,9 @@
             </div>
           </div>
         </template>
+      </div>
+      <div>
+        <button on-click="{{update}}">更新</button>
       </div>
       <h4>削除</h4>
       <div>

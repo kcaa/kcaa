@@ -726,6 +726,11 @@ class ShipPredicate(jsonobject.JSONSerializableObject):
     Only one of the conditions is valid for one predicate at a time.
     """
 
+    true_ = jsonobject.JSONProperty('true', value_type=bool)
+    """TRUE condition.
+
+    This predicate itself will be always true.
+    """
     or_ = jsonobject.JSONProperty('or', value_type=list)
     """OR conditions.
 
@@ -753,6 +758,8 @@ class ShipPredicate(jsonobject.JSONSerializableObject):
 
     def apply(self, ship):
         """Apply the predicate to the given ship."""
+        if self.true_:
+            return True
         if self.or_:
             return any(or_.apply(ship) for or_ in self.or_)
         if self.and_:

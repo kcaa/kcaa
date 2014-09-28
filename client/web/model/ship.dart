@@ -399,6 +399,14 @@ class ShipFilter extends Observable {
 }
 
 class ShipPredicate extends Observable {
+  @observable KSelection type = new KSelectionBuilder().buildFrom(
+      [["true", "TRUE"],
+       ["or", "OR"],
+       ["and", "AND"],
+       ["not", "NOT"],
+       ["propertyFilter", "プロパティフィルタ"],
+       ["filter", "定義済みフィルタ"]]);
+  @observable bool true_ = false;
   @observable final List<ShipPredicate> or =
       new ObservableList<ShipPredicate>();
   @observable final List<ShipPredicate> and =
@@ -407,56 +415,80 @@ class ShipPredicate extends Observable {
   @observable ShipPropertyFilter propertyFilter;
   @observable ShipFilter filter;
 
+  ShipPredicate.fromTRUE() {
+    type.value = "true";
+    true_ = true;
+  }
+
   ShipPredicate.fromOR(Iterable<ShipPredicate> predicates) {
+    type.value = "or";
     or.addAll(predicates);
   }
 
   ShipPredicate.fromAND(Iterable<ShipPredicate> predicates) {
+    type.value = "and";
     and.addAll(predicates);
   }
 
-  ShipPredicate.fromNOT(this.not);
+  ShipPredicate.fromNOT(this.not) {
+    type.value = "not";
+  }
 
-  ShipPredicate.fromPropertyFilter(this.propertyFilter);
+  ShipPredicate.fromPropertyFilter(this.propertyFilter) {
+    type.value = "propertyFilter";
+  }
 
-  ShipPredicate.fromFilter(this.filter);
+  ShipPredicate.fromFilter(this.filter) {
+    type.value = "filter";
+  }
 
   ShipPredicate.fromJSON(Map<String, dynamic> data) {
     if (data == null) {
+      type.value = "true";
+      true_ = true;
       return;
-    }
-    if (data["or"] != null) {
+    } else if (data["or"] != null) {
+      type.value = "or";
       for (var orData in data["or"]) {
         or.add(new ShipPredicate.fromJSON(orData));
       }
-    }
-    if (data["and"] != null) {
+    } else if (data["and"] != null) {
+      type.value = "and";
       for (var andData in data["and"]) {
         and.add(new ShipPredicate.fromJSON(andData));
       }
-    }
-    if (data["not"] != null) {
+    } else if (data["not"] != null) {
+      type.value = "not";
       not = new ShipPredicate.fromJSON(data["not"]);
-    }
-    if (data["property_filter"] != null) {
+    } else if (data["property_filter"] != null) {
+      type.value = "propertyFilter";
       propertyFilter = new ShipPropertyFilter.fromJSON(data["property_filter"]);
-    }
-    if (data["filter"] != null) {
+    } else if (data["filter"] != null) {
+      type.value = "filter";
       filter = new ShipFilter.fromJSON(data["filter"]);
+    } else {
+      type.value = "true";
+      true_ = true;
     }
   }
 
   Map<String, dynamic> toJSONEncodable() {
-    return {
-      "or": !or.isEmpty ?
-          or.map((predicate) => predicate.toJSONEncodable()).toList() : null,
-      "and": !and.isEmpty ?
-          and.map((predicate) => predicate.toJSONEncodable()).toList() : null,
-      "not": not != null ? not.toJSONEncodable() : null,
-      "property_filter":
-        propertyFilter != null ? propertyFilter.toJSONEncodable() : null,
-      "filter": filter != null ? filter.toJSONEncodable() : null,
-    };
+    if (type.value == "true") {
+      return {"true": true};
+    } else if (type.value == "or") {
+      return {"or": or.map((predicate) =>
+          predicate.toJSONEncodable()).toList()};
+    } else if (type.value == "and") {
+      return {"and": and.map((predicate) =>
+          predicate.toJSONEncodable()).toList()};
+    } else if (type.value == "not") {
+      return {"not": not.toJSONEncodable()};
+    } else if (type.value == "propertyFilter") {
+      return {"property_filter": propertyFilter.toJSONEncodable()};
+    } else if (type.value == "filter") {
+      return {"filter": filter.toJSONEncodable()};
+    }
+    return {"true": true};
   }
 }
 

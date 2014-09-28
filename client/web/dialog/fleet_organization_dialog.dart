@@ -132,6 +132,11 @@ class FleetOrganizationDialog extends KcaaDialog {
     }
   }
 
+  void update() {
+    model.preferences.fleetPrefs.savedFleets[fleetIndexInPrefs] = fleet;
+    assistant.savePreferences();
+  }
+
   void delete() {
     if (fleetNameToDelete != fleet.name) {
       errorMessage = "確認のため、削除したい艦隊の名前を正確に入力してください。";
