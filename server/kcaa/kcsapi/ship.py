@@ -708,7 +708,7 @@ class ShipPropertyFilter(jsonobject.JSONSerializableObject):
         if not property_spec:
             return target
         if target is None or not hasattr(target, property_spec[0]):
-            return False
+            return None
         return ShipPropertyFilter.get_property_value(
             getattr(target, property_spec[0]), property_spec[1:])
 
