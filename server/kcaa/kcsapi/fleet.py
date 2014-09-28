@@ -46,12 +46,13 @@ class FleetList(model.KCAAObject):
     def update(self, api_name, request, response, objects, debug):
         super(FleetList, self).update(api_name, request, response, objects,
                                       debug)
+        ship_list = objects.get('ShipList')
         if api_name == '/api_port/port':
-            self.update_fleets(response.api_data.api_deck_port)
+            self.update_fleets(response.api_data.api_deck_port, ship_list)
         elif api_name == '/api_get_member/deck':
-            self.update_fleets(response.api_data)
+            self.update_fleets(response.api_data, ship_list)
         elif api_name == '/api_get_member/ship3':
-            self.update_fleets(response.api_data.api_deck_data)
+            self.update_fleets(response.api_data.api_deck_data, ship_list)
         elif api_name == '/api_req_hensei/change':
             fleet = self.fleets[int(request.api_id)-1]
             ship_index = int(request.api_ship_idx)
@@ -76,7 +77,7 @@ class FleetList(model.KCAAObject):
                         pass
                 fleet.ship_ids[ship_index] = ship_id
 
-    def update_fleets(self, fleet_data):
+    def update_fleets(self, fleet_data, ship_list):
         self.fleets = []
         for data in fleet_data:
             mission_id = None
@@ -93,6 +94,20 @@ class FleetList(model.KCAAObject):
                 ship_ids=filter(lambda x: x != -1, data.api_ship),
                 mission_id=mission_id,
                 mission_complete=mission_complete))
+        # Update Ship.away_for_mission.
+        # TODO: Consider doing this in ShipList. However that will require the
+        # dependency order to be FleetList -> ShipList.
+        # TODO: Properly test this.
+        if not ship_list:
+            return
+        ship_ids_away_for_mission = set()
+        for fleet in self.fleets:
+            if not fleet.mission_id:
+                continue
+            for ship_id in fleet.ship_ids:
+                ship_ids_away_for_mission.add(ship_id)
+        for s in ship_list.ships.itervalues():
+            s.away_for_mission = s.id in ship_ids_away_for_mission
 
 
 class FleetDeployment(jsonobject.JSONSerializableObject):

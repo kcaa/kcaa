@@ -54,7 +54,7 @@ class TestFleetList(object):
             }
         }""")
         fleet_list = fleet.FleetList()
-        fleet_list.update('/api_port/port', None, response, None, False)
+        fleet_list.update('/api_port/port', None, response, {}, False)
         assert len(fleet_list.fleets) == 1
         fleet_ = fleet_list.fleets[0]
         assert fleet_.id == 1
@@ -71,7 +71,7 @@ class TestFleetList(object):
             "api_ship_id": "4"
         }""")
         fleet_list.update(
-            '/api_req_hensei/change', request, None, None, False)
+            '/api_req_hensei/change', request, None, {}, False)
         assert fleet_list.fleets[0].ship_ids == [1, 2, 3, 4]
 
     def test_update_ship_removal(self, fleet_list):
@@ -82,7 +82,7 @@ class TestFleetList(object):
             "api_ship_id": "-1"
         }""")
         fleet_list.update(
-            '/api_req_hensei/change', request, None, None, False)
+            '/api_req_hensei/change', request, None, {}, False)
         assert fleet_list.fleets[0].ship_ids == [1, 3]
 
     def test_update_fleet_clearance(self, fleet_list):
@@ -93,7 +93,7 @@ class TestFleetList(object):
             "api_ship_id": "-2"
         }""")
         fleet_list.update(
-            '/api_req_hensei/change', request, None, None, False)
+            '/api_req_hensei/change', request, None, {}, False)
         assert fleet_list.fleets[0].ship_ids == [1]
 
     def test_update_ship_swapping(self, fleet_list):
@@ -104,7 +104,7 @@ class TestFleetList(object):
             "api_ship_id": "3"
         }""")
         fleet_list.update(
-            '/api_req_hensei/change', request, None, None, False)
+            '/api_req_hensei/change', request, None, {}, False)
         assert fleet_list.fleets[0].ship_ids == [1, 3, 2]
 
     def test_update_ship_swapping_between_fleets(self, fleet_list_2):
@@ -116,7 +116,7 @@ class TestFleetList(object):
             "api_ship_id": "5"
         }""")
         fleet_list_2.update(
-            '/api_req_hensei/change', request, None, None, False)
+            '/api_req_hensei/change', request, None, {}, False)
         assert fleet_list_2.fleets[0].ship_ids == [1, 5, 3]
         assert fleet_list_2.fleets[1].ship_ids == [4, 2, 6, 7]
 

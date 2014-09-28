@@ -33,8 +33,7 @@
                   <template if="{{ships.length > 6 &&
                                   ship.belongingFleet != null}}">
                       第{{ship.belongingFleet.id}}艦隊所属
-                      <template if="{{ship.belongingFleet.undertakingMission
-                                      != null}}">
+                      <template if="{{ship.awayForMission}}">
                         (遠征中)
                       </template>
                   </template>

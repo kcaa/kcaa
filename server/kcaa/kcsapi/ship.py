@@ -369,6 +369,9 @@ class Ship(ShipDefinition):
     is_under_repair = jsonobject.JSONProperty(
         'is_under_repair', value_type=bool)
     """True if the ship is under repair."""
+    away_for_mission = jsonobject.JSONProperty(
+        'away_for_mission', value_type=bool)
+    """True if the ship is away for mission."""
 
     @property
     def alive(self):

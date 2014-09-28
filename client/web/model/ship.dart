@@ -83,6 +83,7 @@ class Ship extends Observable {
                      antiAirClass;
   @observable bool locked;
   @observable bool isUnderRepair;
+  @observable bool awayForMission;
   @observable String lockedClass;
   @observable Fleet belongingFleet;
   @observable String stateClass;
@@ -125,6 +126,7 @@ class Ship extends Observable {
     maxAntiAir = data["anti_air"]["maximum"];
     locked = data["locked"];
     isUnderRepair = data["is_under_repair"];
+    awayForMission = data["away_for_mission"];
 
     levelClass = upgradeLevel != 0 && level >= upgradeLevel ? "upgradable" : "";
     // What?! Dart doesn't have something similar to sprintf...
@@ -331,7 +333,8 @@ class ShipPropertyFilter extends Observable {
        ["firing_range", "射程"],
        ["slot_count", "装備スロット数"],
        ["locked", "ロック"],
-       ["is_under_repair", "修理中"]]);
+       ["is_under_repair", "修理中"],
+       ["away_for_mission", "遠征中"]]);
   @observable String value;
   @observable KSelection operator = new KSelection.from(
       [["0", "="],
@@ -364,6 +367,7 @@ class ShipPropertyFilter extends Observable {
     "slot_count": int.parse,
     "locked": parseBool,
     "is_under_repair": parseBool,
+    "away_for_mission": parseBool,
   };
 
   ShipPropertyFilter(this.property, this.value, this.operator);
