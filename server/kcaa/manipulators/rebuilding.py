@@ -158,10 +158,10 @@ class EnhanceBestShip(base.Manipulator):
             return
         target_candidates = sorted(
             ship_list.rebuilding_enhanceable_ships(fleet_list),
-            kcsapi.ship.compare_ship_by_kancolle_level, reverse=True)
+            kcsapi.ShipSorter.kancolle_level, reverse=True)
         material_candidates = sorted(
             ship_list.rebuilding_available_material_ships(fleet_list),
-            kcsapi.ship.compare_ship_by_rebuilding_rank)
+            kcsapi.ShipSorter.rebuilding_rank)
         material_pool = compute_rebuilding_gain(material_candidates)
         logger.debug('Material pool: {}'.format(material_pool.json()))
         for target_ship in target_candidates:

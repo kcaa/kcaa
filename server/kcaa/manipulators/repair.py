@@ -82,7 +82,7 @@ class AutoRepairShips(base.AutoManipulator):
             return
         ships_to_repair = sorted(
             ship_list.repairable_ships(fleet_list),
-            kcsapi.ship.compare_ship_by_hitpoint_ratio)[:len(empty_slots)]
+            kcsapi.ship.ShipSorter.hitpoint_ratio)[:len(empty_slots)]
         if ships_to_repair:
             return {'ship_ids': [s.id for s in ships_to_repair]}
 

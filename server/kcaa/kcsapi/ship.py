@@ -384,30 +384,6 @@ class Ship(ShipDefinition):
                 not self.fatal)
 
 
-def compare_ship_by_kancolle_level(ship_a, ship_b):
-    # Note that this is reversed. When sorted by the level in descending order,
-    # a ship with smaller sort_order comes first. Here we do the reverse here.
-    if ship_a.level != ship_b.level:
-        return ship_a.level - ship_b.level
-    if ship_a.sort_order != ship_b.sort_order:
-        return -(ship_a.sort_order - ship_b.sort_order)
-    return -(ship_a.id - ship_b.id)
-
-
-def compare_ship_by_hitpoint_ratio(ship_a, ship_b):
-    if ship_a.hitpoint.ratio != ship_b.hitpoint.ratio:
-        return cmp(ship_a.hitpoint.ratio, ship_b.hitpoint.ratio)
-    # Non-damaged ships are sorted by the similar order as kancolle level.
-    # Note that this is not reversed.
-    if ship_a.sort_order != ship_b.sort_order:
-        return ship_a.sort_order - ship_b.sort_order
-    return ship_a.id - ship_b.id
-
-
-def compare_ship_by_rebuilding_rank(ship_a, ship_b):
-    return ship_a.rebuilding_rank - ship_b.rebuilding_rank
-
-
 class ShipList(model.KCAAObject):
     """List of owned ship instances."""
 
@@ -419,7 +395,7 @@ class ShipList(model.KCAAObject):
         if str(ship_id) not in self.ships:
             return None, None
         return self._compute_page_position(ship_id, sorted(
-            self.ships.values(), compare_ship_by_kancolle_level, reverse=True))
+            self.ships.values(), ShipSorter.kancolle_level, reverse=True))
 
     @property
     def max_page(self):
@@ -440,7 +416,7 @@ class ShipList(model.KCAAObject):
             return None, None
         return self._compute_page_position(ship_id, sorted(
             self.rebuilding_target_ships(fleet_list),
-            compare_ship_by_kancolle_level))
+            ShipSorter.kancolle_level))
 
     def rebuilding_available_material_ships(self, fleet_list):
         return [ship for ship in self.ships.itervalues() if
@@ -458,7 +434,7 @@ class ShipList(model.KCAAObject):
             return None, None
         return self._compute_page_position(ship_id, sorted(
             self.rebuilding_material_ships(ship_ids_already_added),
-            compare_ship_by_kancolle_level))
+            ShipSorter.kancolle_level))
 
     def max_page_rebuilding(self, ship_ids_already_added):
         return (len(self.rebuilding_material_ships(ship_ids_already_added))
@@ -487,7 +463,7 @@ class ShipList(model.KCAAObject):
             return None, None
         return self._compute_page_position(ship_id, sorted(
             self.damaged_ships(),
-            compare_ship_by_hitpoint_ratio))
+            ShipSorter.hitpoint_ratio))
 
     def _compute_page_position(self, ship_id, sorted_ships):
         sorted_ship_ids = [ship.id for ship in sorted_ships]
@@ -507,7 +483,7 @@ class ShipList(model.KCAAObject):
         ships_with_signature = sorted(
             [s for s in self.ships.itervalues() if
              s.signature == ship.signature],
-            compare_ship_by_kancolle_level, reverse=True)
+            ShipSorter.kancolle_level, reverse=True)
         return ships_with_signature[0].id == ship.id
 
     def update(self, api_name, request, response, objects, debug):
@@ -812,6 +788,33 @@ class ShipSorter(jsonobject.JSONSerializableObject):
     def sort(self, ships):
         # TODO: Implement.
         pass
+
+    @staticmethod
+    def kancolle_level(ship_a, ship_b):
+        # Note that this is reversed. When sorted by the level in descending
+        # order, a ship with smaller sort_order comes first. Here we do the
+        # reverse here.
+        if ship_a.level != ship_b.level:
+            return ship_a.level - ship_b.level
+        if ship_a.sort_order != ship_b.sort_order:
+            return -(ship_a.sort_order - ship_b.sort_order)
+        return -(ship_a.id - ship_b.id)
+
+    @staticmethod
+    def hitpoint_ratio(ship_a, ship_b):
+        if ship_a.hitpoint.ratio != ship_b.hitpoint.ratio:
+            return cmp(ship_a.hitpoint.ratio, ship_b.hitpoint.ratio)
+        # Non-damaged ships are sorted by the similar order as kancolle level.
+        # Note that this is not reversed.
+        if ship_a.sort_order != ship_b.sort_order:
+            return ship_a.sort_order - ship_b.sort_order
+        return ship_a.id - ship_b.id
+
+    @staticmethod
+    def rebuilding_rank(ship_a, ship_b):
+        if ship_a.rebuilding_rank != ship_b.rebuilding_rank:
+            return ship_a.rebuilding_rank - ship_b.rebuilding_rank
+        return ShipSorter.kancolle_level(ship_a, ship_b)
 
 
 class ShipRequirement(jsonobject.JSONSerializableObject):

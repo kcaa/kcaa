@@ -239,7 +239,7 @@ class WarmUpIdleShips(base.Manipulator):
         fleet_list = self.objects.get('FleetList')
         candidate_ships = sorted(
             ship_list.ships.itervalues(),
-            kcsapi.ship.compare_ship_by_kancolle_level, reverse=True)
+            kcsapi.ship.ShipSorter.kancolle_level, reverse=True)
         ships_to_warm_up = []
         for candidate_ship in candidate_ships:
             if len(ships_to_warm_up) >= num_ships:
