@@ -106,24 +106,31 @@ class AutoGoOnMission(base.AutoManipulator):
         fleet_list = owner.objects.get('FleetList')
         if not fleet_list:
             return
+        ship_list = owner.objects.get('ShipList')
+        if not ship_list:
+            return
         if not owner.manager.preferences.mission_prefs:
             return
         go_on_config = {}
         for fleet_ in fleet_list.fleets:
             if fleet_.id == 1:
                 continue
-            # TODO: This is not enough. Check the availability after loading
-            # the fleet for this mission. GoOnMission will prevent at the last
-            # step though.
-            if not fleet.are_all_ships_available(owner, fleet_.id, False):
-                continue
             # TODO: This is ugly. Consider givin a direct access to Preferences
             # object.
             mission_plan = (
                 owner.manager.preferences.mission_prefs.get_mission_plan(
                     fleet_.id))
-            if mission_plan:
-                go_on_config[fleet_.id] = mission_plan
+            if not mission_plan:
+                continue
+            matching_fleets = [
+                sf for sf in owner.manager.preferences.fleet_prefs.saved_fleets
+                if sf.name == mission_plan.fleet_name]
+            if not matching_fleets:
+                continue
+            fleet_deployment = matching_fleets[0]
+            if not fleet_deployment.are_all_ships_ready(ship_list):
+                continue
+            go_on_config[fleet_.id] = mission_plan
         if go_on_config:
             return {'go_on_config': go_on_config}
 

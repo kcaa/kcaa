@@ -146,7 +146,10 @@ class FleetDeployment(jsonobject.JSONSerializableObject):
             else:
                 ships.append(applicable_ships[0])
                 ship_pool.remove(applicable_ships[0])
-        return [s for s in ships if s]
+        return ships
+
+    def are_all_ships_ready(self, ship_list):
+        return all(s.ready for s in self.get_ships(ship_list))
 
 
 class SavedFleetDeploymentShipIdList(ship.ShipIdList):
