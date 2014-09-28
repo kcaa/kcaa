@@ -442,7 +442,7 @@ class ShipSorter extends Observable {
   Map<String, dynamic> toJSONEncodable() {
     return {
       "name": name.value,
-      "reversed": reversed.value != "true",
+      "reversed": reversed.value == "true",
     };
   }
 }

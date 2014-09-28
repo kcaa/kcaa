@@ -160,7 +160,7 @@
                 <template ref="selection" bind="{{req.value.sorter.reversed}}">
                 </template>
                 <label>
-                  <input type="checkbox" checked?="{{req.value.omittable}}"
+                  <input type="checkbox" checked="{{req.value.omittable}}"
                          on-change="{{updateExpectation}}">
                   見つからなければ省略可
                 </label>

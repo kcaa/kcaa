@@ -119,7 +119,6 @@ class FleetOrganizationDialog extends KcaaDialog {
             (Map<String, dynamic> data) {
       ships.clear();
       for (var shipId in data["ship_ids"]) {
-        print(shipId);
         ships.add(getShip(shipId));
       }
     });
