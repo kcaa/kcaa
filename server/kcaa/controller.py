@@ -61,7 +61,6 @@ def save_preferences(args, logger, preferences):
         preferences_string = preferences.json(
             indent=2, separators=(',', ': '),
             ensure_ascii=False).encode('utf8')
-        logger.debug('Saving preferences: ' + preferences_string)
         preferences_file.write(preferences_string)
 
 
