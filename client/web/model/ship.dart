@@ -309,7 +309,7 @@ class Ship extends Observable {
 }
 
 class ShipPropertyFilter extends Observable {
-  @observable KSelection property = new KSelectionBuilder().buildFrom(
+  @observable KSelection property = new KSelection.from(
       [["id", "艦船"],
        ["ship_id", "艦名"],
        ["signature", "進化系統"],
@@ -333,7 +333,7 @@ class ShipPropertyFilter extends Observable {
        ["locked", "ロック"],
        ["is_under_repair", "修理中"]]);
   @observable String value;
-  @observable KSelection operator = new KSelectionBuilder().buildFrom(
+  @observable KSelection operator = new KSelection.from(
       [["0", "="],
        ["1", "!="],
        ["2", "<"],
@@ -399,7 +399,7 @@ class ShipFilter extends Observable {
 }
 
 class ShipPredicate extends Observable {
-  @observable KSelection type = new KSelectionBuilder().buildFrom(
+  @observable KSelection type = new KSelection.from(
       [["true", "TRUE"],
        ["or", "OR"],
        ["and", "AND"],
@@ -494,11 +494,11 @@ class ShipPredicate extends Observable {
 }
 
 class ShipSorter extends Observable {
-  @observable final KSelection name = new KSelectionBuilder().buildFrom(
+  @observable final KSelection name = new KSelection.from(
       [["kancolle_level", "レベル"],
        ["hitpoint_ratio", "HP %"],
        ["rebuilding_rank", "近代化改修の価値"]]);
-  @observable final KSelection reversed = new KSelectionBuilder().buildFrom(
+  @observable final KSelection reversed = new KSelection.from(
       [["true", "一番高い"],
        ["false", "一番低い"]]);
 

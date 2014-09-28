@@ -45,14 +45,12 @@ class Candidate extends Observable {
 
 class KSelection extends Observable {
   @observable String value;
-  @observable final List<Candidate> candidates;
+  @observable final List<Candidate> candidates =
+      new ObservableList<Candidate>();
 
-  KSelection(this.candidates);
-}
+  KSelection();
 
-class KSelectionBuilder<E> {
-  KSelection buildFrom(List list) {
-    var candidates = new ObservableList<Candidate>();
+  KSelection.from(List list) {
     for (List entry in list) {
       if (entry.length != 2) {
         throw new Exception(
@@ -60,7 +58,6 @@ class KSelectionBuilder<E> {
       }
       candidates.add(new Candidate(entry[0], entry[1]));
     }
-    return new KSelection(candidates);
   }
 }
 
