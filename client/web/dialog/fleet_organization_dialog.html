@@ -97,7 +97,7 @@
       <div>
         <template ref="selection" bind="{{property}}"></template>
         <template ref="selection" bind="{{operator}}"></template>
-        <input type="text" value="{{value}}" on-changed="{{updateExpectation}}">
+        <input type="text" value="{{value}}" on-change="{{updateExpectation}}">
       </div>
     </template>
 
@@ -161,7 +161,7 @@
                 </template>
                 <label>
                   <input type="checkbox" checked?="{{req.value.omittable}}"
-                         on-changed="{{updateExpectation}}">
+                         on-change="{{updateExpectation}}">
                   見つからなければ省略可
                 </label>
               </div>

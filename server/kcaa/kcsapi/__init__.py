@@ -86,7 +86,7 @@ def reload_modules():
     # If a module A contains a class definition referenced in another module B,
     # the module A should precede B. (Or it **MUST** if the classes rely on
     # deriving relationship.)
-    referenced_modules = [jsonobject, model, resource, ship, battle]
+    referenced_modules = [jsonobject, model, resource, ship, battle, fleet]
     for module in referenced_modules:
         reload(module)
         logger.info('Reloaded module {}'.format(module.__name__))

@@ -26,28 +26,9 @@ class ShipRequirement extends Observable {
   ShipRequirement(this.predicate, this.sorter, this.omittable);
 }
 
-class SavedFleet extends Observable {
-  @observable String name;
-  @observable ShipPredicate globalPredicate;
-  @observable final List<ShipRequirement> shipRequirements =
-      new ObservableList<ShipRequirement>();
-
-  SavedFleet(this.name, this.globalPredicate);
-
-  SavedFleet.fromShips(this.name, this.globalPredicate, Iterable<Ship> ships) {
-    for (var ship in ships) {
-      var predicate = new ShipPredicate.fromPropertyFilter(
-          new ShipPropertyFilter.shipId(ship.id));
-      var sorter = new ShipSorter.level(true);
-      var omittable = false;
-      shipRequirements.add(new ShipRequirement(predicate, sorter, omittable));
-    }
-  }
-}
-
 class FleetPrefs extends Observable {
-  @observable final List<SavedFleet> savedFleets =
-      new ObservableList<SavedFleet>();
+  @observable final List<FleetDeployment> savedFleets =
+      new ObservableList<FleetDeployment>();
 }
 
 class PracticePlan extends Observable {
@@ -94,17 +75,8 @@ class Preferences extends Observable {
         }).toList(),
       },
       "fleet_prefs": {
-        "saved_fleets": fleetPrefs.savedFleets.map((savedFleet) => {
-          "name": savedFleet.name,
-          "global_predicate": savedFleet.globalPredicate != null ?
-              savedFleet.globalPredicate.toJSONEncodable() : null,
-          "ship_requirements":
-              savedFleet.shipRequirements.map((shipRequirement) => {
-            "predicate": shipRequirement.predicate.toJSONEncodable(),
-            "sorter": shipRequirement.sorter.toJSONEncodable(),
-            "omittable": shipRequirement.omittable,
-          }).toList(),
-        }).toList(),
+        "saved_fleets": fleetPrefs.savedFleets.map((savedFleet) =>
+            savedFleet.toJSONEncodable()).toList(),
       },
       "practice_prefs": {
         "practice_plans": practicePrefs.practicePlans.map((practicePlan) => {
@@ -134,17 +106,7 @@ void handlePreferences(Assistant assistant, AssistantModel model,
         new ScheduleFragment(schedule["start"], schedule["end"]));
   }
   for (var savedFleet in data["fleet_prefs"]["saved_fleets"]) {
-    SavedFleet savedFleetObject = new SavedFleet(
-        savedFleet["name"],
-        new ShipPredicate.fromJSON(savedFleet["global_predicate"]));
-    for (var shipRequirement in savedFleet["ship_requirements"]) {
-      savedFleetObject.shipRequirements.add(
-          new ShipRequirement(
-              new ShipPredicate.fromJSON(shipRequirement["predicate"]),
-              new ShipSorter.fromJSON(shipRequirement["sorter"]),
-              shipRequirement["omittable"]));
-    }
-    prefs.fleetPrefs.savedFleets.add(savedFleetObject);
+    prefs.fleetPrefs.savedFleets.add(new FleetDeployment.fromJSON(savedFleet));
   }
   for (var practicePlan in data["practice_prefs"]["practice_plans"]) {
     PracticePlan practicePlanObject = new PracticePlan(

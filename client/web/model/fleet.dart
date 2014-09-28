@@ -68,6 +68,50 @@ class Fleet extends Observable {
   }
 }
 
+class FleetDeployment extends Observable {
+  @observable String name;
+  @observable ShipPredicate globalPredicate;
+  @observable final List<ShipRequirement> shipRequirements =
+      new ObservableList<ShipRequirement>();
+
+  FleetDeployment(this.name, this.globalPredicate);
+
+  FleetDeployment.fromShips(this.name, this.globalPredicate, Iterable<Ship> ships) {
+    for (var ship in ships) {
+      var predicate = new ShipPredicate.fromPropertyFilter(
+          new ShipPropertyFilter.shipId(ship.id));
+      var sorter = new ShipSorter.level(true);
+      var omittable = false;
+      shipRequirements.add(new ShipRequirement(predicate, sorter, omittable));
+    }
+  }
+
+  FleetDeployment.fromJSON(Map<String, dynamic> data) {
+    name = data["name"];
+    globalPredicate = new ShipPredicate.fromJSON(data["global_predicate"]);
+    for (var shipRequirement in data["ship_requirements"]) {
+      shipRequirements.add(
+        new ShipRequirement(
+            new ShipPredicate.fromJSON(shipRequirement["predicate"]),
+            new ShipSorter.fromJSON(shipRequirement["sorter"]),
+            shipRequirement["omittable"]));
+    }
+  }
+
+  Map<String, dynamic> toJSONEncodable() {
+    return {
+      "name": name,
+      "global_predicate": globalPredicate != null ?
+          globalPredicate.toJSONEncodable() : null,
+      "ship_requirements": shipRequirements.map((shipRequirement) => {
+        "predicate": shipRequirement.predicate.toJSONEncodable(),
+        "sorter": shipRequirement.sorter.toJSONEncodable(),
+        "omittable": shipRequirement.omittable,
+      }).toList(),
+    };
+  }
+}
+
 void handleFleetList(Assistant assistant, AssistantModel model,
                      Map<String, dynamic> data) {
   var fleetsLength = data["fleets"].length;

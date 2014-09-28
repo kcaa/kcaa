@@ -8,8 +8,8 @@ class FriendlyPracticePlan extends PracticePlan {
   @observable String opponentFleetTypeName;
   @observable String formationName;
 
-  @observable List<SavedFleet> savedFleets =
-      new ObservableList<SavedFleet>();
+  @observable List<FleetDeployment> savedFleets =
+      new ObservableList<FleetDeployment>();
   @observable List<String> formationNames =
       new ObservableList<String>();
 

@@ -137,7 +137,9 @@ class KCSAPIHandler(object):
 
     def define_requestables(self):
         self.requestables = {
-            'SavedFleetShips': kcsapi.SavedFleetShips,
+            'SavedFleetDeploymentShipIdList':
+            kcsapi.SavedFleetDeploymentShipIdList,
+            'FleetDeploymentShipIdList': kcsapi.FleetDeploymentShipIdList,
         }
 
     def serialize_objects(self):
@@ -246,9 +248,10 @@ class KCSAPIHandler(object):
         if requestable:
             try:
                 return requestable().request(self.objects, **command_args)
-            except TypeError:
+            except TypeError as e:
                 raise TypeError(
-                    'Requestable argument mismatch. type = {}, args = {}'
-                    .format(command_type, command_args))
+                    'Requestable argument mismatch or some type error. '
+                    'type = {}, args = {}, message = {}'
+                    .format(command_type, command_args, e.message))
         else:
             raise ValueError('Unknown command type: {}'.format(command_type))

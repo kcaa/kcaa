@@ -440,7 +440,7 @@ class Assistant extends PolymerElement {
       return;
     }
     model.preferences.fleetPrefs.savedFleets.add(
-        new SavedFleet.fromShips(fleet.name, null, fleet.ships));
+        new FleetDeployment.fromShips(fleet.name, null, fleet.ships));
     savePreferences();
   }
 

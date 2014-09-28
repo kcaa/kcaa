@@ -309,38 +309,39 @@ class Ship extends Observable {
 }
 
 class ShipPropertyFilter extends Observable {
-  @observable KSelection<String> property =
-      new KSelectionBuilder<String>().buildFrom(
-          [["id", "艦船"]]);
-  @observable dynamic value;
-  @observable KSelection<int> operator =
-      new KSelectionBuilder<int>().buildFrom(
-          [[0, "="],
-           [1, "!="],
-           [2, "<"],
-           [3, "<="],
-           [4, ">"],
-           [5, ">="]]);
+  @observable KSelection property = new KSelectionBuilder().buildFrom(
+      [["id", "艦船"]]);
+  @observable String value;
+  @observable KSelection operator = new KSelectionBuilder().buildFrom(
+      [["0", "="],
+       ["1", "!="],
+       ["2", "<"],
+       ["3", "<="],
+       ["4", ">"],
+       ["5", ">="]]);
+  static final Map<String, Function> VALUE_PARSER_MAP = <String, Function> {
+    "id": int.parse,
+  };
 
   ShipPropertyFilter(this.property, this.value, this.operator);
 
   ShipPropertyFilter.shipId(int id) {
     property.value = "id";
-    value = id;
-    operator.value = 0;
+    value = id.toString();
+    operator.value = "0";
   }
 
   ShipPropertyFilter.fromJSON(Map<String, dynamic> data) {
     property.value = data["property"];
-    value = data["value"];
-    operator.value = data["operator"];
+    value = data["value"].toString();
+    operator.value = data["operator"].toString();
   }
 
   Map<String, dynamic> toJSONEncodable() {
     return {
       "property": property.value,
-      "value": value,
-      "operator": operator.value,
+      "value": Function.apply(VALUE_PARSER_MAP[property.value], [value]),
+      "operator": int.parse(operator.value),
     };
   }
 }
@@ -417,33 +418,31 @@ class ShipPredicate extends Observable {
 }
 
 class ShipSorter extends Observable {
-  @observable final KSelection<String> name =
-      new KSelectionBuilder<String>().buildFrom(
-          [["kancolle_level", "レベル"]]);
-  @observable final KSelection<bool> reversed =
-      new KSelectionBuilder<bool>().buildFrom(
-          [[true, "一番高い"],
-           [false, "一番低い"]]);
+  @observable final KSelection name = new KSelectionBuilder().buildFrom(
+      [["kancolle_level", "レベル"]]);
+  @observable final KSelection reversed = new KSelectionBuilder().buildFrom(
+      [["true", "一番高い"],
+       ["false", "一番低い"]]);
 
   ShipSorter(String name, bool reversed) {
     this.name.value = name;
-    this.reversed.value = reversed;
+    this.reversed.value = reversed.toString();
   }
 
   ShipSorter.level(bool reversed) {
     name.value = "kancolle_level";
-    this.reversed.value = reversed;
+    this.reversed.value = reversed.toString();
   }
 
   ShipSorter.fromJSON(Map<String, dynamic> data) {
     name.value = data["name"];
-    reversed.value = data["reversed"];
+    reversed.value = data["reversed"].toString();
   }
 
   Map<String, dynamic> toJSONEncodable() {
     return {
       "name": name.value,
-      "reversed": reversed.value,
+      "reversed": reversed.value != "true",
     };
   }
 }

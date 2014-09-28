@@ -1,7 +1,13 @@
 #!/usr/bin/env python
 
+import logging
+
 import jsonobject
 import model
+import ship
+
+
+logger = logging.getLogger('kcaa.kcsapi.fleet')
 
 
 class Fleet(jsonobject.JSONSerializableObject):
@@ -87,3 +93,103 @@ class FleetList(model.KCAAObject):
                 ship_ids=filter(lambda x: x != -1, data.api_ship),
                 mission_id=mission_id,
                 mission_complete=mission_complete))
+
+
+class ShipRequirement(jsonobject.JSONSerializableObject):
+
+    predicate = jsonobject.JSONProperty(
+        'predicate', value_type=ship.ShipPredicate)
+    """Predicate."""
+    sorter = jsonobject.JSONProperty('sorter', value_type=ship.ShipSorter)
+    """Sorter."""
+    omittable = jsonobject.JSONProperty('omittable', False, value_type=bool)
+    """Omittable.
+
+    An omittable ship can be omitted if no ship meets the condition required in
+    the predicate. A slot with the omitted ship is filled up with the ships
+    following that slot.
+    """
+
+
+class FleetDeployment(jsonobject.JSONSerializableObject):
+
+    name = jsonobject.JSONProperty('name', value_type=unicode)
+    """Name of the fleet."""
+    global_predicate = jsonobject.JSONProperty(
+        'global_predicate', value_type=ship.ShipPredicate)
+    """Global predicate applied to all of ship selections.
+
+    A global predicate is applied as AND operator for all ship selections
+    defined here. This is usually used for selecting only available ships (no
+    repair, no mission and not fatal etc.).
+    """
+    ship_requirements = jsonobject.JSONProperty(
+        'ship_requirements', [], value_type=list, element_type=ShipRequirement)
+    """Ship requirements."""
+
+    def get_ships(self, ship_list):
+        # TODO: Unit test.
+        ships = []
+        for ship_requirement in self.ship_requirements:
+            predicate = ship_requirement.predicate
+            if self.global_predicate:
+                predicate = ship.ShipPredicate(and_=[
+                    self.global_predicate, predicate])
+            applicable_ships = [s for s in ship_list.ships.itervalues()
+                                if predicate.apply(s)]
+            ship_requirement.sorter.sort(applicable_ships)
+            if not applicable_ships:
+                if not ship_requirement.omittable:
+                    return None
+                ships.append(None)
+            else:
+                ships.append(applicable_ships[0])
+        return [s for s in ships if s]
+
+
+class SavedFleetDeploymentShipIdList(ship.ShipIdList):
+
+    @property
+    def required_objects(self):
+        return ['ShipList', 'Preferences']
+
+    def request(self, objects, fleet_name):
+        super(SavedFleetDeploymentShipIdList, self).request(objects)
+        unicode_fleet_name = fleet_name.decode('utf8')
+        preferences = objects['Preferences']
+        matching_fleets = [sf for sf in preferences.fleet_prefs.saved_fleets
+                           if sf.name == unicode_fleet_name]
+        if not matching_fleets:
+            logger.error('Saved fleet {} is not found.'.format(
+                fleet_name))
+            return None
+        fleet_deployment = matching_fleets[0]
+        ship_list = objects['ShipList']
+        # TODO: Try to return an incomplete ship list even when some of the
+        # ships are not loadable.
+        ships = fleet_deployment.get_ships(ship_list)
+        if not ships:
+            logger.error('Saved fleet {} cannot be loaded.'.format(
+                fleet_name))
+            return None
+        self.ship_ids = [ship.id for ship in ships]
+        return self
+
+
+class FleetDeploymentShipIdList(ship.ShipIdList):
+
+    @property
+    def required_objects(self):
+        return ['ShipList']
+
+    def request(self, objects, fleet_deployment):
+        super(FleetDeploymentShipIdList, self).request(objects)
+        fleet_deployment = FleetDeployment.parse_text(fleet_deployment)
+        ship_list = objects['ShipList']
+        ships = fleet_deployment.get_ships(ship_list)
+        if not ships:
+            logger.error('Fleet deployment {} cannot be loaded.'.format(
+                fleet_deployment.json()))
+            return None
+        self.ship_ids = [ship.id for ship in ships]
+        return self

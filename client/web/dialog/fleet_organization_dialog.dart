@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:html';
 import 'package:polymer/polymer.dart';
 
@@ -6,7 +7,7 @@ import '../model/assistant.dart';
 
 @CustomTag('kcaa-fleet-organization-dialog')
 class FleetOrganizationDialog extends KcaaDialog {
-  @observable SavedFleet fleet;
+  @observable FleetDeployment fleet;
   @observable final List<Ship> ships = new ObservableList<Ship>();
 
   @observable final String defaultClass = "";
@@ -23,11 +24,15 @@ class FleetOrganizationDialog extends KcaaDialog {
   @override
   void show(Element target) {
     var fleetName = target.dataset["fleetName"];
+    // Be sure to create a clone.
     fleet = model.preferences.fleetPrefs.savedFleets.firstWhere(
         (savedFleet) => savedFleet.name == fleetName);
+/*    fleet = new FleetDeployment.fromJSON(
+        model.preferences.fleetPrefs.savedFleets.firstWhere(
+            (savedFleet) => savedFleet.name == fleetName).toJSONEncodable());*/
     ships.clear();
-    assistant.requestObject("SavedFleetShips", {"fleet_name": fleetName})
-        .then((Map<String, dynamic> data) {
+    assistant.requestObject("SavedFleetDeploymentShipIdList",
+        {"fleet_name": fleetName}).then((Map<String, dynamic> data) {
       for (var shipId in data["ship_ids"]) {
         ships.add(model.shipMap[shipId]);
       }
@@ -92,6 +97,14 @@ class FleetOrganizationDialog extends KcaaDialog {
   }
 
   void updateExpectation(Event e, var detail, Element target) {
+    assistant.requestObject("FleetDeploymentShipIdList",
+        {"fleet_deployment": JSON.encode(fleet.toJSONEncodable())}).then(
+            (Map<String, dynamic> data) {
+      ships.clear();
+      for (var shipId in data["ship_ids"]) {
+        ships.add(model.shipMap[shipId]);
+      }
+    });
   }
 
   void delete() {
