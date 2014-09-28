@@ -786,8 +786,10 @@ class ShipSorter(jsonobject.JSONSerializableObject):
     """
 
     def sort(self, ships):
-        # TODO: Implement.
-        pass
+        if not self.name:
+            return
+        sorter = getattr(ShipSorter, self.name)
+        ships.sort(sorter, reverse=self.reversed)
 
     @staticmethod
     def kancolle_level(ship_a, ship_b):

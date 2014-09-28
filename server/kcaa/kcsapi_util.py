@@ -248,10 +248,11 @@ class KCSAPIHandler(object):
         if requestable:
             try:
                 return requestable().request(self.objects, **command_args)
-            except TypeError as e:
-                raise TypeError(
+            except TypeError:
+                self._logger.error(
                     'Requestable argument mismatch or some type error. '
-                    'type = {}, args = {}, message = {}'
-                    .format(command_type, command_args, e.message))
+                    'type = {}, args = {}'
+                    .format(command_type, command_args))
+                raise
         else:
             raise ValueError('Unknown command type: {}'.format(command_type))

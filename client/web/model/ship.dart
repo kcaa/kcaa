@@ -419,7 +419,9 @@ class ShipPredicate extends Observable {
 
 class ShipSorter extends Observable {
   @observable final KSelection name = new KSelectionBuilder().buildFrom(
-      [["kancolle_level", "レベル"]]);
+      [["kancolle_level", "レベル"],
+       ["hitpoint_ratio", "HP %"],
+       ["rebuilding_rank", "近代化改修の価値"]]);
   @observable final KSelection reversed = new KSelectionBuilder().buildFrom(
       [["true", "一番高い"],
        ["false", "一番低い"]]);
