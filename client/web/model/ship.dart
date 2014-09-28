@@ -412,7 +412,8 @@ class ShipPredicate extends Observable {
   @observable final List<ShipPredicate> and =
       new ObservableList<ShipPredicate>();
   @observable ShipPredicate not;
-  @observable ShipPropertyFilter propertyFilter;
+  @observable ShipPropertyFilter propertyFilter =
+      new ShipPropertyFilter.shipId(0);
   @observable ShipFilter filter;
 
   ShipPredicate.fromTRUE() {
