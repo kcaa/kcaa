@@ -113,7 +113,7 @@ class AutoGoOnMission(base.AutoManipulator):
             return
         go_on_config = {}
         for fleet_ in fleet_list.fleets:
-            if fleet_.id == 1:
+            if fleet_.id == 1 or fleet_.mission_id:
                 continue
             # TODO: This is ugly. Consider givin a direct access to Preferences
             # object.
