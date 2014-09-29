@@ -500,18 +500,21 @@ class ShipList(model.KCAAObject):
     def update(self, api_name, request, response, objects, debug):
         super(ShipList, self).update(api_name, request, response, objects,
                                      debug)
-        updated_ids = set()
         if (api_name == '/api_port/port' or
                 api_name == '/api_get_member/ship2'):
             if api_name == '/api_port/port':
                 ship_data = response.api_data.api_ship
             elif api_name == '/api_get_member/ship2':
                 ship_data = response.api_data
+            updated_ids = set()
             for data in ship_data:
                 ship = self.get_ship(data, objects).convert_to_dict()
                 ShipList.update_ship(ship, data)
                 self.ships[str(ship['id'])] = Ship(**ship)
                 updated_ids.add(str(ship['id']))
+            # Remove ships that have gone.
+            for not_updated_id in set(self.ships.iterkeys()) - updated_ids:
+                del self.ships[not_updated_id]
         elif api_name == '/api_get_member/ship3':
             # This is used with /api_req_kaisou/slotset and
             # /api_req_kaisou/remodeling.
@@ -523,17 +526,14 @@ class ShipList(model.KCAAObject):
                 ship = ship_defs[str(data.api_ship_id)].convert_to_dict()
                 ShipList.update_ship(ship, data)
                 self.ships[str(ship['id'])] = Ship(**ship)
-            return
         elif api_name == '/api_req_hensei/lock':
             ship = self.ships[str(request.api_ship_id)]
             ship.locked = bool(response.api_data.api_locked)
-            return
         elif api_name == '/api_req_hokyu/charge':
             for ship_data in response.api_data.api_ship:
                 ship = self.ships[str(ship_data.api_id)]
                 ship.loaded_resource.fuel = ship_data.api_fuel
                 ship.loaded_resource.ammo = ship_data.api_bull
-            return
         elif api_name == '/api_req_kaisou/powerup':
             ship_data = response.api_data.api_ship
             ship = self.ships[str(ship_data.api_id)].convert_to_dict()
@@ -542,32 +542,28 @@ class ShipList(model.KCAAObject):
             # Remove material ships.
             for deleted_ship_id in request.api_id_items.split(','):
                 del self.ships[deleted_ship_id]
-            return
         elif api_name == '/api_req_kousyou/getship':
             ship = self.get_ship(response.api_data.api_ship,
                                  objects).convert_to_dict()
             ShipList.update_ship(ship, response.api_data.api_ship)
             self.ships[str(ship['id'])] = Ship(**ship)
-            return
         elif api_name in ('/api_req_sortie/battle',
                           '/api_req_practice/battle'):
             self.update_battle(objects['Battle'], objects['FleetList'])
-            return
         elif api_name in ('/api_req_battle_midnight/battle',
                           '/api_req_practice/midnight_battle'):
             self.update_midnight_battle(objects['MidnightBattle'],
                                         objects['FleetList'])
-            return
+        elif api_name == '/api_get_member/deck':
+            # FleetList updates away_for_mission.
+            pass
         # Update is_under_repair.
         if api_name in ('/api_port/port',
                         '/api_get_member/ndock',
                         '/api_req_nyukyo/speedchange',
                         '/api_req_nyukyo/start'):
             self.update_is_under_repair(objects['RepairDock'])
-            updated_ids |= frozenset(self.ships.keys())
-        # Remove ships that have gone.
-        for not_updated_id in set(self.ships.iterkeys()) - updated_ids:
-            del self.ships[not_updated_id]
+
 
     def get_ship(self, ship_data, objects):
         try:
