@@ -103,7 +103,8 @@ class StartScreen(Screen):
     def proceed(self):
         def proceed_task(task):
             self.click(620, 400)
-            yield self.wait_transition(screens.PORT_MAIN, timeout=20.0)
+            yield self.wait_transition(screens.PORT_MAIN, timeout=20.0,
+                                       buffer_delay=3.0)
         self.assert_screen(screens.SPECIAL_START)
         return self.do_task(proceed_task)
 
