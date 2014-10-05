@@ -287,4 +287,4 @@ class AutoWarmUpIdleShips(base.AutoManipulator):
                                      len(ships_to_warm_up))}
 
     def run(self, num_ships):
-        yield self.do_manipulator(WarmUpIdleShips, 1, num_ships)
+        yield self.do_manipulator(WarmUpIdleShips, 1, min(num_ships, 1))
