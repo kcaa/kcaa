@@ -513,12 +513,14 @@ class Assistant extends PolymerElement {
     var mapareaId =
         (target.parent.querySelector(".mapareaId") as InputElement).value;
     var mapId = (target.parent.querySelector(".mapId") as InputElement).value;
+    var formation = model.formations.value;
     Uri request = serverManipulate.resolveUri(
         new Uri(queryParameters: {
           "type": "GoOnExpedition",
           "fleet_id": fleetId,
           "maparea_id": mapareaId,
           "map_id": mapId,
+          "formation": formation,
         }));
     HttpRequest.getString(request.toString());
   }

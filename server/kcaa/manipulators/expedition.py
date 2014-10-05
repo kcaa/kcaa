@@ -26,14 +26,17 @@ def can_warm_up(ship_):
 
 class GoOnExpedition(base.Manipulator):
 
-    def run(self, fleet_id, maparea_id, map_id):
+    def run(self, fleet_id, maparea_id, map_id, formation):
         fleet_id = int(fleet_id)
         maparea_id = int(maparea_id)
         map_id = int(map_id)
-        logger.info('Making the fleet {} go on the expedition {}-{}'.format(
-            fleet_id, maparea_id, map_id))
+        formation = int(formation)
+        logger.info(
+            'Making the fleet {} go on the expedition {}-{} with the '
+            'formation {}'.format(
+                fleet_id, maparea_id, map_id, formation))
         # TODO: Move maparea definition to a separate module like kcsapic.
-        if maparea_id > kcsapi.Mission.MAPAREA_SOUTH:
+        if maparea_id > kcsapi.Mission.MAPAREA_MIDDLE:
             logger.error('Maparea {} is not supported.'.format(maparea_id))
         if not fleet.are_all_ships_available(self, fleet_id):
             return
@@ -44,12 +47,12 @@ class GoOnExpedition(base.Manipulator):
         yield self.screen.try_expedition()
         yield self.screen.select_fleet(fleet_id)
         yield self.screen.confirm_expedition()
-        yield self.do_manipulator(SailOnExpeditionMap)
+        yield self.do_manipulator(SailOnExpeditionMap, formation=formation)
 
 
 class SailOnExpeditionMap(base.Manipulator):
 
-    def run(self):
+    def run(self, formation):
         yield self.screen.wait_transition(screens.EXPEDITION, timeout=10.0)
         expedition = self.objects.get('Expedition')
         if not expedition:
@@ -74,8 +77,8 @@ class SailOnExpeditionMap(base.Manipulator):
             yield 3.0
             fleet = fleet_list.fleets[expedition.fleet_id - 1]
             if len(fleet.ship_ids) >= 4:
-                yield self.screen.select_formation(self.choose_formation())
-            yield self.do_manipulator(EngageExpedition)
+                yield self.screen.select_formation(formation)
+            yield self.do_manipulator(EngageExpedition, formation=formation)
             return
         if is_terminal:
             self.screen.update_screen_id(screens.EXPEDITION_TERMINAL)
@@ -83,16 +86,12 @@ class SailOnExpeditionMap(base.Manipulator):
             return
         # This cell is a nonterminal cell without a battle. The next KCSAPI
         # /api_req_map/next should be received. Iterate on.
-        yield self.do_manipulator(SailOnExpeditionMap)
-
-    def choose_formation(self):
-        # TODO: Make a smarter decision.
-        return 0
+        yield self.do_manipulator(SailOnExpeditionMap, formation=formation)
 
 
 class EngageExpedition(base.Manipulator):
 
-    def run(self):
+    def run(self, formation):
         yield self.screen.wait_transition(screens.EXPEDITION_COMBAT,
                                           timeout=20.0)
         logger.info('Engaging an enemy fleet in expedition.')
@@ -157,7 +156,7 @@ class EngageExpedition(base.Manipulator):
             return
         if self.should_go_next(expedition, battle, ships):
             yield self.screen.go_for_next_battle()
-            yield self.do_manipulator(SailOnExpeditionMap)
+            yield self.do_manipulator(SailOnExpeditionMap, formation=formation)
         else:
             yield self.screen.drop_out()
 
@@ -201,7 +200,7 @@ class WarmUp(base.Manipulator):
                     fleet_.ship_ids)
         if ships[0].vitality < WARMUP_VITALITY:
             logger.info('Warming up {}.'.format(ships[0].name.encode('utf8')))
-            self.add_manipulator(GoOnExpedition, fleet_id, 1, 1)
+            self.add_manipulator(GoOnExpedition, fleet_id, 1, 1, 0)
             self.add_manipulator(WarmUp, fleet_id)
         yield 0.0
 

@@ -45,6 +45,7 @@ class Practice extends Observable {
     6: "軽巡主体型",
     7: "駆逐艦主体型",
   };
+  // TODO: Consider merging this with KSelection for formations.
   static final Map<int, String> FORMATION_NAME = <int, String>{
     0: "単縦陣",
     1: "複縦陣",

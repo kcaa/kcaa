@@ -36,6 +36,13 @@ class AssistantModel extends Observable {
   @observable final List<Fleet> fleets = new ObservableList<Fleet>();
   // Dirty hack for allowing this model to pretend as a fleet.
   @observable final String defaultClass = "";
+  // TODO: Move this to somewhere appropriate. (ExpeditionPlan?)
+  @observable KSelection formations = new KSelection.from(
+      [["0", "単縦陣"],
+       ["1", "複縦陣"],
+       ["2", "輪形陣"],
+       ["3", "梯形陣"],
+       ["4", "単横陣"]]);
 
   // Repair dock.
   @observable int numShipsBeingRepaired = 0;

@@ -79,6 +79,7 @@ class Mission(jsonobject.JSONSerializableObject):
     MAPAREA_NORTH = 3
     MAPAREA_WEST = 4
     MAPAREA_SOUTH = 5
+    MAPAREA_MIDDLE = 6
     MAPAREA_2014_SPRING = 26
     MAPAREA_2014_SUMMER = 27
     state = jsonobject.JSONProperty('state', value_type=int)
