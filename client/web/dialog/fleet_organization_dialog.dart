@@ -175,6 +175,19 @@ class FleetOrganizationDialog extends KcaaDialog {
     assistant.savePreferences();
   }
 
+  void duplicate() {
+    var fleetName = fleet.name;
+    var trial = 2;
+    while (model.preferences.fleetPrefs.savedFleets.any((savedFleet) =>
+        savedFleet.name == fleetName)) {
+      fleetName = "${fleet.name}${trial}";
+      trial += 1;
+    }
+    fleet.name = fleetName;
+    fleetIndexInPrefs = null;
+    update();
+  }
+
   void delete() {
     if (fleetIndexInPrefs == null) {
       fleetIndexInPrefs = -1;
