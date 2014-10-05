@@ -361,6 +361,27 @@
       <div class="row horizontal">
         <div class="board">
           <h3 data-collapsed="true">
+            工廠 ({{model.numShipsBeingBuilt}}/{{model.buildSlots.length}}隻)
+          </h3>
+          <div>
+            燃料<input type="text" size="3" value="{{model.buildFuel}}">
+            弾薬<input type="text" size="3" value="{{model.buildAmmo}}">
+            鋼材<input type="text" size="3" value="{{model.buildSteel}}">
+            ボーキ<input type="text" size="3" value="{{model.buildBauxite}}">
+            資材<kcaa-kselection kselection="{{model.buildMaterial}}">
+            </kcaa-kselection>
+            で
+            <label>
+              <input type="checkbox" checked="{{model.grandBuilding}}">
+              大型艦
+            </label>
+            <button on-click="{{buildShip}}">建造</button>
+          </div>
+        </div>
+      </div>
+      <div class="row horizontal">
+        <div class="board">
+          <h3 data-collapsed="true">
             任務 ({{model.numQuestsUndertaken}}/5個遂行中)
           </h3>
           <div class="table">

@@ -835,6 +835,100 @@ class PortRepairScreen(PortOperationsScreen):
         self.click(680, 460)
 
 
+class PortShipyardScreen(PortOperationsScreen):
+
+    def change_screen(self, screen_id):
+        def change_screen_task(task):
+            if screen_id == screens.PORT_SHIPYARD:
+                yield 0.0
+                return
+            yield super(PortShipyardScreen, self).change_screen(screen_id)
+            if self.screen_id == screen_id:
+                return
+            else:
+                self.raise_impossible_transition(screen_id)
+        self.assert_screen(screens.PORT_SHIPYARD)
+        return self.do_task(change_screen_task)
+
+    def select_slot(self, slot_id):
+        def select_slot_task(task):
+            self.click(620, 180 + 80 * slot_id)
+            yield 2.0
+        return self.do_task(select_slot_task)
+
+    def try_grand_building(self):
+        def try_grand_building_task(task):
+            self.click(380, 445)
+            yield 2.0
+            self.click(340, 355)
+            yield 2.0
+        return self.do_task(try_grand_building_task)
+
+    def set_material(self, material):
+        def set_material_task(task):
+            if material == 1:
+                return
+            elif material == 20:
+                self.click(682, 400)
+                yield 1.0
+            elif material == 100:
+                self.click(718, 400)
+                yield 1.0
+        return self.do_task(set_material_task)
+
+    def set_resource(self, grand, fuel, ammo, steel, bauxite):
+        initial_fuel = 1500 if grand else 30
+        initial_ammo = 1500 if grand else 30
+        initial_steel = 2000 if grand else 30
+        initial_bauxite = 1000 if grand else 30
+
+        def set_resource_task(task):
+            yield self.set_resource_amount(grand, fuel, initial_fuel, 0, 0)
+            yield self.set_resource_amount(grand, ammo, initial_ammo, 1, 0)
+            yield self.set_resource_amount(grand, steel, initial_steel, 0, 1)
+            yield self.set_resource_amount(
+                grand, bauxite, initial_bauxite, 1, 1)
+        return self.do_task(set_resource_task)
+
+    def set_resource_amount(self, grand, amount, initial_amount, row, col):
+        def set_resource_amount_task(task):
+            base_x = 308 + 228 * col
+            base_y = 119 + 130 * row
+            x_skip_offset = 5 if grand else 0
+            tick = 10 if grand else 1
+            small_skip = 100 if grand else 10
+            big_skip = 1000 if grand else 100
+            current_amount = initial_amount
+            while amount - current_amount >= big_skip:
+                self.click_big_skip(base_x + x_skip_offset, base_y)
+                current_amount += big_skip
+                yield 1.0
+            while amount - current_amount >= small_skip:
+                self.click_small_skip(base_x + x_skip_offset, base_y)
+                current_amount += small_skip
+                yield 1.0
+            while amount - current_amount >= tick:
+                self.click_tick(base_x, base_y)
+                current_amount += tick
+                yield 1.0
+        return self.do_task(set_resource_amount_task)
+
+    def confirm_building(self):
+        def confirm_building_task(task):
+            self.click(710, 445)
+            yield 2.0
+        return self.do_task(confirm_building_task)
+
+    def click_big_skip(self, base_x, base_y):
+        self.click(base_x + 184, base_y + 46)
+
+    def click_small_skip(self, base_x, base_y):
+        self.click(base_x + 184, base_y + 20)
+
+    def click_tick(self, base_x, base_y):
+        self.click(base_x + 56, base_y + 38)
+
+
 class EngageScreen(Screen):
 
     def select_formation(self, formation):

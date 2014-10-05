@@ -10,6 +10,7 @@ import practice
 import rebuilding
 import repair
 import screen
+import shipyard
 import special
 
 
@@ -57,6 +58,7 @@ def main():
     doctest.testmod(rebuilding)
     doctest.testmod(repair)
     doctest.testmod(screen)
+    doctest.testmod(shipyard)
     doctest.testmod(special)
     import pytest
     import sys

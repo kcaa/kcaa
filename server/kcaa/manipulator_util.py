@@ -50,7 +50,7 @@ class ScreenManager(object):
             screens.PORT_REBUILDING_REMODELRESULT:
             manipulators.screen.PortRebuildingScreen,
             screens.PORT_REPAIR: manipulators.screen.PortRepairScreen,
-            screens.PORT_SHIPYARD: manipulators.screen.PortOperationsScreen,
+            screens.PORT_SHIPYARD: manipulators.screen.PortShipyardScreen,
             screens.EXPEDITION: manipulators.screen.ExpeditionScreen,
             screens.EXPEDITION_COMPASS: manipulators.screen.ExpeditionScreen,
             screens.EXPEDITION_SAILING: manipulators.screen.ExpeditionScreen,
@@ -162,6 +162,8 @@ class ManipulatorManager(object):
             'EnhanceBestShip': manipulators.rebuilding.EnhanceBestShip,
             # Repair
             'RepairShips': manipulators.repair.RepairShips,
+            # Shipyard
+            'BuildShip': manipulators.shipyard.BuildShip,
         }
 
     def define_auto_manipulators(self):

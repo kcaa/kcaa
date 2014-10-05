@@ -16,6 +16,7 @@ part 'practice.dart';
 part 'preferences.dart';
 part 'repairdock.dart';
 part 'ship.dart';
+part 'shipyard.dart';
 
 class AssistantModel extends Observable {
   // Quests.
@@ -48,6 +49,20 @@ class AssistantModel extends Observable {
   @observable int numShipsBeingRepaired = 0;
   @observable final List<RepairSlot> repairSlots =
       new ObservableList<RepairSlot>();
+
+  // Shipyard.
+  @observable int numShipsBeingBuilt = 0;
+  @observable final List<BuildSlot> buildSlots =
+      new ObservableList<BuildSlot>();
+  @observable String buildFuel = "30";
+  @observable String buildAmmo = "30";
+  @observable String buildSteel = "30";
+  @observable String buildBauxite = "30";
+  @observable KSelection buildMaterial = new KSelection.from(
+      [["1", "1"],
+       ["20", "20"],
+       ["100", "100"]]);
+  @observable bool grandBuilding = false;
 
   // Missions.
   @observable final List<Mission> missions = new ObservableList<Mission>();

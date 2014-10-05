@@ -524,4 +524,18 @@ class Assistant extends PolymerElement {
         }));
     HttpRequest.getString(request.toString());
   }
+
+  void buildShip() {
+    Uri request = serverManipulate.resolveUri(
+        new Uri(queryParameters: {
+          "type": "BuildShip",
+          "fuel": model.buildFuel,
+          "ammo": model.buildAmmo,
+          "steel": model.buildSteel,
+          "bauxite": model.buildBauxite,
+          "grand": model.grandBuilding.toString(),
+          "material": model.buildMaterial.value,
+        }));
+    HttpRequest.getString(request.toString());
+  }
 }
