@@ -85,6 +85,13 @@ class FleetDeployment extends Observable {
       var omittable = false;
       shipRequirements.add(new ShipRequirement(predicate, sorter, omittable));
     }
+    // Add padding up to 6 ships.
+    for (var i = ships.length; i < 6; i++) {
+      var predicate = new ShipPredicate.fromFALSE();
+      var sorter = new ShipSorter.level(true);
+      var omittable = true;
+      shipRequirements.add(new ShipRequirement(predicate, sorter, omittable));
+    }
   }
 
   FleetDeployment.fromJSON(Map<String, dynamic> data) {

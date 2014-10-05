@@ -432,16 +432,13 @@ class Assistant extends PolymerElement {
   }
 
   void saveFleet(MouseEvent e, var detail, Element target) {
-    var fleetId = int.parse(target.dataset["fleetId"]);
-    var fleet = model.fleets[fleetId - 1];
-    // TODO: Show up the fleet organization dialog with this initial setting.
-    if (model.preferences.fleetPrefs.savedFleets.any((savedFleet) =>
-        savedFleet.name == fleet.name)) {
-      return;
-    }
-    model.preferences.fleetPrefs.savedFleets.add(
-        new FleetDeployment.fromShips(fleet.name, fleet.ships));
-    savePreferences();
+    var fleetId = target.dataset["fleetId"];
+    // TODO: Consider passing dataset map rather than Element to
+    // KcaaDialog.show().
+    Element dummy = new DivElement();
+    dummy.dataset["dialog"] = "kcaaFleetOrganizationDialog";
+    dummy.dataset["fleetId"] = fleetId;
+    showModalDialog(new MouseEvent(""), null, dummy);
   }
 
   void loadFleet(MouseEvent e, var detail, Element target) {

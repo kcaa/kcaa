@@ -40,26 +40,61 @@ class FleetOrganizationDialog extends KcaaDialog {
 
   @override
   void show(Element target) {
-    var fleetName = target.dataset["fleetName"];
-    // Be sure to create a clone.
-    var fleetInPrefs = model.preferences.fleetPrefs.savedFleets.firstWhere(
-        (savedFleet) => savedFleet.name == fleetName);
-    fleetIndexInPrefs =
-        model.preferences.fleetPrefs.savedFleets.indexOf(fleetInPrefs);
-    fleet = new FleetDeployment.fromJSON(fleetInPrefs.toJSONEncodable());
     ships.clear();
-    assistant.requestObject("SavedFleetDeploymentShipIdList",
-        {"fleet_name": fleetName}).then((Map<String, dynamic> data) {
-      for (var shipId in data["ship_ids"]) {
-        ships.add(getShip(shipId));
-      }
-    });
+    var fleetName = target.dataset["fleetName"];
+    if (fleetName != null) {
+      initFromFleetName(fleetName);
+    } else {
+      var fleetId = int.parse(target.dataset["fleetId"]);
+      initFromFleetId(fleetId);
+    }
     debug = model.debug;
 
     editingFleetName = false;
     fleetNameToDelete = "";
     errorMessage = null;
     $["fleetNameToDelete"].classes.remove("invalid");
+  }
+
+  @override
+  void close() {
+    if (fleetIndexInPrefs == null) {
+      errorMessage =
+          "新しい艦隊編成が保存されていません。破棄する場合は削除ボタンを押してください。";
+    } else {
+      super.close();
+    }
+  }
+
+  void initFromFleetName(String fleetName) {
+    // Be sure to create a clone.
+    var fleetInPrefs = model.preferences.fleetPrefs.savedFleets.firstWhere(
+        (savedFleet) => savedFleet.name == fleetName);
+    fleetIndexInPrefs =
+        model.preferences.fleetPrefs.savedFleets.indexOf(fleetInPrefs);
+    fleet = new FleetDeployment.fromJSON(fleetInPrefs.toJSONEncodable());
+    // TODO: Consider just calling updateExpectation().
+    assistant.requestObject("SavedFleetDeploymentShipIdList",
+        {"fleet_name": fleetName}).then((Map<String, dynamic> data) {
+      for (var shipId in data["ship_ids"]) {
+        ships.add(getShip(shipId));
+      }
+    });
+  }
+
+  void initFromFleetId(int fleetId) {
+    Fleet fleetToSave = model.fleets[fleetId - 1];
+    var fleetName = fleetToSave.name;
+    var trial = 2;
+    while (model.preferences.fleetPrefs.savedFleets.any((savedFleet) =>
+        savedFleet.name == fleetName)) {
+      fleetName = "${fleetToSave.name}${trial}";
+      trial += 1;
+    }
+    fleet = new FleetDeployment.fromShips(fleetName, fleetToSave.ships);
+    fleetIndexInPrefs = null;
+    var dummy = new DivElement();
+    updateExpectation(new Event(""), null, dummy);
   }
 
   void editFleetName() {
@@ -88,8 +123,10 @@ class FleetOrganizationDialog extends KcaaDialog {
       }
     }
     fleet.name = newFleetName;
-    model.preferences.fleetPrefs.savedFleets[fleetIndexInPrefs] = fleet;
-    assistant.savePreferences();
+    if (fleetIndexInPrefs != null) {
+      model.preferences.fleetPrefs.savedFleets[fleetIndexInPrefs] = fleet;
+      assistant.savePreferences();
+    }
     editingFleetName = false;
   }
 
@@ -129,11 +166,21 @@ class FleetOrganizationDialog extends KcaaDialog {
   }
 
   void update() {
-    model.preferences.fleetPrefs.savedFleets[fleetIndexInPrefs] = fleet;
+    if (fleetIndexInPrefs != null) {
+      model.preferences.fleetPrefs.savedFleets[fleetIndexInPrefs] = fleet;
+    } else {
+      fleetIndexInPrefs = model.preferences.fleetPrefs.savedFleets.length;
+      model.preferences.fleetPrefs.savedFleets.add(fleet);
+    }
     assistant.savePreferences();
   }
 
   void delete() {
+    if (fleetIndexInPrefs == null) {
+      fleetIndexInPrefs = -1;
+      close();
+      return;
+    }
     if (fleetNameToDelete != fleet.name) {
       errorMessage = "確認のため、削除したい艦隊の名前を正確に入力してください。";
       $["fleetNameToDelete"].classes.add("invalid");
