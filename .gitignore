@@ -11,6 +11,7 @@ client/pubspec.lock
 client/web/dialog/packages
 client/web/model/packages
 client/web/packages
+client/web/predicate/packages
 client_deployed/
 client_deployed_v*/
 docs/_build/

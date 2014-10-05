@@ -2,6 +2,7 @@
      It seems it is mandatory that all custom elements sources the same
      polymer.html in terms of the path representation. -->
 <link rel="import" href="../packages/polymer/polymer.html">
+<link rel="import" href="../predicate/ship_predicate.html">
 <meta charset="utf-8">
 <polymer-element name="kcaa-fleet-organization-dialog">
   <template>
@@ -81,34 +82,13 @@
     </template>
 
     <!-- TODO: Move this to the shared templates file. -->
-    <!-- TODO: Can selectionUpdated be handled with a more generic observer
-               pattern? -->
     <template id="selection">
-      <select value="{{value}}" on-change="{{selectionUpdated}}">
+      <select value="{{value}}" on-change="{{updateExpectation}}">
         <option template repeat="{{candidate in candidates}}"
                 value="{{candidate.id}}">
           {{candidate.name}}
         </option>
       </select>
-    </template>
-
-    <template id="ship-property-filter">
-      <template ref="selection" bind="{{property}}"></template>
-      <template ref="selection" bind="{{operator}}"></template>
-      <input type="text" value="{{value}}" on-change="{{updateExpectation}}">
-    </template>
-
-    <template id="ship-predicate">
-      <fieldset>
-        <legend><template ref="selection" bind="{{type}}"></template></legend>
-        <template if="{{type.value == 'or'}}">
-          <template repeat="{{orElement in or}}" ref="ship-predicate"
-                    bind="{{orElement}}"></template>
-        </template>
-        <template if="{{type.value == 'propertyFilter'}}"
-                  ref="ship-property-filter" bind="{{propertyFilter}}">
-        </template>
-      </fieldset>
     </template>
 
     <link rel="stylesheet" href="packages/bootjack/css/bootstrap.min.css">
@@ -146,8 +126,9 @@
       <h4>編成設定</h4>
       <div>
         必須条件:
-        <template ref="ship-predicate" bind="{{fleet.globalPredicate}}">
-        </template>
+        <kcaa-ship-predicate predicate="{{fleet.globalPredicate}}"
+                             on-predicatechange="{{updateExpectation}}">
+        </kcaa-ship-predicate>
       </div>
       <div class="table">
         <div class="trow thead">
@@ -160,8 +141,9 @@
             <div class="numberColumn">{{req.index + 1}}</div>
             <div class="numberColumn">{{req.index + 1}}</div>
             <div class="description">
-              <template ref="ship-predicate" bind="{{req.value.predicate}}">
-              </template>
+              <kcaa-ship-predicate predicate="{{req.value.predicate}}"
+                                   on-predicatechange="{{updateExpectation}}">
+              </kcaa-ship-predicate>
               <div>
                 <template ref="selection" bind="{{req.value.sorter.name}}">
                 </template>

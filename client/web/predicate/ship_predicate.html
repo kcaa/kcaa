@@ -1,0 +1,59 @@
+<!-- Be sure to use the path starting from the parent path.
+     It seems it is mandatory that all custom elements sources the same
+     polymer.html in terms of the path representation. -->
+<link rel="import" href="../packages/polymer/polymer.html">
+<meta charset="utf-8">
+<polymer-element name="kcaa-ship-predicate" attributes="predicate">
+  <template>
+    <template id="selection">
+      <select value="{{value}}" on-change="{{updateType}}">
+        <option template repeat="{{candidate in candidates}}"
+                value="{{candidate.id}}">
+          {{candidate.name}}
+        </option>
+      </select>
+    </template>
+
+    <template id="ship-property-filter">
+      <template ref="selection" bind="{{property}}"></template>
+      <template ref="selection" bind="{{operator}}"></template>
+      <input type="text" value="{{value}}" on-change="{{dispatchChange}}">
+    </template>
+
+    <link rel="stylesheet" href="packages/bootjack/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../kcaa.css">
+    <link rel="stylesheet" href="predicate.css">
+    <fieldset>
+      <legend>
+        <template ref="selection" bind="{{predicate.type}}"></template>
+      </legend>
+      <template if="{{predicate.type.value == 'or'}}">
+        <template repeat="{{or in predicate.or | enumerate}}">
+          <button class="action delete" on-click="{{deleteOr}}"
+                  data-index="{{or.index}}">&times;</button>
+          <kcaa-ship-predicate predicate="{{or.value}}"></kcaa-ship-predicate>
+        </template>
+        <button class="action" on-click="{{addOr}}">+</button>
+      </template>
+      <template if="{{predicate.type.value == 'and'}}">
+        <template repeat="{{and in predicate.and | enumerate}}">
+          <button class="action delete" on-click="{{deleteAnd}}"
+                  data-index="{{and.index}}">&times;</button>
+          <kcaa-ship-predicate predicate="{{and.value}}"></kcaa-ship-predicate>
+        </template>
+        <button class="action" on-click="{{addAnd}}">+</button>
+      </template>
+      <template if="{{predicate.type.value == 'not' && predicate.not != null}}">
+        <kcaa-ship-predicate predicate="{{predicate.not}}">
+        </kcaa-ship-predicate>
+      </template>
+      <template if="{{predicate.type.value == 'propertyFilter'}}"
+                ref="ship-property-filter" bind="{{predicate.propertyFilter}}">
+      </template>
+      <template if="{{predicate.type.value == 'filter'}}">
+        <!-- TODO: Implement. -->
+      </template>
+    </fieldset>
+  </template>
+  <script type="application/dart" src="ship_predicate.dart"></script>
+</polymer-element>

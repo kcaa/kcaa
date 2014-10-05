@@ -101,6 +101,40 @@ button.collapse {
   padding: 0;
   text-align: left;
 }
+button.close, button.close:hover, button.close:active {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  color: black;
+  opacity: 0.2;
+}
+button.close:hover, button.close:active {
+  opacity: 0.5 !important;
+}
+button.action, button.action:hover, button.action:active {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  color: black;
+  font-size: 20px;
+  opacity: 0.5;
+  padding: 0;
+}
+button.action:hover, button.action:active {
+  font-weight: bold;
+  opacity: 0.8 !important;
+}
+button.cancel {
+  background: linear-gradient(
+    hsl(240, 10%, 50%),
+    hsl(210, 20%, 30%));
+  color: hsl(0, 0%, 90%);
+}
+button.cancel:hover {
+  background: linear-gradient(
+    hsl(240, 10%, 70%),
+    hsl(210, 20%, 40%));
+}
 select {
   background-color: hsl(0, 0%, 100%);
   border-radius: 5px;
@@ -119,6 +153,21 @@ input[type=text] {
 input[type=text].invalid {
   border-color: hsl(0, 80%, 50%);
   border-width: 3px;
+}
+fieldset {
+  border: 1px solid hsl(0, 0%, 80%);
+  border-radius: 5px;
+  margin: 5px;
+  padding: 0 5px 5px 5px;
+}
+fieldset button {
+  margin: 5px;
+}
+legend {
+  border: 0;
+  font-size: 1em;
+  margin: 0;
+  width: auto;
 }
 
 h3 {

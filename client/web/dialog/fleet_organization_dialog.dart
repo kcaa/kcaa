@@ -110,10 +110,6 @@ class FleetOrganizationDialog extends KcaaDialog {
     close();
   }
 
-  void selectionUpdated(Event e, var detail, SelectElement target) {
-    updateExpectation(e, detail, target);
-  }
-
   void updateExpectation(Event e, var detail, Element target) {
     try {
       var fleetDeployment = JSON.encode(fleet.toJSONEncodable());
