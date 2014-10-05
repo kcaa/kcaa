@@ -4,6 +4,7 @@ import 'dart:html';
 import 'package:polymer/polymer.dart';
 
 import '../model/assistant.dart';
+import 'kselection.dart';
 
 @CustomTag('kcaa-ship-predicate')
 class ShipPredicateElement extends PolymerElement {
@@ -17,8 +18,8 @@ class ShipPredicateElement extends PolymerElement {
     dispatchEvent(change);
   }
 
-  void updateType(Event e, var detail, SelectElement target) {
-    if (target.value == 'not' && predicate.not == null) {
+  void updateType(Event e, var detail, KSelectionElement target) {
+    if (target.kselection.value == 'not' && predicate.not == null) {
       predicate.not = new ShipPredicate.fromTRUE();
     }
     dispatchChange();

@@ -3,6 +3,7 @@
      polymer.html in terms of the path representation. -->
 <link rel="import" href="../packages/polymer/polymer.html">
 <link rel="import" href="../predicate/ship_predicate.html">
+<link rel="import" href="../predicate/kselection.html">
 <meta charset="utf-8">
 <polymer-element name="kcaa-fleet-organization-dialog">
   <template>
@@ -81,16 +82,6 @@
       </div>
     </template>
 
-    <!-- TODO: Move this to the shared templates file. -->
-    <template id="selection">
-      <select value="{{value}}" on-change="{{updateExpectation}}">
-        <option template repeat="{{candidate in candidates}}"
-                value="{{candidate.id}}">
-          {{candidate.name}}
-        </option>
-      </select>
-    </template>
-
     <link rel="stylesheet" href="packages/bootjack/css/bootstrap.min.css">
     <link rel="stylesheet" href="../kcaa.css">
     <link rel="stylesheet" href="dialog.css">
@@ -145,11 +136,13 @@
                                    on-predicatechange="{{updateExpectation}}">
               </kcaa-ship-predicate>
               <div>
-                <template ref="selection" bind="{{req.value.sorter.name}}">
-                </template>
+                <kcaa-kselection kselection="{{req.value.sorter.name}}"
+                                 on-selectionchange="{{updateExpectation}}">
+                </kcaa-kselection>
                 が
-                <template ref="selection" bind="{{req.value.sorter.reversed}}">
-                </template>
+                <kcaa-kselection kselection="{{req.value.sorter.reversed}}"
+                                 on-selectionchange="{{updateExpectation}}">
+                </kcaa-kselection>
                 <label>
                   <input type="checkbox" checked="{{req.value.omittable}}"
                          on-change="{{updateExpectation}}">

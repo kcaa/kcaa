@@ -2,21 +2,17 @@
      It seems it is mandatory that all custom elements sources the same
      polymer.html in terms of the path representation. -->
 <link rel="import" href="../packages/polymer/polymer.html">
+<link ref="import" href="kselection.html">
 <meta charset="utf-8">
 <polymer-element name="kcaa-ship-predicate" attributes="predicate">
   <template>
-    <template id="selection">
-      <select value="{{value}}" on-change="{{updateType}}">
-        <option template repeat="{{candidate in candidates}}"
-                value="{{candidate.id}}">
-          {{candidate.name}}
-        </option>
-      </select>
-    </template>
-
     <template id="ship-property-filter">
-      <template ref="selection" bind="{{property}}"></template>
-      <template ref="selection" bind="{{operator}}"></template>
+      <kcaa-kselection kselection="{{property}}"
+                       on-selectionchange="{{dispatchChange}}">
+      </kcaa-kselection>
+      <kcaa-kselection kselection="{{operator}}"
+                       on-selectionchange="{{dispatchChange}}">
+      </kcaa-kselection>
       <input type="text" value="{{value}}" on-change="{{dispatchChange}}">
     </template>
 
@@ -25,7 +21,8 @@
     <link rel="stylesheet" href="predicate.css">
     <fieldset>
       <legend>
-        <template ref="selection" bind="{{predicate.type}}"></template>
+        <kcaa-kselection kselection="{{predicate.type}}"
+                         on-selectionchange="{{updateType}}"></kcaa-kselection>
       </legend>
       <template if="{{predicate.type.value == 'or'}}">
         <template repeat="{{or in predicate.or | enumerate}}">
