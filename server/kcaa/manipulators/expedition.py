@@ -71,7 +71,7 @@ class SailOnExpeditionMap(base.Manipulator):
         self.screen.update_screen_id(screens.EXPEDITION_SAILING)
         # TODO: Handle a special sailing animation (e.g. spotter aircraft), if
         # needed. Expedition object should have such information.
-        yield 4.0
+        yield 6.0
         if event in (kcsapi.Expedition.EVENT_BATTLE,
                      kcsapi.Expedition.EVENT_BATTLE_BOSS):
             yield 3.0
