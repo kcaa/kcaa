@@ -81,14 +81,14 @@ class FleetDeployment extends Observable {
     for (var ship in ships) {
       var predicate = new ShipPredicate.fromPropertyFilter(
           new ShipPropertyFilter.shipId(ship.id));
-      var sorter = new ShipSorter.level(true);
+      var sorter = new ShipSorter.level(false);
       var omittable = false;
       shipRequirements.add(new ShipRequirement(predicate, sorter, omittable));
     }
     // Add padding up to 6 ships.
     for (var i = ships.length; i < 6; i++) {
       var predicate = new ShipPredicate.fromFALSE();
-      var sorter = new ShipSorter.level(true);
+      var sorter = new ShipSorter.level(false);
       var omittable = true;
       shipRequirements.add(new ShipRequirement(predicate, sorter, omittable));
     }
