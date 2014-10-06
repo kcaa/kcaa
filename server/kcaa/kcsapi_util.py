@@ -96,8 +96,10 @@ class KCSAPIHandler(object):
                                             kcsapi.ShipList],
             '/api_req_nyukyo/start': [kcsapi.RepairDock,
                                       kcsapi.ShipList],
-            # Build docks.
+            # Shipyard and build docks.
             '/api_get_member/kdock': [kcsapi.BuildDock],
+            '/api_req_kousyou/createship': [kcsapi.NullHandler()],
+            '/api_req_kousyou/createship_speedchange': [kcsapi.BuildDock],
             '/api_req_kousyou/getship': [kcsapi.ShipList,
                                          kcsapi.BuildDock],
             # Quests.

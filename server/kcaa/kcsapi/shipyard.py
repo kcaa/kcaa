@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+import time
+
 import jsonobject
 import model
 import resource
@@ -28,6 +30,11 @@ class BuildSlot(jsonobject.JSONSerializableObject):
     def empty(self):
         return self.state == BuildSlot.STATE_EMPTY
 
+    @property
+    def completed(self):
+        return (self.state == BuildSlot.STATE_COMPLETED or
+                1000 * time.time() >= self.eta)
+
 
 class BuildDock(model.KCAAObject):
     """Build dock."""
@@ -47,6 +54,9 @@ class BuildDock(model.KCAAObject):
             self.update_slots(response.api_data)
         elif api_name == '/api_req_kousyou/getship':
             self.update_slots(response.api_data.api_kdock)
+        elif api_name == '/api_req_kousyou/createship_speedchange':
+            slot = self.slots[int(request.api_kdock_id) - 1]
+            slot.state = BuildSlot.STATE_COMPLETED
 
     def update_slots(self, kdock_data):
         self.slots = []
