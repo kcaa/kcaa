@@ -58,7 +58,9 @@ class KSelection extends Observable {
       }
       candidates.add(new Candidate(entry[0], entry[1]));
     }
-    value = candidates[0].id;
+    if (value == null) {
+      value = candidates[0].id;
+    }
   }
 }
 
