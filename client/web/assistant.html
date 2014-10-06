@@ -377,6 +377,26 @@
             </label>
             <button on-click="{{buildShip}}">建造</button>
           </div>
+          <div class="table">
+            <div class="trow thead">
+              <div class="description">艦船</div>
+              <div class="wide">状態</div>
+              <div class="superWide">建造完了</div>
+            </div>
+            <template repeat="{{slot in model.buildSlots}}">
+              <div class="trow">
+                <div class="description">
+                  <template if="{{slot.ship != null}}">
+                    <div class="title">{{slot.ship.name}}</div>
+                    <div>{{slot.ship.shipType}}</div>
+                  </template>
+                  <template if="{{slot.ship == null}}">空き</template>
+                </div>
+                <div class="wide">{{slot.stateString}}</div>
+                <div class="superWide">{{slot.etaDatetimeString}}</div>
+              </div>
+            </template>
+          </div>
         </div>
       </div>
       <div class="row horizontal">

@@ -52,6 +52,7 @@ class Assistant extends PolymerElement {
 
   // Object handlers.
   static final Map<String, Function> OBJECT_HANDLERS = <String, Function>{
+    "BuildDock": handleBuildDock,
     "FleetList": handleFleetList,
     "MissionList": handleMissionList,
     "PracticeList": handlePracticeList,
@@ -60,13 +61,14 @@ class Assistant extends PolymerElement {
     "RepairDock": handleRepairDock,
     "RunningManipulators": handleRunningManipulators,
     "Screen": handleScreen,
+    "ShipDefinitionList": handleShipDefinitionList,
     "ShipList": handleShipList,
   };
   // Referenced objects. If the object list contains these object types, the
   // client processes them first so that other object handlers can reference the
   // contents of them.
   static final List<String> REFERENCED_OBJECTS = <String>[
-      "ShipList", "MissionList",
+      "ShipDefinitionList", "ShipList", "MissionList",
   ];
 
   Assistant.created() : super.created() {

@@ -605,3 +605,14 @@ void notifyShipList(AssistantModel model) {
     }
   }
 }
+
+void handleShipDefinitionList(Assistant assistant, AssistantModel model,
+                              Map<String, dynamic> data) {
+  for (var shipData in (data["ships"] as Map).values) {
+    var ship = new Ship();
+    ship.id = shipData["id"];
+    ship.name = shipData["name"];
+    ship.shipType = Ship.SHIP_TYPE_MAP[shipData["ship_type"]];
+    model.shipDefinitionMap[ship.id] = ship;
+  }
+}

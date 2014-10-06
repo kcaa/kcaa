@@ -39,6 +39,9 @@ class RepairDock(model.KCAAObject):
         elif api_name == '/api_get_member/ndock':
             self.slots = []
             for data in response.api_data:
+                if data.api_state == -1:
+                    # Not opened.
+                    continue
                 self.slots.append(RepairSlot(
                     id=data.api_id,
                     ship_id=data.api_ship_id,

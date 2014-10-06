@@ -32,6 +32,7 @@ class AssistantModel extends Observable {
   ShipComparer shipComparer = Ship.compareByKancolleLevel;
   ShipOrderInverter shipOrderInverter = Ship.orderInDescending;
   @observable int numFilteredShips = 0;
+  Map<int, Ship> shipDefinitionMap = new Map<int, Ship>();
 
   // Fleets.
   @observable final List<Fleet> fleets = new ObservableList<Fleet>();

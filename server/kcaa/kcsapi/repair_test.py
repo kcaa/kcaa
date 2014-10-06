@@ -70,11 +70,13 @@ class TestRepairDock(object):
                 {
                     "api_id": 1,
                     "api_ship_id": 0,
+                    "api_state": 0,
                     "api_complete_time": 0
                 },
                 {
                     "api_id": 2,
                     "api_ship_id": 0,
+                    "api_state": 0,
                     "api_complete_time": 0
                 }
             ]

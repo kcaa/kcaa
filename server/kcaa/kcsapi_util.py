@@ -74,7 +74,6 @@ class KCSAPIHandler(object):
             '/api_req_hensei/lock': [kcsapi.ShipList],
             '/api_req_hokyu/charge': [kcsapi.ShipList],
             '/api_req_kaisou/powerup': [kcsapi.ShipList],
-            '/api_req_kousyou/getship': [kcsapi.ShipList],
             # Port.
             # Like /api_start2, /api_port/port delivers most (all?) member
             # information; variant data for the player, ships, fleets, repair
@@ -97,6 +96,10 @@ class KCSAPIHandler(object):
                                             kcsapi.ShipList],
             '/api_req_nyukyo/start': [kcsapi.RepairDock,
                                       kcsapi.ShipList],
+            # Build docks.
+            '/api_get_member/kdock': [kcsapi.BuildDock],
+            '/api_req_kousyou/getship': [kcsapi.ShipList,
+                                         kcsapi.BuildDock],
             # Quests.
             '/api_get_member/questlist': [kcsapi.QuestList],
             '/api_req_quest/start': [kcsapi.NullHandler()],

@@ -14,6 +14,7 @@ import quest
 import repair
 import resource
 import ship
+import shipyard
 
 
 def is_class_object(attr, name):
@@ -121,6 +122,7 @@ def main():
     doctest.testmod(repair)
     doctest.testmod(resource)
     doctest.testmod(ship)
+    doctest.testmod(shipyard)
     import pytest
     import sys
     sys.exit(pytest.main())
