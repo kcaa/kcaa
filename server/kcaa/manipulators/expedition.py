@@ -109,7 +109,7 @@ class EngageExpedition(base.Manipulator):
         ships = map(lambda ship_id: ship_list.ships[str(ship_id)],
                     fleet_.ship_ids)
         to_go_for_night_combat = self.should_go_night_combat(
-            expedition, battle, ships)
+            expedition, battle, ships, formation)
         if to_go_for_night_combat:
             logger.info('Going for the night combat.')
         else:
@@ -160,13 +160,17 @@ class EngageExpedition(base.Manipulator):
         else:
             yield self.screen.drop_out()
 
-    def should_go_night_combat(self, expedition, battle, ships):
+    def should_go_night_combat(self, expedition, battle, ships, formation):
         expected_result = kcsapi.battle.expect_result(
             ships, battle.enemy_ships)
         if expected_result == kcsapi.Battle.RESULT_S:
             return False
         # TODO: Do not gor for night combat if rest of the enemy ships are
         # submarines.
+        # TODO: Move FORMATION enums from prefs and use here.
+        # If the formation is the horizontal line, the intention is most likely # to avoid the night battle; to avoid damage as much as possible, or to # fight against submarines.
+        if formation == 4:
+          return False
         available_ships = [s for s in ships if s.can_attack_midnight]
         if not available_ships:
             return False
