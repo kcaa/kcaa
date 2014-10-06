@@ -24,6 +24,10 @@ class BuildSlot(jsonobject.JSONSerializableObject):
     eta = jsonobject.JSONProperty('eta', value_type=long)
     """Estimated Time of Arrival, in UNIX time with millisecond precision."""
 
+    @property
+    def empty(self):
+        return self.state == BuildSlot.STATE_EMPTY
+
 
 class BuildDock(model.KCAAObject):
     """Build dock."""
@@ -31,6 +35,10 @@ class BuildDock(model.KCAAObject):
     slots = jsonobject.JSONProperty('slots', [], value_type=list,
                                     element_type=BuildSlot)
     """Build slots."""
+
+    @property
+    def empty_slots(self):
+        return [slot for slot in self.slots if slot.empty]
 
     def update(self, api_name, request, response, objects, debug):
         super(BuildDock, self).update(api_name, request, response, objects,

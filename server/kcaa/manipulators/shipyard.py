@@ -20,7 +20,15 @@ class BuildShip(base.Manipulator):
         material = int(material)
         logger.info('Buliding a {} ship with [{}, {}, {}, {}]'.format(
             'grand' if grand else 'normal', fuel, ammo, steel, bauxite))
-        # TODO: Check if there is room for building.
+        build_dock = self.objects.get('BuildDock')
+        if not build_dock:
+            logger.error('No build dock was found. Giving up.')
+            return
+        empty_slots = build_dock.empty_slots
+        if not empty_slots:
+            logger.error('No empty build slot was found.')
+            return
+        slot_id = empty_slots[0].id - 1
         if grand:
             if (fuel < 1500 or fuel > 7000 or fuel % 10 != 0 or
                     ammo < 1500 or ammo > 7000 or ammo % 10 != 0 or
@@ -36,8 +44,6 @@ class BuildShip(base.Manipulator):
                     bauxite < 30 or bauxite >= 1000):
                 logger.error('Resource amount is invalid for normal building.')
                 return
-        # TODO: Select an empty slot.
-        slot_id = 0
         yield self.screen.change_screen(screens.PORT_SHIPYARD)
         yield self.screen.select_slot(slot_id)
         if grand:
