@@ -96,7 +96,7 @@
           <button on-click="{{cancelRenaming}}" class="action">&#10008;</button>
         </template>
         <template if="{{!editingFleetName}}">
-          {{fleet.name}}
+          <template if="{{fleet != null}}">{{fleet.name}}</template>
           <button on-click="{{editFleetName}}" class="action">&#9998;</button>
         </template>
         </h3>
@@ -115,44 +115,46 @@
       <h4>編成予測</h4>
       <template ref="shiplist" bind></template>
       <h4>編成設定</h4>
-      <div>
-        必須条件:
-        <kcaa-ship-predicate predicate="{{fleet.globalPredicate}}"
-                             on-predicatechange="{{updateExpectation}}">
-        </kcaa-ship-predicate>
-      </div>
-      <div class="table">
-        <div class="trow thead">
-          <div>決定順</div>
-          <div>並び順</div>
-          <div class="description">条件</div>
+      <template if="{{fleet != null}}">
+        <div>
+          必須条件:
+          <kcaa-ship-predicate predicate="{{fleet.globalPredicate}}"
+                               on-predicatechange="{{updateExpectation}}">
+          </kcaa-ship-predicate>
         </div>
-        <template repeat="{{req in fleet.shipRequirements | enumerate}}">
-          <div class="trow">
-            <div class="numberColumn">{{req.index + 1}}</div>
-            <div class="numberColumn">{{req.index + 1}}</div>
-            <div class="description">
-              <kcaa-ship-predicate predicate="{{req.value.predicate}}"
-                                   on-predicatechange="{{updateExpectation}}">
-              </kcaa-ship-predicate>
-              <div>
-                <kcaa-kselection kselection="{{req.value.sorter.name}}"
-                                 on-selectionchange="{{updateExpectation}}">
-                </kcaa-kselection>
-                が
-                <kcaa-kselection kselection="{{req.value.sorter.reversed}}"
-                                 on-selectionchange="{{updateExpectation}}">
-                </kcaa-kselection>
-                <label>
-                  <input type="checkbox" checked="{{req.value.omittable}}"
-                         on-change="{{updateExpectation}}">
-                  見つからなければ省略可
-                </label>
+        <div class="table">
+          <div class="trow thead">
+            <div>決定順</div>
+            <div>並び順</div>
+            <div class="description">条件</div>
+          </div>
+          <template repeat="{{req in fleet.shipRequirements | enumerate}}">
+            <div class="trow">
+              <div class="numberColumn">{{req.index + 1}}</div>
+              <div class="numberColumn">{{req.index + 1}}</div>
+              <div class="description">
+                <kcaa-ship-predicate predicate="{{req.value.predicate}}"
+                                     on-predicatechange="{{updateExpectation}}">
+                </kcaa-ship-predicate>
+                <div>
+                  <kcaa-kselection kselection="{{req.value.sorter.name}}"
+                                   on-selectionchange="{{updateExpectation}}">
+                  </kcaa-kselection>
+                  が
+                  <kcaa-kselection kselection="{{req.value.sorter.reversed}}"
+                                   on-selectionchange="{{updateExpectation}}">
+                  </kcaa-kselection>
+                  <label>
+                    <input type="checkbox" checked="{{req.value.omittable}}"
+                           on-change="{{updateExpectation}}">
+                    見つからなければ省略可
+                  </label>
+                </div>
               </div>
             </div>
-          </div>
-        </template>
-      </div>
+          </template>
+        </div>
+      </template>
       <div>
         <button on-click="{{update}}">更新</button>
       </div>

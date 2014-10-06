@@ -7,8 +7,7 @@ import '../model/assistant.dart';
 
 @CustomTag('kcaa-fleet-organization-dialog')
 class FleetOrganizationDialog extends KcaaDialog {
-  @observable FleetDeployment fleet =
-      new FleetDeployment(null, new ShipPredicate.fromJSON(null));
+  @observable FleetDeployment fleet;
   int fleetIndexInPrefs;
   @observable final List<Ship> ships = new ObservableList<Ship>();
 
@@ -64,6 +63,13 @@ class FleetOrganizationDialog extends KcaaDialog {
     } else {
       super.close();
     }
+    // Hack to avoid an incomplete initialization on fleet.globalPredicate; if
+    // the fleet is kept intact and the next fleet is set with the same
+    // globalPredicate.type, the select element item is reset to "TRUE" (the
+    // first item) even though globalPredicate.type.value is correctly set.
+    // Do not do this reset in show(). It's important to have a cycle between
+    // this reset and the next set on fleet.
+    fleet = null;
   }
 
   void initFromFleetName(String fleetName) {
