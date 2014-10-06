@@ -58,9 +58,10 @@ class KSelection extends Observable {
       }
       candidates.add(new Candidate(entry[0], entry[1]));
     }
-    if (value == null) {
-      value = candidates[0].id;
+    if (candidates.length == 0) {
+      throw new Exception("No candidate is provided");
     }
+    value = candidates[0].id;
   }
 }
 
