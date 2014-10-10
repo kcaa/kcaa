@@ -230,9 +230,6 @@ class ShipDefinitionList(model.KCAAObject):
                 armor=Variable(
                     baseline=data.api_souk[0],
                     maximum=data.api_souk[1]),
-                avoidance=Variable(
-                    baseline=data.api_kaih[0],
-                    maximum=data.api_kaih[1]),
                 firepower=Variable(
                     baseline=data.api_houg[0],
                     maximum=data.api_houg[1]),
@@ -242,16 +239,10 @@ class ShipDefinitionList(model.KCAAObject):
                 anti_air=Variable(
                     baseline=data.api_tyku[0],
                     maximum=data.api_tyku[1]),
-                anti_submarine=Variable(
-                    baseline=data.api_tais[0],
-                    maximum=data.api_tais[1]),
-                scouting=Variable(
-                    baseline=data.api_saku[0],
-                    maximum=data.api_saku[1]),
                 luck=Variable(
                     baseline=data.api_luck[0],
                     maximum=data.api_luck[1]),
-                aircraft_capacity=data.api_tous[1],
+                aircraft_capacity=sum(data.api_maxeq),
                 aircraft_slot_capacity=data.api_maxeq,
                 speed=data.api_soku,
                 firing_range=data.api_leng,
@@ -564,7 +555,6 @@ class ShipList(model.KCAAObject):
                         '/api_req_nyukyo/start'):
             self.update_is_under_repair(objects['RepairDock'])
 
-
     def get_ship(self, ship_data, objects):
         try:
             return self.ships[str(ship_data.api_id)]
@@ -594,7 +584,7 @@ class ShipList(model.KCAAObject):
                 maximum=ship_data.api_soukou[1]),
             'avoidance': Variable(
                 current=ship_data.api_kaihi[0],
-                baseline=ship['avoidance'].baseline,
+                baseline=ship_data.api_kaihi[0],  # no baseline info
                 maximum=ship_data.api_kaihi[1]),
             'firepower': Variable(
                 current=ship_data.api_karyoku[0],
@@ -610,11 +600,11 @@ class ShipList(model.KCAAObject):
                 maximum=ship_data.api_taiku[1]),
             'anti_submarine': Variable(
                 current=ship_data.api_taisen[0],
-                baseline=ship['anti_submarine'].baseline,
+                baseline=ship_data.api_taisen[0],  # no baseline info
                 maximum=ship_data.api_taisen[1]),
             'scouting': Variable(
                 current=ship_data.api_sakuteki[0],
-                baseline=ship['scouting'].baseline,
+                baseline=ship_data.api_sakuteki[0],  # no baseline info
                 maximum=ship_data.api_sakuteki[1]),
             'luck': Variable(
                 current=ship_data.api_lucky[0],
