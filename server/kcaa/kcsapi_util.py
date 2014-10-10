@@ -245,7 +245,7 @@ class KCSAPIHandler(object):
                 except:
                     self._logger.error(traceback.format_exc())
                     if self.debug:
-                        yield obj
+                        yield old_obj
 
     def get_updated_objects(self):
         entries = self.har_manager.get_updated_entries()
