@@ -203,7 +203,7 @@ class EnhanceBestShip(base.Manipulator):
             logger.info('{} has the room to grow: {}'.format(
                 target_ship.name.encode('utf8'), gain_cap.json()))
             logger.info('Expected capped gain: {}'.format(last_gain.json()))
-            return target_ship.id, material_ships
+            return target_ship, material_ships
         else:
             return None, None
 
