@@ -145,17 +145,16 @@ class RebuildShip(base.Manipulator):
 
 class EnhanceBestShip(base.Manipulator):
 
-    def run(self):
-        logger.info(
-            'Trying to enhance the best ship which has the room to grow.')
-        ship_list = self.objects.get('ShipList')
+    @staticmethod
+    def get_target_and_materials(objects):
+        ship_list = objects.get('ShipList')
         if not ship_list:
             logger.error('No ship list was found. Giving up.')
-            return
-        fleet_list = self.objects.get('FleetList')
+            return None, None
+        fleet_list = objects.get('FleetList')
         if not fleet_list:
             logger.error('No fleet list was found. Giving up.')
-            return
+            return None, None
         target_candidates = sorted(
             ship_list.rebuilding_enhanceable_ships(fleet_list),
             kcsapi.ShipSorter.kancolle_level, reverse=True)
@@ -204,9 +203,18 @@ class EnhanceBestShip(base.Manipulator):
             logger.info('{} has the room to grow: {}'.format(
                 target_ship.name.encode('utf8'), gain_cap.json()))
             logger.info('Expected capped gain: {}'.format(last_gain.json()))
+            return target_ship.id, material_ships
+        else:
+            return None, None
+
+    def run(self):
+        logger.info(
+            'Trying to enhance the best ship which has the room to grow.')
+        target_ship, material_ships = (
+            EnhanceBestShip.get_target_and_materials(self.objects))
+        if target_ship:
             yield self.do_manipulator(RebuildShip, target_ship.id,
                                       [s.id for s in material_ships])
-            return
         else:
             logger.error('No ship has the room to grow.')
 
@@ -223,7 +231,11 @@ class AutoEnhanceBestShip(base.AutoManipulator):
         player_info = owner.objects.get('PlayerInfo')
         if not player_info:
             return
-        if player_info.max_ships - len(ship_list.ships) < 5:
+        if player_info.max_ships - len(ship_list.ships) >= 5:
+            return
+        target_ship, _ = EnhanceBestShip.get_target_and_materials(
+            owner.objects)
+        if target_ship:
             return {}
 
     def run(self):
