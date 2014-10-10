@@ -65,6 +65,10 @@ class QuestList(model.KCAAObject):
                                       debug)
         if api_name == '/api_get_member/questlist':
             data = response.api_data
+            # If the last one quest in the page is compelted, a reponse with an
+            # empty list could be returned. Just ignore such one.
+            if not data.api_list:
+                return
             self.count = data.api_count
             self.count_undertaken = data.api_exec_count
             quests = []
