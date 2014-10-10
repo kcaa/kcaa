@@ -3,6 +3,7 @@
 import base64
 import logging
 import re
+import traceback
 import urlparse
 
 import kcsapi
@@ -223,14 +224,28 @@ class KCSAPIHandler(object):
                 # Handler may return None in case there is no need to handle
                 # the KCSAPI response.
                 if obj:
-                    obj.update(api_name, request, response, self.objects,
-                               self.debug)
-                    self.objects[object_type] = obj
-                    yield obj
+                    try:
+                        obj.update(api_name, request, response, self.objects,
+                                   self.debug)
+                        self.objects[object_type] = obj
+                        yield obj
+                    except:
+                        self._logger.error(traceback.format_exc())
+                        # In debug mode, update the object anyways to see the
+                        # raw transaction in the debug UI. This would deliver
+                        # an incomplete data to the client.
+                        if self.debug:
+                            self.objects[object_type] = obj
+                            yield obj
             else:
-                old_obj.update(api_name, request, response, self.objects,
-                               self.debug)
-                yield old_obj
+                try:
+                    old_obj.update(api_name, request, response, self.objects,
+                                   self.debug)
+                    yield old_obj
+                except:
+                    self._logger.error(traceback.format_exc())
+                    if self.debug:
+                        yield obj
 
     def get_updated_objects(self):
         entries = self.har_manager.get_updated_entries()
