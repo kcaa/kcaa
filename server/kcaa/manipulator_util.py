@@ -237,13 +237,13 @@ class ManipulatorManager(object):
             # AutoHandleAllPractices runs when idle. It may take some time, and
             # thus should precede other time-consuming low priority tasks.
             'AutoHandleAllPractices': 2000,
-            # AutoWarmUpIdleShips can run only when idle, but should precede
-            # AutoGoOnMission to make sure all ships are in good condition
-            # before going on missions.
-            'AutoWarmUpIdleShips': 9000,
             # AutoGoOnMission should not bother other manipulators. It can run
             # when idle.
-            'AutoGoOnMission': 10000,
+            'AutoGoOnMission': 9000,
+            # AutoWarmUpIdleShips can run only when idle. Other low priority
+            # tasks should usually precede as this would take considerable
+            # time.
+            'AutoWarmUpIdleShips': 10000,
         }
 
     def set_auto_manipulator_preferences(self, automan_prefs):
