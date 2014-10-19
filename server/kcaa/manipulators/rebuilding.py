@@ -219,7 +219,8 @@ class AutoEnhanceBestShip(base.AutoManipulator):
 
     @classmethod
     def can_trigger(cls, owner):
-        if not screens.in_category(owner.screen_id, screens.PORT):
+        if (owner.screen_id != screens.PORT_MAIN and
+                owner.screen_id != screens.PORT_REBUILDING):
             return
         ship_list = owner.objects.get('ShipList')
         player_info = owner.objects.get('PlayerInfo')

@@ -143,7 +143,7 @@ class AutoLockUniqueShips(base.AutoManipulator):
 
     @classmethod
     def can_trigger(cls, owner):
-        if not screens.in_category(owner.screen_id, screens.PORT):
+        if owner.screen_id != screens.PORT_MAIN:
             return
         ship_list = owner.objects.get('ShipList')
         ship_ids_to_lock = []
