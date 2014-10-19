@@ -40,6 +40,7 @@ class KCAAObject(jsonobject.JSONSerializableObject):
         return self.__class__.__name__
 
     def update(self, api_name, request, response, objects, debug):
+        self.generation += 1
         if debug:
             if not self._raw_transactions:
                 self._raw_transactions = {}

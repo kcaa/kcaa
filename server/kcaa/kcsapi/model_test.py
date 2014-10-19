@@ -5,6 +5,17 @@ import pytest
 import model
 
 
+class TestKCAAObject(object):
+
+    def test_update_generation(self):
+        obj = model.KCAAObject()
+        assert obj.generation == 0
+        obj.update('', None, None, None, False)
+        assert obj.generation == 1
+        obj.update('', None, None, None, False)
+        assert obj.generation == 2
+
+
 class Item(object):
 
     def __init__(self, id_, value=None):
