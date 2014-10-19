@@ -75,25 +75,53 @@ class Manipulator(task.Task):
 
 class AutoManipulatorTriggerer(Manipulator):
 
-    def run(self, manipulator, interval=-1, *args, **kwargs):
+    def __init__(self, manager, priority, manipulator, interval=-1, *args,
+                 **kwargs):
+        super(AutoManipulatorTriggerer, self).__init__(manager, priority,
+                                                       *args, **kwargs)
         self._manipulator = manipulator
-        manipulator_name = manipulator.__name__
+        self._interval = interval
+        self._last_generations = (
+            {obj_name: 0 for obj_name in manipulator.required_objects()})
+
+    def run(self, *args, **kwargs):
+        manipulator_name = self.manipulator.__name__
         while True:
-            if self.manager.is_manipulator_scheduled(manipulator_name):
-                yield interval
+            if (self.manager.is_manipulator_scheduled(manipulator_name) or
+                    not self.update_object_generation()):
+                yield self._interval
                 continue
-            params = manipulator.can_trigger(self, *args, **kwargs)
+            params = self.manipulator.can_trigger(self, *args, **kwargs)
             if params is not None:
                 logger.info('Triggering {}'.format(manipulator_name))
-                self.add_manipulator_priority(manipulator, None, **params)
-            yield interval
+                self.add_manipulator_priority(self.manipulator, None, **params)
+            yield self._interval
 
     @property
     def manipulator(self):
         return self._manipulator
 
+    def update_object_generation(self):
+        if not self.manipulator.required_objects():
+            return True
+        generation_updates = {}
+        updated = False
+        for req_obj_name in self.manipulator.required_objects():
+            obj = self.objects.get(req_obj_name)
+            if obj is None:
+                return False
+            if obj.generation > self._last_generations[req_obj_name]:
+                generation_updates[req_obj_name] = obj.generation
+                updated = True
+        self._last_generations.update(generation_updates)
+        return updated
+
 
 class AutoManipulator(Manipulator):
+
+    @classmethod
+    def required_objects(cls):
+        return []
 
     @classmethod
     def can_trigger(cls, owner):
