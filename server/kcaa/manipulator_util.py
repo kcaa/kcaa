@@ -51,6 +51,8 @@ class ScreenManager(object):
             manipulators.screen.PortRebuildingScreen,
             screens.PORT_REPAIR: manipulators.screen.PortRepairScreen,
             screens.PORT_SHIPYARD: manipulators.screen.PortShipyardScreen,
+            screens.PORT_SHIPYARD_GETSHIP: manipulators.screen.PortScreen,
+            screens.PORT_SHIPYARD_GETEQUIPMENT: manipulators.screen.PortScreen,
             screens.EXPEDITION: manipulators.screen.ExpeditionScreen,
             screens.EXPEDITION_COMPASS: manipulators.screen.ExpeditionScreen,
             screens.EXPEDITION_SAILING: manipulators.screen.ExpeditionScreen,
@@ -69,8 +71,6 @@ class ScreenManager(object):
             screens.PRACTICE_NIGHTCOMBAT: manipulators.screen.PracticeScreen,
             screens.PRACTICE_RESULT: manipulators.screen.PracticeScreen,
             screens.MISSION_RESULT: manipulators.screen.MissionResultScreen,
-            screens.SHIPYARD_GETSHIP: manipulators.screen.PortScreen,
-            screens.SHIPYARD_GETEQUIPMENT: manipulators.screen.PortScreen,
         }
 
     def click(self, x, y):
