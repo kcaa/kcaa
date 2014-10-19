@@ -82,12 +82,13 @@ class AutoManipulatorTriggerer(Manipulator):
         self._manipulator = manipulator
         self._interval = interval
         self._last_generations = (
-            {obj_name: 0 for obj_name in manipulator.required_objects()})
+            {obj_name: 0 for obj_name in manipulator.monitored_objects()})
 
     def run(self, *args, **kwargs):
         manipulator_name = self.manipulator.__name__
         while True:
             if (self.manager.is_manipulator_scheduled(manipulator_name) or
+                    not self.has_required_objects() or
                     not self.update_object_generation()):
                 yield self._interval
                 continue
@@ -101,12 +102,16 @@ class AutoManipulatorTriggerer(Manipulator):
     def manipulator(self):
         return self._manipulator
 
+    def has_required_objects(self):
+        return all(req_obj_name in self.objects for req_obj_name in
+                   self.manipulator.required_objects())
+
     def update_object_generation(self):
-        if not self.manipulator.required_objects():
+        if not self.manipulator.monitored_objects():
             return True
         generation_updates = {}
         updated = False
-        for req_obj_name in self.manipulator.required_objects():
+        for req_obj_name in self.manipulator.monitored_objects():
             obj = self.objects.get(req_obj_name)
             if obj is None:
                 return False
@@ -121,6 +126,20 @@ class AutoManipulator(Manipulator):
 
     @classmethod
     def required_objects(cls):
+        """Required object names.
+
+        Required objects are necessary for this auto manipulator to run, even
+        for can_trigger().
+        """
+        return []
+
+    @classmethod
+    def monitored_objects(cls):
+        """Monitored object names.
+
+        Monitored objects are required objects whose updates are monitored.
+        This auto manipulator won't run unless any of them is not updated.
+        """
         return []
 
     @classmethod

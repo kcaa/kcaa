@@ -21,23 +21,59 @@ class MockAutoManipulator(base.AutoManipulator):
     def required_objects(cls):
         return cls.mockable_required_objects
 
+    mockable_monitored_objects = []
+
+    @classmethod
+    def monitored_objects(cls):
+        return cls.mockable_monitored_objects
+
 
 class TestAutoManipulatorTriggerer(object):
 
     def pytest_funcarg__manipulator(self):
         return type('ClonedMockAutoManipulator', (MockAutoManipulator,),
-                    {'mockable_required_objects': []})
+                    {'mockable_monitored_objects': []})
 
-    def test_update_object_generation_empty(self, manipulator):
-        print MockAutoManipulator.required_objects()
+    def test_has_required_objects_empty(self, manipulator):
         triggerer = base.AutoManipulatorTriggerer(
             MockManipulatorManager(), None, manipulator)
-        # If there is no required object, always accept updates.
+        assert triggerer.has_required_objects()
+
+    def test_has_required_objects_single(self, manipulator):
+        manipulator.mockable_required_objects = ['SomeObject']
+        manager = MockManipulatorManager()
+        triggerer = base.AutoManipulatorTriggerer(manager, None, manipulator)
+        # The manipulator requires SomeObject; nothing is there, thus reject.
+        assert not triggerer.has_required_objects()
+        some_object = kcsapi.KCAAObject(generation=1)
+        manager.objects['SomeObject'] = some_object
+        # There is SomeObject with generation 1, it should accept that.
+        assert triggerer.has_required_objects()
+
+    def test_has_required_objects_double(self, manipulator):
+        manipulator.mockable_required_objects = ['SomeObject', 'AnotherObject']
+        manager = MockManipulatorManager()
+        triggerer = base.AutoManipulatorTriggerer(manager, None, manipulator)
+        # No object is available.
+        assert not triggerer.has_required_objects()
+        some_object = kcsapi.KCAAObject(generation=1)
+        manager.objects['SomeObject'] = some_object
+        # SomeObject is there, but AnotherObject is not; reject.
+        assert not triggerer.has_required_objects()
+        another_object = kcsapi.KCAAObject(generation=1)
+        manager.objects['AnotherObject'] = another_object
+        # Now both objects are present.
+        assert triggerer.has_required_objects()
+
+    def test_update_object_generation_empty(self, manipulator):
+        triggerer = base.AutoManipulatorTriggerer(
+            MockManipulatorManager(), None, manipulator)
+        # If there is no monitored object, always accept updates.
         assert triggerer.update_object_generation()
         assert triggerer.update_object_generation()
 
     def test_update_object_generation_single(self, manipulator):
-        manipulator.mockable_required_objects = ['SomeObject']
+        manipulator.mockable_monitored_objects = ['SomeObject']
         manager = MockManipulatorManager()
         triggerer = base.AutoManipulatorTriggerer(manager, None, manipulator)
         # The manipulator requires SomeObject; nothing is there, thus reject.
@@ -55,7 +91,8 @@ class TestAutoManipulatorTriggerer(object):
         assert not triggerer.update_object_generation()
 
     def test_update_object_generation_double(self, manipulator):
-        manipulator.mockable_required_objects = ['SomeObject', 'AnotherObject']
+        manipulator.mockable_monitored_objects = ['SomeObject',
+                                                  'AnotherObject']
         manager = MockManipulatorManager()
         triggerer = base.AutoManipulatorTriggerer(manager, None, manipulator)
         # No object is available.
