@@ -377,6 +377,14 @@
             </label>
             <button on-click="{{buildShip}}">建造</button>
           </div>
+          <div>
+            燃料<input type="text" size="3" value="{{model.developFuel}}">
+            弾薬<input type="text" size="3" value="{{model.developAmmo}}">
+            鋼材<input type="text" size="3" value="{{model.developSteel}}">
+            ボーキ<input type="text" size="3" value="{{model.developBauxite}}">
+            で
+            <button on-click="{{developEquipment}}">装備開発</button>
+          </div>
           <div class="table">
             <div class="trow thead">
               <div class="description">艦船</div>

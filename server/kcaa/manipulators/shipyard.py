@@ -90,3 +90,25 @@ class AutoReceiveShips(base.AutoManipulator):
         yield 1.0
         for slot_id in slot_ids:
             yield self.do_manipulator(ReceiveShip, slot_id=slot_id)
+
+
+class DevelopEquipment(base.Manipulator):
+
+    def run(self, fuel, ammo, steel, bauxite):
+        fuel = int(fuel)
+        ammo = int(ammo)
+        steel = int(steel)
+        bauxite = int(bauxite)
+        logger.info('Developing an equipment with [{}, {}, {}, {}]'.format(
+            fuel, ammo, steel, bauxite))
+        if (fuel < 10 or fuel > 300 or
+                ammo < 10 or ammo > 300 or
+                steel < 10 or steel > 300 or
+                bauxite < 10 or bauxite > 300):
+            logger.error('Resource amount is invalid for development.')
+            return
+        yield self.screen.change_screen(screens.PORT_SHIPYARD)
+        yield self.screen.try_equipment_development()
+        yield self.screen.set_development_resource(fuel, ammo, steel, bauxite)
+        yield self.screen.confirm_development()
+        yield self.screen.check_equipment()

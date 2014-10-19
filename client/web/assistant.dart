@@ -540,4 +540,16 @@ class Assistant extends PolymerElement {
         }));
     HttpRequest.getString(request.toString());
   }
+
+  void developEquipment() {
+    Uri request = serverManipulate.resolveUri(
+        new Uri(queryParameters: {
+          "type": "DevelopEquipment",
+          "fuel": model.developFuel,
+          "ammo": model.developAmmo,
+          "steel": model.developSteel,
+          "bauxite": model.developBauxite,
+        }));
+    HttpRequest.getString(request.toString());
+  }
 }

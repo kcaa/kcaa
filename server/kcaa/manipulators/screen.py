@@ -922,10 +922,39 @@ class PortShipyardScreen(PortOperationsScreen):
 
     def check_ship(self):
         def check_ship_task(task):
-            yield 6.0
+            yield 10.0
             self.click_somewhere()
             yield 2.0
+            yield self.update_screen_id(screens.PORT_SHIPYARD)
         return self.do_task(check_ship_task)
+
+    def try_equipment_development(self):
+        def try_equipment_development_task(task):
+            self.click(230, 340)
+            yield 1.0
+        return self.do_task(try_equipment_development_task)
+
+    def set_development_resource(self, fuel, ammo, steel, bauxite):
+        def set_development_resource_task(task):
+            yield self.set_resource_amount(False, fuel, 10, 0, 0)
+            yield self.set_resource_amount(False, ammo, 10, 1, 0)
+            yield self.set_resource_amount(False, steel, 10, 0, 1)
+            yield self.set_resource_amount(False, bauxite, 10, 1, 1)
+        return self.do_task(set_development_resource_task)
+
+    def confirm_development(self):
+        def confirm_development_task(task):
+            self.click(710, 445)
+            yield 2.0
+        return self.do_task(confirm_development_task)
+
+    def check_equipment(self):
+        def check_equipment_task(task):
+            yield 10.0
+            self.click_somewhere()
+            yield 2.0
+            yield self.update_screen_id(screens.PORT_SHIPYARD)
+        return self.do_task(check_equipment_task)
 
     def click_big_skip(self, base_x, base_y):
         self.click(base_x + 184, base_y + 46)

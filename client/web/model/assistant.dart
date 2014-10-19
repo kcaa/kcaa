@@ -64,6 +64,10 @@ class AssistantModel extends Observable {
        ["20", "20"],
        ["100", "100"]]);
   @observable bool grandBuilding = false;
+  @observable String developFuel = "10";
+  @observable String developAmmo = "10";
+  @observable String developSteel = "10";
+  @observable String developBauxite = "10";
 
   // Missions.
   @observable final List<Mission> missions = new ObservableList<Mission>();
