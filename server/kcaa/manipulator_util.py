@@ -51,8 +51,10 @@ class ScreenManager(object):
             manipulators.screen.PortRebuildingScreen,
             screens.PORT_REPAIR: manipulators.screen.PortRepairScreen,
             screens.PORT_SHIPYARD: manipulators.screen.PortShipyardScreen,
-            screens.PORT_SHIPYARD_GETSHIP: manipulators.screen.PortScreen,
-            screens.PORT_SHIPYARD_GETEQUIPMENT: manipulators.screen.PortScreen,
+            screens.PORT_SHIPYARD_GETSHIP:
+            manipulators.screen.PortShipyardScreen,
+            screens.PORT_SHIPYARD_GETEQUIPMENT:
+            manipulators.screen.PortShipyardScreen,
             screens.EXPEDITION: manipulators.screen.ExpeditionScreen,
             screens.EXPEDITION_COMPASS: manipulators.screen.ExpeditionScreen,
             screens.EXPEDITION_SAILING: manipulators.screen.ExpeditionScreen,
@@ -166,6 +168,7 @@ class ManipulatorManager(object):
             'RepairShips': manipulators.repair.RepairShips,
             # Shipyard
             'BuildShip': manipulators.shipyard.BuildShip,
+            'ReceiveShip': manipulators.shipyard.ReceiveShip,
         }
 
     def define_auto_manipulators(self):
@@ -181,6 +184,8 @@ class ManipulatorManager(object):
             # Repair
             'AutoRepairShips': manipulators.repair.AutoRepairShips,
             'AutoCheckRepairResult': manipulators.repair.AutoCheckRepairResult,
+            # Shipyard
+            'AutoReceiveShips': manipulators.shipyard.AutoReceiveShips,
             # Practice
             'AutoCheckPracticeOpponents':
             manipulators.practice.AutoCheckPracticeOpponents,
@@ -237,6 +242,8 @@ class ManipulatorManager(object):
             # AutoHandleAllPractices runs when idle. It may take some time, and
             # thus should precede other time-consuming low priority tasks.
             'AutoHandleAllPractices': 2000,
+            # AutoReceiveShips runs when idle.
+            'AutoReceiveShips': 8000,
             # AutoGoOnMission should not bother other manipulators. It can run
             # when idle.
             'AutoGoOnMission': 9000,

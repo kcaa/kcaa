@@ -920,6 +920,13 @@ class PortShipyardScreen(PortOperationsScreen):
             yield 2.0
         return self.do_task(confirm_building_task)
 
+    def check_ship(self):
+        def check_ship_task(task):
+            yield 6.0
+            self.click_somewhere()
+            yield 2.0
+        return self.do_task(check_ship_task)
+
     def click_big_skip(self, base_x, base_y):
         self.click(base_x + 184, base_y + 46)
 

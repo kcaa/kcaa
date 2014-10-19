@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-import time
-
 import jsonobject
 import model
 import resource
@@ -30,10 +28,9 @@ class BuildSlot(jsonobject.JSONSerializableObject):
     def empty(self):
         return self.state == BuildSlot.STATE_EMPTY
 
-    @property
-    def completed(self):
-        return (self.state == BuildSlot.STATE_COMPLETED or
-                1000 * time.time() >= self.eta)
+    def completed(self, now):
+        return (not self.empty and
+                (self.state == BuildSlot.STATE_COMPLETED or now >= self.eta))
 
 
 class BuildDock(model.KCAAObject):

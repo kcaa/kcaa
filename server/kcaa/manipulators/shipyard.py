@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import logging
+import time
 
 import base
 from kcaa import screens
@@ -51,3 +52,41 @@ class BuildShip(base.Manipulator):
             yield self.screen.set_material(material)
         yield self.screen.set_resource(grand, fuel, ammo, steel, bauxite)
         yield self.screen.confirm_building()
+
+
+class ReceiveShip(base.Manipulator):
+
+    def run(self, slot_id):
+        slot_id = int(slot_id)
+        yield self.screen.change_screen(screens.PORT_SHIPYARD)
+        yield self.screen.select_slot(slot_id - 1)
+        yield self.screen.check_ship()
+
+
+class AutoReceiveShips(base.AutoManipulator):
+
+    # Ship buliding are completed on time? At least there is no harm on
+    # checking the completion when the reported ETA has come.
+    precursor_duration = 0
+
+    @classmethod
+    def required_objects(cls):
+        return ['BuildDock']
+
+    @classmethod
+    def can_trigger(cls, owner):
+        if not screens.in_category(owner.screen_id, screens.PORT):
+            return
+        build_dock = owner.objects.get('BuildDock')
+        now = long(1000 * time.time()) + cls.precursor_duration
+        slot_ids = []
+        for slot in build_dock.slots:
+            if slot.completed(now):
+                slot_ids.append(slot.id)
+        if slot_ids:
+            return {'slot_ids': slot_ids}
+
+    def run(self, slot_ids):
+        yield 1.0
+        for slot_id in slot_ids:
+            yield self.do_manipulator(ReceiveShip, slot_id=slot_id)
