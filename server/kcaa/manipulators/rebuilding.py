@@ -59,10 +59,22 @@ def compute_capped_gain(gain, gain_cap):
 
 
 def has_improvement(gain_a, gain_b):
+    """Returns True if gain_a has at least 1 improvement in any parameter
+    compared to gain_b."""
     return (gain_a.firepower > gain_b.firepower or
             gain_a.thunderstroke > gain_b.thunderstroke or
             gain_a.anti_air > gain_b.anti_air or
             gain_a.armor > gain_b.armor)
+
+
+def reached_cap(gain_cap, gain):
+    """Returns True if the given gain has at least 1 non-zero gain that reaches
+    the capped gain."""
+    return ((gain.firepower > 0 and gain.firepower == gain_cap.firepower) or
+            (gain.thunderstroke > 0 and
+                gain.thunderstroke == gain_cap.thunderstroke) or
+            (gain.anti_air > 0 and gain.anti_air == gain_cap.anti_air) or
+            (gain.armor > 0 and gain.armor == gain_cap.armor))
 
 
 class RebuildShip(base.Manipulator):
@@ -199,7 +211,7 @@ class EnhanceBestShip(base.Manipulator):
                 # It may be acceptable when the ship is reaching the enhance
                 # limit.
                 if (len(material_ships) < 5 and
-                        has_improvement(gain_cap, last_gain)):
+                        not reached_cap(gain_cap, last_gain)):
                     continue
             logger.info('{} has the room to grow: {}'.format(
                 target_ship.name.encode('utf8'), gain_cap.json()))
