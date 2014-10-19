@@ -924,8 +924,7 @@ class PortShipyardScreen(PortOperationsScreen):
         def check_ship_task(task):
             yield 10.0
             self.click_somewhere()
-            yield 2.0
-            yield self.update_screen_id(screens.PORT_SHIPYARD)
+            yield self.transition_to(screens.PORT_SHIPYARD)
         return self.do_task(check_ship_task)
 
     def try_equipment_development(self):
@@ -952,8 +951,7 @@ class PortShipyardScreen(PortOperationsScreen):
         def check_equipment_task(task):
             yield 10.0
             self.click_somewhere()
-            yield 2.0
-            yield self.update_screen_id(screens.PORT_SHIPYARD)
+            yield self.transition_to(screens.PORT_SHIPYARD)
         return self.do_task(check_equipment_task)
 
     def click_big_skip(self, base_x, base_y):
