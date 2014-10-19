@@ -168,9 +168,11 @@ class EngageExpedition(base.Manipulator):
         # TODO: Do not gor for night combat if rest of the enemy ships are
         # submarines.
         # TODO: Move FORMATION enums from prefs and use here.
-        # If the formation is the horizontal line, the intention is most likely # to avoid the night battle; to avoid damage as much as possible, or to # fight against submarines.
+        # If the formation is the horizontal line, the intention is most likely
+        # to avoid the night battle; to avoid damage as much as possible, or to
+        # fight against submarines.
         if formation == 4:
-          return False
+            return False
         available_ships = [s for s in ships if s.can_attack_midnight]
         if not available_ships:
             return False
@@ -263,20 +265,18 @@ class WarmUpIdleShips(base.Manipulator):
 class AutoWarmUpIdleShips(base.AutoManipulator):
 
     @classmethod
+    def monitored_objects(cls):
+        return ['ShipList', 'FleetList', 'RepairDock']
+
+    @classmethod
     def can_trigger(cls, owner):
         if not screens.in_category(owner.screen_id, screens.PORT):
             return
         if owner.manager.is_manipulator_scheduled('WarmUp'):
             return
         ship_list = owner.objects.get('ShipList')
-        if not ship_list:
-            return
         fleet_list = owner.objects.get('FleetList')
-        if not fleet_list:
-            return
         repair_dock = owner.objects.get('RepairDock')
-        if not repair_dock:
-            return
         # Do not run when no repair slot is available; a ship may be damaged
         # during warming up, and this could pile up damaged ships.
         # Note that ships that are scheduled for repair may not be in the slots

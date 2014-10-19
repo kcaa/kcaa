@@ -138,12 +138,14 @@ class LockShips(base.Manipulator):
 class AutoLockUniqueShips(base.AutoManipulator):
 
     @classmethod
+    def monitored_objects(cls):
+        return ['ShipList']
+
+    @classmethod
     def can_trigger(cls, owner):
         if not screens.in_category(owner.screen_id, screens.PORT):
             return
         ship_list = owner.objects.get('ShipList')
-        if not ship_list:
-            return
         ship_ids_to_lock = []
         for ship in ship_list.ships.itervalues():
             if not ship.locked and ship_list.is_unique(ship):

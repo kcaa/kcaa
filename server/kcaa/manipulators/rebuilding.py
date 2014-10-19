@@ -214,7 +214,7 @@ class EnhanceBestShip(base.Manipulator):
 class AutoEnhanceBestShip(base.AutoManipulator):
 
     @classmethod
-    def required_objects(cls):
+    def monitored_objects(cls):
         return ['ShipList', 'PlayerInfo']
 
     @classmethod

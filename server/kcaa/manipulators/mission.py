@@ -32,12 +32,14 @@ class AutoCheckMissionResult(base.AutoManipulator):
     last_updated = 0
 
     @classmethod
+    def required_objects(cls):
+        return ['MissionList']
+
+    @classmethod
     def can_trigger(cls, owner):
         if not screens.in_category(owner.screen_id, screens.PORT):
             return
         mission_list = owner.objects.get('MissionList')
-        if not mission_list:
-            return
         now = long(1000 * time.time())
         count = 0
         for mission in mission_list.missions:
@@ -98,17 +100,17 @@ class GoOnMission(base.Manipulator):
 class AutoGoOnMission(base.AutoManipulator):
 
     @classmethod
+    def monitored_objects(cls):
+        return ['ShipList', 'FleetList']
+
+    @classmethod
     def can_trigger(cls, owner):
         if not screens.in_category(owner.screen_id, screens.PORT):
             return
         if owner.manager.is_manipulator_scheduled('GoOnMission'):
             return
         fleet_list = owner.objects.get('FleetList')
-        if not fleet_list:
-            return
         ship_list = owner.objects.get('ShipList')
-        if not ship_list:
-            return
         if not owner.manager.preferences.mission_prefs:
             return
         go_on_config = {}

@@ -63,20 +63,18 @@ class RepairShips(base.Manipulator):
 class AutoRepairShips(base.AutoManipulator):
 
     @classmethod
+    def monitored_objects(cls):
+        return ['ShipList', 'FleetList', 'RepairDock']
+
+    @classmethod
     def can_trigger(cls, owner):
         if not screens.in_category(owner.screen_id, screens.PORT):
             return
         if owner.screen_id == screens.PORT_REPAIR:
             return
         ship_list = owner.objects.get('ShipList')
-        if not ship_list:
-            return
         fleet_list = owner.objects.get('FleetList')
-        if not fleet_list:
-            return
         repair_dock = owner.objects.get('RepairDock')
-        if not repair_dock:
-            return
         empty_slots = [slot for slot in repair_dock.slots if not slot.in_use]
         if not empty_slots:
             return
@@ -98,12 +96,14 @@ class AutoCheckRepairResult(base.AutoManipulator):
     precursor_duration = 60000
 
     @classmethod
+    def required_objects(cls):
+        return ['RepairDock']
+
+    @classmethod
     def can_trigger(cls, owner):
         if not screens.in_category(owner.screen_id, screens.PORT):
             return
         repair_dock = owner.objects.get('RepairDock')
-        if not repair_dock:
-            return
         now = long(1000 * time.time())
         to_check = False
         for slot in repair_dock.slots:
