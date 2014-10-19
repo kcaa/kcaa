@@ -46,6 +46,10 @@ class Screen(model.KCAAObject):
         '/api_start2': screens.SPECIAL_START,
     }
 
+    @property
+    def auto_generation(self):
+        return False
+
     def update(self, api_name, request, response, objects, debug):
         super(Screen, self).update(api_name, request, response, objects, debug)
         self.api_sequence.append(api_name)

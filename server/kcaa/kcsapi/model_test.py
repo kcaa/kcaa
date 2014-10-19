@@ -9,11 +9,24 @@ class TestKCAAObject(object):
 
     def test_update_generation(self):
         obj = model.KCAAObject()
+        assert obj.auto_generation
         assert obj.generation == 0
         obj.update('', None, None, None, False)
         assert obj.generation == 1
         obj.update('', None, None, None, False)
         assert obj.generation == 2
+
+    def test_update_no_auto_generation(self):
+        class NoAutoGenerationKCAAObject(model.KCAAObject):
+            @property
+            def auto_generation(self):
+                return False
+
+        obj = NoAutoGenerationKCAAObject()
+        assert not obj.auto_generation
+        assert obj.generation == 0
+        obj.update('', None, None, None, False)
+        assert obj.generation == 0
 
 
 class Item(object):

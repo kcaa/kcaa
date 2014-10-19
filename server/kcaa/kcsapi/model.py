@@ -39,8 +39,13 @@ class KCAAObject(jsonobject.JSONSerializableObject):
     def object_type(self):
         return self.__class__.__name__
 
+    @property
+    def auto_generation(self):
+        return True
+
     def update(self, api_name, request, response, objects, debug):
-        self.generation += 1
+        if self.auto_generation:
+            self.generation += 1
         if debug:
             if not self._raw_transactions:
                 self._raw_transactions = {}
