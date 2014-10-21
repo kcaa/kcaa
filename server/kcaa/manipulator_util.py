@@ -93,6 +93,7 @@ class ScreenManager(object):
             screen_id = screen_object.screen
         else:
             screen_object.screen = screen_id
+            screen_object.generation += 1
             self.updated_object_types.add('Screen')
         if screen_id != self._last_screen_id:
             screen = self.screens.get(screen_id)
