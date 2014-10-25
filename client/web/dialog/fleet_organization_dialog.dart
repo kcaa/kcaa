@@ -11,10 +11,6 @@ class FleetOrganizationDialog extends KcaaDialog {
   int fleetIndexInPrefs;
   @observable final List<Ship> ships = new ObservableList<Ship>();
 
-  @observable final String defaultClass = "";
-  @observable final bool ignoreFilter = true;
-  @observable bool debug = false;
-
   @observable bool editingFleetName;
   @observable String newFleetName;
   @observable String fleetNameToDelete;
@@ -47,7 +43,6 @@ class FleetOrganizationDialog extends KcaaDialog {
       var fleetId = int.parse(target.dataset["fleetId"]);
       initFromFleetId(fleetId);
     }
-    debug = model.debug;
 
     editingFleetName = false;
     fleetNameToDelete = "";

@@ -113,11 +113,12 @@ class Assistant extends PolymerElement {
     // Somehow on-transition-end event handler doesn't work.
     $["clickMarker"].onTransitionEnd.listen(endClickVisibleFeedback);
 
+    model.shipList = $["shiplist"];
+
     runLater(updateAvailableObjectsIntervalMs,
         updateAvailableObjectsPeriodically);
     addCollapseButtons();
     updateCollapsedSections();
-    addShipSortLabels();
     handleObjects(serverGetObjects);
     // TODO: Ensure this happens after all other dialog elements are
     // initialized.
@@ -170,68 +171,12 @@ class Assistant extends PolymerElement {
     }
   }
 
-  void addShipSortLabels() {
-    for (Element columnHeader in
-        shadowRoot.querySelectorAll("div.shipList div[data-type]")) {
-      if (columnHeader.dataset.containsKey("label")) {
-        continue;
-      }
-      var sortLabel = new AnchorElement();
-      sortLabel.text = columnHeader.text;
-      sortLabel.href = "#";
-      sortLabel.onClick.listen(sortShips);
-      columnHeader.dataset["label"] = columnHeader.text;
-      columnHeader.text = "";
-      columnHeader.children.add(sortLabel);
-    }
-  }
-
-  void sortShips(MouseEvent e) {
-    var sortLabel = e.target as Element;
-    var columnHeader = sortLabel.parent;
-    var type = columnHeader.dataset["type"];
-    var order = columnHeader.dataset["order"];
-    var label = columnHeader.dataset["label"];
-    // Determine the metric to use.
-    model.shipComparer = Ship.SHIP_COMPARER[type];
-    // Determine the sort order.
-    if (order != "descending") {
-      model.shipOrderInverter = Ship.orderInDescending;
-      sortLabel.text = label + "▼";
-      columnHeader.dataset["order"] = "descending";
-    } else {
-      model.shipOrderInverter = Ship.orderInAscending;
-      sortLabel.text = label + "▲";
-      columnHeader.dataset["order"] = "ascending";
-    }
-    // Sort the ships using these criteria.
-    reorderShipList(model);
-    resetOtherShipSortLabels(columnHeader.parent, columnHeader);
-    e.preventDefault();
-  }
-
-  void resetOtherShipSortLabels(Element row, Element target) {
-    for (Element columnHeader in row.children) {
-      if (columnHeader == target) {
-        continue;
-      }
-      columnHeader.dataset.remove("order");
-      var sortLabel = columnHeader.children[0];
-      sortLabel.text = columnHeader.dataset["label"];
-    }
-  }
-
   void filterShips(MouseEvent e) {
     var target = e.target as Element;
     var filterType = target.dataset["filterType"];
     var filter = Ship.SHIP_FILTER[filterType];
-    model.shipFilter = filter;
-    int numFilteredShips = 0;
-    for (var ship in model.ships) {
-      ship.filtered = filter(ship);
-      numFilteredShips += ship.filtered ? 1 : 0;
-    }
-    model.numFilteredShips = numFilteredShips;
+    model.numFilteredShips = model.ships.where((ship) => filter(ship)).length;
+    model.shipList.filter = filter;
   }
 
   void handleObject(String objectType, String data) {

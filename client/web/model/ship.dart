@@ -90,11 +90,11 @@ class Ship extends Observable {
   @observable int sortOrder;
   // Whether filtered or not. Only filtered ships are shown in the list.
   @observable bool filtered;
+  @observable String filteredClass;
 
   Ship();
 
-  void update(Map<String, dynamic> data, List<Fleet> fleets,
-              ShipFilterer filter) {
+  void update(Map<String, dynamic> data, List<Fleet> fleets) {
     id = data["id"];
     name = data["name"];
     shipType = SHIP_TYPE_MAP[data["ship_type"]];
@@ -154,8 +154,6 @@ class Ship extends Observable {
     lockedClass = locked ? "" : "unlocked";
     updateBelongingFleet(fleets);
     stateClass = getStateClass();
-    sortOrder = data["sort_order"];
-    filtered = filter(this);
   }
 
   String getStateClass() {
@@ -563,7 +561,7 @@ void handleShipList(Assistant assistant, AssistantModel model,
       ship = new Ship();
       model.shipMap[id] = ship;
     }
-    ship.update(shipData, model.fleets, model.shipFilter);
+    ship.update(shipData, model.fleets);
     presentShips.add(id);
     numFilteredShips += ship.filtered ? 1 : 0;
   }
@@ -581,7 +579,9 @@ void reorderShipList(AssistantModel model) {
   var shipsLength = model.shipMap.length;
   resizeList(model.ships, shipsLength, () => new Ship());
   var sortedShips = model.shipMap.values.toList(growable: false);
-  sortedShips.sort((a, b) => model.shipOrderInverter(model.shipComparer(a, b)));
+  var inverter = model.shipList.shipOrderInverter;
+  var comparer = model.shipList.shipComparer;
+  sortedShips.sort((a, b) => inverter(comparer(a, b)));
   for (var i = 0; i < shipsLength; i++) {
     var ship = sortedShips[i];
     // Update the ship list only when the order has changed.

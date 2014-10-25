@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:polymer/polymer.dart';
 
 import '../assistant.dart';
+import '../shiplist.dart';
 import '../util.dart';
 
 part 'quest.dart';
@@ -26,18 +27,13 @@ class AssistantModel extends Observable {
 
   // Ships.
   @observable final List<Ship> ships = new ObservableList<Ship>();
-  @observable bool ignoreFilter = false;
   Map<int, Ship> shipMap = new Map<int, Ship>();
-  ShipFilterer shipFilter = Ship.filterNone;
-  ShipComparer shipComparer = Ship.compareByKancolleLevel;
-  ShipOrderInverter shipOrderInverter = Ship.orderInDescending;
   @observable int numFilteredShips = 0;
   Map<int, Ship> shipDefinitionMap = new Map<int, Ship>();
+  ShipListElement shipList;
 
   // Fleets.
   @observable final List<Fleet> fleets = new ObservableList<Fleet>();
-  // Dirty hack for allowing this model to pretend as a fleet.
-  @observable final String defaultClass = "";
   // TODO: Move this to somewhere appropriate. (ExpeditionPlan?)
   @observable KSelection formations = new KSelection.from(
       [["0", "単縦陣"],

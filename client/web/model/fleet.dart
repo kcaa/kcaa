@@ -11,14 +11,11 @@ class Fleet extends Observable {
   @observable String missionEtaDatetimeString;
   @observable bool canWarmUp;
   @observable bool collapsed = null;
-  @observable String defaultClass;
-  @observable bool ignoreFilter = true;
-  @observable bool debug;
 
   Fleet();
 
   void update(Map<String, dynamic> data, Map<int, Ship> shipMap,
-        List<Mission> missions, {bool collapsed: null, bool debug: false}) {
+        List<Mission> missions) {
     id = data["id"];
     name = data["name"];
 
@@ -63,8 +60,6 @@ class Fleet extends Observable {
     } else {
       this.collapsed = id != 1;
     }
-    defaultClass = this.collapsed ? "hidden": "";
-    this.debug = debug;
   }
 }
 
@@ -128,9 +123,7 @@ void handleFleetList(Assistant assistant, AssistantModel model,
   }
   resizeList(model.fleets, fleetsLength, () => new Fleet());
   for (var i = 0; i < fleetsLength; i++) {
-    model.fleets[i].update(data["fleets"][i], model.shipMap,
-        model.missions, collapsed: model.fleets[i].collapsed,
-        debug: model.debug);
+    model.fleets[i].update(data["fleets"][i], model.shipMap, model.missions);
   }
   notifyShipList(model);
 }
