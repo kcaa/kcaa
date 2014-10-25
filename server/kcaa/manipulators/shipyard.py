@@ -112,3 +112,27 @@ class DevelopEquipment(base.Manipulator):
         yield self.screen.set_development_resource(fuel, ammo, steel, bauxite)
         yield self.screen.confirm_development()
         yield self.screen.check_equipment()
+
+
+class DissolveShip(base.Manipulator):
+
+    def run(self, ship_id):
+        ship_id = int(ship_id)
+        ship_list = self.objects.get('ShipList')
+        if not ship_list:
+            logger.error('No ship list was found. Giving up.')
+            return
+        ship = ship_list.ships[str(ship_id)]
+        logger.info('Dissolving a ship {} ({})'.format(
+            ship.name.encode('utf8'), ship_id))
+        # TODO: Check if the ship has a locked equipment.
+        if ship.locked or ship.is_under_repair or ship.away_for_mission:
+            logger.error('Ship {} ({}) is not ready for dissolution.'.format(
+                ship.name.encode('utf8'), ship_id))
+            return
+        yield self.screen.change_screen(screens.PORT_SHIPYARD)
+        yield self.screen.try_dissolution()
+        page, index = ship_list.get_ship_position(ship_id)
+        yield self.screen.select_page(page, ship_list.max_page)
+        yield self.screen.select_ship(index)
+        yield self.screen.confirm_dissolution()

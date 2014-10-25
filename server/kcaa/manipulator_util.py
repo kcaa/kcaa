@@ -170,6 +170,7 @@ class ManipulatorManager(object):
             'BuildShip': manipulators.shipyard.BuildShip,
             'ReceiveShip': manipulators.shipyard.ReceiveShip,
             'DevelopEquipment': manipulators.shipyard.DevelopEquipment,
+            'DissolveShip': manipulators.shipyard.DissolveShip,
         }
 
     def define_auto_manipulators(self):

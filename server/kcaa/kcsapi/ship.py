@@ -534,6 +534,8 @@ class ShipList(model.KCAAObject):
             # Remove material ships.
             for deleted_ship_id in request.api_id_items.split(','):
                 del self.ships[deleted_ship_id]
+        elif api_name == '/api_req_kousyou/destroyship':
+            del self.ships[request.api_ship_id]
         elif api_name == '/api_req_kousyou/getship':
             ship = self.get_ship(response.api_data.api_ship,
                                  objects).convert_to_dict()

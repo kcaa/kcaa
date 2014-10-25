@@ -111,7 +111,11 @@ class PlayerResources(model.KCAAObject):
             'repair_booster',
             'build_material',
         ]
-        for data in response.api_data.api_material:
-            if data.api_id < 1 or data.api_id > len(id_to_field):
-                continue
-            setattr(self, id_to_field[data.api_id - 1], data.api_value)
+        if api_name == '/api_port/port':
+            for data in response.api_data.api_material:
+                if data.api_id < 1 or data.api_id > len(id_to_field):
+                    continue
+                setattr(self, id_to_field[data.api_id - 1], data.api_value)
+        elif api_name == '/api_req_kousyou/destroyship':
+            self.fuel, self.ammo, self.steel, self.bauxite = (
+                response.api_data.api_material)

@@ -102,6 +102,8 @@ class KCSAPIHandler(object):
             '/api_req_kousyou/createship': [kcsapi.NullHandler()],
             '/api_req_kousyou/createship_speedchange': [kcsapi.BuildDock],
             '/api_req_kousyou/createitem': [kcsapi.NullHandler()],
+            '/api_req_kousyou/destroyship': [kcsapi.ShipList,
+                                             kcsapi.PlayerResources],
             '/api_req_kousyou/getship': [kcsapi.ShipList,
                                          kcsapi.BuildDock],
             # Quests.
