@@ -999,6 +999,12 @@ class PortShipyardScreen(PortOperationsScreen):
             yield 5.0
         return self.do_task(confirm_dissolution_task)
 
+    def unfocus_selection(self):
+        def unfocus_ship_selection_task(task):
+            self.click(120, 120)
+            yield 2.0
+        return self.do_task(unfocus_ship_selection_task)
+
     def click_big_skip(self, base_x, base_y):
         self.click(base_x + 184, base_y + 46)
 

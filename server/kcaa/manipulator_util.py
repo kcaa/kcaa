@@ -189,6 +189,7 @@ class ManipulatorManager(object):
             'AutoCheckRepairResult': manipulators.repair.AutoCheckRepairResult,
             # Shipyard
             'AutoReceiveShips': manipulators.shipyard.AutoReceiveShips,
+            'AutoDissolveShips': manipulators.shipyard.AutoDissolveShips,
             # Practice
             'AutoCheckPracticeOpponents':
             manipulators.practice.AutoCheckPracticeOpponents,
@@ -223,9 +224,13 @@ class ManipulatorManager(object):
             # especially AutoEnhanceBestShip or the like that may use a new
             # unique ship.
             'AutoLockUniqueShips': -8000,
-            # AutoEnhanceBestShip should precede AutoWarmUpIdleShips, and
-            # recede AutoLockUniqueShips.
-            'AutoEnhanceBestShip': -2000,
+            # AutoEnhanceBestShip should precede AutoDissolveShips and
+            # AutoWarmUpIdleShips, and # recede AutoLockUniqueShips.
+            'AutoEnhanceBestShip': -3000,
+            # AutoDissolveShips must recede AutoEnhanceBestShip. It is always
+            # better to use a ship for enhancement rather than just dissolving
+            # it to a small amount of materials.
+            'AutoDissolveShips': -2000,
             # AutoCheckRepairResult can be anywhere.
             'AutoCheckRepairResult': -1000,
             # AutoRepairShips should have a lower priority than WarmUp.

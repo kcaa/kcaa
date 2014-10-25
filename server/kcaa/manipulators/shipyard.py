@@ -4,6 +4,7 @@ import logging
 import time
 
 import base
+from kcaa import kcsapi
 from kcaa import screens
 
 
@@ -136,3 +137,38 @@ class DissolveShip(base.Manipulator):
         yield self.screen.select_page(page, ship_list.max_page)
         yield self.screen.select_ship(index)
         yield self.screen.confirm_dissolution()
+        yield self.screen.unfocus_selection()
+
+
+class AutoDissolveShips(base.AutoManipulator):
+
+    @staticmethod
+    def get_target_ship(ship_list, player_info):
+        if player_info.max_ships - len(ship_list.ships) >= 5:
+            return None
+        target_ships = sorted(
+            ship_list.dissolvable_ships(), kcsapi.ShipSorter.rebuilding_rank)
+        return target_ships[0] if target_ships else None
+
+    @classmethod
+    def monitored_objects(cls):
+        return ['ShipList', 'PlayerInfo']
+
+    @classmethod
+    def can_trigger(cls, owner):
+        if not screens.in_category(owner.screen_id, screens.PORT):
+            return
+        if (owner.manager.is_manipulator_scheduled('DissolveShip') or
+                owner.manager.is_manipulator_scheduled('EnhanceBestShip') or
+                owner.manager.is_manipulator_scheduled('AutoEnhanceBestShip')):
+            return
+        target_ship = AutoDissolveShips.get_target_ship(
+            owner.objects['ShipList'], owner.objects['PlayerInfo'])
+        if target_ship:
+            return {}
+
+    def run(self):
+        target_ship = AutoDissolveShips.get_target_ship(
+            self.objects['ShipList'], self.objects['PlayerInfo'])
+        if target_ship:
+            yield self.do_manipulator(DissolveShip, ship_id=target_ship.id)

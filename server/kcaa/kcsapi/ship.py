@@ -468,6 +468,16 @@ class ShipList(model.KCAAObject):
             self.damaged_ships(),
             ShipSorter.hitpoint_ratio))
 
+    def dissolvable_ships(self):
+        """Gets dissolvable ships.
+
+        This does not return ships under repair or away for mission.
+        """
+        return [ship for ship in self.ships.itervalues() if
+                not ship.locked and
+                not ship.is_under_repair and
+                not ship.away_for_mission]
+
     def _compute_page_position(self, ship_id, sorted_ships):
         sorted_ship_ids = [ship.id for ship in sorted_ships]
         ship_index = sorted_ship_ids.index(ship_id)
