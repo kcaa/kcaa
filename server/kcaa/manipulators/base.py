@@ -81,17 +81,27 @@ class AutoManipulatorTriggerer(Manipulator):
                                                        *args, **kwargs)
         self._manipulator = manipulator
         self._interval = interval
+        self._last_screen_generation = 0
         self._last_generations = (
             {obj_name: 0 for obj_name in manipulator.monitored_objects()})
 
     def run(self, *args, **kwargs):
         manipulator_name = self.manipulator.__name__
         while True:
+            screen_generation = self.screen.screen_generation
+            has_monitored_objects, has_updates, updates = (
+                self.get_object_generation_updates())
+            # TODO: Test the screen generation check
             if (self.manager.is_manipulator_scheduled(manipulator_name) or
                     not self.has_required_objects() or
-                    not self.update_object_generation()):
+                    not has_monitored_objects or
+                    (screen_generation <= self._last_screen_generation and
+                     not has_updates)):
                 yield self._interval
                 continue
+            self._last_screen_generation = self.screen.screen_generation
+            if has_updates:
+                self._last_generations.update(updates)
             params = self.manipulator.can_trigger(self, *args, **kwargs)
             if params is not None:
                 logger.info('Triggering {}'.format(manipulator_name))
@@ -106,20 +116,19 @@ class AutoManipulatorTriggerer(Manipulator):
         return all(req_obj_name in self.objects for req_obj_name in
                    self.manipulator.required_objects())
 
-    def update_object_generation(self):
+    def get_object_generation_updates(self):
         if not self.manipulator.monitored_objects():
-            return True
+            return True, True, {}
         generation_updates = {}
         updated = False
         for req_obj_name in self.manipulator.monitored_objects():
             obj = self.objects.get(req_obj_name)
             if obj is None:
-                return False
+                return False, False, {}
             if obj.generation > self._last_generations[req_obj_name]:
                 generation_updates[req_obj_name] = obj.generation
                 updated = True
-        self._last_generations.update(generation_updates)
-        return updated
+        return True, updated, generation_updates
 
 
 class AutoManipulator(Manipulator):
