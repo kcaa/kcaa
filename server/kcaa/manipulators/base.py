@@ -101,7 +101,7 @@ class AutoManipulatorTriggerer(Manipulator):
                 continue
             self._last_screen_generation = self.screen.screen_generation
             if has_updates:
-                self._last_generations.update(updates)
+                self.update_generations(updates)
             params = self.manipulator.can_trigger(self, *args, **kwargs)
             if params is not None:
                 logger.info('Triggering {}'.format(manipulator_name))
@@ -129,6 +129,9 @@ class AutoManipulatorTriggerer(Manipulator):
                 generation_updates[req_obj_name] = obj.generation
                 updated = True
         return True, updated, generation_updates
+
+    def update_generations(self, updates):
+        self._last_generations.update(updates)
 
 
 class AutoManipulator(Manipulator):

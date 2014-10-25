@@ -65,54 +65,70 @@ class TestAutoManipulatorTriggerer(object):
         # Now both objects are present.
         assert triggerer.has_required_objects()
 
-    def test_update_object_generation_empty(self, manipulator):
+    def test_get_objeect_generation_updates_empty(self, manipulator):
         triggerer = base.AutoManipulatorTriggerer(
             MockManipulatorManager(), None, manipulator)
-        # If there is no monitored object, always accept updates.
-        assert triggerer.update_object_generation()
-        assert triggerer.update_object_generation()
+        # If there is no monitored object, monitored objects are considered
+        # ready.
+        assert triggerer.get_object_generation_updates()[0]
 
-    def test_update_object_generation_single(self, manipulator):
+    def test_get_object_generation_updates_single(self, manipulator):
         manipulator.mockable_monitored_objects = ['SomeObject']
         manager = MockManipulatorManager()
         triggerer = base.AutoManipulatorTriggerer(manager, None, manipulator)
         # The manipulator requires SomeObject; nothing is there, thus reject.
-        assert not triggerer.update_object_generation()
+        assert not triggerer.get_object_generation_updates()[0]
         some_object = kcsapi.KCAAObject(generation=1)
         manager.objects['SomeObject'] = some_object
         # There is SomeObject with generation 1, it should accept that.
-        assert triggerer.update_object_generation()
+        assert (triggerer.get_object_generation_updates() ==
+                (True, True, {'SomeObject': 1}))
+        triggerer.update_generations({'SomeObject': 1})
         # Now the update was consumed. Consecutive calls should reject.
-        assert not triggerer.update_object_generation()
-        assert not triggerer.update_object_generation()
+        assert (triggerer.get_object_generation_updates() ==
+                (True, False, {}))
+        assert (triggerer.get_object_generation_updates() ==
+                (True, False, {}))
         some_object.generation += 1
         # SomeObject was updated. The first call should accept.
-        assert triggerer.update_object_generation()
-        assert not triggerer.update_object_generation()
+        assert (triggerer.get_object_generation_updates() ==
+                (True, True, {'SomeObject': 2}))
+        triggerer.update_generations({'SomeObject': 2})
+        assert (triggerer.get_object_generation_updates() ==
+                (True, False, {}))
 
-    def test_update_object_generation_double(self, manipulator):
+    def test_get_object_generation_updates_double(self, manipulator):
         manipulator.mockable_monitored_objects = ['SomeObject',
                                                   'AnotherObject']
         manager = MockManipulatorManager()
         triggerer = base.AutoManipulatorTriggerer(manager, None, manipulator)
         # No object is available.
-        assert not triggerer.update_object_generation()
+        assert not triggerer.get_object_generation_updates()[0]
         some_object = kcsapi.KCAAObject(generation=1)
         manager.objects['SomeObject'] = some_object
         # SomeObject is there, but AnotherObject is not; reject.
-        assert not triggerer.update_object_generation()
+        assert not triggerer.get_object_generation_updates()[0]
         another_object = kcsapi.KCAAObject(generation=1)
         manager.objects['AnotherObject'] = another_object
         # Now both objects are present.
-        assert triggerer.update_object_generation()
-        assert not triggerer.update_object_generation()
+        assert (triggerer.get_object_generation_updates() ==
+                (True, True, {'SomeObject': 1, 'AnotherObject': 1}))
+        triggerer.update_generations({'SomeObject': 1, 'AnotherObject': 1})
+        assert (triggerer.get_object_generation_updates() ==
+                (True, False, {}))
         # Any updates in either object can be accepted.
         some_object.generation += 1
-        assert triggerer.update_object_generation()
-        assert not triggerer.update_object_generation()
+        assert (triggerer.get_object_generation_updates() ==
+                (True, True, {'SomeObject': 2}))
+        triggerer.update_generations({'SomeObject': 2})
+        assert (triggerer.get_object_generation_updates() ==
+                (True, False, {}))
         another_object.generation += 1
-        assert triggerer.update_object_generation()
-        assert not triggerer.update_object_generation()
+        assert (triggerer.get_object_generation_updates() ==
+                (True, True, {'AnotherObject': 2}))
+        triggerer.update_generations({'AnotherObject': 2})
+        assert (triggerer.get_object_generation_updates() ==
+                (True, False, {}))
 
 
 def main():
