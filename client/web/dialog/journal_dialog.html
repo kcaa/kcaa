@@ -1,0 +1,41 @@
+<!-- Be sure to use the path starting from the parent path.
+     It seems it is mandatory that all custom elements sources the same
+     polymer.html in terms of the path representation. -->
+<link rel="import" href="../packages/polymer/polymer.html">
+<meta charset="utf-8">
+<polymer-element name="kcaa-journal-dialog">
+  <template>
+    <link rel="stylesheet" href="packages/bootjack/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../kcaa.css">
+    <link rel="stylesheet" href="dialog.css">
+    <div class="modal-header">
+      <button class="close" on-click="{{close}}">&times;</button>
+      <h3 class="modal-title">ジャーナル</h3>
+    </div>
+    <div class="modal-body">
+      <div id="chart" class="chart"></div>
+      <div>
+        <button on-click="{{setRange}}" data-duration="3600">1時間</button>
+        <button on-click="{{setRange}}" data-duration="21600">6時間</button>
+        <button on-click="{{setRange}}" data-duration="86400">1日</button>
+        <button on-click="{{setRange}}" data-duration="604800">1週間</button>
+        <button on-click="{{setRange}}" data-duration="2592000">1ヶ月</button>
+        <button on-click="{{setRange}}" data-duration="7776000">3ヶ月</button>
+        <button on-click="{{setRange}}" data-duration="15552000">6ヶ月</button>
+        <button on-click="{{setRange}}" data-duration="31536000">1年</button>
+      </div>
+      <div>
+        <button on-click="{{filterSeriesAll}}">すべて</button>
+        <template repeat="{{label in labels | enumerate}}">
+          <button on-click="{{filterSeries}}" data-index="{{label.index}}">
+            {{label.value}}
+          </button>
+        </template>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="cancel" on-click="{{close}}">Close</button>
+    </div>
+  </template>
+  <script type="application/dart" src="journal_dialog.dart"></script>
+</polymer-element>

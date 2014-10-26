@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
+import datetime
 import time
+
+import gviz_api
 
 import jsonobject
 import model
@@ -150,4 +153,18 @@ class PlayerResourcesJournal(model.KCAAJournalObject):
             resources=player_resources.clean_copy()))
 
     def request(self):
-        return self
+        description = {'datetime': ('datetime', 'Datetime'),
+                       'fuel': ('number', 'Fuel'),
+                       'ammo': ('number', 'Ammo'),
+                       'steel': ('number', 'Steel'),
+                       'bauxite': ('number', 'Bauxite')}
+        data = [{'datetime': datetime.datetime.fromtimestamp(entry.time),
+                 'fuel': entry.resources.fuel,
+                 'ammo': entry.resources.ammo,
+                 'steel': entry.resources.steel,
+                 'bauxite': entry.resources.bauxite}
+                for entry in self.entries]
+        data_table = gviz_api.DataTable(description)
+        data_table.LoadData(data)
+        return data_table.ToJSon(columns_order=[
+            'datetime', 'fuel', 'ammo', 'steel', 'bauxite'])

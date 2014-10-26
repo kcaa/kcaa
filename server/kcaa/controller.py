@@ -111,7 +111,10 @@ def control(args, to_exit):
                     try:
                         requestable = kcsapi_handler.request(command_args)
                         if requestable:
-                            server_conn.send(requestable.json())
+                            if isinstance(requestable, str):
+                                server_conn.send(requestable)
+                            else:
+                                server_conn.send(requestable.json())
                         else:
                             server_conn.send(None)
                     except:
