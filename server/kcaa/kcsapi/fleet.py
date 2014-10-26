@@ -158,10 +158,8 @@ class SavedFleetDeploymentShipIdList(ship.ShipIdList):
     def required_objects(self):
         return ['ShipList', 'Preferences']
 
-    def request(self, objects, fleet_name):
-        super(SavedFleetDeploymentShipIdList, self).request(objects)
+    def request(self, fleet_name, ship_list, preferences):
         unicode_fleet_name = fleet_name.decode('utf8')
-        preferences = objects['Preferences']
         matching_fleets = [sf for sf in preferences.fleet_prefs.saved_fleets
                            if sf.name == unicode_fleet_name]
         if not matching_fleets:
@@ -169,7 +167,6 @@ class SavedFleetDeploymentShipIdList(ship.ShipIdList):
                 fleet_name))
             return None
         fleet_deployment = matching_fleets[0]
-        ship_list = objects['ShipList']
         ships = fleet_deployment.get_ships(ship_list)
         self.ship_ids = [ship.id for ship in ships]
         return self
@@ -181,10 +178,8 @@ class FleetDeploymentShipIdList(ship.ShipIdList):
     def required_objects(self):
         return ['ShipList']
 
-    def request(self, objects, fleet_deployment):
-        super(FleetDeploymentShipIdList, self).request(objects)
+    def request(self, fleet_deployment, ship_list):
         fleet_deployment = FleetDeployment.parse_text(fleet_deployment)
-        ship_list = objects['ShipList']
         ships = fleet_deployment.get_ships(ship_list)
         self.ship_ids = [ship.id for ship in ships]
         return self

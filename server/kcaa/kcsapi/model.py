@@ -105,12 +105,19 @@ class KCAARequestableObject(jsonobject.JSONSerializableObject):
     def required_objects(self):
         return []
 
-    def request(self, objects):
+    def _request(self, objects, **kwargs):
         for required_object in self.required_objects:
             if required_object not in objects:
+                return None
+        object_args = {translate_object_name(name): objects[name] for name in
+                       self.required_objects}
+        for key in kwargs:
+            if key in object_args:
                 raise ValueError(
-                    'Requestable {} requires {} but none was found'.format(
-                        self.object_type, required_object))
+                    'Requestable {} got a conflicting parameter with required '
+                    'objects: {}'.format(self.object_type, key))
+        object_args.update(kwargs)
+        return self.request(**object_args)
 
 
 class KCAAJournalObject(KCAARequestableObject):

@@ -29,6 +29,69 @@ class TestKCAAObject(object):
         assert obj.generation == 0
 
 
+class MockKCAARequestableObject(model.KCAARequestableObject):
+
+    def __init__(self, required_objects, *args, **kwargs):
+        self._required_objects = required_objects
+        super(MockKCAARequestableObject, self).__init__(*args, **kwargs)
+        self.called = 0
+        self.kwargs = {}
+
+    @property
+    def required_objects(self):
+        return self._required_objects
+
+    def request(self, **kwargs):
+        self.called += 1
+        self.kwargs = kwargs
+        return self
+
+
+class TestKCAARequestableObject(object):
+
+    def test_request_no_requestable_objects(self):
+        requestable = MockKCAARequestableObject(['SomeObject'])
+        assert requestable.called == 0
+        assert requestable._request({}) is None
+        assert requestable.called == 0
+
+    def test_request_conflicting_name(self):
+        requestable = MockKCAARequestableObject(['SomeObject'])
+        assert requestable.called == 0
+        objects = {'SomeObject': model.KCAAObject(generation=1)}
+        # SomeObject conflicts when translated to a variable name: some_object
+        with pytest.raises(ValueError):
+            requestable._request(objects, some_object='conflicting')
+
+    def test_request_single(self):
+        requestable = MockKCAARequestableObject(['SomeObject'])
+        assert requestable.called == 0
+        # SomeObject present; request() should be called.
+        objects = {'SomeObject': model.KCAAObject(generation=1)}
+        assert requestable._request(objects) is requestable
+        assert requestable.called == 1
+        assert requestable.kwargs == {'some_object': objects['SomeObject']}
+
+    def test_request_double(self):
+        requestable = MockKCAARequestableObject(
+            ['SomeObject', 'AnotherObject'])
+        assert requestable.called == 0
+        # SomeObject present but AnotherObject is not; request() should not be
+        # called.
+        objects = {'SomeObject': model.KCAAObject(generation=1)}
+        assert requestable._request(objects) is None
+        assert requestable.called == 0
+        # Both SomeObject and AnotherObject present; request() should be
+        # called.
+        objects = {'SomeObject': model.KCAAObject(generation=1),
+                   'AnotherObject': model.KCAAObject(generation=1)}
+        assert requestable._request(objects) is requestable
+        assert requestable.called == 1
+        assert requestable.kwargs == {
+            'some_object': objects['SomeObject'],
+            'another_object': objects['AnotherObject']}
+
+
 class MockKCAAJournalObject(model.KCAAJournalObject):
 
     def __init__(self, monitored_objects, *args, **kwargs):
