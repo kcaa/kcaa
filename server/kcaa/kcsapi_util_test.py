@@ -10,7 +10,7 @@ class TestKCSAPIHandler(object):
 
     def pytest_funcarg__handler(self):
         return kcsapi_util.KCSAPIHandler(
-            None, kcsapi.prefs.Preferences(), False)
+            None, kcsapi.prefs.Preferences(), None, False)
 
     def test_get_kcsapi_responses_ignore_unrelated_request(self, handler):
         entries = [

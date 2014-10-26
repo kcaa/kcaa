@@ -70,6 +70,7 @@ def control(args, to_exit):
     ps = DummyProcess()
     pk = DummyProcess()
     pc = DummyProcess()
+    kcsapi_handler = None
     try:
         logenv.setup_logger(args.debug, args.log_file, args.log_level)
         logger = logging.getLogger('kcaa.controller')
@@ -96,7 +97,7 @@ def control(args, to_exit):
         pk.start()
         pc.start()
         kcsapi_handler = kcsapi_util.KCSAPIHandler(
-            har_manager, preferences, args.debug)
+            har_manager, preferences, args.journal_basedir, args.debug)
         manipulator_manager = manipulator_util.ManipulatorManager(
             browser_conn, kcsapi_handler.objects, preferences, time.time())
         while True:
@@ -124,11 +125,13 @@ def control(args, to_exit):
                     # screen.
                     browser_conn.send((browser.COMMAND_CLICK, command_args))
                 elif command_type == COMMAND_RELOAD_KCSAPI:
+                    kcsapi_handler.save_journals(args.journal_basedir)
                     serialized_objects = kcsapi_handler.serialize_objects()
                     reload(kcsapi_util)
                     kcsapi_util.reload_modules()
                     kcsapi_handler = kcsapi_util.KCSAPIHandler(
-                        har_manager, preferences, args.debug)
+                        har_manager, preferences, args.journal_basedir,
+                        args.debug)
                     kcsapi_handler.deserialize_objects(serialized_objects)
                     manipulator_manager.objects = kcsapi_handler.objects
                 elif command_type == COMMAND_RELOAD_MANIPULATORS:
@@ -191,3 +194,5 @@ def control(args, to_exit):
     ps.join()
     pk.join()
     pc.join()
+    if kcsapi_handler:
+        kcsapi_handler.save_journals(args.journal_basedir)

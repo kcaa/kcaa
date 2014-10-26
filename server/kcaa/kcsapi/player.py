@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+import time
+
 import jsonobject
 import model
 
@@ -119,3 +121,33 @@ class PlayerResources(model.KCAAObject):
         elif api_name == '/api_req_kousyou/destroyship':
             self.fuel, self.ammo, self.steel, self.bauxite = (
                 response.api_data.api_material)
+
+
+class PlayerResourcesTimeseriesEntry(jsonobject.JSONSerializableObject):
+
+    time = jsonobject.JSONProperty('time', value_type=long)
+    """Time of this entry."""
+    resources = jsonobject.JSONProperty(
+        'resources', value_type=PlayerResources)
+    """Player resources of this entry."""
+
+
+class PlayerResourcesJournal(model.KCAAJournalObject):
+    """Journal for player resources."""
+
+    entries = jsonobject.JSONProperty(
+        'entries', [], value_type=list,
+        element_type=PlayerResourcesTimeseriesEntry)
+    """Time series of PlayerResources."""
+
+    @property
+    def monitored_objects(self):
+        return ['PlayerResources']
+
+    def update(self, api_names, player_resources):
+        self.entries.append(PlayerResourcesTimeseriesEntry(
+            time=long(time.time()),
+            resources=player_resources.clean_copy()))
+
+    def request(self):
+        return self

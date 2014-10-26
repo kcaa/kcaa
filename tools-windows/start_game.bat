@@ -25,6 +25,7 @@ set SERVERBIN=%cd%\..\server\server_main.py
   --chromedriver_binary=%CHROMEDRIVERBIN% ^
   --phantomjs_binary=%PHANTOMJSBIN% ^
   --preferences=%PREFERENCES% ^
+  --journal_basedir=%JOURNAL_BASEDIR% ^
   --credentials=%CREDENTIALS% ^
   --debug=%DEBUG% ^
   --log_file=%LOGFILE% ^

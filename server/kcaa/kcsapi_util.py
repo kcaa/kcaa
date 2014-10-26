@@ -2,6 +2,7 @@
 
 import base64
 import logging
+import os
 import re
 import traceback
 import urlparse
@@ -23,13 +24,15 @@ BOM = '\xEF\xBB\xBF'
 
 class KCSAPIHandler(object):
 
-    def __init__(self, har_manager, preferences, debug):
+    def __init__(self, har_manager, preferences, journal_basedir, debug):
         self._logger = logging.getLogger('kcaa.kcsapi_util')
         self.har_manager = har_manager
         self.debug = debug
         self.objects = {'Preferences': preferences}
         self.define_handlers()
         self.define_requestables()
+        self.define_journals()
+        self.load_journals(journal_basedir)
 
     def define_handlers(self):
         """Define KCSAPI handlers.
@@ -148,9 +151,44 @@ class KCSAPIHandler(object):
     def define_requestables(self):
         self.requestables = {
             'SavedFleetDeploymentShipIdList':
-            kcsapi.SavedFleetDeploymentShipIdList,
-            'FleetDeploymentShipIdList': kcsapi.FleetDeploymentShipIdList,
+            kcsapi.SavedFleetDeploymentShipIdList(),
+            'FleetDeploymentShipIdList': kcsapi.FleetDeploymentShipIdList(),
         }
+
+    def define_journals(self):
+        self.journals = {
+            'PlayerResourcesJournal': kcsapi.PlayerResourcesJournal,
+        }
+
+    def load_journals(self, journal_basedir):
+        if not journal_basedir:
+            return
+        if not os.path.isdir(journal_basedir):
+            os.mkdir(journal_basedir)
+        self.loaded_journals = {}
+        for name, cls in self.journals.iteritems():
+            filename = os.path.join(journal_basedir, name)
+            if os.path.isfile(filename):
+                self._logger.info('Loading journal {} from {}'.format(
+                    name, filename))
+                with open(filename, 'r') as journal_file:
+                    self.loaded_journals[name] = cls.parse_text(
+                        journal_file.read())
+            else:
+                self._logger.info('Creating a new journal {}'.format(name))
+                self.loaded_journals[name] = cls()
+        self.requestables.update(self.loaded_journals)
+
+    def save_journals(self, journal_basedir):
+        for name, journal in self.loaded_journals.iteritems():
+            filename = os.path.join(journal_basedir, name)
+            self._logger.info('Saving journal {} to {}'.format(
+                name, filename))
+            with open(filename, 'w') as journal_file:
+                journal_string = journal.json(
+                    indent=2, separators=(',', ': '),
+                    ensure_ascii=False).encode('utf8')
+                journal_file.write(journal_string)
 
     def serialize_objects(self):
         """Serialize objects so that the client can deserialize and restore the
@@ -254,6 +292,7 @@ class KCSAPIHandler(object):
         entries = self.har_manager.get_updated_entries()
         if not entries:
             return
+        api_names = []
         for api_name, request, response in self.get_kcsapi_responses(entries):
             # Process only succeeded ones.
             if not response.api_result:
@@ -262,6 +301,9 @@ class KCSAPIHandler(object):
                 continue
             for obj in self.dispatch(api_name, request, response):
                 yield obj
+                api_names.append(api_name)
+        for journal in self.loaded_journals.itervalues():
+            journal._update(api_names, self.objects)
 
     def request(self, command):
         if len(command) != 2:
@@ -271,7 +313,7 @@ class KCSAPIHandler(object):
         requestable = self.requestables.get(command_type)
         if requestable:
             try:
-                return requestable()._request(self.objects, **command_args)
+                return requestable._request(self.objects, **command_args)
             except TypeError:
                 self._logger.error(
                     'Requestable argument mismatch or some type error. '

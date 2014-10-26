@@ -53,6 +53,14 @@ class KCAAObject(jsonobject.JSONSerializableObject):
                 request=request,
                 response=response)
 
+    def clean_copy(self):
+        # TODO: Test and document.
+        clean_dict = self.convert_to_dict()
+        del clean_dict['_raw_transactions']
+        del clean_dict['generation']
+        del clean_dict['object_type']
+        return self.__class__.parse(clean_dict)
+
 
 class DefaultObject(KCAAObject):
 

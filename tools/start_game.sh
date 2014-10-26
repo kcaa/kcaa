@@ -44,6 +44,7 @@ ${SERVER_BIN} \
   --chromedriver_binary=${CHROMEDRIVER_BIN} \
   --phantomjs_binary=${PHANTOMJS_BIN} \
   --preferences=${PREFERENCES} \
+  --journal_basedir=${JOURNAL_BASEDIR} \
   --credentials=${CREDENTIALS} \
   --debug=${DEBUG} \
   --log_file=${LOG_FILE} \
