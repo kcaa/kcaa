@@ -88,9 +88,6 @@ class Ship extends Observable {
   @observable Fleet belongingFleet;
   @observable String stateClass;
   @observable int sortOrder;
-  // Whether filtered or not. Only filtered ships are shown in the list.
-  @observable bool filtered;
-  @observable String filteredClass;
 
   Ship();
 
@@ -553,7 +550,6 @@ class ShipRequirement extends Observable {
 void handleShipList(Assistant assistant, AssistantModel model,
                     Map<String, dynamic> data) {
   Set<int> presentShips = new Set<int>();
-  int numFilteredShips = 0;
   for (var shipData in (data["ships"] as Map).values) {
     var id = shipData["id"];
     var ship = model.shipMap[id];
@@ -563,9 +559,7 @@ void handleShipList(Assistant assistant, AssistantModel model,
     }
     ship.update(shipData, model.fleets);
     presentShips.add(id);
-    numFilteredShips += ship.filtered ? 1 : 0;
   }
-  model.numFilteredShips = numFilteredShips;
   // Remove ships that are no longer available.
   Set<int> removedShips =
       new Set<int>.from(model.shipMap.keys).difference(presentShips);
@@ -573,6 +567,8 @@ void handleShipList(Assistant assistant, AssistantModel model,
     model.shipMap.remove(id);
   }
   reorderShipList(model);
+  model.numFilteredShips =
+      model.ships.where((ship) => model.shipList.filter(ship)).length;
 }
 
 void reorderShipList(AssistantModel model) {
