@@ -162,13 +162,18 @@ class KCSAPIHandler(object):
 
     def load_journals(self, journal_basedir):
         if not journal_basedir:
+            self._logger.info('Journal basedir is empty. No journal will be '
+                              'saved after the process ends.')
+            self.loaded_journals = {name: cls() for name, cls in
+                                    self.journals.iteritems()}
+            self.requestables.update(self.loaded_journals)
             return
         if not os.path.isdir(journal_basedir):
             os.mkdir(journal_basedir)
         self.loaded_journals = {}
         for name, cls in self.journals.iteritems():
             filename = os.path.join(journal_basedir, name)
-            if os.path.isfile(filename):
+            if journal_basedir and os.path.isfile(filename):
                 self._logger.info('Loading journal {} from {}'.format(
                     name, filename))
                 with open(filename, 'r') as journal_file:
@@ -180,6 +185,8 @@ class KCSAPIHandler(object):
         self.requestables.update(self.loaded_journals)
 
     def save_journals(self, journal_basedir):
+        if not journal_basedir:
+            return
         for name, journal in self.loaded_journals.iteritems():
             filename = os.path.join(journal_basedir, name)
             self._logger.info('Saving journal {} to {}'.format(
