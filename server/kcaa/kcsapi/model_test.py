@@ -29,6 +29,90 @@ class TestKCAAObject(object):
         assert obj.generation == 0
 
 
+class MockKCAAJournalObject(model.KCAAJournalObject):
+
+    def __init__(self, monitored_objects, *args, **kwargs):
+        self._monitored_objects = monitored_objects
+        super(MockKCAAJournalObject, self).__init__(*args, **kwargs)
+        self.called = 0
+        self.api_names = []
+        self.object_args = {}
+
+    @property
+    def monitored_objects(self):
+        return self._monitored_objects
+
+    def update(self, api_names, **object_args):
+        self.called += 1
+        self.api_names = api_names
+        self.object_args = object_args
+
+
+class TestKCAAJournalObject(object):
+
+    def test_update_no_monitored_objects(self):
+        journal = MockKCAAJournalObject(['SomeObject'])
+        assert journal.called == 0
+        journal._update([], {})
+        assert journal.called == 0
+
+    def test_update_single(self):
+        journal = MockKCAAJournalObject(['SomeObject'])
+        assert journal.called == 0
+        # SomeObject updated; update() should be called.
+        api_names = ['/api/foo']
+        objects = {'SomeObject': model.KCAAObject(generation=1)}
+        journal._update(api_names, objects)
+        assert journal.called == 1
+        assert journal.api_names == api_names
+        assert journal.object_args == {'some_object': objects['SomeObject']}
+        # Next _update() with no object updates.
+        journal._update(api_names, objects)
+        assert journal.called == 1
+        # SomeObject updated again.
+        objects['SomeObject'].generation += 1
+        journal._update(api_names, objects)
+        assert journal.called == 2
+        assert journal.api_names == api_names
+        assert journal.object_args == {'some_object': objects['SomeObject']}
+
+    def test_update_double(self):
+        journal = MockKCAAJournalObject(['SomeObject', 'AnotherObject'])
+        assert journal.called == 0
+        # SomeObject and AnotherObject updated; update() should be called.
+        api_names = ['/api/foo', '/api/bar']
+        objects = {'SomeObject': model.KCAAObject(generation=1),
+                   'AnotherObject': model.KCAAObject(generation=1)}
+        journal._update(api_names, objects)
+        assert journal.called == 1
+        assert journal.api_names == api_names
+        assert journal.object_args == {
+            'some_object': objects['SomeObject'],
+            'another_object': objects['AnotherObject']}
+        # Next _update() with no object updates.
+        journal._update(api_names, objects)
+        assert journal.called == 1
+        # SomeObject updated again.
+        objects['SomeObject'].generation += 1
+        journal._update(api_names, objects)
+        assert journal.called == 2
+        assert journal.api_names == api_names
+        assert journal.object_args == {
+            'some_object': objects['SomeObject'],
+            'another_object': objects['AnotherObject']}
+        # Next _update() with no object updates.
+        journal._update(api_names, objects)
+        assert journal.called == 2
+        # AnotherObject updated again.
+        objects['AnotherObject'].generation += 1
+        journal._update(api_names, objects)
+        assert journal.called == 3
+        assert journal.api_names == api_names
+        assert journal.object_args == {
+            'some_object': objects['SomeObject'],
+            'another_object': objects['AnotherObject']}
+
+
 class Item(object):
 
     def __init__(self, id_, value=None):
@@ -53,6 +137,25 @@ class Item(object):
 
 
 class TestModel(object):
+
+    def test_translate_object_name_empty(self):
+        assert model.translate_object_name('') == ''
+
+    def test_translate_object_name_one(self):
+        assert model.translate_object_name('Ship') == 'ship'
+        assert model.translate_object_name('Fleet') == 'fleet'
+        assert model.translate_object_name('Battle') == 'battle'
+
+    def test_translate_object_name_two(self):
+        assert model.translate_object_name('ShipList') == 'ship_list'
+        assert model.translate_object_name('PlayerInfo') == 'player_info'
+        assert model.translate_object_name('RepairDock') == 'repair_dock'
+
+    def test_translate_object_name_three(self):
+        assert (model.translate_object_name('SomeComplexName') ==
+                'some_complex_name')
+        assert (model.translate_object_name('SCN') ==
+                's_c_n')
 
     def test_merge_list_empty(self):
         old_list = [Item(0), Item(1), Item(2)]

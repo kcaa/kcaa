@@ -30,9 +30,9 @@ class KCAAObject(jsonobject.JSONSerializableObject):
     This field starts with 0, and is incremented every time it detects a KCSAPI
     request that updates this object.
 
-    This value is incremented even if the object contents don't change. If you
-    need an incremental update, use DifferentialKCAAObject.
-    TODO: Create DifferentialKCAAObject.
+    This value is incremented even if the object contents don't change by
+    default. To disable this, override :meth:`auto_generation` and return False
+    and increment :attr:`generation` by yourself.
     """
 
     @jsonproperty
@@ -111,6 +111,58 @@ class KCAARequestableObject(jsonobject.JSONSerializableObject):
                 raise ValueError(
                     'Requestable {} requires {} but none was found'.format(
                         self.object_type, required_object))
+
+
+class KCAAJournalObject(KCAARequestableObject):
+
+    def __init__(self, *args, **kwargs):
+        super(KCAAJournalObject, self).__init__(*args, **kwargs)
+        if not self.monitored_objects:
+            raise ValueError(
+                'Journal {} has 0 monitored object, but needs at least 1'
+                .format(self.object_type))
+        self._last_generations = {name: 0 for name in self.monitored_objects}
+
+    @jsonproperty
+    def object_type(self):
+        return self.__class__.__name__
+
+    @property
+    def monitored_objects(self):
+        return []
+
+    def _update(self, api_names, objects):
+        has_updates, updates = self.get_object_generation_updates(objects)
+        if not has_updates:
+            return
+        self.update_generations(updates)
+        object_args = {translate_object_name(name): objects[name] for name in
+                       self.monitored_objects}
+        self.update(api_names, **object_args)
+
+    def get_object_generation_updates(self, objects):
+        generation_updates = {}
+        updated = False
+        for req_obj_name in self.monitored_objects:
+            obj = objects.get(req_obj_name)
+            if obj is None:
+                return False, {}
+            if obj.generation > self._last_generations[req_obj_name]:
+                generation_updates[req_obj_name] = obj.generation
+                updated = True
+        return updated, generation_updates
+
+    def update_generations(self, updates):
+        self._last_generations.update(updates)
+
+
+def translate_object_name(object_name):
+    result_name = ''
+    for c in object_name:
+        if c.isupper() and result_name:
+            result_name += '_'
+        result_name += c.lower()
+    return result_name
 
 
 def merge_list(old_list, new_list):
