@@ -56,10 +56,11 @@ class KCAAObject(jsonobject.JSONSerializableObject):
     def clean_copy(self):
         # TODO: Test and document.
         clean_dict = self.convert_to_dict()
-        del clean_dict['_raw_transactions']
-        del clean_dict['generation']
-        del clean_dict['object_type']
-        return self.__class__.parse(clean_dict)
+        if '_raw_transactions' in clean_dict:
+            del clean_dict['_raw_transactions']
+        obj = self.__class__.parse(clean_dict)
+        obj.generation = None
+        return obj
 
 
 class DefaultObject(KCAAObject):
