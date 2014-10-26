@@ -155,7 +155,7 @@ input[type=text].invalid {
   border-width: 3px;
 }
 fieldset {
-  border: 1px solid hsl(0, 0%, 80%);
+  border: 1px solid hsl(0, 0%, 80%) !important;
   border-radius: 5px;
   margin: 5px;
   padding: 0 5px 5px 5px;
