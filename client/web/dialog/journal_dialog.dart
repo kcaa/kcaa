@@ -65,17 +65,20 @@ class LineChart {
 @CustomTag('kcaa-journal-dialog')
 class JournalDialog extends KcaaDialog {
   LineChart chart;
-  @observable List<String> labels;
+  @observable final List<String> labels = new ObservableList<String>();
 
   JournalDialog.created() : super.created();
 
   @override
   void show(Element target) {
     var type = target.dataset["type"];
+    var subtype = target.dataset["subtype"];
+    ($["chart"] as Element).children.clear();
+    labels.clear();
     var loadFuture = LineChart.load();
-    assistant.requestObject(type, {}).then((Map<String, dynamic> data) {
-      labels = new ObservableList.from((data["cols"] as List).map(
-          (column) => column["label"]));
+    assistant.requestObject(type, {"subtype": subtype}).then(
+        (Map<String, dynamic> data) {
+      labels.addAll((data["cols"] as List).map((column) => column["label"]));
       labels.removeAt(0);
 
       loadFuture.then((_) {

@@ -152,19 +152,37 @@ class PlayerResourcesJournal(model.KCAAJournalObject):
             time=long(time.time()),
             resources=player_resources.clean_copy()))
 
-    def request(self):
-        description = {'datetime': ('datetime', 'Datetime'),
-                       'fuel': ('number', 'Fuel'),
-                       'ammo': ('number', 'Ammo'),
-                       'steel': ('number', 'Steel'),
-                       'bauxite': ('number', 'Bauxite')}
-        data = [{'datetime': datetime.datetime.fromtimestamp(entry.time),
-                 'fuel': entry.resources.fuel,
-                 'ammo': entry.resources.ammo,
-                 'steel': entry.resources.steel,
-                 'bauxite': entry.resources.bauxite}
-                for entry in self.entries]
-        data_table = gviz_api.DataTable(description)
-        data_table.LoadData(data)
-        return data_table.ToJSon(columns_order=[
-            'datetime', 'fuel', 'ammo', 'steel', 'bauxite'])
+    def request(self, subtype):
+        if subtype == 'basic':
+            description = {'datetime': ('datetime', 'Datetime'),
+                           'fuel': ('number', 'Fuel'),
+                           'ammo': ('number', 'Ammo'),
+                           'steel': ('number', 'Steel'),
+                           'bauxite': ('number', 'Bauxite')}
+            data = [{'datetime': datetime.datetime.fromtimestamp(entry.time),
+                     'fuel': entry.resources.fuel,
+                     'ammo': entry.resources.ammo,
+                     'steel': entry.resources.steel,
+                     'bauxite': entry.resources.bauxite}
+                    for entry in self.entries]
+            data_table = gviz_api.DataTable(description)
+            data_table.LoadData(data)
+            return data_table.ToJSon(columns_order=[
+                'datetime', 'fuel', 'ammo', 'steel', 'bauxite'])
+        elif subtype == 'rare':
+            description = {'datetime': ('datetime', 'Datetime'),
+                           'build_booster': ('number', 'Build booster'),
+                           'repair_booster': ('number', 'Repair booster'),
+                           'build_material': ('number', 'Build material')}
+            data = [{'datetime': datetime.datetime.fromtimestamp(entry.time),
+                     'build_booster': entry.resources.build_booster,
+                     'repair_booster': entry.resources.repair_booster,
+                     'build_material': entry.resources.build_material}
+                    for entry in self.entries]
+            data_table = gviz_api.DataTable(description)
+            data_table.LoadData(data)
+            return data_table.ToJSon(columns_order=[
+                'datetime', 'build_booster', 'repair_booster',
+                'build_material'])
+        else:
+            return None
