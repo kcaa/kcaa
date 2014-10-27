@@ -260,6 +260,18 @@ class JSONSerializableObject(object):
                                _ignore_unknown=False, _name_mapping=True)
         return parsed_obj
 
+    def __str__(self):
+        try:
+            return self.json()
+        except:
+            return super(JSONSerializableObject, self).__str__()
+
+    def __repr__(self):
+        try:
+            return repr(self.convert_to_dict())
+        except:
+            return super(JSONSerializableObject, self).__repr__()
+
 
 class _JSONSerializableObjectEncoder(json.JSONEncoder):
     """Encoder which tries to encode :class:`JSONSerializableObject` in
