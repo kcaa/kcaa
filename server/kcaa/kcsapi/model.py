@@ -198,20 +198,53 @@ class KCAAJournalObject(KCAARequestableObject):
 
     def add_entry(self, value):
         now = long(time.time())
-        if self._is_acceptable_interval(now):
+        if self._is_acceptable_interval(now)[0]:
             self.entries.append(self.Entry(time=now, value=value))
+            return True
+        return False
 
     def clean_up_old_entries(self):
-        # TODO: Implement.
-        pass
-
-    def _is_acceptable_interval(self, now):
         # TODO: Test.
+        old_entries = self.entries
+        self.entries = []
+        now = long(time.time())
+        last_entry = None
+        penalty = None
+        for entry in old_entries:
+            acceptable, penalty = self._is_acceptable_interval(
+                now, entry.time, last_entry, penalty)
+            if acceptable:
+                self.entries.append(entry)
+                last_entry = entry
+
+    def _is_acceptable_interval(self, now, entry_time=None, last_entry=None,
+                                penalty=None):
+        # TODO: Test.
+        penalty = penalty if penalty else datetime.timedelta(seconds=0)
+        entry_time = entry_time if entry_time else now
+        policy = self._get_retention_policy(now, entry_time)
+        if not policy:
+            return False, penalty
         if not self.entries:
-            return True
-        policy = self.retention_policy[0]
-        last_entry = self.entries[-1]
-        return datetime.timedelta(seconds=(now - last_entry.time)) >= policy[1]
+            return True, penalty
+        last_entry = last_entry if last_entry else self.entries[-1]
+        seconds_delta = entry_time - last_entry.time
+        delta = datetime.timedelta(seconds=seconds_delta) - penalty
+        if delta >= policy[1]:
+            return True, 0
+        elif delta > 9 * policy[1] / 10:
+            # Allow a small overrunning with penalty carryover.
+            return True, policy[1] - delta
+        else:
+            return False, penalty
+
+    def _get_retention_policy(self, now, entry_time):
+        delta = datetime.timedelta(seconds=(now - entry_time))
+        for policy in self.retention_policy:
+            if delta < policy[0]:
+                return policy
+        # No policy found. The entry should not retained any longer.
+        return None
 
     def _update(self, api_names, objects):
         has_updates, updates = self.get_object_generation_updates(objects)

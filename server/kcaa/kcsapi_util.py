@@ -177,8 +177,9 @@ class KCSAPIHandler(object):
                 self._logger.info('Loading journal {} from {}'.format(
                     name, filename))
                 with open(filename, 'r') as journal_file:
-                    self.loaded_journals[name] = cls.parse_text(
-                        journal_file.read())
+                    journal = cls.parse_text(journal_file.read())
+                    journal.clean_up_old_entries()
+                    self.loaded_journals[name] = journal
             else:
                 self._logger.info('Creating a new journal {}'.format(name))
                 self.loaded_journals[name] = cls()
@@ -188,6 +189,7 @@ class KCSAPIHandler(object):
         if not journal_basedir:
             return
         for name, journal in self.loaded_journals.iteritems():
+            journal.clean_up_old_entries()
             filename = os.path.join(journal_basedir, name)
             self._logger.info('Saving journal {} to {}'.format(
                 name, filename))
