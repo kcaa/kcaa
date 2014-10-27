@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import datetime
-import time
 
 import gviz_api
 
@@ -126,31 +125,15 @@ class PlayerResources(model.KCAAObject):
                 response.api_data.api_material)
 
 
-class PlayerResourcesTimeseriesEntry(jsonobject.JSONSerializableObject):
-
-    time = jsonobject.JSONProperty('time', value_type=long)
-    """Time of this entry."""
-    resources = jsonobject.JSONProperty(
-        'resources', value_type=PlayerResources)
-    """Player resources of this entry."""
-
-
-class PlayerResourcesJournal(model.KCAAJournalObject):
+class PlayerResourcesJournal(model.KCAAJournalObject.typed(PlayerResources)):
     """Journal for player resources."""
-
-    entries = jsonobject.JSONProperty(
-        'entries', [], value_type=list,
-        element_type=PlayerResourcesTimeseriesEntry)
-    """Time series of PlayerResources."""
 
     @property
     def monitored_objects(self):
         return ['PlayerResources']
 
     def update(self, api_names, player_resources):
-        self.entries.append(PlayerResourcesTimeseriesEntry(
-            time=long(time.time()),
-            resources=player_resources.clean_copy()))
+        self.add_entry(player_resources.clean_copy())
 
     def request(self, subtype):
         if subtype == 'basic':
@@ -160,10 +143,10 @@ class PlayerResourcesJournal(model.KCAAJournalObject):
                            'steel': ('number', 'Steel'),
                            'bauxite': ('number', 'Bauxite')}
             data = [{'datetime': datetime.datetime.fromtimestamp(entry.time),
-                     'fuel': entry.resources.fuel,
-                     'ammo': entry.resources.ammo,
-                     'steel': entry.resources.steel,
-                     'bauxite': entry.resources.bauxite}
+                     'fuel': entry.value.fuel,
+                     'ammo': entry.value.ammo,
+                     'steel': entry.value.steel,
+                     'bauxite': entry.value.bauxite}
                     for entry in self.entries]
             data_table = gviz_api.DataTable(description)
             data_table.LoadData(data)
@@ -175,9 +158,9 @@ class PlayerResourcesJournal(model.KCAAJournalObject):
                            'repair_booster': ('number', 'Repair booster'),
                            'build_material': ('number', 'Build material')}
             data = [{'datetime': datetime.datetime.fromtimestamp(entry.time),
-                     'build_booster': entry.resources.build_booster,
-                     'repair_booster': entry.resources.repair_booster,
-                     'build_material': entry.resources.build_material}
+                     'build_booster': entry.value.build_booster,
+                     'repair_booster': entry.value.repair_booster,
+                     'build_material': entry.value.build_material}
                     for entry in self.entries]
             data_table = gviz_api.DataTable(description)
             data_table.LoadData(data)

@@ -5,6 +5,8 @@ This module contains some basic model of all KCAA objects, which are handled in
 the controller, or transmitted to the client.
 """
 
+import time
+
 import jsonobject
 from jsonobject import jsonproperty
 
@@ -128,7 +130,28 @@ class KCAARequestableObject(jsonobject.JSONSerializableObject):
         return self.request(**object_args)
 
 
+class JournalEntry(jsonobject.JSONSerializableObject):
+
+    time = jsonobject.JSONProperty('time', value_type=long)
+    """Time of this entry."""
+
+    @classmethod
+    def typed(cls, value_type):
+        return type(
+            'JournalEntry__{}'.format(value_type.__name__), (cls,),
+            {'value': jsonobject.JSONProperty('value', value_type=value_type)})
+
+
 class KCAAJournalObject(KCAARequestableObject):
+
+    @classmethod
+    def typed(cls, value_type):
+        entry_type = JournalEntry.typed(value_type)
+        return type(
+            'KCAAJournalObject__{}'.format(entry_type.__name__), (cls,),
+            {'entries': jsonobject.JSONProperty('entries', value_type=list,
+                                                element_type=entry_type),
+             'Entry': entry_type})
 
     def __init__(self, *args, **kwargs):
         super(KCAAJournalObject, self).__init__(*args, **kwargs)
@@ -145,6 +168,9 @@ class KCAAJournalObject(KCAARequestableObject):
     @property
     def monitored_objects(self):
         return []
+
+    def add_entry(self, value):
+        self.entries.append(self.Entry(time=long(time.time()), value=value))
 
     def _update(self, api_names, objects):
         has_updates, updates = self.get_object_generation_updates(objects)
