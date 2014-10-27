@@ -5,6 +5,7 @@ This module contains some basic model of all KCAA objects, which are handled in
 the controller, or transmitted to the client.
 """
 
+import datetime
 import time
 
 import jsonobject
@@ -159,6 +160,13 @@ class KCAAJournalObject(KCAARequestableObject):
             raise ValueError(
                 'Journal {} has 0 monitored object, but needs at least 1'
                 .format(self.object_type))
+        if not self.retention_policy:
+            raise ValueError('No retention policy is defined.')
+        last_policy = (datetime.timedelta(seconds=0), None)
+        for policy in self.retention_policy:
+            if len(policy) != 2 or policy[0] <= last_policy[0]:
+                raise ValueError('Invalid retention policy: {}'.format(
+                    repr(policy)))
         self._last_generations = {name: 0 for name in self.monitored_objects}
 
     @jsonproperty
@@ -169,8 +177,41 @@ class KCAAJournalObject(KCAARequestableObject):
     def monitored_objects(self):
         return []
 
+    @property
+    def retention_policy(self):
+        """Returns the retention policy of this journal.
+
+        The retention policy is defined as the list of policy objects. A policy
+        object is a pair of :class:`datetime.timedelta` objects; the first
+        represents the time window, and the latter for the interval.
+
+        Policy objects must be sorted in the ascending order of the time
+        window.
+        """
+        return [
+            (datetime.timedelta(hours=6), datetime.timedelta(minutes=5)),
+            (datetime.timedelta(days=1), datetime.timedelta(minutes=30)),
+            (datetime.timedelta(days=7), datetime.timedelta(hours=2)),
+            (datetime.timedelta(days=30), datetime.timedelta(hours=6)),
+            (datetime.timedelta.max, datetime.timedelta(days=1)),
+        ]
+
     def add_entry(self, value):
-        self.entries.append(self.Entry(time=long(time.time()), value=value))
+        now = long(time.time())
+        if self._is_acceptable_interval(now):
+            self.entries.append(self.Entry(time=now, value=value))
+
+    def clean_up_old_entries(self):
+        # TODO: Implement.
+        pass
+
+    def _is_acceptable_interval(self, now):
+        # TODO: Test.
+        if not self.entries:
+            return True
+        policy = self.retention_policy[0]
+        last_entry = self.entries[-1]
+        return datetime.timedelta(seconds=(now - last_entry.time)) >= policy[1]
 
     def _update(self, api_names, objects):
         has_updates, updates = self.get_object_generation_updates(objects)
