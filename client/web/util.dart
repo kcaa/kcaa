@@ -51,17 +51,27 @@ class KSelection extends Observable {
   KSelection();
 
   KSelection.from(List list) {
-    for (List entry in list) {
-      if (entry.length != 2) {
-        throw new Exception(
-            "Candidate entry must has 2 elements, but got ${entry}");
+    updateCandidates(list);
+  }
+
+  void updateCandidates(List list) {
+    for (var entry in list) {
+      if (entry is List) {
+        if (entry.length != 2) {
+          throw new Exception(
+              "Candidate entry must has 2 elements, but got ${entry}");
+        }
+        candidates.add(new Candidate(entry[0], entry[1]));
+      } else {
+        candidates.add(new Candidate(entry, entry));
       }
-      candidates.add(new Candidate(entry[0], entry[1]));
     }
     if (candidates.length == 0) {
       throw new Exception("No candidate is provided");
     }
-    value = candidates[0].id;
+    if (!candidates.contains(value)) {
+      value = candidates[0].id;
+    }
   }
 }
 

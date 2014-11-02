@@ -372,6 +372,10 @@
       <div class="row horizontal">
         <div class="board">
           <h3 data-collapsed="true">遠征 ({{model.missions.length}}個)</h3>
+          <div>
+            <button on-click="{{showModalDialog}}"
+                    data-dialog="kcaaMissionPlanDialog">遠征計画</button>
+          </div>
           <div class="table">
             <div class="trow thead">
               <div class="wide">海域</div>
