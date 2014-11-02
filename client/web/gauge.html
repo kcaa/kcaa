@@ -1,0 +1,37 @@
+<!-- Be sure to use the path starting from the parent path.
+     It seems it is mandatory that all custom elements sources the same
+     polymer.html in terms of the path representation. -->
+<link rel="import" href="packages/polymer/polymer.html">
+<meta charset="utf-8">
+<polymer-element name="kcaa-gauge">
+  <template>
+    <style>
+      .gauge {
+        background: linear-gradient(
+          120deg,
+          hsl(90, 80%, 80%),
+          hsl(90, 80%, 60%));
+        box-shadow: -3px -1px 20px hsla(120, 100%, 30%, 0.5) inset;
+        box-sizing: border-box;
+        color: hsl(90, 20%, 20%);
+        font-style: italic;
+        font-weight: bold;
+        padding: 2px 5px;
+        text-align: right;
+      }
+      .gauge-value {
+        font-size: 120%;
+      }
+      .subordinate {
+        font-size: 90%;
+        opacity: 0.7;
+      }
+    </style>
+    <div class="gauge" style="width: {{current | toRatio}}%">
+      <span class="gauge-value">{{current | toFixed}}</span><span
+        class="subordinate">/{{max}}</span><template
+        if="{{extra != null && extra != 0}}">+{{extra | toFixed}}</template>
+    </div>
+  </template>
+  <script type="application/dart" src="gauge.dart"></script>
+</polymer-element>

@@ -275,6 +275,10 @@ div.table > div.trow > div.superWide {
 div.table > div.trow > div.ultraWide {
   width: 200px;
 }
+div.table > div.trow > div.gauge {
+  padding: 0;
+  width: auto;
+}
 div.table > div.trow > div > div {
   font-size: 90%;
   opacity: 0.7;

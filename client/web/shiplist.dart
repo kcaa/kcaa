@@ -1,10 +1,12 @@
 import 'dart:html';
 import 'package:polymer/polymer.dart';
 
+import 'assistant.dart';
 import 'model/assistant.dart';
 
 @CustomTag('kcaa-shiplist')
 class ShipListElement extends PolymerElement {
+  @published Assistant assistant;
   @published List<Ship> ships;
   @published ShipFilterer filter = Ship.filterNone;
   @published bool fleet = false;
@@ -76,4 +78,11 @@ class ShipListElement extends PolymerElement {
     }
   }
 
+  void showModalDialog(MouseEvent e, var detail, Element target) {
+    if (assistant != null) {
+      assistant.showModalDialog(e, detail, target);
+    } else {
+      e.preventDefault();
+    }
+  }
 }

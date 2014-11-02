@@ -75,10 +75,11 @@ class Ship extends Observable {
   @observable int vitality;
   @observable int hp, maxHp, hpPercentage;
   @observable String hpPercentageString;
-  @observable int armor, enhancedArmor, maxArmor;
-  @observable int firepower, enhancedFirepower, maxFirepower;
-  @observable int thunderstroke, enhancedThunderstroke, maxThunderstroke;
-  @observable int antiAir, enhancedAntiAir, maxAntiAir;
+  @observable int armor, baselineArmor, enhancedArmor, maxArmor;
+  @observable int firepower, baselineFirepower, enhancedFirepower, maxFirepower;
+  @observable int thunderstroke, baselineThunderstroke, enhancedThunderstroke,
+                  maxThunderstroke;
+  @observable int antiAir, baselineAntiAir, enhancedAntiAir, maxAntiAir;
   @observable String armorClass, firepowerClass, thunderstrokeClass,
                      antiAirClass;
   @observable bool locked;
@@ -105,19 +106,23 @@ class Ship extends Observable {
     hp = data["hitpoint"]["current"];
     maxHp = data["hitpoint"]["maximum"];
     armor = data["armor"]["current"];
+    baselineArmor = data["armor"]["baseline"];
     enhancedArmor =
       data["armor"]["baseline"] + data["enhanced_ability"]["armor"];
     maxArmor = data["armor"]["maximum"];
     firepower = data["firepower"]["current"];
+    baselineFirepower = data["firepower"]["baseline"];
     enhancedFirepower =
       data["firepower"]["baseline"] + data["enhanced_ability"]["firepower"];
     maxFirepower = data["firepower"]["maximum"];
     thunderstroke = data["thunderstroke"]["current"];
+    baselineThunderstroke = data["thunderstroke"]["baseline"];
     enhancedThunderstroke =
       data["thunderstroke"]["baseline"] +
       data["enhanced_ability"]["thunderstroke"];
     maxThunderstroke = data["thunderstroke"]["maximum"];
     antiAir = data["anti_air"]["current"];
+    baselineAntiAir = data["anti_air"]["baseline"];
     enhancedAntiAir =
       data["anti_air"]["baseline"] + data["enhanced_ability"]["anti_air"];
     maxAntiAir = data["anti_air"]["maximum"];

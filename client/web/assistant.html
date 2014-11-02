@@ -132,7 +132,8 @@
                 <button on-click="{{goOnExpedition}}"
                         data-fleet-id="{{fleet.id}}">出撃</button>
               </div>
-              <kcaa-shiplist ships="{{fleet.ships}}" fleet></kcaa-shiplist>
+              <kcaa-shiplist assistant="{{this}}" ships="{{fleet.ships}}" fleet>
+              </kcaa-shiplist>
             </section>
           </template>
         </div>
@@ -234,7 +235,9 @@
                     data-filter-type="notLocked">ロックなし</button>
           </div>
           <div>
-            <kcaa-shiplist id="shiplist" ships="{{model.ships}}"></kcaa-shiplist>
+            <kcaa-shiplist id="shiplist" assistant="{{this}}"
+                           ships="{{model.ships}}">
+            </kcaa-shiplist>
           </div>
         </div>
       </div>

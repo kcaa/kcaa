@@ -25,8 +25,18 @@
         <div class="trow {{ship.stateClass}} {{filter(ship) | toFilterClass}}">
           <div class="description">
             <div class="title {{ship.lockedClass}}">
-              {{ship.name}}
-              <span class="subordinate">({{ship.id}})</span>
+              <template if="{{assistant != null}}">
+                <a href="#" on-click="{{showModalDialog}}"
+                   data-dialog="kcaaShipDetailsDialog"
+                   data-ship-id="{{ship.id}}">
+                  {{ship.name}}
+                  <span class="subordinate">({{ship.id}})</span>
+                </a>
+              </template>
+              <template if="{{assistant == null}}">
+                {{ship.name}}
+                <span class="subordinate">({{ship.id}})</span>
+              </template>
             </div>
             <div>{{ship.shipType}}</div>
             <div>

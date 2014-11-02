@@ -1,0 +1,96 @@
+<!-- Be sure to use the path starting from the parent path.
+     It seems it is mandatory that all custom elements sources the same
+     polymer.html in terms of the path representation. -->
+<link rel="import" href="../packages/polymer/polymer.html">
+<link rel="import" href="../gauge.html">
+<meta charset="utf-8">
+<polymer-element name="kcaa-ship-details-dialog">
+  <template>
+    <link rel="stylesheet" href="packages/bootjack/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../kcaa.css">
+    <link rel="stylesheet" href="dialog.css">
+    <div class="modal-header">
+      <button class="close" on-click="{{close}}">&times;</button>
+      <h3 class="modal-title">
+        艦船詳細 - {{ship.name}}
+        <span class="subordinate">({{ship.id}})</span>
+      </h3>
+    </div>
+    <div class="modal-body">
+      <h4>パラメータ</h4>
+      <div class="table">
+        <div class="trow thead">
+          <div class="superWide">パラメータ</div>
+          <div class="description">値</div>
+        </div>
+        <div class="trow">
+          <!-- TODO: Support Lv>99 case. -->
+          <div class="superWide">レベル</div>
+          <div class="gauge"><kcaa-gauge
+            current="{{ship.level + 0.01 * ship.experienceGaugeValue}}"
+            min="1" max="99"></kcaa-gauge></div>
+        </div>
+        <div class="trow">
+          <div class="superWide">燃料</div>
+          <div class="gauge"><kcaa-gauge current="{{ship.fuel}}"
+            min="0" max="{{ship.fuelCapacity}}"></kcaa-gauge></div>
+        </div>
+        <div class="trow">
+          <div class="superWide">弾薬</div>
+          <div class="gauge"><kcaa-gauge current="{{ship.ammo}}"
+            min="0" max="{{ship.ammoCapacity}}"></kcaa-gauge></div>
+        </div>
+        <div class="trow">
+          <div class="superWide">戦意</div>
+          <div class="gauge"><kcaa-gauge current="{{ship.vitality}}"
+            min="0" max="100"></kcaa-gauge></div>
+        </div>
+        <div class="trow">
+          <div class="superWide">HP</div>
+          <div class="gauge"><kcaa-gauge current="{{ship.hp}}"
+            min="0" max="{{ship.maxHp}}"></kcaa-gauge></div>
+        </div>
+        <div class="trow">
+          <div class="superWide">火力</div>
+          <div class="gauge"><kcaa-gauge current="{{ship.enhancedFirepower}}"
+            extra="{{ship.firepower - ship.enhancedFirepower}}"
+            min="{{ship.baselineFirepower}}" max="{{ship.maxFirepower}}">
+            </kcaa-gauge></div>
+        </div>
+        <div class="trow">
+          <div class="superWide">雷装</div>
+          <div class="gauge"><kcaa-gauge
+            current="{{ship.enhancedThunderstroke}}"
+            extra="{{ship.thunderstroke - ship.enhancedThunderstroke}}"
+            min="{{ship.baselineThunderstroke}}"
+            max="{{ship.maxThunderstroke}}"></kcaa-gauge></div>
+        </div>
+        <div class="trow">
+          <div class="superWide">対空</div>
+          <div class="gauge"><kcaa-gauge current="{{ship.enhancedAntiAir}}"
+            extra="{{ship.antiAir - ship.enhancedAntiAir}}"
+            min="{{ship.baselineAntiAir}}" max="{{ship.maxAntiAir}}">
+            </kcaa-gauge></div>
+        </div>
+        <div class="trow">
+          <div class="superWide">装甲</div>
+          <div class="gauge"><kcaa-gauge current="{{ship.enhancedArmor}}"
+            extra="{{ship.armor - ship.enhancedArmor}}"
+            min="{{ship.baselineArmor}}" max="{{ship.maxArmor}}">
+            </kcaa-gauge></div>
+        </div>
+        <!-- TODO: More -->
+      </div>
+      <h4>タグ</h4>
+      <div>TODO</div>
+      <h4>装備</h4>
+      <div>TODO</div>
+      <h4>ジャーナル</h4>
+      <div>TODO</div>
+    </div>
+    <div class="modal-footer">
+      <button class="cancel" on-click="{{close}}">Close</button>
+    </div>
+  </template>
+  <script type="application/dart" src="ship_details_dialog.dart"></script>
+</polymer-element>
