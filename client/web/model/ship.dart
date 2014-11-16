@@ -398,6 +398,33 @@ class ShipPropertyFilter extends Observable {
   }
 }
 
+class TagFilter extends Observable {
+  @observable String tag;
+  @observable KSelection operator = new KSelection.from(
+      [["0", "を含む"],
+       ["1", "を含まない"]]);
+
+  TagFilter.contains(this.tag) {
+    operator.value = "0";
+  }
+
+  TagFilter.notContains(this.tag) {
+    operator.value = "1";
+  }
+
+  TagFilter.fromJSON(Map<String, dynamic> data) {
+    tag = data["tag"];
+    operator.value = data["operator"].toString();
+  }
+
+  Map<String, dynamic> toJSONEncodable() {
+    return {
+      "tag": tag,
+      "operator": int.parse(operator.value),
+    };
+  }
+}
+
 class ShipFilter extends Observable {
   ShipFilter.fromJSON(Map<String, dynamic> data) {
   }
@@ -415,6 +442,7 @@ class ShipPredicate extends Observable {
        ["and", "AND"],
        ["not", "NOT"],
        ["propertyFilter", "プロパティフィルタ"],
+       ["tagFilter", "タグフィルタ"],
        ["filter", "定義済みフィルタ"]]);
   @observable bool true_ = false;
   @observable bool false_ = false;
@@ -425,6 +453,7 @@ class ShipPredicate extends Observable {
   @observable ShipPredicate not;
   @observable ShipPropertyFilter propertyFilter =
       new ShipPropertyFilter.shipId(0);
+  @observable TagFilter tagFilter = new TagFilter.contains("");
   @observable ShipFilter filter;
 
   ShipPredicate.fromTRUE() {
@@ -453,6 +482,10 @@ class ShipPredicate extends Observable {
 
   ShipPredicate.fromPropertyFilter(this.propertyFilter) {
     type.value = "propertyFilter";
+  }
+
+  ShipPredicate.fromTagFilter(this.tagFilter) {
+    type.value = "tagFilter";
   }
 
   ShipPredicate.fromFilter(this.filter) {
@@ -486,6 +519,9 @@ class ShipPredicate extends Observable {
     } else if (data["property_filter"] != null) {
       type.value = "propertyFilter";
       propertyFilter = new ShipPropertyFilter.fromJSON(data["property_filter"]);
+    } else if (data["tag_filter"] != null) {
+      type.value = "tagFilter";
+      tagFilter = new TagFilter.fromJSON(data["tag_filter"]);
     } else if (data["filter"] != null) {
       type.value = "filter";
       filter = new ShipFilter.fromJSON(data["filter"]);
@@ -510,6 +546,8 @@ class ShipPredicate extends Observable {
       return {"not": not.toJSONEncodable()};
     } else if (type.value == "propertyFilter") {
       return {"property_filter": propertyFilter.toJSONEncodable()};
+    } else if (type.value == "tagFilter") {
+      return {"tag_filter": tagFilter.toJSONEncodable()};
     } else if (type.value == "filter") {
       return {"filter": filter.toJSONEncodable()};
     }

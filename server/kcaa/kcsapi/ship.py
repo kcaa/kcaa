@@ -743,6 +743,23 @@ class ShipPropertyFilter(jsonobject.JSONSerializableObject):
             getattr(target, property_spec[0]), property_spec[1:])
 
 
+class ShipTagFilter(jsonobject.JSONSerializableObject):
+
+    tag = jsonobject.JSONProperty('tag', value_type=unicode)
+    """Tag."""
+    operator = jsonobject.JSONProperty('operator', value_type=int)
+    """Operator."""
+    OPERATOR_CONTAINS = 0
+    OPERATOR_NOT_CONTAINS = 1
+
+    def apply(self, ship):
+        if self.operator == ShipTagFilter.OPERATOR_CONTAINS:
+            return ship.tags and self.tag in ship.tags
+        if self.operator == ShipTagFilter.OPERATOR_NOT_CONTAINS:
+            return not ship.tags or self.tag not in ship.tags
+        return False
+
+
 class ShipFilter(jsonobject.JSONSerializableObject):
     pass
 
@@ -786,6 +803,12 @@ class ShipPredicate(jsonobject.JSONSerializableObject):
     """Property filter.
 
     This predicate itself will be true if the given filter yields true."""
+    tag_filter = jsonobject.JSONProperty(
+        'tag_filter', value_type=ShipTagFilter)
+    """Tag filter.
+
+    This predicate itself will be true if the given tag is or is not contained.
+    """
     filter = jsonobject.JSONProperty('filter', value_type=ShipFilter)
     """Ship filter.
 
@@ -805,6 +828,8 @@ class ShipPredicate(jsonobject.JSONSerializableObject):
             return not self.not_.apply(ship)
         if self.property_filter:
             return self.property_filter.apply(ship)
+        if self.tag_filter:
+            return self.tag_filter.apply(ship)
         # TODO: Consider ship filter.
         return True
 

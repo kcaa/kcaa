@@ -16,6 +16,13 @@
       <input type="text" value="{{value}}" on-change="{{dispatchChange}}">
     </template>
 
+    <template id="ship-tag-filter">
+      <input type="text" value="{{tag}}" on-change="{{dispatchChange}}">
+      <kcaa-kselection kselection="{{operator}}"
+                       on-selectionchange="{{dispatchChange}}">
+      </kcaa-kselection>
+    </template>
+
     <link rel="stylesheet" href="packages/bootjack/css/bootstrap.min.css">
     <link rel="stylesheet" href="../kcaa.css">
     <link rel="stylesheet" href="predicate.css">
@@ -46,6 +53,9 @@
       </template>
       <template if="{{predicate.type.value == 'propertyFilter'}}"
                 ref="ship-property-filter" bind="{{predicate.propertyFilter}}">
+      </template>
+      <template if="{{predicate.type.value == 'tagFilter'}}"
+                ref="ship-tag-filter" bind="{{predicate.tagFilter}}">
       </template>
       <template if="{{predicate.type.value == 'filter'}}">
         <!-- TODO: Implement. -->
