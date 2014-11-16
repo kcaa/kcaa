@@ -85,6 +85,7 @@ class Ship extends Observable {
   @observable bool locked;
   @observable bool isUnderRepair;
   @observable bool awayForMission;
+  @observable List<String> tags = new ObservableList<String>();
   @observable String lockedClass;
   @observable Fleet belongingFleet;
   @observable String stateClass;
@@ -129,6 +130,10 @@ class Ship extends Observable {
     locked = data["locked"];
     isUnderRepair = data["is_under_repair"];
     awayForMission = data["away_for_mission"];
+    if (data["tags"] != null && !iterableEquals(tags, data["tags"])) {
+      tags.clear();
+      tags.addAll(data["tags"]);
+    }
 
     levelClass = upgradeLevel != 0 && level >= upgradeLevel ? "upgradable" : "";
     // What?! Dart doesn't have something similar to sprintf...

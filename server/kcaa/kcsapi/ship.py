@@ -364,6 +364,9 @@ class Ship(ShipDefinition):
     away_for_mission = jsonobject.JSONProperty(
         'away_for_mission', value_type=bool)
     """True if the ship is away for mission."""
+    tags = jsonobject.JSONProperty(
+        'tags', value_type=list, element_type=unicode)
+    """Tags."""
 
     @property
     def ready(self):
@@ -393,6 +396,8 @@ class ShipList(model.KCAAObject):
     ships = jsonobject.JSONProperty('ships', {}, value_type=dict,
                                     element_type=Ship)
     """Ships. Keyed by instance ID (string)."""
+
+    _prefs_loaded = False
 
     def get_ship_position(self, ship_id):
         if str(ship_id) not in self.ships:
@@ -567,6 +572,10 @@ class ShipList(model.KCAAObject):
                         '/api_req_nyukyo/speedchange',
                         '/api_req_nyukyo/start'):
             self.update_is_under_repair(objects['RepairDock'])
+        if (api_name == '/api_port/port' and not self._prefs_loaded and
+                'Preferences' in objects):
+            self.load_preferences(objects['Preferences'])
+            self._prefs_loaded = True
 
     def get_ship(self, ship_data, objects):
         try:
@@ -677,6 +686,17 @@ class ShipList(model.KCAAObject):
                 continue
             attackee = ships[attack.attackee_lid - 1]
             attackee.hitpoint.current -= attack.damage
+
+    def load_preferences(self, preferences):
+        self.update_tags(preferences.ship_prefs.tags)
+
+    def update_tags(self, tags):
+        for ship_id, ship_tags in tags.iteritems():
+            if ship_id in self.ships:
+                self.ships[ship_id].tags = ship_tags.tags
+            else:
+                logger.info(
+                    'Tags found for non-existent ship {}'.format(ship_id))
 
 
 class ShipPropertyFilter(jsonobject.JSONSerializableObject):

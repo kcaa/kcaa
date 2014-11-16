@@ -18,6 +18,18 @@ class AutomanPrefs extends Observable {
       new ObservableList<ScheduleFragment>();
 }
 
+class ShipTags extends Observable {
+  @observable final List<String> tags = new ObservableList<String>();
+
+  ShipTags(List<String> tags) {
+    this.tags.addAll(tags);
+  }
+}
+
+class ShipPrefs extends Observable {
+  @observable Map<int, ShipTags> tags = new ObservableMap<int, ShipTags>();
+}
+
 class FleetPrefs extends Observable {
   @observable final List<FleetDeployment> savedFleets =
       new ObservableList<FleetDeployment>();
@@ -51,6 +63,7 @@ class MissionPrefs extends Observable {
 
 class Preferences extends Observable {
   @observable AutomanPrefs automanPrefs = new AutomanPrefs();
+  @observable ShipPrefs shipPrefs = new ShipPrefs();
   @observable FleetPrefs fleetPrefs = new FleetPrefs();
   @observable PracticePrefs practicePrefs = new PracticePrefs();
   @observable MissionPrefs missionPrefs = new MissionPrefs();
@@ -65,6 +78,13 @@ class Preferences extends Observable {
           "start": scheduleFragment.start,
           "end": scheduleFragment.end,
         }).toList(),
+      },
+      "ship_prefs": {
+        "tags": new Map<String, dynamic>.fromIterable(shipPrefs.tags.keys,
+            key: (key) => key.toString(),
+            value: (key) => {
+              "tags": shipPrefs.tags[key].tags,
+            }),
       },
       "fleet_prefs": {
         "saved_fleets": fleetPrefs.savedFleets.map((savedFleet) =>
@@ -97,6 +117,8 @@ void handlePreferences(Assistant assistant, AssistantModel model,
     prefs.automanPrefs.schedules.add(
         new ScheduleFragment(schedule["start"], schedule["end"]));
   }
+  (data["ship_prefs"]["tags"] as Map).forEach((shipId, tags) =>
+      prefs.shipPrefs.tags[int.parse(shipId)] = new ShipTags(tags["tags"]));
   for (var savedFleet in data["fleet_prefs"]["saved_fleets"]) {
     prefs.fleetPrefs.savedFleets.add(new FleetDeployment.fromJSON(savedFleet));
   }

@@ -50,6 +50,12 @@
                 (入渠中)
               </template>
             </div>
+            <!-- TODO: Find a measure to show tags in a compact way. -->
+            <div>
+              <template repeat="{{tag in ship.tags}}">
+                <span class="tag">{{tag}}</span>
+              </template>
+            </div>
           </div>
           <div class="wide numberColumn {{ship.levelClass}}">
             <div>{{ship.level}}<template

@@ -82,14 +82,25 @@
         <!-- TODO: More -->
       </div>
       <h4>タグ</h4>
-      <div>TODO</div>
+      <div>
+        <template repeat="{{tag in tags | enumerate}}">
+          <span class="tag">
+            {{tag.value}}
+            <button class="action" on-click="{{deleteTag}}"
+                    data-index="{{tag.index}}">&times;</button>
+          </span>
+        </template>
+        <input type="text" placeholder="新規タグ" size="7"
+               on-change="{{addNewTag}}}">
+      </div>
       <h4>装備</h4>
       <div>TODO</div>
       <h4>ジャーナル</h4>
       <div>TODO</div>
     </div>
     <div class="modal-footer">
-      <button class="cancel" on-click="{{close}}">Close</button>
+      <button on-click="{{ok}}">OK</button>
+      <button class="cancel" on-click="{{close}}">Cancel</button>
     </div>
   </template>
   <script type="application/dart" src="ship_details_dialog.dart"></script>

@@ -97,7 +97,8 @@ def control(args, to_exit):
         pk.start()
         pc.start()
         kcsapi_handler = kcsapi_util.KCSAPIHandler(
-            har_manager, preferences, args.journal_basedir, args.debug)
+            har_manager, args.journal_basedir, args.debug)
+        kcsapi_handler.update_preferences(preferences)
         manipulator_manager = manipulator_util.ManipulatorManager(
             browser_conn, kcsapi_handler.objects, preferences, time.time())
         while True:
@@ -133,8 +134,7 @@ def control(args, to_exit):
                     reload(kcsapi_util)
                     kcsapi_util.reload_modules()
                     kcsapi_handler = kcsapi_util.KCSAPIHandler(
-                        har_manager, preferences, args.journal_basedir,
-                        args.debug)
+                        har_manager, args.journal_basedir, args.debug)
                     kcsapi_handler.deserialize_objects(serialized_objects)
                     manipulator_manager.objects = kcsapi_handler.objects
                 elif command_type == COMMAND_RELOAD_MANIPULATORS:
@@ -154,7 +154,7 @@ def control(args, to_exit):
                     save_preferences(args, logger, preferences)
                     # TODO: Refactor this part. Generalize the framework to
                     # update objects.
-                    kcsapi_handler.objects['Preferences'] = preferences
+                    kcsapi_handler.update_preferences(preferences)
                     object_queue.put(
                         (False, 'Preferences', preferences.json()))
                     manipulator_manager.set_auto_manipulator_preferences(

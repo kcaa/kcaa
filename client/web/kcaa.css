@@ -302,3 +302,13 @@ div.title {
   font-size: 90%;
   opacity: 0.7;
 }
+.tag {
+  background-color: hsl(240, 60%, 30%);
+  border-radius: 3px;
+  color: hsl(240, 10%, 90%);
+  margin: 0 2px;
+  padding: 2px;
+}
+.tag button.action {
+  color: white;
+}

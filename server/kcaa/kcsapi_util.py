@@ -24,11 +24,11 @@ BOM = '\xEF\xBB\xBF'
 
 class KCSAPIHandler(object):
 
-    def __init__(self, har_manager, preferences, journal_basedir, debug):
+    def __init__(self, har_manager, journal_basedir, debug):
         self._logger = logging.getLogger('kcaa.kcsapi_util')
         self.har_manager = har_manager
         self.debug = debug
-        self.objects = {'Preferences': preferences}
+        self.objects = {}
         self.define_handlers()
         self.define_requestables()
         self.define_journals()
@@ -331,3 +331,8 @@ class KCSAPIHandler(object):
                 raise
         else:
             raise ValueError('Unknown command type: {}'.format(command_type))
+
+    def update_preferences(self, preferences):
+        self.objects['Preferences'] = preferences
+        if 'ShipList' in self.objects:
+            self.objects['ShipList'].update_tags(preferences.ship_prefs.tags)
