@@ -189,7 +189,12 @@ class KCSAPIHandler(object):
         if not journal_basedir:
             return
         for name, journal in self.loaded_journals.iteritems():
-            journal.clean_up_old_entries()
+            num_entries = journal.clean_up_old_entries()
+            if num_entries == 0:
+                self._logger.info(
+                    'Found 0 entries in journal {}. Looks like a bug and the '
+                    'journal will not be overwritten.'.format(name))
+                continue
             filename = os.path.join(journal_basedir, name)
             self._logger.info('Saving journal {} to {}'.format(
                 name, filename))

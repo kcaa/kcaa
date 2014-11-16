@@ -151,7 +151,7 @@ class KCAAJournalObject(KCAARequestableObject):
         entry_type = JournalEntry.typed(value_type)
         return type(
             'KCAAJournalObject__{}'.format(entry_type.__name__), (cls,),
-            {'entries': jsonobject.JSONProperty('entries', value_type=list,
+            {'entries': jsonobject.JSONProperty('entries', [], value_type=list,
                                                 element_type=entry_type),
              'Entry': entry_type})
 
@@ -217,6 +217,7 @@ class KCAAJournalObject(KCAARequestableObject):
             if acceptable:
                 self.entries.append(entry)
                 last_entry = entry
+        return len(self.entries)
 
     def _is_acceptable_interval(self, now, entry_time=None, last_entry=None,
                                 penalty=None):
