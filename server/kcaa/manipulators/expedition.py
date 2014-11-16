@@ -69,15 +69,27 @@ class SailOnExpeditionMap(base.Manipulator):
         event = expedition.event
         is_terminal = expedition.is_terminal
         self.screen.update_screen_id(screens.EXPEDITION_SAILING)
-        # TODO: Handle a special sailing animation (e.g. spotter aircraft), if
-        # needed. Expedition object should have such information.
         yield 6.0
         if event in (kcsapi.Expedition.EVENT_BATTLE,
                      kcsapi.Expedition.EVENT_BATTLE_BOSS):
             yield 3.0
             fleet = fleet_list.fleets[expedition.fleet_id - 1]
-            if len(fleet.ship_ids) >= 4:
-                yield self.screen.select_formation(formation)
+            # If some special animation (e.g. spotter aircraft) happens, there
+            # would be some additional delay before we can choose the
+            # formation. Work around this by waiting some more time if the
+            # screen transition has not succeeded.
+            for _ in xrange(5):
+                if len(fleet.ship_ids) >= 4:
+                    yield self.screen.select_formation(formation)
+                yield self.screen.wait_transition(
+                    screens.EXPEDITION_COMBAT, timeout=3.0,
+                    raise_on_timeout=False)
+                if self.screen_id in (screens.EXPEDITION_COMBAT,
+                                      screens.EXPEDITION_NIGHTCOMBAT):
+                    break
+            else:
+                logger.error('Cannot transitioned to the combat. Giving up.')
+                return
             yield self.do_manipulator(EngageExpedition, formation=formation)
             return
         if is_terminal:
@@ -92,8 +104,8 @@ class SailOnExpeditionMap(base.Manipulator):
 class EngageExpedition(base.Manipulator):
 
     def run(self, formation):
-        yield self.screen.wait_transition(screens.EXPEDITION_COMBAT,
-                                          timeout=20.0)
+        # The screen must be EXPEDITION_COMBAT or EXPEDITION_NIGHTCOMBAT at
+        # this moment. The caller must ensure this assumption is always true.
         logger.info('Engaging an enemy fleet in expedition.')
         expedition = self.objects.get('Expedition')
         fleet_list = self.objects.get('FleetList')
