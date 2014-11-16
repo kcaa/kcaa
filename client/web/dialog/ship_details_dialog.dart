@@ -22,7 +22,6 @@ class ShipDetailsDialog extends KcaaDialog {
 
   void deleteTag(Event e, var detail, Element target) {
     tags.removeAt(int.parse(target.dataset["index"]));
-    e.preventDefault();
   }
 
   void addNewTag(Event e, var detail, InputElement target) {
