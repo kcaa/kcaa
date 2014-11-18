@@ -130,6 +130,9 @@ class Ship extends Observable {
     locked = data["locked"];
     isUnderRepair = data["is_under_repair"];
     awayForMission = data["away_for_mission"];
+    if (data["tags"] == null) {
+      tags.clear();
+    }
     if (data["tags"] != null && !iterableEquals(tags, data["tags"])) {
       tags.clear();
       tags.addAll(data["tags"]);
