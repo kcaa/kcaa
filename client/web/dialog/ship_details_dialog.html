@@ -53,30 +53,30 @@
         <div class="trow">
           <div class="superWide">火力</div>
           <div class="gauge"><kcaa-gauge current="{{ship.enhancedFirepower}}"
-            extra="{{ship.firepower - ship.enhancedFirepower}}"
-            min="{{ship.baselineFirepower}}" max="{{ship.maxFirepower}}">
+            extra="{{ship.firepower.current - ship.enhancedFirepower}}"
+            min="{{ship.firepower.baseline}}" max="{{ship.firepower.maximum}}">
             </kcaa-gauge></div>
         </div>
         <div class="trow">
           <div class="superWide">雷装</div>
           <div class="gauge"><kcaa-gauge
             current="{{ship.enhancedThunderstroke}}"
-            extra="{{ship.thunderstroke - ship.enhancedThunderstroke}}"
-            min="{{ship.baselineThunderstroke}}"
-            max="{{ship.maxThunderstroke}}"></kcaa-gauge></div>
+            extra="{{ship.thunderstroke.current - ship.enhancedThunderstroke}}"
+            min="{{ship.thunderstroke.baseline}}"
+            max="{{ship.thunderstroke.maximum}}"></kcaa-gauge></div>
         </div>
         <div class="trow">
           <div class="superWide">対空</div>
           <div class="gauge"><kcaa-gauge current="{{ship.enhancedAntiAir}}"
-            extra="{{ship.antiAir - ship.enhancedAntiAir}}"
-            min="{{ship.baselineAntiAir}}" max="{{ship.maxAntiAir}}">
+            extra="{{ship.antiAir.current - ship.enhancedAntiAir}}"
+            min="{{ship.antiAir.baseline}}" max="{{ship.antiAir.maximum}}">
             </kcaa-gauge></div>
         </div>
         <div class="trow">
           <div class="superWide">装甲</div>
           <div class="gauge"><kcaa-gauge current="{{ship.enhancedArmor}}"
-            extra="{{ship.armor - ship.enhancedArmor}}"
-            min="{{ship.baselineArmor}}" max="{{ship.maxArmor}}">
+            extra="{{ship.armor.current - ship.enhancedArmor}}"
+            min="{{ship.armor.baseline}}" max="{{ship.armor.maximum}}">
             </kcaa-gauge></div>
         </div>
         <!-- TODO: More -->

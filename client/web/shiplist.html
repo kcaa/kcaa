@@ -80,22 +80,22 @@
             <div>{{ship.hp}}/{{ship.maxHp}}</div>
           </div>
           <div class="numberColumn {{ship.firepowerClass}}">
-            <div>{{ship.firepower}}</div>
-            <div>{{ship.enhancedFirepower}}/{{ship.maxFirepower}}</div>
+            <div>{{ship.firepower.current}}</div>
+            <div>{{ship.enhancedFirepower}}/{{ship.firepower.maximum}}</div>
           </div>
           <div class="numberColumn {{ship.thunderstrokeClass}}">
-            <div>{{ship.thunderstroke}}</div>
+            <div>{{ship.thunderstroke.current}}</div>
             <div>
-              {{ship.enhancedThunderstroke}}/{{ship.maxThunderstroke}}
+              {{ship.enhancedThunderstroke}}/{{ship.thunderstroke.maximum}}
             </div>
           </div>
           <div class="numberColumn {{ship.antiAirClass}}">
-            <div>{{ship.antiAir}}</div>
-            <div>{{ship.enhancedAntiAir}}/{{ship.maxAntiAir}}</div>
+            <div>{{ship.antiAir.current}}</div>
+            <div>{{ship.enhancedAntiAir}}/{{ship.antiAir.maximum}}</div>
           </div>
           <div class="numberColumn {{ship.armorClass}}">
-            <div>{{ship.armor}}</div>
-            <div>{{ship.enhancedArmor}}/{{ship.maxArmor}}</div>
+            <div>{{ship.armor.current}}</div>
+            <div>{{ship.enhancedArmor}}/{{ship.armor.maximum}}</div>
           </div>
         </div>
       </template>

@@ -1,5 +1,25 @@
 part of kcaa_model;
 
+class Variable extends Observable {
+  @observable int current;
+  @observable int baseline;
+  @observable int maximum;
+
+  Variable.fromJSON(Map<String, dynamic> data) {
+    current = data["current"];
+    baseline = data["baseline"];
+    maximum = data["maximum"];
+  }
+
+  double ratio() {
+    return current.toDouble() / maximum;
+  }
+
+  String percentage() {
+    return (100.0 * ratio()).toStringAsFixed(0);
+  }
+}
+
 class Ship extends Observable {
   static final Map<int, String> SHIP_TYPE_MAP = <int, String>{
     1: "海防艦",
@@ -75,13 +95,11 @@ class Ship extends Observable {
   @observable int vitality;
   @observable int hp, maxHp, hpPercentage;
   @observable String hpPercentageString;
-  @observable int armor, baselineArmor, enhancedArmor, maxArmor;
-  @observable int firepower, baselineFirepower, enhancedFirepower, maxFirepower;
-  @observable int thunderstroke, baselineThunderstroke, enhancedThunderstroke,
-                  maxThunderstroke;
-  @observable int antiAir, baselineAntiAir, enhancedAntiAir, maxAntiAir;
-  @observable String armorClass, firepowerClass, thunderstrokeClass,
-                     antiAirClass;
+  @observable Variable firepower, thunderstroke, antiAir, armor;
+  @observable int enhancedFirepower, enhancedThunderstroke, enhancedAntiAir,
+    enhancedArmor;
+  @observable String firepowerClass, thunderstrokeClass, antiAirClass,
+    armorClass;
   @observable bool locked;
   @observable bool isUnderRepair;
   @observable bool awayForMission;
@@ -106,27 +124,16 @@ class Ship extends Observable {
     vitality = data["vitality"];
     hp = data["hitpoint"]["current"];
     maxHp = data["hitpoint"]["maximum"];
-    armor = data["armor"]["current"];
-    baselineArmor = data["armor"]["baseline"];
-    enhancedArmor =
-      data["armor"]["baseline"] + data["enhanced_ability"]["armor"];
-    maxArmor = data["armor"]["maximum"];
-    firepower = data["firepower"]["current"];
-    baselineFirepower = data["firepower"]["baseline"];
+    firepower = new Variable.fromJSON(data["firepower"]);
     enhancedFirepower =
-      data["firepower"]["baseline"] + data["enhanced_ability"]["firepower"];
-    maxFirepower = data["firepower"]["maximum"];
-    thunderstroke = data["thunderstroke"]["current"];
-    baselineThunderstroke = data["thunderstroke"]["baseline"];
+        firepower.baseline + data["enhanced_ability"]["firepower"];
+    thunderstroke = new Variable.fromJSON(data["thunderstroke"]);
     enhancedThunderstroke =
-      data["thunderstroke"]["baseline"] +
-      data["enhanced_ability"]["thunderstroke"];
-    maxThunderstroke = data["thunderstroke"]["maximum"];
-    antiAir = data["anti_air"]["current"];
-    baselineAntiAir = data["anti_air"]["baseline"];
-    enhancedAntiAir =
-      data["anti_air"]["baseline"] + data["enhanced_ability"]["anti_air"];
-    maxAntiAir = data["anti_air"]["maximum"];
+      thunderstroke.baseline + data["enhanced_ability"]["thunderstroke"];
+    antiAir = new Variable.fromJSON(data["anti_air"]);
+    enhancedAntiAir = antiAir.baseline + data["enhanced_ability"]["anti_air"];
+    armor = new Variable.fromJSON(data["armor"]);
+    enhancedArmor = armor.baseline + data["enhanced_ability"]["armor"];
     locked = data["locked"];
     isUnderRepair = data["is_under_repair"];
     awayForMission = data["away_for_mission"];
@@ -156,11 +163,12 @@ class Ship extends Observable {
     ammoPercentageString = ammoPercentage.toStringAsFixed(0);
     hpPercentage = (100 * hp / maxHp).round();
     hpPercentageString = hpPercentage.toString();
-    armorClass = enhancedArmor == maxArmor ? "fullyEnhanced" : "";
-    firepowerClass = enhancedFirepower == maxFirepower ? "fullyEnhanced" : "";
+    firepowerClass =
+        enhancedFirepower == firepower.maximum ? "fullyEnhanced" : "";
     thunderstrokeClass =
-        enhancedThunderstroke == maxThunderstroke ? "fullyEnhanced" : "";
-    antiAirClass = enhancedAntiAir == maxAntiAir ? "fullyEnhanced" : "";
+        enhancedThunderstroke == thunderstroke.maximum ? "fullyEnhanced" : "";
+    antiAirClass = enhancedAntiAir == antiAir.maximum ? "fullyEnhanced" : "";
+    armorClass = enhancedArmor == armor.maximum ? "fullyEnhanced" : "";
     lockedClass = locked ? "" : "unlocked";
     updateBelongingFleet(fleets);
     stateClass = getStateClass();
@@ -238,29 +246,29 @@ class Ship extends Observable {
   }
 
   static int compareByFirepower(Ship a, Ship b) {
-    if (a.firepower != b.firepower) {
-      return a.firepower.compareTo(b.firepower);
+    if (a.firepower.current != b.firepower.current) {
+      return a.firepower.current.compareTo(b.firepower.current);
     }
     return compareByKancolleLevel(a, b);
   }
 
   static int compareByThunderstroke(Ship a, Ship b) {
-    if (a.thunderstroke != b.thunderstroke) {
-      return a.thunderstroke.compareTo(b.thunderstroke);
+    if (a.thunderstroke.current != b.thunderstroke.current) {
+      return a.thunderstroke.current.compareTo(b.thunderstroke.current);
     }
     return compareByKancolleLevel(a, b);
   }
 
   static int compareByAntiAir(Ship a, Ship b) {
-    if (a.antiAir != b.antiAir) {
-      return a.antiAir.compareTo(b.antiAir);
+    if (a.antiAir.current != b.antiAir.current) {
+      return a.antiAir.current.compareTo(b.antiAir.current);
     }
     return compareByKancolleLevel(a, b);
   }
 
   static int compareByArmor(Ship a, Ship b) {
-    if (a.armor != b.armor) {
-      return a.armor.compareTo(b.armor);
+    if (a.armor.current != b.armor.current) {
+      return a.armor.current.compareTo(b.armor.current);
     }
     return compareByKancolleLevel(a, b);
   }
@@ -294,19 +302,19 @@ class Ship extends Observable {
   }
 
   static bool filterRoomInFirepower(Ship s) {
-    return s.enhancedFirepower < s.maxFirepower;
+    return s.enhancedFirepower < s.firepower.maximum;
   }
 
   static bool filterRoomInThunderstroke(Ship s) {
-    return s.enhancedThunderstroke < s.maxThunderstroke;
+    return s.enhancedThunderstroke < s.thunderstroke.maximum;
   }
 
   static bool filterRoomInAntiAir(Ship s) {
-    return s.enhancedAntiAir < s.maxAntiAir;
+    return s.enhancedAntiAir < s.antiAir.maximum;
   }
 
   static bool filterRoomInArmor(Ship s) {
-    return s.enhancedArmor < s.maxArmor;
+    return s.enhancedArmor < s.armor.maximum;
   }
 
   static bool filterLocked(Ship s) {
