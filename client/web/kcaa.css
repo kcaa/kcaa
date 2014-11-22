@@ -191,7 +191,7 @@ ul {
   margin: 10px 0 0;
 }
 ul {
-  line-height: 1.2em;;
+  line-height: 1.2em;
 }
 ul ul {
   color: hsl(0, 0%, 20%);
@@ -276,7 +276,9 @@ div.table > div.trow > div.ultraWide {
   width: 200px;
 }
 div.table > div.trow > div.gauge {
-  padding: 0;
+  font-size: 12px;
+  line-height: 14px;
+  padding: 2px;
   width: auto;
 }
 div.table > div.trow > div > div {

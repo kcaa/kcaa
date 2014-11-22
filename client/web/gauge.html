@@ -8,16 +8,23 @@
     <style>
       .gauge {
         background: linear-gradient(
-          120deg,
-          hsl(90, 80%, 80%),
-          hsl(90, 80%, 60%));
-        box-shadow: -3px -1px 20px hsla(120, 100%, 30%, 0.5) inset;
+          hsl(240, 20%, 95%),
+          hsl(240, 40%, 60%) 45%,
+          hsl(240, 40%, 40%) 55%,
+          hsl(240, 60%, 70%));
+        border: hsl(240, 10%, 90%) solid 1px;
+        border-radius: 5px;
+        box-shadow:
+          0 0 1px hsl(240, 40%, 20%),
+          0 0 5px hsla(240, 30%, 50%, 0.5) inset;
         box-sizing: border-box;
-        color: hsl(90, 20%, 20%);
+        color: hsl(240, 20%, 10%);
         font-style: italic;
         font-weight: bold;
-        padding: 2px 5px;
+        padding: 1px 3px;
         text-align: right;
+        text-shadow: hsl(240, 20%, 95%) 0 0 3px;
+        transition: all ease-out 1000ms;
       }
       .gauge-value {
         font-size: 120%;
