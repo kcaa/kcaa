@@ -5,6 +5,7 @@
 __pycache__/
 bin/
 bin_v*/
+client/.pub
 client/build/
 client/packages
 client/pubspec.lock
