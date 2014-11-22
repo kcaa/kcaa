@@ -11,7 +11,11 @@
         <div class="column">
           <div class="board">
             <h3>ステータス</h3>
-            <h4>クライアントの状態</h4>
+            <h4>
+              クライアントの状態
+              <button class="action"
+                      on-click="{{reloadAllObjects}}">&#10227;</button>
+            </h4>
             <div>
               <div>現在の画面: {{model.screen}}</div>
               <div>自動操作中:

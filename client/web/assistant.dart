@@ -119,7 +119,7 @@ class Assistant extends PolymerElement {
         updateAvailableObjectsPeriodically);
     addCollapseButtons();
     updateCollapsedSections();
-    handleObjects(serverGetObjects);
+    reloadAllObjects();
     // TODO: Ensure this happens after all other dialog elements are
     // initialized.
     runLater(1000, () => passModelToDialogs());
@@ -177,6 +177,10 @@ class Assistant extends PolymerElement {
     var filter = Ship.SHIP_FILTER[filterType];
     model.numFilteredShips = model.ships.where((ship) => filter(ship)).length;
     model.shipList.filter = filter;
+  }
+
+  void reloadAllObjects() {
+    handleObjects(serverGetObjects);
   }
 
   void handleObject(String objectType, String data) {
