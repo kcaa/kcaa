@@ -33,53 +33,75 @@
         <div class="trow">
           <div class="superWide">燃料</div>
           <div class="gauge"><kcaa-gauge current="{{ship.fuel}}"
-            min="0" max="{{ship.fuelCapacity}}"></kcaa-gauge></div>
+            max="{{ship.fuelCapacity}}"></kcaa-gauge></div>
         </div>
         <div class="trow">
           <div class="superWide">弾薬</div>
           <div class="gauge"><kcaa-gauge current="{{ship.ammo}}"
-            min="0" max="{{ship.ammoCapacity}}"></kcaa-gauge></div>
+            max="{{ship.ammoCapacity}}"></kcaa-gauge></div>
         </div>
         <div class="trow">
           <div class="superWide">戦意</div>
           <div class="gauge"><kcaa-gauge current="{{ship.vitality}}"
-            min="0" max="100"></kcaa-gauge></div>
+            max="100"></kcaa-gauge></div>
         </div>
         <div class="trow">
           <div class="superWide">HP</div>
           <div class="gauge"><kcaa-gauge current="{{ship.hp}}"
-            min="0" max="{{ship.maxHp}}"></kcaa-gauge></div>
+            max="{{ship.maxHp}}"></kcaa-gauge></div>
         </div>
         <div class="trow">
           <div class="superWide">火力</div>
           <div class="gauge"><kcaa-gauge current="{{ship.enhancedFirepower}}"
             extra="{{ship.firepower.current - ship.enhancedFirepower}}"
-            min="{{ship.firepower.baseline}}" max="{{ship.firepower.maximum}}">
-            </kcaa-gauge></div>
+            max="{{ship.firepower.maximum}}"></kcaa-gauge></div>
         </div>
         <div class="trow">
           <div class="superWide">雷装</div>
           <div class="gauge"><kcaa-gauge
             current="{{ship.enhancedThunderstroke}}"
             extra="{{ship.thunderstroke.current - ship.enhancedThunderstroke}}"
-            min="{{ship.thunderstroke.baseline}}"
             max="{{ship.thunderstroke.maximum}}"></kcaa-gauge></div>
         </div>
         <div class="trow">
           <div class="superWide">対空</div>
           <div class="gauge"><kcaa-gauge current="{{ship.enhancedAntiAir}}"
             extra="{{ship.antiAir.current - ship.enhancedAntiAir}}"
-            min="{{ship.antiAir.baseline}}" max="{{ship.antiAir.maximum}}">
-            </kcaa-gauge></div>
+            max="{{ship.antiAir.maximum}}"></kcaa-gauge></div>
         </div>
         <div class="trow">
           <div class="superWide">装甲</div>
           <div class="gauge"><kcaa-gauge current="{{ship.enhancedArmor}}"
             extra="{{ship.armor.current - ship.enhancedArmor}}"
-            min="{{ship.armor.baseline}}" max="{{ship.armor.maximum}}">
-            </kcaa-gauge></div>
+            max="{{ship.armor.maximum}}"></kcaa-gauge></div>
         </div>
-        <!-- TODO: More -->
+        <div class="trow">
+          <div class="superWide">対潜</div>
+          <div class="gauge"><kcaa-gauge
+            current="{{ship.antiSubmarine.cappedCurrent()}}"
+            extra="{{ship.antiSubmarine.extra}}"
+            max="{{ship.antiSubmarine.maximum}}"></kcaa-gauge></div>
+        </div>
+        <div class="trow">
+          <div class="superWide">回避</div>
+          <div class="gauge"><kcaa-gauge
+            current="{{ship.avoidance.cappedCurrent()}}"
+            extra="{{ship.avoidance.extra}}"
+            max="{{ship.avoidance.maximum}}"></kcaa-gauge></div>
+        </div>
+        <div class="trow">
+          <div class="superWide">索敵</div>
+          <div class="gauge"><kcaa-gauge
+            current="{{ship.scouting.cappedCurrent()}}"
+            extra="{{ship.scouting.extra}}"
+            max="{{ship.scouting.maximum}}"></kcaa-gauge></div>
+        </div>
+        <div class="trow">
+          <div class="superWide">運</div>
+          <div class="gauge"><kcaa-gauge
+            current="{{ship.luck.current}}"
+            max="{{ship.luck.maximum}}"></kcaa-gauge></div>
+        </div>
       </div>
       <h4>タグ</h4>
       <div>

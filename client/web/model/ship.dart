@@ -4,11 +4,19 @@ class Variable extends Observable {
   @observable int current;
   @observable int baseline;
   @observable int maximum;
+  @observable int extra;
 
   Variable.fromJSON(Map<String, dynamic> data) {
     current = data["current"];
     baseline = data["baseline"];
     maximum = data["maximum"];
+    if (current > maximum) {
+      extra = current - maximum;
+    }
+  }
+
+  int cappedCurrent() {
+    return current > maximum ? maximum : current;
   }
 
   double ratio() {
@@ -100,6 +108,7 @@ class Ship extends Observable {
     enhancedArmor;
   @observable String firepowerClass, thunderstrokeClass, antiAirClass,
     armorClass;
+  @observable Variable antiSubmarine, avoidance, scouting, luck;
   @observable bool locked;
   @observable bool isUnderRepair;
   @observable bool awayForMission;
@@ -134,6 +143,11 @@ class Ship extends Observable {
     enhancedAntiAir = antiAir.baseline + data["enhanced_ability"]["anti_air"];
     armor = new Variable.fromJSON(data["armor"]);
     enhancedArmor = armor.baseline + data["enhanced_ability"]["armor"];
+    // TODO: Is there any way to obtain enhanced amount for these parameters?
+    antiSubmarine = new Variable.fromJSON(data["anti_submarine"]);
+    avoidance = new Variable.fromJSON(data["avoidance"]);
+    scouting = new Variable.fromJSON(data["scouting"]);
+    luck = new Variable.fromJSON(data["luck"]);
     locked = data["locked"];
     isUnderRepair = data["is_under_repair"];
     awayForMission = data["away_for_mission"];
