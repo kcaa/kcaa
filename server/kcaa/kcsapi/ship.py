@@ -23,6 +23,10 @@ class Variable(jsonobject.JSONSerializableObject):
     def ratio(self):
         return float(self.current) / self.maximum
 
+    @property
+    def percentage(self):
+        return int(100 * self.ratio)
+
 
 class AbilityEnhancement(jsonobject.JSONSerializableObject):
 
