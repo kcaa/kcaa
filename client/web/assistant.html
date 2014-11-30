@@ -251,6 +251,13 @@
           <div class="table">
             <div class="trow thead">
               <div class="description">装備</div>
+              <div>火力</div>
+              <div>命中</div>
+              <div>雷装</div>
+              <div>爆装</div>
+              <div>対空</div>
+              <div>対潜</div>
+              <div>回避</div>
               <div>個数</div>
             </div>
             <template repeat="{{definition in model.equipmentDefinitions}}">
@@ -259,7 +266,14 @@
                   <div class="title">{{definition.name}}</div>
                   <div>{{definition.typeName}}</div>
                 </div>
-                <div>{{definition.instances.length}}</div>
+                <div class="numberColumn">{{definition.firepower}}</div>
+                <div class="numberColumn">{{definition.fireHit}}</div>
+                <div class="numberColumn">{{definition.thunderstroke}}</div>
+                <div class="numberColumn">{{definition.bombPower}}</div>
+                <div class="numberColumn">{{definition.antiAir}}</div>
+                <div class="numberColumn">{{definition.antiSubmarine}}</div>
+                <div class="numberColumn">{{definition.fireFlee}}</div>
+                <div class="numberColumn">{{definition.instances.length}}</div>
               </div>
             </template>
           </div>
