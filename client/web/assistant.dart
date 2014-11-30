@@ -117,11 +117,9 @@ class Assistant extends PolymerElement {
 
     model.shipList = $["shiplist"];
 
-    runLater(updateAvailableObjectsIntervalMs,
-        updateAvailableObjectsPeriodically);
     addCollapseButtons();
     updateCollapsedSections();
-    reloadAllObjects();
+    reloadAllObjects().then((_) => updateAvailableObjectsPeriodically());
     // TODO: Ensure this happens after all other dialog elements are
     // initialized.
     runLater(1000, () => passModelToDialogs());
@@ -181,8 +179,8 @@ class Assistant extends PolymerElement {
     model.shipList.filter = filter;
   }
 
-  void reloadAllObjects() {
-    handleObjects(serverGetObjects);
+  Future reloadAllObjects() {
+    return handleObjects(serverGetObjects);
   }
 
   void handleObject(String objectType, String data) {
@@ -192,27 +190,40 @@ class Assistant extends PolymerElement {
     }
   }
 
-  void handleObjects(Uri objectsUri) {
-    HttpRequest.getString(objectsUri.toString())
+  Future handleObjects(Uri objectsUri) {
+    return HttpRequest.getString(objectsUri.toString())
       .then((String content) {
         var objects = JSON.decode(content) as Map<String, String>;
+        var objectTypes = new List<String>();
         // Handle referenced objects first.
         for (var referencedObject in REFERENCED_OBJECTS) {
           if (objects.containsKey(referencedObject)) {
-            handleObject(referencedObject, objects[referencedObject]);
-            objects.remove(referencedObject);
+            objectTypes.add(referencedObject);
           }
         }
         // Then handle the rest.
+        var internalHandlerChain = new Future.value(null);
         for (var objectType in objects.keys) {
-          handleObject(objectType, objects[objectType]);
+          if (!REFERENCED_OBJECTS.contains(objectType)) {
+            objectTypes.add(objectType);
+          }
         }
+        var handlerChain = new Future.value();
+        for (var objectType in objectTypes) {
+          handlerChain = handlerChain.then((_) {
+            handleObject(objectType, objects[objectType]);
+            // Delay the next handling and let the renderer renders the handled
+            // data.
+            return new Future.delayed(const Duration(milliseconds: 0));
+          });
+        }
+        return handlerChain;
       });
   }
 
-  void updateAvailableObjects() {
+  Future updateAvailableObjects() {
     // Update the list of available objects in the debug info section.
-    HttpRequest.getString(serverGetObjectTypes.toString())
+    return HttpRequest.getString(serverGetObjectTypes.toString())
       .then((String content) {
         List<String> objectTypes = JSON.decode(content);
         var newObjectFound = false;
@@ -224,16 +235,17 @@ class Assistant extends PolymerElement {
           availableObjects.clear();
           availableObjects.addAll(objectTypes);
         }
+      }).then((_) {
+        // Actually handles the new objects.
+        return handleObjects(serverGetNewObjects);
       });
-
-    // Actually handles the new objects.
-    handleObjects(serverGetNewObjects);
   }
 
   void updateAvailableObjectsPeriodically() {
-    updateAvailableObjects();
-    runLater(updateAvailableObjectsIntervalMs,
-        updateAvailableObjectsPeriodically);
+    updateAvailableObjects().then((_) {
+      runLater(updateAvailableObjectsIntervalMs,
+          updateAvailableObjectsPeriodically);
+    });
   }
 
   void reloadKCSAPIModules() {
