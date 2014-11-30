@@ -123,6 +123,9 @@ class SlotItemDefinitionList(model.KCAAObject):
                 id=data.api_id,
                 name=data.api_name))
         for data in response.api_data.api_mst_slotitem:
+            # ID 500 and later are reserved for enemies.
+            if data.api_id >= 500:
+                continue
             self.items[str(data.api_id)] = SlotItemDefinition(
                 id=data.api_id,
                 name=data.api_name,
