@@ -377,9 +377,9 @@ class PortMissionScreen(PortScreen):
         def select_maparea_task(task):
             # Limited time map areas.
             if maparea_id >= kcsapi.Mission.MAPAREA_2014_SPRING:
-                self.click(495, 435)
+                self.click(520, 435)
             else:
-                self.click(85 + 65 * maparea_id, 435)
+                self.click(78 + 59 * maparea_id, 435)
             yield 2.0
         return self.do_task(select_maparea_task)
 
