@@ -66,7 +66,8 @@ class KCSAPIHandler(object):
             '/api_auth_member/logincheck': [kcsapi.NullHandler()],
             '/api_req_member/get_incentive': [kcsapi.NullHandler()],
             '/api_start2': [kcsapi.MissionList,
-                            kcsapi.ShipDefinitionList],
+                            kcsapi.ShipDefinitionList,
+                            kcsapi.SlotItemDefinitionList],
             # Player info.
             '/api_get_member/basic': [kcsapi.player.PlayerInfo],
             # Encyclopedia.

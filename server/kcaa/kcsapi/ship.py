@@ -267,9 +267,13 @@ class ShipDefinitionList(model.KCAAObject):
                     armor=data.api_powup[3]),
                 sort_order=data.api_sortno)
             # Unknown fields:
+            #   api_houm: Fire hit probability? (HOUgeki Meichu)
+            #   api_houk: Fire avoiding probability? (HOUgeki Kaihi)
+            #   api_raim: Torpedo hit probability? (RAIgeki Meichu)
+            #   api_raik: Torpedo avoiding probability? (RAIgeki Kaihi)
             #   api_atap, api_bakk, api_baku,
-            #   api_enqflg, api_gumax, api_houk, api_houm, api_member_id,
-            #   api_ndock_item, api_raik, api_raim, api_sakb, api_systems,
+            #   api_enqflg, api_gumax, api_member_id,
+            #   api_ndock_item, api_sakb, api_systems,
             #   api_touchs
             # Suspicious fields:
             #   api_broken: Required resources and time to repair?
