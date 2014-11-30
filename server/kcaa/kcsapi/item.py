@@ -153,3 +153,52 @@ class SlotItemDefinitionList(model.KCAAObject):
             #   api_raik: torpedo flee? (RAIgeki Kaihi)
             #   api_usebull: ? (string) "0"
             #   api_sakb, api_taik, api_atap
+
+
+class SlotItem(jsonobject.JSONSerializableObject):
+
+    id = jsonobject.ReadonlyJSONProperty('id', value_type=int)
+    """Instance ID."""
+    item_id = jsonobject.ReadonlyJSONProperty('item_id', value_type=int)
+    """Item definition ID."""
+    level = jsonobject.ReadonlyJSONProperty('level', value_type=int)
+    """Enhancement level."""
+    locked = jsonobject.ReadonlyJSONProperty('level', value_type=bool)
+    """True if this item is locked."""
+
+
+class SlotItemList(jsonobject.JSONSerializableObject):
+
+    item_ids = jsonobject.JSONProperty('item_ids', value_type=list,
+                                       element_type=int)
+
+
+class SlotItemList(model.KCAAObject):
+
+    items = jsonobject.JSONProperty('items', {}, value_type=dict,
+                                    element_type=SlotItem)
+    """Slot items."""
+    item_instances = jsonobject.JSONProperty(
+        'item_instances', {}, value_type=dict, element_type=SlotItemList)
+    """Instances of each slot item definition.
+
+    Keyed by the slot item definition ID, this map contains the list of slot
+    item instances.
+    """
+
+    def update(self, api_name, request, response, objects, debug):
+        super(SlotItemList, self).update(api_name, request, response, objects,
+                                         debug)
+        self.items.clear()
+        self.item_instances.clear()
+        for data in response.api_data:
+            self.items[str(data.api_id)] = SlotItem(
+                id=data.api_id,
+                item_id=data.api_slotitem_id,
+                level=data.api_level,
+                locked=data.api_locked != 0)
+            item_id = str(data.api_slotitem_id)
+            if item_id in self.item_instances:
+                self.item_instances[item_id].append(data.api_id)
+            else:
+                self.item_instances[item_id] = [data.api_id]

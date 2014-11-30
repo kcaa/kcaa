@@ -11,6 +11,7 @@ import '../util.dart';
 
 part 'quest.dart';
 part 'client.dart';
+part 'equipment.dart';
 part 'fleet.dart';
 part 'mission.dart';
 part 'practice.dart';
@@ -41,6 +42,13 @@ class AssistantModel extends Observable {
        ["2", "輪形陣"],
        ["3", "梯形陣"],
        ["4", "単横陣"]]);
+
+  // Equipments.
+  @observable int numEquipments = 0;
+  @observable final List<EquipmentDefinition> equipmentDefinitions =
+      new ObservableList<EquipmentDefinition>();
+  Map<int, EquipmentDefinition> equipmentDefinitionMap =
+      new Map<int, EquipmentDefinition>();
 
   // Repair dock.
   @observable int numShipsBeingRepaired = 0;

@@ -63,12 +63,14 @@ class Assistant extends PolymerElement {
     "Screen": handleScreen,
     "ShipDefinitionList": handleShipDefinitionList,
     "ShipList": handleShipList,
+    "SlotItemDefinitionList": handleEquipmentDefinitionList,
+    "SlotItemList": handleEquipmentList,
   };
   // Referenced objects. If the object list contains these object types, the
   // client processes them first so that other object handlers can reference the
   // contents of them.
   static final List<String> REFERENCED_OBJECTS = <String>[
-      "ShipDefinitionList", "ShipList", "MissionList",
+      "ShipDefinitionList", "ShipList", "MissionList", "SlotItemDefinitionList",
   ];
 
   Assistant.created() : super.created() {

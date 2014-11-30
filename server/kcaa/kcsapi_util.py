@@ -94,6 +94,8 @@ class KCSAPIHandler(object):
                                      kcsapi.FleetList,
                                      kcsapi.MissionList],
             '/api_req_hensei/change': [kcsapi.FleetList],
+            # Equipments (slot items).
+            '/api_get_member/slot_item': [kcsapi.SlotItemList],
             # Repair docks.
             '/api_get_member/ndock': [kcsapi.RepairDock,
                                       kcsapi.ShipList],

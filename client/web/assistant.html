@@ -247,6 +247,26 @@
       </div>
       <div class="row horizontal">
         <div class="board">
+          <h3 data-collapsed="true">装備 ({{model.numEquipments}}個)</h3>
+          <div class="table">
+            <div class="trow thead">
+              <div class="description">装備</div>
+              <div>個数</div>
+            </div>
+            <template repeat="{{definition in model.equipmentDefinitions}}">
+              <div class="trow">
+                <div class="description">
+                  <div class="title">{{definition.name}}</div>
+                  <div>{{definition.typeName}}</div>
+                </div>
+                <div>{{definition.instances.length}}</div>
+              </div>
+            </template>
+          </div>
+        </div>
+      </div>
+      <div class="row horizontal">
+        <div class="board">
           <h3 data-collapsed="true">
             入渠 ({{model.numShipsBeingRepaired}}/{{
               model.repairSlots.length}}隻)
