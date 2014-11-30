@@ -167,7 +167,7 @@ class SlotItem(jsonobject.JSONSerializableObject):
     """True if this item is locked."""
 
 
-class SlotItemList(jsonobject.JSONSerializableObject):
+class SlotItemIdList(jsonobject.JSONSerializableObject):
 
     item_ids = jsonobject.JSONProperty('item_ids', value_type=list,
                                        element_type=int)
@@ -179,7 +179,7 @@ class SlotItemList(model.KCAAObject):
                                     element_type=SlotItem)
     """Slot items."""
     item_instances = jsonobject.JSONProperty(
-        'item_instances', {}, value_type=dict, element_type=SlotItemList)
+        'item_instances', {}, value_type=dict, element_type=SlotItemIdList)
     """Instances of each slot item definition.
 
     Keyed by the slot item definition ID, this map contains the list of slot
@@ -199,6 +199,7 @@ class SlotItemList(model.KCAAObject):
                 locked=data.api_locked != 0)
             item_id = str(data.api_slotitem_id)
             if item_id in self.item_instances:
-                self.item_instances[item_id].append(data.api_id)
+                self.item_instances[item_id].item_ids.append(data.api_id)
             else:
-                self.item_instances[item_id] = [data.api_id]
+                self.item_instances[item_id] = SlotItemIdList(
+                    item_ids=[data.api_id])
