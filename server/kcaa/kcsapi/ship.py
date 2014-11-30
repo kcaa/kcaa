@@ -197,7 +197,9 @@ class ShipDefinition(jsonobject.JSONSerializableObject):
 
     @property
     def rebuilding_rank(self):
-        return (4 * self.rebuilding_material.anti_air +
+        # Signature 402: Maru-Yu
+        return (100 if self.signature == 402 else 0 +
+                4 * self.rebuilding_material.anti_air +
                 3 * self.rebuilding_material.firepower +
                 2 * self.rebuilding_material.armor +
                 1 * self.rebuilding_material.thunderstroke)
