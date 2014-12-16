@@ -102,10 +102,22 @@ class PlayerResources(model.KCAAObject):
     """Repair booster."""
     build_material = jsonobject.JSONProperty('build_material', value_type=int)
     """Build material."""
+    rebuild_material = jsonobject.JSONProperty('rebuild_material',
+                                               value_type=int)
+    """Rebuild material."""
 
     def update(self, api_name, request, response, objects, debug):
         super(PlayerResources, self).update(api_name, request, response,
                                             objects, debug)
+        if api_name == '/api_port/port':
+            self.update_material(response.api_data.api_material)
+        elif api_name == '/api_get_member/material':
+            self.update_material(response.api_data)
+        elif api_name == '/api_req_kousyou/destroyship':
+            self.fuel, self.ammo, self.steel, self.bauxite = (
+                response.api_data.api_material)
+
+    def update_material(self, api_data):
         id_to_field = [
             'fuel',
             'ammo',
@@ -114,15 +126,12 @@ class PlayerResources(model.KCAAObject):
             'build_booster',
             'repair_booster',
             'build_material',
+            'rebuild_material',
         ]
-        if api_name == '/api_port/port':
-            for data in response.api_data.api_material:
-                if data.api_id < 1 or data.api_id > len(id_to_field):
-                    continue
-                setattr(self, id_to_field[data.api_id - 1], data.api_value)
-        elif api_name == '/api_req_kousyou/destroyship':
-            self.fuel, self.ammo, self.steel, self.bauxite = (
-                response.api_data.api_material)
+        for data in api_data:
+            if data.api_id < 1 or data.api_id > len(id_to_field):
+                continue
+            setattr(self, id_to_field[data.api_id - 1], data.api_value)
 
 
 class PlayerResourcesJournal(model.KCAAJournalObject.typed(PlayerResources)):
@@ -156,16 +165,18 @@ class PlayerResourcesJournal(model.KCAAJournalObject.typed(PlayerResources)):
             description = {'datetime': ('datetime', 'Datetime'),
                            'build_booster': ('number', 'Build booster'),
                            'repair_booster': ('number', 'Repair booster'),
-                           'build_material': ('number', 'Build material')}
+                           'build_material': ('number', 'Build material'),
+                           'rebuild_material': ('number', 'Rebuild material')}
             data = [{'datetime': datetime.datetime.fromtimestamp(entry.time),
                      'build_booster': entry.value.build_booster,
                      'repair_booster': entry.value.repair_booster,
-                     'build_material': entry.value.build_material}
+                     'build_material': entry.value.build_material,
+                     'rebuild_material': entry.value.rebuild_material}
                     for entry in self.entries]
             data_table = gviz_api.DataTable(description)
             data_table.LoadData(data)
             return data_table.ToJSon(columns_order=[
                 'datetime', 'build_booster', 'repair_booster',
-                'build_material'])
+                'build_material', 'rebuild_material'])
         else:
             return None

@@ -70,6 +70,8 @@ class KCSAPIHandler(object):
                             kcsapi.SlotItemDefinitionList],
             # Player info.
             '/api_get_member/basic': [kcsapi.player.PlayerInfo],
+            # Resources.
+            '/api_get_member/material': [kcsapi.player.PlayerResources],
             # Encyclopedia.
             '/api_get_member/picture_book': [kcsapi.NullHandler()],
             # Ships.
