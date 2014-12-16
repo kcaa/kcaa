@@ -122,7 +122,8 @@ class KCSAPIHandler(object):
             '/api_req_kousyou/destroyship': [kcsapi.ShipList,
                                              kcsapi.PlayerResources],
             '/api_req_kousyou/getship': [kcsapi.ShipList,
-                                         kcsapi.BuildDock],
+                                         kcsapi.BuildDock,
+                                         kcsapi.SlotItemList],
             # Quests.
             '/api_get_member/questlist': [kcsapi.QuestList],
             '/api_req_quest/start': [kcsapi.NullHandler()],

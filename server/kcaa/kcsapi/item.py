@@ -210,6 +210,13 @@ class SlotItemList(model.KCAAObject):
                 item = self.items[instance_id]
                 del self.items[instance_id]
                 self.item_instances[str(item.item_id)].item_ids.remove(item.id)
+        elif api_name == '/api_req_kousyou/getship':
+            for data in response.api_data.api_slotitem:
+                self.add_item(SlotItem(
+                    id=data.api_id,
+                    item_id=data.api_slotitem_id,
+                    level=0,
+                    locked=False))
 
     def add_item(self, item):
         self.items[str(item.id)] = item
