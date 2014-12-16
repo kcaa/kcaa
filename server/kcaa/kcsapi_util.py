@@ -113,14 +113,17 @@ class KCSAPIHandler(object):
             '/api_req_nyukyo/start': [kcsapi.RepairDock,
                                       kcsapi.ShipList],
             # Shipyard and build docks.
+            # destroyship must handle SlotItemList before ShipList to get the
+            # list of equipments to be disposed.
             '/api_get_member/kdock': [kcsapi.BuildDock],
             '/api_req_kousyou/createship': [kcsapi.NullHandler()],
             '/api_req_kousyou/createship_speedchange': [kcsapi.BuildDock],
             '/api_req_kousyou/createitem': [kcsapi.SlotItemList],
             '/api_req_kousyou/destroyitem2': [kcsapi.PlayerResources,
                                               kcsapi.SlotItemList],
-            '/api_req_kousyou/destroyship': [kcsapi.ShipList,
-                                             kcsapi.PlayerResources],
+            '/api_req_kousyou/destroyship': [kcsapi.PlayerResources,
+                                             kcsapi.SlotItemList,
+                                             kcsapi.ShipList],
             '/api_req_kousyou/getship': [kcsapi.ShipList,
                                          kcsapi.BuildDock,
                                          kcsapi.SlotItemList],

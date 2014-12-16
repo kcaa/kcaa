@@ -207,9 +207,17 @@ class SlotItemList(model.KCAAObject):
                 locked=False))
         elif api_name == '/api_req_kousyou/destroyitem2':
             for instance_id in request.api_slotitem_ids.split(','):
-                item = self.items[instance_id]
-                del self.items[instance_id]
-                self.item_instances[str(item.item_id)].item_ids.remove(item.id)
+                self.remove_item(instance_id)
+        elif api_name == '/api_req_kousyou/destroyship':
+            ship_list = objects.get('ShipList')
+            if not ship_list:
+                logger.error('ShipList not found when destroying a ship.')
+                return
+            ship = ship_list.ships[request.api_ship_id]
+            for equipment_id in ship.equipment_ids:
+                if equipment_id != -1:
+                    self.remove_item(equipment_id)
+
         elif api_name == '/api_req_kousyou/getship':
             for data in response.api_data.api_slotitem:
                 self.add_item(SlotItem(
@@ -225,3 +233,8 @@ class SlotItemList(model.KCAAObject):
             self.item_instances[item_id].item_ids.append(item.id)
         else:
             self.item_instances[item_id] = SlotItemIdList(item_ids=[item.id])
+
+    def remove_item(self, instance_id):
+        item = self.items[str(instance_id)]
+        del self.items[str(instance_id)]
+        self.item_instances[str(item.item_id)].item_ids.remove(item.id)
