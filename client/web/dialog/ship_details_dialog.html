@@ -128,19 +128,36 @@
           <div>回避</div>
         </div>
         <template repeat="{{equipment in ship.equipments}}">
-          <div class="trow">
-            <div class="description">
-              <div class="title">{{equipment.definition.name}}</div>
-              <div>{{equipment.definition.typeName}}</div>
+          <template if="{{equipment == null}}">
+            <div class="trow">
+              <div class="description">
+                <div class="title">(不明)</div>
+                <div>戦闘報酬艦装備</div>
+              </div>
+              <div class="numberColumn"></div>
+              <div class="numberColumn"></div>
+              <div class="numberColumn"></div>
+              <div class="numberColumn"></div>
+              <div class="numberColumn"></div>
+              <div class="numberColumn"></div>
+              <div class="numberColumn"></div>
             </div>
-            <div class="numberColumn">{{equipment.definition.firepower}}</div>
-            <div class="numberColumn">{{equipment.definition.fireHit}}</div>
-            <div class="numberColumn">{{equipment.definition.thunderstroke}}</div>
-            <div class="numberColumn">{{equipment.definition.bombPower}}</div>
-            <div class="numberColumn">{{equipment.definition.antiAir}}</div>
-            <div class="numberColumn">{{equipment.definition.antiSubmarine}}</div>
-            <div class="numberColumn">{{equipment.definition.fireFlee}}</div>
-          </div>
+          </template>
+          <template if="{{equipment != null}}">
+            <div class="trow">
+              <div class="description">
+                <div class="title">{{equipment.definition.name}}</div>
+                <div>{{equipment.definition.typeName}}</div>
+              </div>
+              <div class="numberColumn">{{equipment.definition.firepower}}</div>
+              <div class="numberColumn">{{equipment.definition.fireHit}}</div>
+              <div class="numberColumn">{{equipment.definition.thunderstroke}}</div>
+              <div class="numberColumn">{{equipment.definition.bombPower}}</div>
+              <div class="numberColumn">{{equipment.definition.antiAir}}</div>
+              <div class="numberColumn">{{equipment.definition.antiSubmarine}}</div>
+              <div class="numberColumn">{{equipment.definition.fireFlee}}</div>
+            </div>
+          </template>
         </template>
       </div>
       <h4>ジャーナル</h4>
