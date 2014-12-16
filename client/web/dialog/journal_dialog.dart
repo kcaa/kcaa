@@ -95,7 +95,7 @@ class JournalDialog extends KcaaDialog {
           "hAxis": {
             "viewWindow": {
               "max": now,
-              "min": now.subtract(new Duration(days: 1)),
+              "min": now.subtract(new Duration(days: 30)),
             }
           },
           "theme": "maximized",
