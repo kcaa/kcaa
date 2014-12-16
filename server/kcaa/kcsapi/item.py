@@ -163,7 +163,7 @@ class SlotItem(jsonobject.JSONSerializableObject):
     """Item definition ID."""
     level = jsonobject.ReadonlyJSONProperty('level', value_type=int)
     """Enhancement level."""
-    locked = jsonobject.ReadonlyJSONProperty('level', value_type=bool)
+    locked = jsonobject.ReadonlyJSONProperty('locked', value_type=bool)
     """True if this item is locked."""
 
 
