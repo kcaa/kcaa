@@ -25,7 +25,8 @@ class AutoCheckMissionResult(base.AutoManipulator):
     # Missions can be completed 60 seconds earlier than the reported ETA.
     # As the mission complete screen can block other tasks, this starts 5
     # seconds earlier than that and takes 10 seconds of buffer.
-    precursor_duration = 65000
+    precursor_duration = 60000
+    precursor_extra = 5000
 
     # Verbose logging.
     verbose = False
@@ -44,9 +45,13 @@ class AutoCheckMissionResult(base.AutoManipulator):
         mission_list = owner.objects.get('MissionList')
         now = long(1000 * time.time())
         count = 0
+        wait = 10.0
+        precursor_total = cls.precursor_duration + cls.precursor_extra
         for mission in mission_list.missions:
-            if mission.eta and mission.eta - cls.precursor_duration < now:
+            if mission.eta and mission.eta - precursor_total < now:
                 count += 1
+                if mission.eta - cls.precursor_duration < now:
+                    wait = 0.0
         if cls.verbose and (count > 0 or
                             now - cls.interval > cls.last_updated):
             cls.last_updated = now
@@ -65,10 +70,10 @@ class AutoCheckMissionResult(base.AutoManipulator):
                 logger.debug('Left: {:.0f} seconds'.format(
                     (min_eta - now) / 1000))
         if count != 0:
-            return {'count': count}
+            return {'count': count, 'wait': wait}
 
-    def run(self, count):
-        yield 10.0
+    def run(self, count, wait):
+        yield wait
         for _ in xrange(count):
             yield self.do_manipulator(CheckMissionResult)
 
