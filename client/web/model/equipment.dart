@@ -58,17 +58,31 @@ class Equipment extends Observable {
 void handleEquipmentDefinitionList(Assistant assistant, AssistantModel model,
                                    Map<String, dynamic> data) {
   for (var definitionData in (data["items"] as Map).values) {
-    EquipmentDefinition definition = new EquipmentDefinition();
+    var id = definitionData["id"];
+    var definition = model.equipmentDefinitionMap[id];
+    if (definition == null) {
+      definition = new EquipmentDefinition();
+      model.equipmentDefinitionMap[id] = definition;
+    }
     definition.update(definitionData);
-    model.equipmentDefinitions.add(definition);
-    model.equipmentDefinitionMap[definition.id] = definition;
   }
-  model.equipmentDefinitions.sort((a, b) {
+  var definitionsLength = model.equipmentDefinitionMap.length;
+  resizeList(model.equipmentDefinitions, definitionsLength,
+      () => new EquipmentDefinition());
+  var sortedDefinitions =
+      model.equipmentDefinitionMap.values.toList(growable: false);
+  sortedDefinitions.sort((a, b) {
     if (a.type != b.type) {
       return a.type.compareTo(b.type);
     }
     return a.id.compareTo(b.id);
   });
+  for (var i = 0; i < definitionsLength; i++) {
+    var definition = sortedDefinitions[i];
+    if (model.equipmentDefinitions[i] != definition) {
+      model.equipmentDefinitions[i] = definition;
+    }
+  }
 }
 
 void handleEquipmentList(Assistant assistant, AssistantModel model,
