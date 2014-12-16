@@ -531,7 +531,6 @@ class ShipList(model.KCAAObject):
             # /api_req_kaisou/remodeling.
             # When remodeling, ship3 only returns the updated ship, though as
             # a list.
-            # TODO: Check if get_ship() works with remodeling.
             for data in response.api_data.api_ship_data:
                 ship = self.get_ship(data, objects).convert_to_dict()
                 ShipList.update_ship(ship, data)
@@ -544,6 +543,11 @@ class ShipList(model.KCAAObject):
                 ship = self.ships[str(ship_data.api_id)]
                 ship.loaded_resource.fuel = ship_data.api_fuel
                 ship.loaded_resource.ammo = ship_data.api_bull
+        elif api_name == '/api_req_kaisou/remodeling':
+            ship = self.ships[request.api_id]
+            ship_defs = objects['ShipDefinitionList'].ships
+            self.ships[str(ship.id)] = Ship(
+                **ship_defs[str(ship.upgrade_to)].convert_to_dict())
         elif api_name == '/api_req_kaisou/powerup':
             ship_data = response.api_data.api_ship
             ship = self.ships[str(ship_data.api_id)].convert_to_dict()

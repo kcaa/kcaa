@@ -78,7 +78,6 @@ class KCSAPIHandler(object):
                                       kcsapi.FleetList],
             '/api_req_hensei/lock': [kcsapi.ShipList],
             '/api_req_hokyu/charge': [kcsapi.ShipList],
-            '/api_req_kaisou/powerup': [kcsapi.ShipList],
             # Port.
             # Like /api_start2, /api_port/port delivers most (all?) member
             # information; variant data for the player, ships, fleets, repair
@@ -96,6 +95,9 @@ class KCSAPIHandler(object):
             '/api_req_hensei/change': [kcsapi.FleetList],
             # Equipments (slot items).
             '/api_get_member/slot_item': [kcsapi.SlotItemList],
+            # Rebuilding.
+            '/api_req_kaisou/remodeling': [kcsapi.ShipList],
+            '/api_req_kaisou/powerup': [kcsapi.ShipList],
             # Repair docks.
             '/api_get_member/ndock': [kcsapi.RepairDock,
                                       kcsapi.ShipList],

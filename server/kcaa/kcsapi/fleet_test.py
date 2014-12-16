@@ -58,7 +58,7 @@ class TestFleetList(object):
         assert len(fleet_list.fleets) == 1
         fleet_ = fleet_list.fleets[0]
         assert fleet_.id == 1
-        assert fleet_.name == 'FleetName'
+        assert fleet_.name == u'FleetName'
         assert fleet_.ship_ids == [123, 456, 789]
         assert fleet_.mission_id == 111
         assert not fleet_.mission_complete

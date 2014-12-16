@@ -16,7 +16,9 @@ class TestShipList(object):
         ship_list = ship.ShipList()
         ship_list.ships['1'] = ship.Ship(
             id=1,
-            name=u'Ship 1',
+            ship_id=1001,
+            name=u'Ship 1001',
+            armor=ship.Variable(baseline=1, maximum=2),
             upgrade_to=1002)
         return ship_list
 
@@ -46,7 +48,7 @@ class TestShipList(object):
             anti_submarine=ship.Variable(baseline=111, maximum=112),
             scouting=ship.Variable(baseline=113, maximum=114),
             luck=ship.Variable(baseline=115, maximum=116),
-            upgrade_to=1002)
+            upgrade_to=0)
         return ship_defs
 
     def pytest_funcarg__ship_data(self):
@@ -85,7 +87,27 @@ class TestShipList(object):
         ship_ = ship_list.ships['1']
         assert ship_.id == 1
         assert ship_.name == u'Ship 1001'
+        assert ship_.level == 2
+        assert ship_.hitpoint.current == 3
+        assert ship_.hitpoint.maximum == 4
         assert ship_.upgrade_to == 1002
+
+    def test_update_remodeling(self, ship_list, ship_defs):
+        assert '1' in ship_list.ships
+        ship_ = ship_list.ships['1']
+        assert ship_.name == u'Ship 1001'
+        assert ship_.armor.baseline == 1
+        assert ship_.armor.maximum == 2
+        request = jsonobject.parse_text("""{
+            "api_id": "1"
+        }""")
+        ship_list.update('/api_req_kaisou/remodeling', request, None,
+                         {'ShipDefinitionList': ship_defs}, False)
+        ship_ = ship_list.ships['1']
+        assert ship_.name == u'Ship 1002'
+        assert ship_.armor.baseline == 11
+        assert ship_.armor.maximum == 12
+        assert ship_.upgrade_to == 0
 
 
 class TestShipPropertyFilter(object):
