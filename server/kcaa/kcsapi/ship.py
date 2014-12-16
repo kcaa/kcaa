@@ -82,9 +82,6 @@ class ShipDefinition(jsonobject.JSONSerializableObject):
     resource_capacity = jsonobject.ReadonlyJSONProperty(
         'resource_capacity', value_type=resource.Resource)
     """Resource capacity."""
-    hull_durability = jsonobject.ReadonlyJSONProperty('hull_durability',
-                                                      value_type=Variable)
-    """Hull durability."""
     armor = jsonobject.ReadonlyJSONProperty('armor', value_type=Variable)
     """Armor."""
     avoidance = jsonobject.ReadonlyJSONProperty('avoidance',
@@ -231,9 +228,6 @@ class ShipDefinitionList(model.KCAAObject):
                 resource_capacity=resource.Resource(
                     fuel=data.api_fuel_max,
                     ammo=data.api_bull_max),
-                hull_durability=Variable(
-                    baseline=data.api_taik[0],
-                    maximum=data.api_taik[1]),
                 armor=Variable(
                     baseline=data.api_souk[0],
                     maximum=data.api_souk[1]),
@@ -647,13 +641,8 @@ class ShipList(model.KCAAObject):
                 anti_air=ship_data.api_kyouka[2],
                 armor=ship_data.api_kyouka[3]),
             'sort_order': ship_data.api_sortno})
-        if hasattr(ship_data, 'backs'):
-            ship['rarity'] = ship_data.backs
-        if hasattr(ship_data, 'api_taik'):
-            ship['hull_durability'] = Variable(
-                current=ship_data.api_taik[0],
-                baseline=ship['hull_durability'].baseline,
-                maximum=ship_data.api_taik[1])
+        if hasattr(ship_data, 'api_backs'):
+            ship['rarity'] = ship_data.api_backs
         # api_exp may be given as a list or a scalar.
         if isinstance(ship_data.api_exp, list):
             ship.update({

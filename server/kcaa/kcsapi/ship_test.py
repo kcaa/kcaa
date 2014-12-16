@@ -2,11 +2,90 @@
 
 import pytest
 
+import jsonobject
 import ship
 
 
 SPF = ship.ShipPropertyFilter
 SP = ship.ShipPredicate
+
+
+class TestShipList(object):
+
+    def pytest_funcarg__ship_list(self):
+        ship_list = ship.ShipList()
+        ship_list.ships['1'] = ship.Ship(
+            id=1,
+            name=u'Ship 1',
+            upgrade_to=1002)
+        return ship_list
+
+    def pytest_funcarg__ship_defs(self):
+        ship_defs = ship.ShipDefinitionList()
+        ship_defs.ships['1001'] = ship.ShipDefinition(
+            id=1001,
+            name=u'Ship 1001',
+            ship_type=ship.ShipDefinition.SHIP_TYPE_DESTROYER,
+            armor=ship.Variable(baseline=1, maximum=2),
+            avoidance=ship.Variable(baseline=3, maximum=4),
+            firepower=ship.Variable(baseline=5, maximum=6),
+            thunderstroke=ship.Variable(baseline=7, maximum=8),
+            anti_air=ship.Variable(baseline=9, maximum=10),
+            anti_submarine=ship.Variable(baseline=11, maximum=12),
+            scouting=ship.Variable(baseline=13, maximum=14),
+            luck=ship.Variable(baseline=15, maximum=16),
+            upgrade_to=1002)
+        ship_defs.ships['1002'] = ship.ShipDefinition(
+            id=1001,
+            name=u'Ship 1002',
+            armor=ship.Variable(baseline=11, maximum=12),
+            avoidance=ship.Variable(baseline=13, maximum=14),
+            firepower=ship.Variable(baseline=15, maximum=16),
+            thunderstroke=ship.Variable(baseline=17, maximum=18),
+            anti_air=ship.Variable(baseline=19, maximum=110),
+            anti_submarine=ship.Variable(baseline=111, maximum=112),
+            scouting=ship.Variable(baseline=113, maximum=114),
+            luck=ship.Variable(baseline=115, maximum=116),
+            upgrade_to=1002)
+        return ship_defs
+
+    def pytest_funcarg__ship_data(self):
+        return jsonobject.parse_text("""{
+            "api_id": 1,
+            "api_ship_id": 1001,
+            "api_lv": 2,
+            "api_nowhp": 3,
+            "api_maxhp": 4,
+            "api_cond": 5,
+            "api_fuel": 6,
+            "api_bull": 7,
+            "api_soukou": [8, 9],
+            "api_kaihi": [10, 11],
+            "api_karyoku": [12, 13],
+            "api_raisou": [14, 15],
+            "api_taiku": [16, 17],
+            "api_taisen": [18, 19],
+            "api_sakuteki": [20, 21],
+            "api_lucky": [22, 23],
+            "api_kyouka": [1, 2, 3, 4, 0],
+            "api_sortno": 1001,
+            "api_backs": 1,
+            "api_exp": [24, 25, 26],
+            "api_locked": 1
+        }""")
+
+    # TODO: Test /api_port/port.
+
+    def test_update_ship2(self, ship_defs, ship_data):
+        response = jsonobject.parse({'api_data': [ship_data]})
+        ship_list = ship.ShipList()
+        ship_list.update('/api_get_member/ship2', None, response,
+                         {'ShipDefinitionList': ship_defs}, False)
+        assert '1' in ship_list.ships
+        ship_ = ship_list.ships['1']
+        assert ship_.id == 1
+        assert ship_.name == u'Ship 1001'
+        assert ship_.upgrade_to == 1002
 
 
 class TestShipPropertyFilter(object):
