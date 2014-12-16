@@ -113,6 +113,11 @@ class PlayerResources(model.KCAAObject):
             self.update_material(response.api_data.api_material)
         elif api_name == '/api_get_member/material':
             self.update_material(response.api_data)
+        elif api_name == '/api_req_kousyou/destroyitem2':
+            self.fuel += response.api_data.api_get_material[0]
+            self.ammo += response.api_data.api_get_material[1]
+            self.steel += response.api_data.api_get_material[2]
+            self.bauxite += response.api_data.api_get_material[3]
         elif api_name == '/api_req_kousyou/destroyship':
             self.fuel, self.ammo, self.steel, self.bauxite = (
                 response.api_data.api_material)

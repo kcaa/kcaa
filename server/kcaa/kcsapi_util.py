@@ -97,9 +97,10 @@ class KCSAPIHandler(object):
             '/api_req_hensei/change': [kcsapi.FleetList],
             # Equipments (slot items).
             # Set/unset are covered by ship3 and no need to handle for now.
+            # unsetslot looks strange: a mapping from type to item IDs?
             '/api_get_member/slot_item': [kcsapi.SlotItemList],
+            '/api_get_member/unsetslot': [kcsapi.NullHandler()],
             '/api_req_kaisou/slotset': [kcsapi.NullHandler()],
-            '/api_req_kaisou/unsetslot': [kcsapi.NullHandler()],
             '/api_req_kaisou/unsetslot_all': [kcsapi.NullHandler()],
             # Rebuilding.
             '/api_req_kaisou/remodeling': [kcsapi.ShipList],
@@ -115,7 +116,9 @@ class KCSAPIHandler(object):
             '/api_get_member/kdock': [kcsapi.BuildDock],
             '/api_req_kousyou/createship': [kcsapi.NullHandler()],
             '/api_req_kousyou/createship_speedchange': [kcsapi.BuildDock],
-            '/api_req_kousyou/createitem': [kcsapi.NullHandler()],
+            '/api_req_kousyou/createitem': [kcsapi.SlotItemList],
+            '/api_req_kousyou/destroyitem2': [kcsapi.PlayerResources,
+                                              kcsapi.SlotItemList],
             '/api_req_kousyou/destroyship': [kcsapi.ShipList,
                                              kcsapi.PlayerResources],
             '/api_req_kousyou/getship': [kcsapi.ShipList,

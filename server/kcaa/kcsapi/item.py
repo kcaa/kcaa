@@ -189,17 +189,32 @@ class SlotItemList(model.KCAAObject):
     def update(self, api_name, request, response, objects, debug):
         super(SlotItemList, self).update(api_name, request, response, objects,
                                          debug)
-        self.items.clear()
-        self.item_instances.clear()
-        for data in response.api_data:
-            self.items[str(data.api_id)] = SlotItem(
+        if api_name == '/api_get_member/slot_item':
+            self.items.clear()
+            self.item_instances.clear()
+            for data in response.api_data:
+                self.add_item(SlotItem(
+                    id=data.api_id,
+                    item_id=data.api_slotitem_id,
+                    level=data.api_level,
+                    locked=data.api_locked != 0))
+        elif api_name == '/api_req_kousyou/createitem':
+            data = response.api_data.api_slot_item
+            self.add_item(SlotItem(
                 id=data.api_id,
                 item_id=data.api_slotitem_id,
-                level=data.api_level,
-                locked=data.api_locked != 0)
-            item_id = str(data.api_slotitem_id)
-            if item_id in self.item_instances:
-                self.item_instances[item_id].item_ids.append(data.api_id)
-            else:
-                self.item_instances[item_id] = SlotItemIdList(
-                    item_ids=[data.api_id])
+                level=0,
+                locked=False))
+        elif api_name == '/api_req_kousyou/destroyitem2':
+            for instance_id in request.api_slotitem_ids.split(','):
+                item = self.items[instance_id]
+                del self.items[instance_id]
+                self.item_instances[str(item.item_id)].remove(item.id)
+
+    def add_item(self, item):
+        self.items[str(item.id)] = item
+        item_id = str(item.item_id)
+        if item_id in self.item_instances:
+            self.item_instances[item_id].item_ids.append(item.id)
+        else:
+            self.item_instances[item_id] = SlotItemIdList(item_ids=[item.id])
