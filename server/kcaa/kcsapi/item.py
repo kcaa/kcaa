@@ -209,7 +209,7 @@ class SlotItemList(model.KCAAObject):
             for instance_id in request.api_slotitem_ids.split(','):
                 item = self.items[instance_id]
                 del self.items[instance_id]
-                self.item_instances[str(item.item_id)].remove(item.id)
+                self.item_instances[str(item.item_id)].item_ids.remove(item.id)
 
     def add_item(self, item):
         self.items[str(item.id)] = item
