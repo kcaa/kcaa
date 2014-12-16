@@ -288,7 +288,6 @@ class ShipDefinitionList(model.KCAAObject):
             #   api_sokuh: Only in master. Speed class? But as it's a
             #              a dependent variable only in master, I can't rely on
             #              it.
-            #   api_slot: Only in member. Slot items?
             #   api_srate: Only in member. The same as api_star?
             #   api_star: Only in member. The number of stars?
             # Ignored fields (known to be useless for KCAA):
@@ -359,6 +358,9 @@ class Ship(ShipDefinition):
             ammo=round(float(loaded.ammo) / capacity.ammo, 1))
     enhanced_ability = jsonobject.ReadonlyJSONProperty(
         'enhanced_ability', value_type=AbilityEnhancement)
+    equipment_ids = jsonobject.JSONProperty(
+        'equipment_ids', value_type=list, element_type=int)
+    """IDs of equipments."""
     """Enhanced ability by rebuilding or growth."""
     locked = jsonobject.JSONProperty('locked', value_type=bool)
     """True if this ship is locked."""
@@ -644,7 +646,9 @@ class ShipList(model.KCAAObject):
                 thunderstroke=ship_data.api_kyouka[1],
                 anti_air=ship_data.api_kyouka[2],
                 armor=ship_data.api_kyouka[3]),
+            'equipment_ids': [id for id in ship_data.api_slot],
             'sort_order': ship_data.api_sortno})
+        del ship['equipment_ids'][ship['slot_count']:]
         if hasattr(ship_data, 'api_backs'):
             ship['rarity'] = ship_data.api_backs
         # api_exp may be given as a list or a scalar.

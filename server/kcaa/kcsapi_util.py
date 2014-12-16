@@ -96,7 +96,11 @@ class KCSAPIHandler(object):
                                      kcsapi.MissionList],
             '/api_req_hensei/change': [kcsapi.FleetList],
             # Equipments (slot items).
+            # Set/unset are covered by ship3 and no need to handle for now.
             '/api_get_member/slot_item': [kcsapi.SlotItemList],
+            '/api_req_kaisou/slotset': [kcsapi.NullHandler()],
+            '/api_req_kaisou/unsetslot': [kcsapi.NullHandler()],
+            '/api_req_kaisou/unsetslot_all': [kcsapi.NullHandler()],
             # Rebuilding.
             '/api_req_kaisou/remodeling': [kcsapi.ShipList],
             '/api_req_kaisou/powerup': [kcsapi.ShipList],

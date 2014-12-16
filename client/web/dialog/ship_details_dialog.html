@@ -116,7 +116,33 @@
                on-change="{{addNewTag}}}">
       </div>
       <h4>装備</h4>
-      <div>TODO</div>
+      <div class="table">
+        <div class="trow thead">
+          <div class="description">装備</div>
+          <div>火力</div>
+          <div>命中</div>
+          <div>雷装</div>
+          <div>爆装</div>
+          <div>対空</div>
+          <div>対潜</div>
+          <div>回避</div>
+        </div>
+        <template repeat="{{equipment in ship.equipments}}">
+          <div class="trow">
+            <div class="description">
+              <div class="title">{{equipment.definition.name}}</div>
+              <div>{{equipment.definition.typeName}}</div>
+            </div>
+            <div class="numberColumn">{{equipment.definition.firepower}}</div>
+            <div class="numberColumn">{{equipment.definition.fireHit}}</div>
+            <div class="numberColumn">{{equipment.definition.thunderstroke}}</div>
+            <div class="numberColumn">{{equipment.definition.bombPower}}</div>
+            <div class="numberColumn">{{equipment.definition.antiAir}}</div>
+            <div class="numberColumn">{{equipment.definition.antiSubmarine}}</div>
+            <div class="numberColumn">{{equipment.definition.fireFlee}}</div>
+          </div>
+        </template>
+      </div>
       <h4>ジャーナル</h4>
       <div>TODO</div>
     </div>

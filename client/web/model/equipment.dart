@@ -88,13 +88,22 @@ void handleEquipmentDefinitionList(Assistant assistant, AssistantModel model,
 void handleEquipmentList(Assistant assistant, AssistantModel model,
                          Map<String, dynamic> data) {
   model.numEquipments = 0;
+  model.equipmentMap.clear();
   for (var definition in model.equipmentDefinitions) {
     definition.instances.clear();
   }
   for (var equipmentData in (data["items"] as Map).values) {
     Equipment equipment = new Equipment();
     equipment.update(equipmentData, model.equipmentDefinitionMap);
+    model.equipmentMap[equipment.id]= equipment;
     equipment.definition.instances.add(equipment);
     model.numEquipments += 1;
   }
+  // Virtual entry representing an empty equipment slot.
+  var emptyDefinition = new EquipmentDefinition();
+  emptyDefinition.name = "(なし)";
+  emptyDefinition.typeName = "空きスロット";
+  var emptySlot = new Equipment();
+  emptySlot.definition = emptyDefinition;
+  model.equipmentMap[-1] = emptySlot;
 }

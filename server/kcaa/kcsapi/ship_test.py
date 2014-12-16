@@ -36,6 +36,7 @@ class TestShipList(object):
             anti_submarine=ship.Variable(baseline=11, maximum=12),
             scouting=ship.Variable(baseline=13, maximum=14),
             luck=ship.Variable(baseline=15, maximum=16),
+            slot_count=2,
             upgrade_to=1002)
         ship_defs.ships['1002'] = ship.ShipDefinition(
             id=1001,
@@ -48,6 +49,7 @@ class TestShipList(object):
             anti_submarine=ship.Variable(baseline=111, maximum=112),
             scouting=ship.Variable(baseline=113, maximum=114),
             luck=ship.Variable(baseline=115, maximum=116),
+            slot_count=2,
             upgrade_to=0)
         return ship_defs
 
@@ -70,6 +72,7 @@ class TestShipList(object):
             "api_sakuteki": [20, 21],
             "api_lucky": [22, 23],
             "api_kyouka": [1, 2, 3, 4, 0],
+            "api_slot": [-1, -1, -1, -1, -1],
             "api_sortno": 1001,
             "api_backs": 1,
             "api_exp": [24, 25, 26],

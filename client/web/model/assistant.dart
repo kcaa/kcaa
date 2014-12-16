@@ -49,6 +49,7 @@ class AssistantModel extends Observable {
       new ObservableList<EquipmentDefinition>();
   Map<int, EquipmentDefinition> equipmentDefinitionMap =
       new Map<int, EquipmentDefinition>();
+  Map<int, Equipment> equipmentMap = new Map<int, Equipment>();
 
   // Repair dock.
   @observable int numShipsBeingRepaired = 0;

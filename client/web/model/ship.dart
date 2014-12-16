@@ -109,10 +109,12 @@ class Ship extends Observable {
   @observable String firepowerClass, thunderstrokeClass, antiAirClass,
     armorClass;
   @observable Variable antiSubmarine, avoidance, scouting, luck;
+  @observable final List<Equipment> equipments =
+      new ObservableList<Equipment>();
   @observable bool locked;
   @observable bool isUnderRepair;
   @observable bool awayForMission;
-  @observable List<String> tags = new ObservableList<String>();
+  @observable final List<String> tags = new ObservableList<String>();
   @observable String lockedClass;
   @observable Fleet belongingFleet;
   @observable String stateClass;
@@ -120,7 +122,8 @@ class Ship extends Observable {
 
   Ship();
 
-  void update(Map<String, dynamic> data, List<Fleet> fleets) {
+  void update(Map<String, dynamic> data, List<Fleet> fleets,
+              Map<int, Equipment> equipmentMap) {
     id = data["id"];
     name = data["name"];
     shipType = SHIP_TYPE_MAP[data["ship_type"]];
@@ -148,6 +151,10 @@ class Ship extends Observable {
     avoidance = new Variable.fromJSON(data["avoidance"]);
     scouting = new Variable.fromJSON(data["scouting"]);
     luck = new Variable.fromJSON(data["luck"]);
+    equipments.clear();
+    for (var equipmentId in data["equipment_ids"]) {
+      equipments.add(equipmentMap[equipmentId]);
+    }
     locked = data["locked"];
     isUnderRepair = data["is_under_repair"];
     awayForMission = data["away_for_mission"];
@@ -632,7 +639,7 @@ void handleShipList(Assistant assistant, AssistantModel model,
       ship = new Ship();
       model.shipMap[id] = ship;
     }
-    ship.update(shipData, model.fleets);
+    ship.update(shipData, model.fleets, model.equipmentMap);
     presentShips.add(id);
   }
   // Remove ships that are no longer available.
