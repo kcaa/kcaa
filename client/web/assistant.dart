@@ -262,6 +262,10 @@ class Assistant extends PolymerElement {
     updateAvailableObjects().then((_) {
       runLater(updateAvailableObjectsIntervalMs,
           updateAvailableObjectsPeriodically);
+    },
+    onError: (_) {
+      runLater(updateAvailableObjectsIntervalMs,
+          updateAvailableObjectsPeriodically);
     });
   }
 
