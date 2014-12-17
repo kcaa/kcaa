@@ -10,6 +10,7 @@ class ShipListElement extends PolymerElement {
   @published List<Ship> ships;
   @published ShipFilterer filter = Ship.filterNone;
   @published bool fleet = false;
+  @published bool disabled = false;
 
   ShipComparer shipComparer = Ship.compareByKancolleLevel;
   ShipOrderInverter shipOrderInverter = Ship.orderInDescending;

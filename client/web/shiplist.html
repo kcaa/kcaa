@@ -8,98 +8,100 @@
     <link rel="stylesheet" href="kcaa.css">
     <link rel="stylesheet" href="shiplist.css">
 
-    <div class="table">
-      <div class="trow thead">
-        <div data-type="name" class="description">名前</div>
-        <div data-type="level" class="wide">レベル</div>
-        <div data-type="fuel">燃料</div>
-        <div data-type="ammo">弾薬</div>
-        <div data-type="vitality">戦意</div>
-        <div data-type="hp">HP</div>
-        <div data-type="firepower">火力</div>
-        <div data-type="thunderstroke">雷装</div>
-        <div data-type="antiair">対空</div>
-        <div data-type="armor">装甲</div>
-      </div>
-      <template repeat="{{ship in ships}}">
-        <div class="trow {{ship.stateClass}} {{filter(ship) | toFilterClass}}">
-          <div class="description">
-            <div class="title {{ship.lockedClass}}">
-              <template if="{{assistant != null}}">
-                <a href="#" on-click="{{showModalDialog}}"
-                   data-dialog="kcaaShipDetailsDialog"
-                   data-ship-id="{{ship.id}}">
+    <template if="{{!disabled}}">
+      <div class="table">
+        <div class="trow thead">
+          <div data-type="name" class="description">名前</div>
+          <div data-type="level" class="wide">レベル</div>
+          <div data-type="fuel">燃料</div>
+          <div data-type="ammo">弾薬</div>
+          <div data-type="vitality">戦意</div>
+          <div data-type="hp">HP</div>
+          <div data-type="firepower">火力</div>
+          <div data-type="thunderstroke">雷装</div>
+          <div data-type="antiair">対空</div>
+          <div data-type="armor">装甲</div>
+        </div>
+        <template repeat="{{ship in ships}}">
+          <div class="trow {{ship.stateClass}} {{filter(ship) | toFilterClass}}">
+            <div class="description">
+              <div class="title {{ship.lockedClass}}">
+                <template if="{{assistant != null}}">
+                  <a href="#" on-click="{{showModalDialog}}"
+                     data-dialog="kcaaShipDetailsDialog"
+                     data-ship-id="{{ship.id}}">
+                    {{ship.name}}
+                    <span class="subordinate">({{ship.id}})</span>
+                  </a>
+                </template>
+                <template if="{{assistant == null}}">
                   {{ship.name}}
                   <span class="subordinate">({{ship.id}})</span>
-                </a>
-              </template>
-              <template if="{{assistant == null}}">
-                {{ship.name}}
-                <span class="subordinate">({{ship.id}})</span>
+                </template>
+              </div>
+              <div>{{ship.shipType}}</div>
+              <div>
+                <template if="{{!fleet && ship.belongingFleet != null}}">
+                    第{{ship.belongingFleet.id}}艦隊所属
+                    <template if="{{ship.awayForMission}}">
+                      (遠征中)
+                    </template>
+                </template>
+                <template if="{{ship.isUnderRepair}}">
+                  (入渠中)
+                </template>
+              </div>
+              <!-- TODO: Find a measure to show tags in a compact way. -->
+              <div>
+                <template repeat="{{tag in ship.tags}}">
+                  <span class="tag">{{tag}}</span>
+                </template>
+              </div>
+            </div>
+            <div class="wide numberColumn {{ship.levelClass}}">
+              <div>{{ship.level}}<template
+                if="{{ship.experienceGauge != null}}"><span
+                class="subordinate">.{{ship.experienceGauge}}</span>
+                </template></div>
+              <template if="{{ship.upgradeLevel != 0}}">
+                <div>改: {{ship.upgradeLevel}}</div>
               </template>
             </div>
-            <div>{{ship.shipType}}</div>
-            <div>
-              <template if="{{!fleet && ship.belongingFleet != null}}">
-                  第{{ship.belongingFleet.id}}艦隊所属
-                  <template if="{{ship.awayForMission}}">
-                    (遠征中)
-                  </template>
-              </template>
-              <template if="{{ship.isUnderRepair}}">
-                (入渠中)
-              </template>
+            <div class="numberColumn">
+              <div>{{ship.fuelPercentageString}}%</div>
+              <div>{{ship.fuel}}/{{ship.fuelCapacity}}</div>
             </div>
-            <!-- TODO: Find a measure to show tags in a compact way. -->
-            <div>
-              <template repeat="{{tag in ship.tags}}">
-                <span class="tag">{{tag}}</span>
-              </template>
+            <div class="numberColumn">
+              <div>{{ship.ammoPercentageString}}%</div>
+              <div>{{ship.ammo}}/{{ship.ammoCapacity}}</div>
             </div>
-          </div>
-          <div class="wide numberColumn {{ship.levelClass}}">
-            <div>{{ship.level}}<template
-              if="{{ship.experienceGauge != null}}"><span
-              class="subordinate">.{{ship.experienceGauge}}</span>
-              </template></div>
-            <template if="{{ship.upgradeLevel != 0}}">
-              <div>改: {{ship.upgradeLevel}}</div>
-            </template>
-          </div>
-          <div class="numberColumn">
-            <div>{{ship.fuelPercentageString}}%</div>
-            <div>{{ship.fuel}}/{{ship.fuelCapacity}}</div>
-          </div>
-          <div class="numberColumn">
-            <div>{{ship.ammoPercentageString}}%</div>
-            <div>{{ship.ammo}}/{{ship.ammoCapacity}}</div>
-          </div>
-          <div class="numberColumn">{{ship.vitality}}</div>
-          <div class="numberColumn">
-            <div>{{ship.hpPercentageString}}%</div>
-            <div>{{ship.hp}}/{{ship.maxHp}}</div>
-          </div>
-          <div class="numberColumn {{ship.firepowerClass}}">
-            <div>{{ship.firepower.current}}</div>
-            <div>{{ship.enhancedFirepower}}/{{ship.firepower.maximum}}</div>
-          </div>
-          <div class="numberColumn {{ship.thunderstrokeClass}}">
-            <div>{{ship.thunderstroke.current}}</div>
-            <div>
-              {{ship.enhancedThunderstroke}}/{{ship.thunderstroke.maximum}}
+            <div class="numberColumn">{{ship.vitality}}</div>
+            <div class="numberColumn">
+              <div>{{ship.hpPercentageString}}%</div>
+              <div>{{ship.hp}}/{{ship.maxHp}}</div>
+            </div>
+            <div class="numberColumn {{ship.firepowerClass}}">
+              <div>{{ship.firepower.current}}</div>
+              <div>{{ship.enhancedFirepower}}/{{ship.firepower.maximum}}</div>
+            </div>
+            <div class="numberColumn {{ship.thunderstrokeClass}}">
+              <div>{{ship.thunderstroke.current}}</div>
+              <div>
+                {{ship.enhancedThunderstroke}}/{{ship.thunderstroke.maximum}}
+              </div>
+            </div>
+            <div class="numberColumn {{ship.antiAirClass}}">
+              <div>{{ship.antiAir.current}}</div>
+              <div>{{ship.enhancedAntiAir}}/{{ship.antiAir.maximum}}</div>
+            </div>
+            <div class="numberColumn {{ship.armorClass}}">
+              <div>{{ship.armor.current}}</div>
+              <div>{{ship.enhancedArmor}}/{{ship.armor.maximum}}</div>
             </div>
           </div>
-          <div class="numberColumn {{ship.antiAirClass}}">
-            <div>{{ship.antiAir.current}}</div>
-            <div>{{ship.enhancedAntiAir}}/{{ship.antiAir.maximum}}</div>
-          </div>
-          <div class="numberColumn {{ship.armorClass}}">
-            <div>{{ship.armor.current}}</div>
-            <div>{{ship.enhancedArmor}}/{{ship.armor.maximum}}</div>
-          </div>
-        </div>
-      </template>
-    </div>
+        </template>
+      </div>
+    </template>
   </template>
   <script type="application/dart" src="shiplist.dart"></script>
 </polymer-element>

@@ -149,6 +149,15 @@ class Assistant extends PolymerElement {
     return collapseSection(header, collapseButton, collapsed);
   }
 
+  CollapsedSectionInfo toggleCollapseSectionAndShipList(MouseEvent e) {
+    var info = toggleCollapseSection(e);
+    // Enable the big ship list element when the section is first expanded.
+    if (!info.collapsed) {
+      model.shipList.disabled = false;
+    }
+    return info;
+  }
+
   void toggleCollapseFleet(MouseEvent e) {
     var collapsedSection = toggleCollapseSection(e);
     var fleetId = int.parse(collapsedSection.collapseButton.dataset["fleetId"]);
@@ -159,6 +168,10 @@ class Assistant extends PolymerElement {
     // shadowRoot provides access to the root of this custom element.
     for (Element header in
         shadowRoot.querySelectorAll("div.board *[data-collapsed]")) {
+      // Skip if a collapse button is added manually.
+      if (header.querySelector("button.collapse") != null) {
+        continue;
+      }
       var collapseButton = new ButtonElement();
       collapseButton.classes.add("collapse");
       collapseButton.onClick.listen(toggleCollapseSection);

@@ -179,6 +179,8 @@
           <h3 data-collapsed="true">艦船
             (<template if="{{model.ships.length != model.numFilteredShips}}"
              >{{model.numFilteredShips}}/</template>{{model.ships.length}}隻)
+             <button class="collapse"
+                     on-click="{{toggleCollapseSectionAndShipList}}"></button>
           </h3>
           <div>
             フィルタ:
@@ -240,7 +242,7 @@
           </div>
           <div>
             <kcaa-shiplist id="shiplist" assistant="{{this}}"
-                           ships="{{model.ships}}">
+                           ships="{{model.ships}}" disabled>
             </kcaa-shiplist>
           </div>
         </div>
