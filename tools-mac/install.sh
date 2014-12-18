@@ -8,7 +8,7 @@ PORT=$(which port)
 # WARNING: Mac OS X 10.9 (Marvericks) still use Bash v3!!
 
 function confirm_install_prerequisites() {
-local prerequisites=(gcc pip unzip curl)
+local prerequisites=(pip unzip curl)
   which ${PORT} &> /dev/null
   if [ $? -ne 0 ]; then
     echo "Cannot find 'port' (MacPorts) at ${PORT}."

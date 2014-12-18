@@ -33,8 +33,9 @@ Install thirdparty softwares:
 - Pillow for Python 2.7: https://pypi.python.org/pypi/Pillow/2.4.0
 - Java Runtime Environment (JRE): http://www.java.com/en/download/
 
-And make sure you have a Chrome with a Flash player plugin. You can choose
-Firefox as well in `tools-windows/config.bat` file.
+And make sure you have a [Chrome](https://www.google.com/chrome) browser.
+You can choose Firefox as well in `tools-windows/config.bat` file (but it's
+not tested recently).
 
 Then download the latest kcaa_release_vX.X.X.zip (*X.X.X* means a version) from
 [releases page](https://github.com/kcaa/kcaa/releases)
@@ -43,7 +44,7 @@ Find `tools-windows/install.bat` in it and run. This will install some Python
 packages required for KCAA.
 
 Now you're done! Run `tools-windows/start_game.bat`. By default it starts up 2
-Chrome browsers, one for Kancolle itself and another for KCAA information and
+Chrome browsers, one for Kancolle itself and the other for KCAA information and
 control.
 
 Ask any questions (either in English or Japanese) at
@@ -60,8 +61,9 @@ If you don't get the meaning, download the latest kcaa_release_vX.X.X.zip
 [releases page](https://github.com/kcaa/kcaa/releases)
 and unzip it.
 
-Also make sure you have a Chrome with a Flash player plugin. You can choose
-Firefox as well in `tools/config` file.
+And make sure you have a [Chrome](https://www.google.com/chrome) browser.
+You can choose Firefox as well in `tools/config.bat` file (but it's not tested
+recently).
 
 Then run `tools/install.sh`. You are required to have a sudoer permission.
 
@@ -69,7 +71,45 @@ Then run `tools/install.sh`. You are required to have a sudoer permission.
     ./install.sh
 
 Now you're done! Run `tools/start_game.sh`. By default it starts up 2 Chrome
-browsers, one for Kancolle itself and another for KCAA information and control.
+browsers, one for Kancolle itself and the other for KCAA information and
+control.
+
+    ./start_game.sh
+
+Ask any questions (either in English or Japanese) at
+https://twitter.com/kcaadev !
+
+## Mac OS
+
+First, `git clone` this repository.
+
+    git clone https://github.com/kcaa/kcaa.git
+
+If you don't get the meaning, download the latest kcaa_release_vX.X.X.zip
+(*X.X.X* means a version) from
+[releases page](https://github.com/kcaa/kcaa/releases)
+and unzip it.
+
+And make sure you have a [Chrome](https://www.google.com/chrome) browser.
+You can choose Firefox as well in `tools/config.bat` file (but it's not tested
+recently).
+
+[MacPorts](https://www.macports.org/install.php) is also required to install
+necessary thirdparty libraries.
+
+[Xcode](https://developer.apple.com/jp/xcode/downloads/) might or might not be
+needed. I haven't tested an environment without Xcode.
+If you haven't installed Xcode, make sure you have the latest
+[Java Runtime Environment](https://java.com/en/download/).
+
+Then run `tools-mac/install.sh`. You are required to have a sudoer permission.
+
+    cd kcaa_vX.X.X/tools-mac
+    ./install.sh
+
+Now you're done! Run `tools-mac/start_game.sh`. By default it starts up 2
+Chrome browsers, one for Kancolle itself and the other for KCAA information and
+control.
 
     ./start_game.sh
 
@@ -79,12 +119,6 @@ https://twitter.com/kcaadev !
 ## Other Linux distributions
 
 Not planned, but it should be technically feasible.
-The main obstacle is to establish the installation process.
-Contributions are very much appreciated.
-
-## Mac OS
-
-Not planned yet, but it should be technically feasible.
 The main obstacle is to establish the installation process.
 Contributions are very much appreciated.
 

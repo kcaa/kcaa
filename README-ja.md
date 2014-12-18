@@ -83,14 +83,50 @@ sudoer権限が必要になります。
 何か詰まったり質問などあれば、 https://twitter.com/kcaadev で何でも聞いてください。
 お待ちしています!
 
+## Mac OS
+
+まずこのリポジトリを `git clone` してください。
+
+    git clone https://github.com/kcaa/kcaa.git
+
+なんのことかわからなければ、最新のリリースパッケージ kcaa_release_vX.X.X.zip
+(X.X.Xはバージョン)を
+[リリース一覧](https://github.com/kcaa/kcaa/releases)
+からダウンロードして解凍してください。
+
+それから、
+[Chrome](http://www.google.co.jp/intl/ja/chrome/browser/)
+がインストールされていることを確認してください。
+`tools/config`を書き換えればFirefoxを選ぶこともできます。
+
+サードパーティライブラリのインストールのため、
+[MacPorts](https://www.macports.org/install.php)
+も必要です。
+
+[Xcode](https://developer.apple.com/jp/xcode/downloads/)
+も必要かもしれません。要らないかもしれませんがXcodeの無い環境では動くかどうかテストしていません。
+Xcodeを入れない場合でも、
+[Java Runtime Environment](https://java.com/ja/download/)
+はインストールしておいてください。
+
+すべて終わったら `tools-mac/install.sh` を実行してください。
+sudoer権限が必要になります。
+
+    cd kcaa_vX.X.X/tools-mac
+    ./install.sh
+
+これでインストールは終わりです!
+プレイするには、 `tools-mac/start_game.sh` を実行します。
+二つのChromeブラウザが開き、片方には艦これが、もう片方には艦これアシスタントが立ち上がります。
+
+    ./start_game.sh
+
+何か詰まったり質問などあれば、 https://twitter.com/kcaadev で何でも聞いてください。
+お待ちしています!
+
 ## その他のLinux
 
 サポートの予定はありませんが、必要なパッケージのインストールスクリプトができればできるはずです。
-Pull requestあれば大歓迎します!
-
-## Mac OS
-
-まだ予定はありませんが(予定は未定)、必要なパッケージのインストールスクリプトができればできるはずです。
 Pull requestあれば大歓迎します!
 
 # 重要なこと
