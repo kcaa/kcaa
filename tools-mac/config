@@ -1,0 +1,74 @@
+# This file contains a list of configurations.
+# You'll probably need to edit them so that it fits to your environment.
+# This file is parsed by shells, so beware the syntax if you are doing
+# something fancy.
+
+# ============================================================================
+# General
+# ============================================================================
+
+BIN_DIR=$(dirname $0)/../bin
+USER_DATA_DIR=${HOME}/.kcaa/userdata
+
+# ============================================================================
+# Proxy
+# ============================================================================
+
+PROXY_CONTROLLER_BIN=${BIN_DIR}/browsermob-proxy/bin/browsermob-proxy
+PROXY_CONTROLLER_HOST=localhost
+PROXY_CONTROLLER_PORT=9090
+PROXY_PORT=9091
+PROXY_CONTROLLER_DAEMON=0
+PROXY_CONTROLLER_HEAPSIZE=1024m
+
+# ============================================================================
+# Server
+# ============================================================================
+
+SERVER_PORT=0
+BACKEND_UPDATE_INTERVAL=0.2
+
+# ============================================================================
+# Browser
+# ============================================================================
+
+KANCOLLE_BROWSER=chrome
+KCAA_BROWSER=chrome
+SHOW_KANCOLLE_SCREEN=false
+FRONTEND_UPDATE_INTERVAL=0.5
+
+# ============================================================================
+# Chrome-specific
+# ============================================================================
+
+CHROME_BIN=
+CHROMIUM_BIN=
+CHROME_USER_DATA_BASEDIR=${USER_DATA_DIR}/chrome
+CHROMEDRIVER_BIN=${BIN_DIR}/chromedriver_mac
+
+# ============================================================================
+# PhantomJS-specific
+# ============================================================================
+
+PHANTOMJS_BIN=${BIN_DIR}/phantomjs--linux-x86_64/bin/phantomjs
+
+# ============================================================================
+# Preferences
+# ============================================================================
+
+PREFERENCES=${USER_DATA_DIR}/preferences
+CREDENTIALS=
+
+# ============================================================================
+# Journal
+# ============================================================================
+
+JOURNAL_BASEDIR=${USER_DATA_DIR}/journal
+
+# ============================================================================
+# Debug
+# ============================================================================
+
+DEBUG=false
+LOG_FILE=log.txt
+LOG_LEVEL=DEBUG
