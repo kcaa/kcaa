@@ -8,6 +8,7 @@ function confirm_install_prerequisites() {
     ["gcc"]="gcc"
     ["pip"]="python-pip"
     ["unzip"]="unzip"
+    ["wget"]="wget"
   )
   which apt-get &> /dev/null
   if [ $? -ne 0 ]; then

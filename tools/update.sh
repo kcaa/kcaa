@@ -6,22 +6,21 @@ UPDATE_REPOSITORY=${UPDATE_REPOSITORY-1}
 TMP_DIR=$(mktemp -d)
 
 function update_repository() {
+  if ((UPDATE_REPOSITORY == 0)); then
+    return
+  fi
   if [ ! -d .git ]; then
     echo "No git repository found; you must have installed via a release" \
       "package."
-    if ((UPDATE_REPOSITORY)); then
-      echo "In place update is not possible without git repository, as the" \
-        "server code will be inconsistent with client code. Aborting."
-      echo "If you want to enable in place update from next time, try git " \
-        "clone:"
-      echo "  cd ~"
-      echo "  git clone https://github.com/kcaa/kcaa.git"
-      echo "  kcaa/tools/update.sh"
-      exit 1
-    else
-      echo "This is valid for the initial installation. Just skipping."
-      return
-    fi
+    echo "In place update is not possible without git repository, as the" \
+      "server code will be inconsistent with client code. Aborting."
+    echo "If you want to enable in place update from next time, try git " \
+      "clone:"
+    echo "  cd ~"
+    echo "  git clone https://github.com/kcaa/kcaa.git"
+    echo "  cd kcaa"
+    echo "  tools/update.sh"
+    exit 1
   fi
   echo "Updating git repository..."
   git fetch origin
