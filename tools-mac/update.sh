@@ -39,7 +39,7 @@ function update() {
   fi
   local kcaa_repo_base=https://raw.githubusercontent.com/kcaa/kcaa
   local latest_version_file=${kcaa_repo_base}/latest_release/${version_file}
-  curl -s ${latest_version_file} > ${TMP_DIR}/${version_file}
+  curl -sL ${latest_version_file} > ${TMP_DIR}/${version_file}
   local latest_version=$(head -n 1 ${TMP_DIR}/${version_file} | cut -d , -f 1)
   if [ "${current_version}" = "${latest_version}" ]; then
     echo "${target_dir} is up to date. (${latest_version})"
@@ -53,7 +53,7 @@ function update() {
   fi
   echo "Downloading the latest ${target_dir} package of ${latest_version}..."
   local latest_package=$(head -n 1 ${TMP_DIR}/${version_file} | cut -d , -f 2)
-  curl -s ${latest_package} > ${TMP_DIR}/${target_dir}.zip
+  curl -sL ${latest_package} > ${TMP_DIR}/${target_dir}.zip
   unzip -q -d ${KCAA_DIR} ${TMP_DIR}/${target_dir}.zip
   echo "Successfully updated ${target_dir} to ${latest_version}."
 }
