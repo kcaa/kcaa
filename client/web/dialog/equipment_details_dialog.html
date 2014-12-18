@@ -1,0 +1,55 @@
+<!-- Be sure to use the path starting from the parent path.
+     It seems it is mandatory that all custom elements sources the same
+     polymer.html in terms of the path representation. -->
+<link rel="import" href="../packages/polymer/polymer.html">
+<meta charset="utf-8">
+<polymer-element name="kcaa-equipment-details-dialog">
+  <template>
+    <link rel="stylesheet" href="packages/bootjack/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../kcaa.css">
+    <link rel="stylesheet" href="dialog.css">
+    <div class="modal-header">
+      <button class="close" on-click="{{close}}">&times;</button>
+      <h3 class="modal-title">装備詳細 - {{definition.name}}</h3>
+    </div>
+    <div class="modal-body">
+      <h4>装備状況</h4>
+      <div class="table">
+        <div class="trow thead">
+          <div class="description">装備艦船</div>
+          <div>レベル</div>
+          <div>ロック</div>
+          <div>個数</div>
+        </div>
+        <template repeat="{{group in instanceGroups}}">
+          <div class="trow">
+            <div class="description">
+              <template if="{{group.ship != null}}">
+                <div class="title {{group.ship.lockedClass}}">
+                  {{group.ship.name}}
+                  <span class="subordinate">({{group.ship.id}})</span>
+                </div>
+                <div>{{group.ship.shipType}}</div>
+              </template>
+              <template if="{{group.ship == null}}">
+                <div class="title">(なし)</div>
+                <div>未装備</div>
+              </template>
+            </div>
+            <div class="numberColumn">{{group.level}}</div>
+            <div class="numberColumn">
+              <template if="{{group.locked}}">あり</template>
+              <template if="{{!group.locked}}">なし</template>
+            </div>
+            <div class="numberColumn">{{group.instances.length}}</div>
+          </div>
+        </template>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button on-click="{{ok}}">OK</button>
+      <button class="cancel" on-click="{{close}}">Cancel</button>
+    </div>
+  </template>
+  <script type="application/dart" src="equipment_details_dialog.dart"></script>
+</polymer-element>

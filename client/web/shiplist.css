@@ -27,6 +27,3 @@ div.trow.good {
 .fullyEnhanced > div:first-child:after {
   content: "✓";
 }
-.unlocked:after {
-  content: "✗";
-}

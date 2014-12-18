@@ -153,7 +153,12 @@ class Ship extends Observable {
     luck = new Variable.fromJSON(data["luck"]);
     equipments.clear();
     for (var equipmentId in data["equipment_ids"]) {
-      equipments.add(equipmentMap[equipmentId]);
+      // equipmentId can be -1, which means an empty slot.
+      var equipment = equipmentMap[equipmentId];
+      equipments.add(equipment);
+      if (equipment != null) {
+        equipment.ship = this;
+      }
     }
     locked = data["locked"];
     isUnderRepair = data["is_under_repair"];
@@ -631,6 +636,10 @@ class ShipRequirement extends Observable {
 
 void handleShipList(Assistant assistant, AssistantModel model,
                     Map<String, dynamic> data) {
+  // Reset the equipping ship info.
+  for (var equipment in model.equipmentMap.values) {
+    equipment.ship = null;
+  }
   Set<int> presentShips = new Set<int>();
   for (var shipData in (data["ships"] as Map).values) {
     var id = shipData["id"];

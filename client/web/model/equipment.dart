@@ -40,11 +40,12 @@ class EquipmentDefinition extends Observable {
   }
 }
 
-class Equipment extends Observable {
+class Equipment extends Observable implements Comparable<Equipment> {
   @observable int id;
   @observable EquipmentDefinition definition;
   @observable int level;
   @observable bool locked;
+  @observable Ship ship;
 
   void update(Map<String, dynamic> data,
               Map<int, EquipmentDefinition> definitionMap) {
@@ -52,6 +53,31 @@ class Equipment extends Observable {
     definition = definitionMap[data["item_id"]];
     level = data["level"];
     locked = data["locked"];
+  }
+
+  int compareTo(Equipment other) {
+    // Place non-equipped ones first.
+    if (ship == null && other.ship != null) {
+      return -1;
+    } else if (ship != null && other.ship == null) {
+      return 1;
+    }
+    // If equipping ships are different, prefer one equipped by the ship with
+    // higher level.
+    if (ship != null && other.ship != null) {
+      var shipComparison = Ship.compareByKancolleLevel(ship, other.ship);
+      if (shipComparison != 0) {
+        return -shipComparison;
+      }
+    }
+    // Otherwise prefer a locked, higher level one.
+    if (locked != other.locked) {
+      return locked ? -1 : 1;
+    }
+    if (level != other.level) {
+      return -level.compareTo(other.level);
+    }
+    return 0;
   }
 }
 

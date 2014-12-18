@@ -314,3 +314,6 @@ div.title {
 .tag button.action {
   color: white;
 }
+.unlocked:after {
+  content: "✗";
+}
