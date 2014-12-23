@@ -169,6 +169,10 @@ legend {
   margin: 0;
   width: auto;
 }
+select {
+  /* Chrome on Windows seems not aware of inherited fonts to select elements. */
+  font-family: sans-serif;
+}
 
 h3 {
   color: hsl(210, 30%, 30%);
