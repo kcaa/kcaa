@@ -19,28 +19,49 @@
         <div>回避</div>
         <div>個数</div>
       </div>
-      <template repeat="{{definition in definitions}}">
+      <template repeat="{{group in groups}}">
         <div class="trow">
-          <div class="description">
+          <div class="description header">
             <div class="title">
-              <a href="#"
-                 on-click="{{showModalDialog}}"
-                 data-dialog="kcaaEquipmentDetailsDialog"
-                 data-equipment-definition-id="{{definition.id}}">
-                {{definition.name}}
-              </a>
+              {{group.name}}
+              <button class="collapse" data-group="{{group.name}}"
+                      on-click="{{toggleCollapseSection}}">►</button>
             </div>
-            <div>{{definition.typeName}}</div>
           </div>
-          <div class="numberColumn">{{definition.firepower}}</div>
-          <div class="numberColumn">{{definition.fireHit}}</div>
-          <div class="numberColumn">{{definition.thunderstroke}}</div>
-          <div class="numberColumn">{{definition.bombPower}}</div>
-          <div class="numberColumn">{{definition.antiAir}}</div>
-          <div class="numberColumn">{{definition.antiSubmarine}}</div>
-          <div class="numberColumn">{{definition.fireFlee}}</div>
-          <div class="numberColumn">{{definition.instances.length}}</div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
         </div>
+        <template if="{{!group.hidden}}">
+          <template repeat="{{definition in group.definitions}}">
+            <div class="trow">
+              <div class="description">
+                <div class="title">
+                  <a href="#"
+                     on-click="{{showModalDialog}}"
+                     data-dialog="kcaaEquipmentDetailsDialog"
+                     data-equipment-definition-id="{{definition.id}}">
+                    {{definition.name}}
+                  </a>
+                </div>
+                <div>{{definition.typeName}}</div>
+              </div>
+              <div class="numberColumn">{{definition.firepower}}</div>
+              <div class="numberColumn">{{definition.fireHit}}</div>
+              <div class="numberColumn">{{definition.thunderstroke}}</div>
+              <div class="numberColumn">{{definition.bombPower}}</div>
+              <div class="numberColumn">{{definition.antiAir}}</div>
+              <div class="numberColumn">{{definition.antiSubmarine}}</div>
+              <div class="numberColumn">{{definition.fireFlee}}</div>
+              <div class="numberColumn">{{definition.instances.length}}</div>
+            </div>
+          </template>
+        </template>
       </template>
     </div>
   </template>

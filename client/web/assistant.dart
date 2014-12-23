@@ -120,6 +120,7 @@ class Assistant extends PolymerElement {
     $["clickMarker"].onTransitionEnd.listen(endClickVisibleFeedback);
 
     model.shipList = $["shiplist"];
+    model.equipmentList = $["equipmentlist"];
 
     addCollapseButtons();
     updateCollapsedSections();

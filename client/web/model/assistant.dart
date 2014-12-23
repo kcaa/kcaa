@@ -7,6 +7,7 @@ import 'package:polymer/polymer.dart';
 
 import '../assistant.dart';
 import '../component/shiplist.dart';
+import '../component/equipmentlist.dart';
 import '../util.dart';
 
 part 'quest.dart';
@@ -50,6 +51,7 @@ class AssistantModel extends Observable {
   Map<int, EquipmentDefinition> equipmentDefinitionMap =
       new Map<int, EquipmentDefinition>();
   Map<int, Equipment> equipmentMap = new Map<int, Equipment>();
+  EquipmentListElement equipmentList;
 
   // Repair dock.
   @observable int numShipsBeingRepaired = 0;

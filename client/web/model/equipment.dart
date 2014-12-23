@@ -109,6 +109,7 @@ void handleEquipmentDefinitionList(Assistant assistant, AssistantModel model,
       model.equipmentDefinitions[i] = definition;
     }
   }
+  model.equipmentList.update();
 }
 
 void handleEquipmentList(Assistant assistant, AssistantModel model,
