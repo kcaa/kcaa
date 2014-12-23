@@ -10,8 +10,29 @@ from kcaa import kcsapi
 logger = logging.getLogger('kcaa.manipulators.rebuilding')
 
 
+# If some primary attribute (firepower, thunderstroke, anti air or armor) has
+# less than this amount in the total room to grow, accept wasting the resource
+# for the sake of other growable resources.
+ACCEPTABLE_RANGE_FOR_WASTING = 10
+
+
 def compute_gain_with_bonus(gain):
     return gain + (gain + 1) / 5
+
+
+def compute_total_room(target_ships):
+    firepower, thunderstroke, anti_air, armor = 0, 0, 0, 0
+    for target_ship in target_ships:
+        gain_cap = compute_gain_cap(target_ship)
+        firepower += gain_cap.firepower
+        thunderstroke += gain_cap.thunderstroke
+        anti_air += gain_cap.anti_air
+        armor += gain_cap.armor
+    return kcsapi.AbilityEnhancement(
+        firepower=firepower,
+        thunderstroke=thunderstroke,
+        anti_air=anti_air,
+        armor=armor)
 
 
 def compute_rebuilding_gain(material_ships):
@@ -170,6 +191,11 @@ class EnhanceBestShip(base.Manipulator):
         target_candidates = sorted(
             ship_list.rebuilding_enhanceable_ships(fleet_list),
             kcsapi.ShipSorter.kancolle_level, reverse=True)
+        total_room = compute_total_room(target_candidates)
+        firepower_wastable = (
+            total_room.firepower <= ACCEPTABLE_RANGE_FOR_WASTING)
+        anti_air_wastable = (
+            total_room.anti_air <= ACCEPTABLE_RANGE_FOR_WASTING)
         material_candidates = sorted(
             ship_list.rebuilding_available_material_ships(fleet_list),
             kcsapi.ShipSorter.rebuilding_rank)
@@ -188,8 +214,11 @@ class EnhanceBestShip(base.Manipulator):
                 # There should be additional improvement.
                 # Even that's true, anti air and firepower enhancements are
                 # relatively rare. Try not to exceed them.
-                gain_no_waste = (gain.firepower <= gain_cap.firepower and
-                                 gain.anti_air <= gain_cap.anti_air)
+                gain_no_waste = (
+                    (firepower_wastable or
+                     gain.firepower <= gain_cap.firepower) and
+                    (anti_air_wastable or
+                     gain.anti_air <= gain_cap.anti_air))
                 if has_improvement(capped_gain, last_gain) and gain_no_waste:
                     material_ships.append(material_ship)
                     last_gain = capped_gain
