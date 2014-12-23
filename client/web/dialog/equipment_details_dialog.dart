@@ -35,7 +35,6 @@ class EquipmentDetailsDialog extends KcaaDialog {
     Equipment lastInstance = null;
     InstanceGroup group = null;
     for (var instance in definition.instances) {
-      print("id: ${instance.id}, level: ${instance.level}, locked: ${instance.locked}, ship: ${instance.ship != null ? instance.ship.name : ''}");
       if (lastInstance == null || lastInstance.compareTo(instance) != 0) {
         group = new InstanceGroup(instance.ship, instance.level,
             instance.locked);

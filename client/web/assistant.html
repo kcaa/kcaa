@@ -1,4 +1,5 @@
 <link rel="import" href="packages/polymer/polymer.html">
+<link rel="import" href="component/equipmentlist.html">
 <link rel="import" href="component/shiplist.html">
 <link rel="import" href="predicate/kselection.html">
 <meta charset="utf-8">
@@ -251,42 +252,9 @@
       <div class="row horizontal">
         <div class="board">
           <h3 data-collapsed="true">装備 ({{model.numEquipments}}個)</h3>
-          <div class="table">
-            <div class="trow thead">
-              <div class="description">装備</div>
-              <div>火力</div>
-              <div>命中</div>
-              <div>雷装</div>
-              <div>爆装</div>
-              <div>対空</div>
-              <div>対潜</div>
-              <div>回避</div>
-              <div>個数</div>
-            </div>
-            <template repeat="{{definition in model.equipmentDefinitions}}">
-              <div class="trow">
-                <div class="description">
-                  <div class="title">
-                    <a href="#"
-                       on-click="{{showModalDialog}}"
-                       data-dialog="kcaaEquipmentDetailsDialog"
-                       data-equipment-definition-id="{{definition.id}}">
-                      {{definition.name}}
-                    </a>
-                  </div>
-                  <div>{{definition.typeName}}</div>
-                </div>
-                <div class="numberColumn">{{definition.firepower}}</div>
-                <div class="numberColumn">{{definition.fireHit}}</div>
-                <div class="numberColumn">{{definition.thunderstroke}}</div>
-                <div class="numberColumn">{{definition.bombPower}}</div>
-                <div class="numberColumn">{{definition.antiAir}}</div>
-                <div class="numberColumn">{{definition.antiSubmarine}}</div>
-                <div class="numberColumn">{{definition.fireFlee}}</div>
-                <div class="numberColumn">{{definition.instances.length}}</div>
-              </div>
-            </template>
-          </div>
+          <kcaa-equipmentlist assistant="{{this}}"
+                              definitions="{{model.equipmentDefinitions}}">
+          </kcaa-equipmentlist>
         </div>
       </div>
       <div class="row horizontal">
