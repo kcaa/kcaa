@@ -67,7 +67,7 @@ class KCSAPIHandler(object):
             '/api_req_member/get_incentive': [kcsapi.NullHandler()],
             '/api_start2': [kcsapi.MissionList,
                             kcsapi.ShipDefinitionList,
-                            kcsapi.SlotItemDefinitionList],
+                            kcsapi.EquipmentDefinitionList],
             # Player info.
             '/api_get_member/basic': [kcsapi.player.PlayerInfo],
             # Resources.
@@ -98,7 +98,7 @@ class KCSAPIHandler(object):
             # Equipments (slot items).
             # Set/unset are covered by ship3 and no need to handle for now.
             # unsetslot looks strange: a mapping from type to item IDs?
-            '/api_get_member/slot_item': [kcsapi.SlotItemList],
+            '/api_get_member/slot_item': [kcsapi.EquipmentList],
             '/api_get_member/unsetslot': [kcsapi.NullHandler()],
             '/api_req_kaisou/slotset': [kcsapi.NullHandler()],
             '/api_req_kaisou/unsetslot_all': [kcsapi.NullHandler()],
@@ -113,20 +113,20 @@ class KCSAPIHandler(object):
             '/api_req_nyukyo/start': [kcsapi.RepairDock,
                                       kcsapi.ShipList],
             # Shipyard and build docks.
-            # destroyship must handle SlotItemList before ShipList to get the
+            # destroyship must handle EquipmentList before ShipList to get the
             # list of equipments to be disposed.
             '/api_get_member/kdock': [kcsapi.BuildDock],
             '/api_req_kousyou/createship': [kcsapi.NullHandler()],
             '/api_req_kousyou/createship_speedchange': [kcsapi.BuildDock],
-            '/api_req_kousyou/createitem': [kcsapi.SlotItemList],
+            '/api_req_kousyou/createitem': [kcsapi.EquipmentList],
             '/api_req_kousyou/destroyitem2': [kcsapi.PlayerResources,
-                                              kcsapi.SlotItemList],
+                                              kcsapi.EquipmentList],
             '/api_req_kousyou/destroyship': [kcsapi.PlayerResources,
-                                             kcsapi.SlotItemList,
+                                             kcsapi.EquipmentList,
                                              kcsapi.ShipList],
             '/api_req_kousyou/getship': [kcsapi.ShipList,
                                          kcsapi.BuildDock,
-                                         kcsapi.SlotItemList],
+                                         kcsapi.EquipmentList],
             # Quests.
             '/api_get_member/questlist': [kcsapi.QuestList],
             '/api_req_quest/start': [kcsapi.NullHandler()],

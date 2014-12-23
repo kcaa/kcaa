@@ -6,10 +6,10 @@ import jsonobject
 import model
 
 
-logger = logging.getLogger('kcaa.kcsapi.item')
+logger = logging.getLogger('kcaa.kcsapi.equipment')
 
 
-class SlotItemTypeDefinition(jsonobject.JSONSerializableObject):
+class EquipmentTypeDefinition(jsonobject.JSONSerializableObject):
 
     id = jsonobject.ReadonlyJSONProperty('id', value_type=int)
     """Slot item type ID."""
@@ -17,7 +17,7 @@ class SlotItemTypeDefinition(jsonobject.JSONSerializableObject):
     """Slot item type name."""
 
 
-class SlotItemDefinition(jsonobject.JSONSerializableObject):
+class EquipmentDefinition(jsonobject.JSONSerializableObject):
 
     id = jsonobject.ReadonlyJSONProperty('id', value_type=int)
     """Slot item definition ID."""
@@ -105,28 +105,28 @@ class SlotItemDefinition(jsonobject.JSONSerializableObject):
     """Sort order, or the encyclopedia ID."""
 
 
-class SlotItemDefinitionList(model.KCAAObject):
+class EquipmentDefinitionList(model.KCAAObject):
     """List of slot item definitions."""
 
     types = jsonobject.JSONProperty('types', [], value_type=list,
-                                    element_type=SlotItemTypeDefinition)
+                                    element_type=EquipmentTypeDefinition)
     """Slot item types."""
     items = jsonobject.JSONProperty('items', {}, value_type=dict,
-                                    element_type=SlotItemDefinition)
+                                    element_type=EquipmentDefinition)
     """Slot items."""
 
     def update(self, api_name, request, response, objects, debug):
-        super(SlotItemDefinitionList, self).update(api_name, request, response,
-                                                   objects, debug)
+        super(EquipmentDefinitionList, self).update(
+            api_name, request, response, objects, debug)
         for data in response.api_data.api_mst_slotitem_equiptype:
-            self.types.append(SlotItemDefinition(
+            self.types.append(EquipmentDefinition(
                 id=data.api_id,
                 name=data.api_name))
         for data in response.api_data.api_mst_slotitem:
             # ID 500 and later are reserved for enemies.
             if data.api_id >= 500:
                 continue
-            self.items[str(data.api_id)] = SlotItemDefinition(
+            self.items[str(data.api_id)] = EquipmentDefinition(
                 id=data.api_id,
                 name=data.api_name,
                 type=data.api_type[2],
@@ -155,7 +155,7 @@ class SlotItemDefinitionList(model.KCAAObject):
             #   api_sakb, api_taik, api_atap
 
 
-class SlotItem(jsonobject.JSONSerializableObject):
+class Equipment(jsonobject.JSONSerializableObject):
 
     id = jsonobject.ReadonlyJSONProperty('id', value_type=int)
     """Instance ID."""
@@ -167,19 +167,19 @@ class SlotItem(jsonobject.JSONSerializableObject):
     """True if this item is locked."""
 
 
-class SlotItemIdList(jsonobject.JSONSerializableObject):
+class EquipmentIdList(jsonobject.JSONSerializableObject):
 
     item_ids = jsonobject.JSONProperty('item_ids', value_type=list,
                                        element_type=int)
 
 
-class SlotItemList(model.KCAAObject):
+class EquipmentList(model.KCAAObject):
 
     items = jsonobject.JSONProperty('items', {}, value_type=dict,
-                                    element_type=SlotItem)
+                                    element_type=Equipment)
     """Slot items."""
     item_instances = jsonobject.JSONProperty(
-        'item_instances', {}, value_type=dict, element_type=SlotItemIdList)
+        'item_instances', {}, value_type=dict, element_type=EquipmentIdList)
     """Instances of each slot item definition.
 
     Keyed by the slot item definition ID, this map contains the list of slot
@@ -187,20 +187,20 @@ class SlotItemList(model.KCAAObject):
     """
 
     def update(self, api_name, request, response, objects, debug):
-        super(SlotItemList, self).update(api_name, request, response, objects,
-                                         debug)
+        super(EquipmentList, self).update(api_name, request, response, objects,
+                                          debug)
         if api_name == '/api_get_member/slot_item':
             self.items.clear()
             self.item_instances.clear()
             for data in response.api_data:
-                self.add_item(SlotItem(
+                self.add_item(Equipment(
                     id=data.api_id,
                     item_id=data.api_slotitem_id,
                     level=data.api_level,
                     locked=data.api_locked != 0))
         elif api_name == '/api_req_kousyou/createitem':
             data = response.api_data.api_slot_item
-            self.add_item(SlotItem(
+            self.add_item(Equipment(
                 id=data.api_id,
                 item_id=data.api_slotitem_id,
                 level=0,
@@ -220,7 +220,7 @@ class SlotItemList(model.KCAAObject):
 
         elif api_name == '/api_req_kousyou/getship':
             for data in response.api_data.api_slotitem:
-                self.add_item(SlotItem(
+                self.add_item(Equipment(
                     id=data.api_id,
                     item_id=data.api_slotitem_id,
                     level=0,
@@ -232,7 +232,7 @@ class SlotItemList(model.KCAAObject):
         if item_id in self.item_instances:
             self.item_instances[item_id].item_ids.append(item.id)
         else:
-            self.item_instances[item_id] = SlotItemIdList(item_ids=[item.id])
+            self.item_instances[item_id] = EquipmentIdList(item_ids=[item.id])
 
     def remove_item(self, instance_id):
         item = self.items[str(instance_id)]

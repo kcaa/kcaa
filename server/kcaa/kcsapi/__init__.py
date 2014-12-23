@@ -2,9 +2,9 @@
 
 import battle
 import client
+import equipment
 import expedition
 import fleet
-import item
 import jsonobject
 import mission
 import model
@@ -111,9 +111,9 @@ def main():
     import doctest
     doctest.testmod(battle)
     doctest.testmod(client)
+    doctest.testmod(equipment)
     doctest.testmod(expedition)
     doctest.testmod(fleet)
-    doctest.testmod(item)
     doctest.testmod(jsonobject)
     doctest.testmod(mission)
     doctest.testmod(model)
