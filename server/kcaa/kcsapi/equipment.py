@@ -199,12 +199,13 @@ class EquipmentList(model.KCAAObject):
                     level=data.api_level,
                     locked=data.api_locked != 0))
         elif api_name == '/api_req_kousyou/createitem':
-            data = response.api_data.api_slot_item
-            self.add_item(Equipment(
-                id=data.api_id,
-                item_id=data.api_slotitem_id,
-                level=0,
-                locked=False))
+            if response.api_data.api_create_flag:
+                data = response.api_data.api_slot_item
+                self.add_item(Equipment(
+                    id=data.api_id,
+                    item_id=data.api_slotitem_id,
+                    level=0,
+                    locked=False))
         elif api_name == '/api_req_kousyou/destroyitem2':
             for instance_id in request.api_slotitem_ids.split(','):
                 self.remove_item(instance_id)
