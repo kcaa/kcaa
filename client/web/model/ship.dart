@@ -42,29 +42,6 @@ class ShipTypeDefinition {
 }
 
 class Ship extends Observable {
-  static final Map<int, String> SHIP_TYPE_MAP = <int, String>{
-    1: "海防艦",
-    2: "駆逐艦",
-    3: "軽巡洋艦",
-    4: "重雷装巡洋艦",
-    5: "重巡洋艦",
-    6: "航空巡洋艦",
-    7: "軽空母",
-    8: "高速戦艦",
-    9: "戦艦",
-    10: "航空戦艦",
-    11: "正規空母",
-    12: "超弩級戦艦",
-    13: "潜水艦",
-    14: "潜水空母",
-    15: "補給艦",
-    16: "水上機母艦",
-    17: "揚陸艦",
-    18: "装甲空母",
-    19: "工作艦",
-    20: "潜水母艦",
-  };
-
   static final SHIP_COMPARER = <String, ShipComparer>{
     "name": compareByName,
     "level": compareByKancolleLevel,
@@ -80,16 +57,15 @@ class Ship extends Observable {
 
   static final SHIP_FILTER = <String, ShipFilterer>{
     "none": filterNone,
-    "battleship": makeFilterByShipType(["高速戦艦", "戦艦", "航空戦艦", "超弩級戦艦"]),
-    "aircraftCarrier": makeFilterByShipType(["正規空母"]),
-    "lightAircraftCarrier": makeFilterByShipType(["軽空母"]),
-    "heavyCruiser": makeFilterByShipType(["重巡洋艦", "航空巡洋艦"]),
-    "torpedoCruiser": makeFilterByShipType(["重雷装巡洋艦"]),
-    "lightCruiser": makeFilterByShipType(["軽巡洋艦"]),
-    "destroyer": makeFilterByShipType(["駆逐艦"]),
-    "submarine": makeFilterByShipType(["潜水艦", "潜水母艦"]),
-    "otherShipTypes": makeFilterByShipType(
-        ["海防艦", "補給艦", "水上機母艦", "揚陸艦", "装甲空母", "工作艦"]),
+    "battleship": makeFilterByShipType([8, 9, 10, 12]),
+    "aircraftCarrier": makeFilterByShipType([11]),
+    "lightAircraftCarrier": makeFilterByShipType([7]),
+    "heavyCruiser": makeFilterByShipType([5, 6]),
+    "torpedoCruiser": makeFilterByShipType([4]),
+    "lightCruiser": makeFilterByShipType([3]),
+    "destroyer": makeFilterByShipType([2]),
+    "submarine": makeFilterByShipType([13, 14]),
+    "otherShipTypes": makeFilterByShipType([1, 15, 16, 17, 18, 19, 20]),
     "goodState": makeFilterByState("good"),
     "normalState": makeFilterByState(""),
     "dangerousState": makeFilterByState("dangerous"),
@@ -136,12 +112,13 @@ class Ship extends Observable {
 
   Ship();
 
-  void update(Map<String, dynamic> data, List<Fleet> fleets,
-              Map<int, Equipment> equipmentMap) {
+  void update(Map<String, dynamic> data,
+              Map<int, ShipTypeDefinition> shipTypeDefinitionMap,
+              List<Fleet> fleets, Map<int, Equipment> equipmentMap) {
     id = data["id"];
     name = data["name"];
     shipTypeId = data["ship_type"];
-    shipType = SHIP_TYPE_MAP[data["ship_type"]];
+    shipType = shipTypeDefinitionMap[data["ship_type"]].name;
     level = data["level"];
     upgradeLevel = data["upgrade_level"];
     fuel = data["loaded_resource"]["fuel"];
@@ -328,9 +305,9 @@ class Ship extends Observable {
     return true;
   }
 
-  static ShipFilterer makeFilterByShipType(List<int> shipTypes) {
-    var shipTypeSet = shipTypes.toSet();
-    return (Ship s) => shipTypeSet.contains(s.shipType);
+  static ShipFilterer makeFilterByShipType(List<int> shipTypeIds) {
+    var shipTypeIdSet = shipTypeIds.toSet();
+    return (Ship s) => shipTypeIdSet.contains(s.shipTypeId);
   }
 
   static ShipFilterer makeFilterByState(String stateClass) {
@@ -663,7 +640,8 @@ void handleShipList(Assistant assistant, AssistantModel model,
       ship = new Ship();
       model.shipMap[id] = ship;
     }
-    ship.update(shipData, model.fleets, model.equipmentMap);
+    ship.update(shipData, model.shipTypeDefinitionMap, model.fleets,
+        model.equipmentMap);
     presentShips.add(id);
   }
   // Remove ships that are no longer available.
@@ -710,17 +688,17 @@ void notifyShipList(AssistantModel model) {
 
 void handleShipDefinitionList(Assistant assistant, AssistantModel model,
                               Map<String, dynamic> data) {
-  for (var shipData in (data["ships"] as Map).values) {
-    var ship = new Ship();
-    ship.id = shipData["id"];
-    ship.name = shipData["name"];
-    ship.shipType = Ship.SHIP_TYPE_MAP[shipData["ship_type"]];
-    model.shipDefinitionMap[ship.id] = ship;
-  }
   model.shipTypeDefinitionMap.clear();
   for (var shipTypeData in (data["ship_types"] as Map).values) {
     model.shipTypeDefinitionMap[shipTypeData["id"]] = new ShipTypeDefinition(
         shipTypeData["id"], shipTypeData["name"],
         shipTypeData["loadable_equipment_types"], shipTypeData["sort_order"]);
+  }
+  for (var shipData in (data["ships"] as Map).values) {
+    var ship = new Ship();
+    ship.id = shipData["id"];
+    ship.name = shipData["name"];
+    ship.shipType = model.shipTypeDefinitionMap[shipData["ship_type"]].name;
+    model.shipDefinitionMap[ship.id] = ship;
   }
 }
