@@ -166,6 +166,17 @@ class Equipment(jsonobject.JSONSerializableObject):
     locked = jsonobject.ReadonlyJSONProperty('locked', value_type=bool)
     """True if this item is locked."""
 
+    def definition(self, equipment_definition_list):
+        return equipment_definition_list.items[str(self.item_id)]
+
+    @staticmethod
+    def compare(equipment_a, equipment_b):
+        # This might be suboptimal. Use the sort order of the definition.
+        if equipment_a.item_id != equipment_b.item_id:
+            return equipment_a.item_id - equipment_b.item_id
+        # Items are reversed in terms of instance IDs; newer items come first.
+        return -(equipment_a.id - equipment_b.id)
+
 
 class EquipmentIdList(jsonobject.JSONSerializableObject):
 
@@ -185,6 +196,29 @@ class EquipmentList(model.KCAAObject):
     Keyed by the slot item definition ID, this map contains the list of slot
     item instances.
     """
+
+    def get_unequipped_items(self, ship_list):
+        equipped_item_ids = set()
+        for ship in ship_list.ships.itervalues():
+            for equipment_id in ship.equipment_ids:
+                if equipment_id != -1:
+                    equipped_item_ids.add(equipment_id)
+        items = [item for item in self.items.values() if
+                 item.id not in equipped_item_ids]
+        items.sort(Equipment.compare)
+        return items
+
+    def compute_page_position(self, equipment_id, unequipped_items):
+        for index, item in enumerate(unequipped_items):
+            if item.id != equipment_id:
+                continue
+            page = 1 + index / 10
+            in_page_index = index % 10
+            return page, in_page_index
+        return None, None
+
+    def get_max_page(self, items):
+        return (len(items) + 9) / 10
 
     def update(self, api_name, request, response, objects, debug):
         super(EquipmentList, self).update(api_name, request, response, objects,

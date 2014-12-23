@@ -51,11 +51,15 @@ class EquipmentListElement extends PolymerElement {
     collapseButton.text = group.hidden ? "►" : "▼";
   }
 
-  void showModalDialog(MouseEvent e, var detail, Element target) {
+  void clickOnEquipment(MouseEvent e, var detail, Element target) {
     if (assistant != null) {
-      assistant.showModalDialog(e, detail, target);
+      assistant.showModalDialogByName("kcaaEquipmentDetailsDialog", target);
     } else {
-      e.preventDefault();
+      var equipmentDefinitionId =
+          int.parse(target.dataset["equipmentDefinitionId"]);
+      dispatchEvent(
+          new CustomEvent("equipmentclick", detail: equipmentDefinitionId));
     }
+    e.preventDefault();
   }
 }

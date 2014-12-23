@@ -321,3 +321,19 @@ div.title {
 .unlocked:after {
   content: "✗";
 }
+
+/* Selected element animation. */
+.selected {
+  animation: blinking 1000ms ease-in-out infinite;
+  -webkit-animation: blinking 500ms ease-in-out infinite;
+}
+@keyframes blinking {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+@-webkit-keyframes blinking {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}

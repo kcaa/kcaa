@@ -403,12 +403,16 @@ class Assistant extends PolymerElement {
     savePreferences();
   }
 
-  void showModalDialog(MouseEvent e, var detail, Element target) {
-    var dialogName = target.dataset["dialog"];
+  void showModalDialogByName(String dialogName, Element target) {
     querySelector("#modalDialogContainer").classes.add("in");
     var dialog = querySelector("#${dialogName}") as KcaaDialog;
     dialog.show(target);
     dialog.classes.remove("hidden");
+  }
+
+  void showModalDialog(MouseEvent e, var detail, Element target) {
+    var dialogName = target.dataset["dialog"];
+    showModalDialogByName(dialogName, target);
     e.preventDefault();
   }
 

@@ -98,6 +98,36 @@ def reached_cap(gain_cap, gain):
             (gain.armor > 0 and gain.armor == gain_cap.armor))
 
 
+class SelectShip(base.Manipulator):
+
+    def run(self, ship_id):
+        ship_id = int(ship_id)
+        ship_list = self.objects.get('ShipList')
+        if not ship_list:
+            logger.error('No ship list was found. Giving up.')
+            return
+        fleet_list = self.objects.get('FleetList')
+        if not fleet_list:
+            logger.error('No fleet list was found. Giving up.')
+            return
+        yield self.screen.change_screen(screens.PORT_REBUILDING)
+        fleet = fleet_list.find_fleet_for_ship(ship_id)
+        if fleet:
+            yield self.screen.select_fleet(fleet.id)
+            yield self.screen.select_fleet_ship(
+                fleet.ship_ids.index(ship_id))
+        else:
+            # First select the first fleet to cancel the effect of page
+            # skipping of the last attempt.
+            yield self.screen.select_fleet(1)
+            yield self.screen.select_ship_list()
+            page, in_page_index = (
+                ship_list.get_ship_position_rebuilding_target(
+                    ship_id, fleet_list))
+            yield self.screen.select_page(page)
+            yield self.screen.select_ship(in_page_index)
+
+
 class RebuildShip(base.Manipulator):
 
     def run(self, target_ship_id, material_ship_ids):
@@ -146,22 +176,7 @@ class RebuildShip(base.Manipulator):
             if ship_list.is_unique(material_ship):
                 logger.error('Material ship {} is unique.'.format(name))
                 return
-        yield self.screen.change_screen(screens.PORT_REBUILDING)
-        fleet = fleet_list.find_fleet_for_ship(target_ship.id)
-        if fleet:
-            yield self.screen.select_fleet(fleet.id)
-            yield self.screen.select_fleet_ship(
-                fleet.ship_ids.index(target_ship_id))
-        else:
-            # First select the first fleet to cancel the effect of page
-            # skipping of the last attempt.
-            yield self.screen.select_fleet(1)
-            yield self.screen.select_ship_list()
-            page, in_page_index = (
-                ship_list.get_ship_position_rebuilding_target(
-                    target_ship_id, fleet_list))
-            yield self.screen.select_page(page)
-            yield self.screen.select_ship(in_page_index)
+        yield self.do_manipulator(SelectShip, ship_id=target_ship.id)
         yield self.screen.try_rebuilding()
         for i, material_ship in enumerate(material_ships):
             yield self.screen.select_slot(i)
@@ -282,3 +297,108 @@ class AutoEnhanceBestShip(base.AutoManipulator):
 
     def run(self):
         yield self.do_manipulator(EnhanceBestShip)
+
+
+class ReplaceEquipments(base.Manipulator):
+
+    @staticmethod
+    def select_equipment_ids(target_ship, equipment_definitions, ship_list,
+                             equipment_list):
+        if len(target_ship.equipment_ids) != len(equipment_definitions):
+            logger.error('Equipment list lengths differ ({} vs. {})'.format(
+                len(target_ship.equipment_ids), len(equipment_definitions)))
+            return None
+        equipped_item_ids = set()
+        for ship in ship_list.ships.itervalues():
+            for equipment_id in ship.equipment_ids:
+                if equipment_id != -1:
+                    equipped_item_ids.add(equipment_id)
+        print target_ship.equipment_ids
+        equipment_ids = []
+        for i, definition in enumerate(equipment_definitions):
+            if definition is None:
+                equipment_ids.append(-1)
+                continue
+            if any(equipment_id == -1 for equipment_id in equipment_ids):
+                logger.error('Non-empty slot after empty slots')
+                return None
+            # TODO: Check if the item is equippable.
+            if target_ship.equipment_ids[i] != -1:
+                current_equipment = (
+                    equipment_list.items[str(target_ship.equipment_ids[i])])
+                if current_equipment.item_id == definition.id:
+                    equipment_ids.append(current_equipment.id)
+                    continue
+            unequipped_items = [
+                equipment_id for equipment_id in
+                equipment_list.item_instances[str(definition.id)].item_ids if
+                equipment_id not in equipped_item_ids]
+            if unequipped_items:
+                equipment_ids.append(unequipped_items[0])
+                equipped_item_ids.add(unequipped_items[0])
+            else:
+                # TODO: Use least recently used items in other ships' equipment
+                # as well.
+                logger.error('No available unequipped item for {}'.format(
+                    definition.name.encode('utf8')))
+                return None
+        print equipment_ids
+        return equipment_ids
+
+    def run(self, ship_id, equipment_definition_ids):
+        ship_id = int(ship_id)
+        if not isinstance(equipment_definition_ids, list):
+            equipment_definition_ids = [
+                int(def_id) for def_id in equipment_definition_ids.split(',')]
+        ship_list = self.objects.get('ShipList')
+        if not ship_list:
+            logger.error('No ship list was found. Giving up.')
+            return
+        equipment_definition_list = self.objects.get('EquipmentDefinitionList')
+        if not equipment_definition_list:
+            logger.error('No equipment definition list was found. Giving up.')
+            return
+        equipment_list = self.objects.get('EquipmentList')
+        if not equipment_list:
+            logger.error('No equipment list was found. Giving up.')
+            return
+        target_ship = ship_list.ships[str(ship_id)]
+        equipment_definitions = []
+        for def_id in equipment_definition_ids:
+            if def_id == -1:
+                equipment_definitions.append(None)
+            else:
+                equipment_definitions.append(
+                    equipment_definition_list.items[str(def_id)])
+        logger.info('Replace equipments of ship {} ({}) with [{}]'.format(
+            target_ship.name.encode('utf8'), target_ship.id,
+            ', '.join(equipment_definition.name.encode('utf8') for
+                      equipment_definition in equipment_definitions if
+                      equipment_definition)))
+        if target_ship.is_under_repair or target_ship.away_for_mission:
+            logger.error('Target ship is not ready for equipment replacement. '
+                         'Giving up.')
+            return
+        equipment_ids = ReplaceEquipments.select_equipment_ids(
+            target_ship, equipment_definitions, ship_list, equipment_list)
+        if not equipment_ids:
+            logger.error('No available equipments. Giving up.')
+            return
+        if equipment_ids == target_ship.equipment_ids:
+            logger.info('No change in eqiupments.')
+            return
+        yield self.do_manipulator(SelectShip, ship_id=target_ship.id)
+        for slot_index, equipment_id in enumerate(equipment_ids):
+            if equipment_id == -1:
+                yield self.screen.clear_item_slot(slot_index)
+                continue
+            if equipment_id == target_ship.equipment_ids[slot_index]:
+                continue
+            yield self.screen.select_item_slot(slot_index)
+            unequipped_items = equipment_list.get_unequipped_items(ship_list)
+            page, in_page_index = equipment_list.compute_page_position(
+                equipment_id, unequipped_items)
+            max_page = equipment_list.get_max_page(unequipped_items)
+            yield self.screen.select_item_page(page, max_page)
+            yield self.screen.select_item(in_page_index)
+            yield self.screen.confirm_item_replacement()

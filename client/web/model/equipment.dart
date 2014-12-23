@@ -128,6 +128,7 @@ void handleEquipmentList(Assistant assistant, AssistantModel model,
   }
   // Virtual entry representing an empty equipment slot.
   var emptyDefinition = new EquipmentDefinition();
+  emptyDefinition.id = -1;
   emptyDefinition.name = "(なし)";
   emptyDefinition.typeName = "空きスロット";
   var emptySlot = new Equipment();
