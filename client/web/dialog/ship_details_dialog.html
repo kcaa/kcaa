@@ -18,10 +18,65 @@
       </h3>
     </div>
     <div class="modal-body">
-      <h4>再現</h4>
-      <div>
-        <button on-click="{{placeAsFlagship}}">第1艦隊旗艦に配置</button>
+      <h4>装備</h4>
+      <div class="table">
+        <div class="trow thead">
+          <div class="description">装備</div>
+          <div>火力</div>
+          <div>命中</div>
+          <div>雷装</div>
+          <div>爆装</div>
+          <div>対空</div>
+          <div>対潜</div>
+          <div>回避</div>
+        </div>
+        <template repeat="{{equipment in ship.equipments | enumerate}}">
+          <template if="{{equipment.value == null}}">
+            <div class="trow">
+              <div class="description">
+                <div class="title">(不明)</div>
+                <div>戦闘報酬艦装備</div>
+              </div>
+              <div class="numberColumn"></div>
+              <div class="numberColumn"></div>
+              <div class="numberColumn"></div>
+              <div class="numberColumn"></div>
+              <div class="numberColumn"></div>
+              <div class="numberColumn"></div>
+              <div class="numberColumn"></div>
+            </div>
+          </template>
+          <template if="{{equipment.value != null}}">
+            <template bind="{{equipment.value.definition as definition}}">
+              <div class="trow">
+                <div class="description">
+                  <div class="title">
+                    <a href="#"
+                       on-click="{{selectNewEquipment}}"
+                       data-slot="{{equipment.index}}">
+                      {{definition.name}}
+                    </a>
+                  </div>
+                  <div>{{definition.typeName}}</div>
+                </div>
+                <div class="numberColumn">{{definition.firepower}}</div>
+                <div class="numberColumn">{{definition.fireHit}}</div>
+                <div class="numberColumn">{{definition.thunderstroke}}</div>
+                <div class="numberColumn">{{definition.bombPower}}</div>
+                <div class="numberColumn">{{definition.antiAir}}</div>
+                <div class="numberColumn">{{definition.antiSubmarine}}</div>
+                <div class="numberColumn">{{definition.fireFlee}}</div>
+              </div>
+            </template>
+          </template>
+        </template>
       </div>
+      <template if="{{selectingEquipment}}">
+        <kcaa-equipmentlist definitions="{{model.equipmentDefinitions}}"
+                            enabledtypes="{{loadableEquipmentTypes}}"
+                            on-equipmentclick="{{replaceEquipment}}">
+        </kcaa-equipmentlist>
+      </template>
       <h4>パラメータ</h4>
       <div class="table">
         <div class="trow thead">
@@ -108,6 +163,10 @@
             max="{{ship.luck.maximum}}"></kcaa-gauge></div>
         </div>
       </div>
+      <h4>その他の操作</h4>
+      <div>
+        <button on-click="{{placeAsFlagship}}">第1艦隊旗艦に配置</button>
+      </div>
       <h4>タグ</h4>
       <div>
         <template repeat="{{tag in tags | enumerate}}">
@@ -120,65 +179,6 @@
         <input type="text" placeholder="新規タグ" size="7"
                on-change="{{addNewTag}}}">
       </div>
-      <h4>装備</h4>
-      <div class="table">
-        <div class="trow thead">
-          <div class="description">装備</div>
-          <div>火力</div>
-          <div>命中</div>
-          <div>雷装</div>
-          <div>爆装</div>
-          <div>対空</div>
-          <div>対潜</div>
-          <div>回避</div>
-        </div>
-        <template repeat="{{equipment in ship.equipments | enumerate}}">
-          <template if="{{equipment.value == null}}">
-            <div class="trow">
-              <div class="description">
-                <div class="title">(不明)</div>
-                <div>戦闘報酬艦装備</div>
-              </div>
-              <div class="numberColumn"></div>
-              <div class="numberColumn"></div>
-              <div class="numberColumn"></div>
-              <div class="numberColumn"></div>
-              <div class="numberColumn"></div>
-              <div class="numberColumn"></div>
-              <div class="numberColumn"></div>
-            </div>
-          </template>
-          <template if="{{equipment.value != null}}">
-            <template bind="{{equipment.value.definition as definition}}">
-              <div class="trow">
-                <div class="description">
-                  <div class="title">
-                    <a href="#"
-                       on-click="{{selectNewEquipment}}"
-                       data-slot="{{equipment.index}}">
-                      {{definition.name}}
-                    </a>
-                  </div>
-                  <div>{{definition.typeName}}</div>
-                </div>
-                <div class="numberColumn">{{definition.firepower}}</div>
-                <div class="numberColumn">{{definition.fireHit}}</div>
-                <div class="numberColumn">{{definition.thunderstroke}}</div>
-                <div class="numberColumn">{{definition.bombPower}}</div>
-                <div class="numberColumn">{{definition.antiAir}}</div>
-                <div class="numberColumn">{{definition.antiSubmarine}}</div>
-                <div class="numberColumn">{{definition.fireFlee}}</div>
-              </div>
-            </template>
-          </template>
-        </template>
-      </div>
-      <template if="{{selectingEquipment}}">
-        <kcaa-equipmentlist definitions="{{model.equipmentDefinitions}}"
-                            enabledtypes="{{loadableEquipmentTypes}}"
-                            on-equipmentclick="{{replaceEquipment}}">
-        </kcaa-equipmentlist>
-      </template>
       <h4>ジャーナル</h4>
       <div>TODO</div>
     </div>
