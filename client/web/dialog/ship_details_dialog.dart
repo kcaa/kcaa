@@ -51,4 +51,14 @@ class ShipDetailsDialog extends KcaaDialog {
     }
     close();
   }
+
+  void placeAsFlagship() {
+    Uri request = assistant.serverManipulate.resolveUri(
+        new Uri(queryParameters: {
+          "type": "LoadShips",
+          "fleet_id": "1",
+          "ship_ids": ship.id.toString(),
+        }));
+    HttpRequest.getString(request.toString());
+  }
 }
