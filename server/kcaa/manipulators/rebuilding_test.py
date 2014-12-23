@@ -66,6 +66,16 @@ class TestReplaceEquipments(object):
             ship, equipment_defs, ship_def_list, ship_list,
             equipment_list) is None
 
+    def test_select_equipment_ids_no_avialable_at_all(
+            self, ship_def_list, ship_list, equipment_list):
+        ship = ship_list.ships['1']
+        equipment_defs = [
+            kcsapi.EquipmentDefinition(id=9999, name=u'1'),
+            None]
+        assert rebuilding.ReplaceEquipments.select_equipment_ids(
+            ship, equipment_defs, ship_def_list, ship_list,
+            equipment_list) is None
+
     def test_select_equipment_ids_same_definitions(
             self, ship_def_list, ship_list, equipment_list):
         ship = ship_list.ships['2']

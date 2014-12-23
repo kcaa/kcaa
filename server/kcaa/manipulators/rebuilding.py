@@ -323,7 +323,8 @@ class ReplaceEquipments(base.Manipulator):
                 return None
             ship_type_def = ship_def_list.ship_types[
                 str(target_ship.ship_type)]
-            if not ship_type_def.loadable_equipment_types[str(definition.id)]:
+            if not ship_type_def.loadable_equipment_types[
+                    str(definition.type)]:
                 logger.error(
                     'Equipment type {} is not loadable to {} ships.'.format(
                         definition.name.encode('utf8'),
@@ -335,6 +336,9 @@ class ReplaceEquipments(base.Manipulator):
                 if current_equipment.item_id == definition.id:
                     equipment_ids.append(current_equipment.id)
                     continue
+            if str(definition.id) not in equipment_list.item_instances:
+                logger.error('No equipment available.')
+                return None
             unequipped_items = [
                 equipment_id for equipment_id in
                 equipment_list.item_instances[str(definition.id)].item_ids if
