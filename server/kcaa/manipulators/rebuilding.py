@@ -354,6 +354,14 @@ class ReplaceEquipments(base.Manipulator):
                 return None
         return equipment_ids
 
+    @staticmethod
+    def filter_out_unloadable(items, target_ship, ship_def_list,
+                              equipment_def_list):
+        ship_type_def = ship_def_list.ship_types[str(target_ship.ship_type)]
+        return [item for item in items if
+                ship_type_def.loadable_equipment_types[
+                    str(item.definition(equipment_def_list).type)]]
+
     def run(self, ship_id, equipment_definition_ids):
         ship_id = int(ship_id)
         if not isinstance(equipment_definition_ids, list):
@@ -408,7 +416,8 @@ class ReplaceEquipments(base.Manipulator):
             if equipment_id == target_ship.equipment_ids[slot_index]:
                 continue
             yield self.screen.select_item_slot(slot_index)
-            unequipped_items = equipment_list.get_unequipped_items(ship_list)
+            unequipped_items = ReplaceEquipments.filter_out_unloadable(
+                equipment_list.get_unequipped_items(ship_list))
             page, in_page_index = equipment_list.compute_page_position(
                 equipment_id, unequipped_items)
             max_page = equipment_list.get_max_page(unequipped_items)

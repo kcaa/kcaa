@@ -166,8 +166,8 @@ class Equipment(jsonobject.JSONSerializableObject):
     locked = jsonobject.ReadonlyJSONProperty('locked', value_type=bool)
     """True if this item is locked."""
 
-    def definition(self, equipment_definition_list):
-        return equipment_definition_list.items[str(self.item_id)]
+    def definition(self, equipment_def_list):
+        return equipment_def_list.items[str(self.item_id)]
 
     @staticmethod
     def compare(equipment_a, equipment_b):
