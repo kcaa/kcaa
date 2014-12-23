@@ -6,7 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:polymer/polymer.dart';
 
 import '../assistant.dart';
-import '../shiplist.dart';
+import '../component/shiplist.dart';
 import '../util.dart';
 
 part 'quest.dart';

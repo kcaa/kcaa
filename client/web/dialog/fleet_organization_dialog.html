@@ -2,9 +2,9 @@
      It seems it is mandatory that all custom elements sources the same
      polymer.html in terms of the path representation. -->
 <link rel="import" href="../packages/polymer/polymer.html">
+<link rel="import" href="../component/shiplist.html">
 <link rel="import" href="../predicate/ship_predicate.html">
 <link rel="import" href="../predicate/kselection.html">
-<link rel="import" href="../shiplist.html">
 <meta charset="utf-8">
 <polymer-element name="kcaa-fleet-organization-dialog">
   <template>
@@ -12,7 +12,6 @@
     <link rel="stylesheet" href="packages/bootjack/css/bootstrap.min.css">
     <link rel="stylesheet" href="../kcaa.css">
     <link rel="stylesheet" href="dialog.css">
-    <link rel="stylesheet" href="../shiplist.css">
     <div class="modal-header">
       <button class="close" on-click="{{close}}">&times;</button>
       <h3 class="modal-title">

@@ -1,8 +1,8 @@
 import 'dart:html';
 import 'package:polymer/polymer.dart';
 
-import 'assistant.dart';
-import 'model/assistant.dart';
+import '../assistant.dart';
+import '../model/assistant.dart';
 
 @CustomTag('kcaa-shiplist')
 class ShipListElement extends PolymerElement {
