@@ -8,20 +8,20 @@
     <link rel="stylesheet" href="kcaa.css">
     <link rel="stylesheet" href="shiplist.css">
 
-    <template if="{{!disabled}}">
-      <div class="table">
-        <div class="trow thead">
-          <div data-type="name" class="description">名前</div>
-          <div data-type="level" class="wide">レベル</div>
-          <div data-type="fuel">燃料</div>
-          <div data-type="ammo">弾薬</div>
-          <div data-type="vitality">戦意</div>
-          <div data-type="hp">HP</div>
-          <div data-type="firepower">火力</div>
-          <div data-type="thunderstroke">雷装</div>
-          <div data-type="antiair">対空</div>
-          <div data-type="armor">装甲</div>
-        </div>
+    <div class="table">
+      <div class="trow thead">
+        <div data-type="name" class="description">名前</div>
+        <div data-type="level" class="wide">レベル</div>
+        <div data-type="fuel">燃料</div>
+        <div data-type="ammo">弾薬</div>
+        <div data-type="vitality">戦意</div>
+        <div data-type="hp">HP</div>
+        <div data-type="firepower">火力</div>
+        <div data-type="thunderstroke">雷装</div>
+        <div data-type="antiair">対空</div>
+        <div data-type="armor">装甲</div>
+      </div>
+      <template if="{{!disabled}}">
         <template repeat="{{ship in ships}}">
           <div class="trow {{ship.stateClass}} {{filter(ship) | toFilterClass}}">
             <div class="description">
@@ -100,8 +100,8 @@
             </div>
           </div>
         </template>
-      </div>
-    </template>
+      </template>
+    </div>
   </template>
   <script type="application/dart" src="shiplist.dart"></script>
 </polymer-element>
