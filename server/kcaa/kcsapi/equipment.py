@@ -165,15 +165,22 @@ class Equipment(jsonobject.JSONSerializableObject):
     """Enhancement level."""
     locked = jsonobject.ReadonlyJSONProperty('locked', value_type=bool)
     """True if this item is locked."""
+    # Following properties are just for internal use. Better to hide as normal
+    # Python instance members?
+    type = jsonobject.ReadonlyJSONProperty('type', value_type=int)
+    """Equipment type, derived from the definition."""
+    sort_order = jsonobject.ReadonlyJSONProperty('sort_order', value_type=int)
+    """Sort order, or the encyclopedia ID."""
 
     def definition(self, equipment_def_list):
         return equipment_def_list.items[str(self.item_id)]
 
     @staticmethod
     def compare(equipment_a, equipment_b):
-        # This might be suboptimal. Use the sort order of the definition.
-        if equipment_a.item_id != equipment_b.item_id:
-            return equipment_a.item_id - equipment_b.item_id
+        if equipment_a.type != equipment_b.type:
+            return equipment_a.type - equipment_b.type
+        if equipment_a.sort_order != equipment_b.sort_order:
+            return equipment_a.sort_order - equipment_b.sort_order
         # Items are reversed in terms of instance IDs; newer items come first.
         return -(equipment_a.id - equipment_b.id)
 
@@ -223,23 +230,32 @@ class EquipmentList(model.KCAAObject):
     def update(self, api_name, request, response, objects, debug):
         super(EquipmentList, self).update(api_name, request, response, objects,
                                           debug)
+        equipment_def_list = objects['EquipmentDefinitionList']
         if api_name == '/api_get_member/slot_item':
             self.items.clear()
             self.item_instances.clear()
             for data in response.api_data:
+                definition = equipment_def_list.items[
+                    str(data.api_slotitem_id)]
                 self.add_item(Equipment(
                     id=data.api_id,
                     item_id=data.api_slotitem_id,
                     level=data.api_level,
-                    locked=data.api_locked != 0))
+                    locked=data.api_locked != 0,
+                    type=definition.type,
+                    sort_order=definition.sort_order))
         elif api_name == '/api_req_kousyou/createitem':
             if response.api_data.api_create_flag:
                 data = response.api_data.api_slot_item
+                definition = equipment_def_list.items[
+                    str(data.api_slotitem_id)]
                 self.add_item(Equipment(
                     id=data.api_id,
                     item_id=data.api_slotitem_id,
                     level=0,
-                    locked=False))
+                    locked=False,
+                    type=definition.type,
+                    sort_order=definition.sort_order))
         elif api_name == '/api_req_kousyou/destroyitem2':
             for instance_id in request.api_slotitem_ids.split(','):
                 self.remove_item(instance_id)
@@ -255,11 +271,15 @@ class EquipmentList(model.KCAAObject):
 
         elif api_name == '/api_req_kousyou/getship':
             for data in response.api_data.api_slotitem:
+                definition = equipment_def_list.items[
+                    str(data.api_slotitem_id)]
                 self.add_item(Equipment(
                     id=data.api_id,
                     item_id=data.api_slotitem_id,
                     level=0,
-                    locked=False))
+                    locked=False,
+                    type=definition.type,
+                    sort_order=definition.sort_order))
 
     def add_item(self, item):
         self.items[str(item.id)] = item

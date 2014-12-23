@@ -29,14 +29,15 @@ class TestReplaceEquipments(object):
     def pytest_funcarg__equipment_list(self):
         return kcsapi.EquipmentList(
             items={
-                '100': kcsapi.Equipment(id=100, item_id=1000),
-                '101': kcsapi.Equipment(id=101, item_id=1000),
-                '102': kcsapi.Equipment(id=102, item_id=1000),
-                '200': kcsapi.Equipment(id=200, item_id=1001)},
+                '100': kcsapi.Equipment(id=100, item_id=1000, type=10000),
+                '101': kcsapi.Equipment(id=101, item_id=1000, type=10000),
+                '102': kcsapi.Equipment(id=102, item_id=1000, type=10000),
+                '200': kcsapi.Equipment(id=200, item_id=1001, type=10001)},
             item_instances={
                 '1000': kcsapi.EquipmentIdList(item_ids=[100, 101, 102]),
                 '1001': kcsapi.EquipmentIdList(item_ids=[200])})
 
+    # TODO: Not used at now. Maybe delete later if not used until then.
     def pytest_funcarg__equipment_def_list(self):
         return kcsapi.EquipmentDefinitionList(items={
             '1000': kcsapi.EquipmentDefinition(id=1000, type=10000),
@@ -113,13 +114,12 @@ class TestReplaceEquipments(object):
             equipment_list) == [102, -1]
 
     def test_filter_out_unloadable(
-            self, ship_def_list, ship_list, equipment_def_list,
-            equipment_list):
+            self, ship_def_list, ship_list, equipment_list):
         items = [equipment_list.items['102'],
                  equipment_list.items['200']]
         ship = ship_list.ships['1']
         loadables = rebuilding.ReplaceEquipments.filter_out_unloadable(
-            items, ship, ship_def_list, equipment_def_list)
+            items, ship, ship_def_list)
         assert len(loadables) == 1
         assert loadables[0].id == 102
 
