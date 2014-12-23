@@ -32,6 +32,8 @@ class AssistantModel extends Observable {
   Map<int, Ship> shipMap = new Map<int, Ship>();
   @observable int numFilteredShips = 0;
   Map<int, Ship> shipDefinitionMap = new Map<int, Ship>();
+  Map<int, ShipTypeDefinition> shipTypeDefinitionMap =
+      new Map<int, ShipTypeDefinition>();
   ShipListElement shipList;
 
   // Fleets.

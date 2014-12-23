@@ -202,12 +202,28 @@ class ShipDefinition(jsonobject.JSONSerializableObject):
                 1 * self.rebuilding_material.thunderstroke)
 
 
+class ShipTypeDefinition(jsonobject.JSONSerializableObject):
+
+    id = jsonobject.JSONProperty('id', value_type=int)
+    """Ship type ID."""
+    name = jsonobject.JSONProperty('name', value_type=unicode)
+    """Ship type name."""
+    loadable_equipment_types = jsonobject.JSONProperty(
+        'loadable_equipment_types', {}, value_type=dict, element_type=bool)
+    """Whether loadable or not for each eqiupment type."""
+    sort_order = jsonobject.ReadonlyJSONProperty('sort_order', value_type=int)
+    """Sort order, or the encyclopedia ID."""
+
+
 class ShipDefinitionList(model.KCAAObject):
     """List of ship definitions."""
 
     ships = jsonobject.JSONProperty('ships', {}, value_type=dict,
                                     element_type=ShipDefinition)
     """Ships. Keyed by ship ID (string)."""
+    ship_types = jsonobject.JSONProperty(
+        'ship_types', {}, value_type=dict, element_type=ShipTypeDefinition)
+    """Ship types. Keyed by ship type ID (string)."""
 
     def update(self, api_name, request, response, objects, debug):
         super(ShipDefinitionList, self).update(api_name, request, response,
@@ -304,6 +320,15 @@ class ShipDefinitionList(model.KCAAObject):
             #   api_taiku: api_tyku (redundant)
             #   api_taisen: api_tais
         self.update_signatures()
+
+        for data in response.api_data.api_mst_stype:
+            self.ship_types[str(data.api_id)] = ShipTypeDefinition(
+                id=data.api_id,
+                name=data.api_name,
+                loadable_equipment_types={
+                    k: v != 0 for k, v in
+                    data.api_equip_type.convert_to_dict().iteritems()},
+                sort_order=data.api_sortno)
 
     def update_signatures(self):
         for ship in self.ships.itervalues():

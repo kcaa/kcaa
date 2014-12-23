@@ -175,6 +175,7 @@
       </div>
       <template if="{{selectingEquipment}}">
         <kcaa-equipmentlist definitions="{{model.equipmentDefinitions}}"
+                            enabledtypes="{{loadableEquipmentTypes}}"
                             on-equipmentclick="{{replaceEquipment}}">
         </kcaa-equipmentlist>
       </template>

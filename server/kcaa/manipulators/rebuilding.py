@@ -302,27 +302,33 @@ class AutoEnhanceBestShip(base.AutoManipulator):
 class ReplaceEquipments(base.Manipulator):
 
     @staticmethod
-    def select_equipment_ids(target_ship, equipment_definitions, ship_list,
-                             equipment_list):
-        if len(target_ship.equipment_ids) != len(equipment_definitions):
+    def select_equipment_ids(target_ship, equipment_defs, ship_def_list,
+                             ship_list, equipment_list):
+        if len(target_ship.equipment_ids) != len(equipment_defs):
             logger.error('Equipment list lengths differ ({} vs. {})'.format(
-                len(target_ship.equipment_ids), len(equipment_definitions)))
+                len(target_ship.equipment_ids), len(equipment_defs)))
             return None
         equipped_item_ids = set()
         for ship in ship_list.ships.itervalues():
             for equipment_id in ship.equipment_ids:
                 if equipment_id != -1:
                     equipped_item_ids.add(equipment_id)
-        print target_ship.equipment_ids
         equipment_ids = []
-        for i, definition in enumerate(equipment_definitions):
+        for i, definition in enumerate(equipment_defs):
             if definition is None:
                 equipment_ids.append(-1)
                 continue
             if any(equipment_id == -1 for equipment_id in equipment_ids):
                 logger.error('Non-empty slot after empty slots')
                 return None
-            # TODO: Check if the item is equippable.
+            ship_type_def = ship_def_list.ship_types[
+                str(target_ship.ship_type)]
+            if not ship_type_def.loadable_equipment_types[str(definition.id)]:
+                logger.error(
+                    'Equipment type {} is not loadable to {} ships.'.format(
+                        definition.name.encode('utf8'),
+                        ship_type_def.name.encode('utf8')))
+                return None
             if target_ship.equipment_ids[i] != -1:
                 current_equipment = (
                     equipment_list.items[str(target_ship.equipment_ids[i])])
@@ -342,7 +348,6 @@ class ReplaceEquipments(base.Manipulator):
                 logger.error('No available unequipped item for {}'.format(
                     definition.name.encode('utf8')))
                 return None
-        print equipment_ids
         return equipment_ids
 
     def run(self, ship_id, equipment_definition_ids):
@@ -350,12 +355,16 @@ class ReplaceEquipments(base.Manipulator):
         if not isinstance(equipment_definition_ids, list):
             equipment_definition_ids = [
                 int(def_id) for def_id in equipment_definition_ids.split(',')]
+        ship_def_list = self.objects.get('ShipDefinitionList')
+        if not ship_def_list:
+            logger.error('No ship definition list was found. Giving up.')
+            return
         ship_list = self.objects.get('ShipList')
         if not ship_list:
             logger.error('No ship list was found. Giving up.')
             return
-        equipment_definition_list = self.objects.get('EquipmentDefinitionList')
-        if not equipment_definition_list:
+        equipment_def_list = self.objects.get('EquipmentDefinitionList')
+        if not equipment_def_list:
             logger.error('No equipment definition list was found. Giving up.')
             return
         equipment_list = self.objects.get('EquipmentList')
@@ -363,24 +372,24 @@ class ReplaceEquipments(base.Manipulator):
             logger.error('No equipment list was found. Giving up.')
             return
         target_ship = ship_list.ships[str(ship_id)]
-        equipment_definitions = []
+        equipment_defs = []
         for def_id in equipment_definition_ids:
             if def_id == -1:
-                equipment_definitions.append(None)
+                equipment_defs.append(None)
             else:
-                equipment_definitions.append(
-                    equipment_definition_list.items[str(def_id)])
+                equipment_defs.append(equipment_def_list.items[str(def_id)])
         logger.info('Replace equipments of ship {} ({}) with [{}]'.format(
             target_ship.name.encode('utf8'), target_ship.id,
             ', '.join(equipment_definition.name.encode('utf8') for
-                      equipment_definition in equipment_definitions if
+                      equipment_definition in equipment_defs if
                       equipment_definition)))
         if target_ship.is_under_repair or target_ship.away_for_mission:
             logger.error('Target ship is not ready for equipment replacement. '
                          'Giving up.')
             return
         equipment_ids = ReplaceEquipments.select_equipment_ids(
-            target_ship, equipment_definitions, ship_list, equipment_list)
+            target_ship, equipment_defs, ship_def_list, ship_list,
+            equipment_list)
         if not equipment_ids:
             logger.error('No available equipments. Giving up.')
             return

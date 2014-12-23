@@ -3,7 +3,8 @@
      polymer.html in terms of the path representation. -->
 <link rel="import" href="../packages/polymer/polymer.html">
 <meta charset="utf-8">
-<polymer-element name="kcaa-equipmentlist" attributes="definitions">
+<polymer-element name="kcaa-equipmentlist"
+                 attributes="assistant definitions enabledtypes">
   <template>
     <link rel="stylesheet" href="../kcaa.css">
 
@@ -24,7 +25,7 @@
           <div class="description header">
             <div class="title">
               {{group.name}}
-              <button class="collapse" data-group="{{group.name}}"
+              <button class="collapse" data-group="{{group.id}}"
                       on-click="{{toggleCollapseSection}}">►</button>
             </div>
           </div>

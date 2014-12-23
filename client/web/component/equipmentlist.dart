@@ -7,18 +7,20 @@ import '../assistant.dart';
 import '../model/assistant.dart';
 
 class EquipmentGroup extends Observable {
+  @observable int id;
   @observable String name;
   @observable List<EquipmentDefinition> definitions =
       new ObservableList<EquipmentDefinition>();
   @observable bool hidden = true;
 
-  EquipmentGroup(this.name);
+  EquipmentGroup(this.id, this.name);
 }
 
 @CustomTag('kcaa-equipmentlist')
 class EquipmentListElement extends PolymerElement {
   @published Assistant assistant;
   @published List<EquipmentDefinition> definitions;
+  @published List<int> enabledtypes;
   @observable List<EquipmentGroup> groups =
       new ObservableList<EquipmentGroup>();
 
@@ -30,14 +32,18 @@ class EquipmentListElement extends PolymerElement {
   }
 
   void update() {
-    var groupMap = new Map<String, EquipmentGroup>();
+    var groupMap = new Map<int, EquipmentGroup>();
+    groups.clear();
     for (var definition in definitions) {
-      if (groupMap.containsKey(definition.typeName)) {
-        groupMap[definition.typeName].definitions.add(definition);
+      if (groupMap.containsKey(definition.type)) {
+        groupMap[definition.type].definitions.add(definition);
       } else {
-        var group = new EquipmentGroup(definition.typeName);
+        if (enabledtypes != null && !enabledtypes.contains(definition.type)) {
+          continue;
+        }
+        var group = new EquipmentGroup(definition.type, definition.typeName);
         group.definitions.add(definition);
-        groupMap[definition.typeName] = group;
+        groupMap[definition.type] = group;
         groups.add(group);
       }
     }
@@ -45,8 +51,8 @@ class EquipmentListElement extends PolymerElement {
 
   void toggleCollapseSection(MouseEvent e) {
     var collapseButton = e.target as Element;
-    var groupName = collapseButton.dataset["group"];
-    var group = groups.firstWhere((g) => g.name == groupName);
+    var groupId = int.parse(collapseButton.dataset["group"]);
+    var group = groups.firstWhere((g) => g.id == groupId);
     group.hidden = !group.hidden;
     collapseButton.text = group.hidden ? "►" : "▼";
   }

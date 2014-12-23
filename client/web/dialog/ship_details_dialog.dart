@@ -9,6 +9,7 @@ import '../util.dart';
 class ShipDetailsDialog extends KcaaDialog {
   @observable Ship ship;
   @observable List<String> tags = new ObservableList<String>();
+  @observable List<int> loadableEquipmentTypes = new ObservableList<int>();
   @observable bool selectingEquipment;
   int selectedSlot;
   Element selectedEquipmentRow;
@@ -21,6 +22,7 @@ class ShipDetailsDialog extends KcaaDialog {
     ship = model.shipMap[shipId];
     tags.clear();
     tags.addAll(ship.tags);
+    resetLoadableEquipmentTypes();
     resetEquipmentSelectionMode();
   }
 
@@ -64,6 +66,16 @@ class ShipDetailsDialog extends KcaaDialog {
           "ship_ids": ship.id.toString(),
         }));
     HttpRequest.getString(request.toString());
+  }
+
+  void resetLoadableEquipmentTypes() {
+    loadableEquipmentTypes.clear();
+    model.shipTypeDefinitionMap[ship.shipTypeId].loadableEquipmentTypes.forEach(
+        (equipmentType, loadable) {
+      if (loadable) {
+        loadableEquipmentTypes.add(equipmentType);
+      }
+    });
   }
 
   void resetEquipmentSelectionMode() {

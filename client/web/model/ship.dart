@@ -28,6 +28,19 @@ class Variable extends Observable {
   }
 }
 
+class ShipTypeDefinition {
+  int id;
+  String name;
+  Map<int, bool> loadableEquipmentTypes = new Map<int, bool>();
+  int sortOrder;
+
+  ShipTypeDefinition(this.id, this.name,
+      Map<String, bool> loadableEquipmentTypes, this.sortOrder) {
+    loadableEquipmentTypes.forEach((id, loadable) =>
+        this.loadableEquipmentTypes[int.parse(id)] = loadable);
+  }
+}
+
 class Ship extends Observable {
   static final Map<int, String> SHIP_TYPE_MAP = <int, String>{
     1: "海防艦",
@@ -92,6 +105,7 @@ class Ship extends Observable {
 
   @observable int id;
   @observable String name;
+  @observable int shipTypeId;
   @observable String shipType;
   @observable int level, upgradeLevel;
   @observable String levelClass;
@@ -126,6 +140,7 @@ class Ship extends Observable {
               Map<int, Equipment> equipmentMap) {
     id = data["id"];
     name = data["name"];
+    shipTypeId = data["ship_type"];
     shipType = SHIP_TYPE_MAP[data["ship_type"]];
     level = data["level"];
     upgradeLevel = data["upgrade_level"];
@@ -701,5 +716,11 @@ void handleShipDefinitionList(Assistant assistant, AssistantModel model,
     ship.name = shipData["name"];
     ship.shipType = Ship.SHIP_TYPE_MAP[shipData["ship_type"]];
     model.shipDefinitionMap[ship.id] = ship;
+  }
+  model.shipTypeDefinitionMap.clear();
+  for (var shipTypeData in (data["ship_types"] as Map).values) {
+    model.shipTypeDefinitionMap[shipTypeData["id"]] = new ShipTypeDefinition(
+        shipTypeData["id"], shipTypeData["name"],
+        shipTypeData["loadable_equipment_types"], shipTypeData["sort_order"]);
   }
 }
