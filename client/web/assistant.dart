@@ -70,11 +70,11 @@ class Assistant extends PolymerElement {
   // client processes them first so that other object handlers can reference the
   // contents of them.
   static final List<String> REFERENCED_OBJECTS = <String>[
-      "EquipmentDefinitionList",
-      "EquipmentList",
-      "ShipDefinitionList",
-      "ShipList",
-      "MissionList",
+    "EquipmentDefinitionList",
+    "EquipmentList",
+    "ShipDefinitionList",
+    "ShipList",
+    "MissionList",
   ];
 
   Assistant.created() : super.created() {
