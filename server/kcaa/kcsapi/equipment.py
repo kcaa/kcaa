@@ -163,7 +163,7 @@ class Equipment(jsonobject.JSONSerializableObject):
     """Item definition ID."""
     level = jsonobject.ReadonlyJSONProperty('level', value_type=int)
     """Enhancement level."""
-    locked = jsonobject.ReadonlyJSONProperty('locked', value_type=bool)
+    locked = jsonobject.JSONProperty('locked', value_type=bool)
     """True if this item is locked."""
     # Following properties are just for internal use. Better to hide as normal
     # Python instance members?
@@ -244,6 +244,9 @@ class EquipmentList(model.KCAAObject):
                     locked=data.api_locked != 0,
                     type=definition.type,
                     sort_order=definition.sort_order))
+        elif api_name == '/api_req_kaisou/lock':
+            self.items[request.api_slotitem_id].locked = (
+                response.api_data.api_locked == 1)
         elif api_name == '/api_req_kousyou/createitem':
             if response.api_data.api_create_flag:
                 data = response.api_data.api_slot_item

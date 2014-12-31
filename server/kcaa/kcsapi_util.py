@@ -100,6 +100,7 @@ class KCSAPIHandler(object):
             # unsetslot looks strange: a mapping from type to item IDs?
             '/api_get_member/slot_item': [kcsapi.EquipmentList],
             '/api_get_member/unsetslot': [kcsapi.NullHandler()],
+            '/api_req_kaisou/lock': [kcsapi.EquipmentList],
             '/api_req_kaisou/slotset': [kcsapi.NullHandler()],
             '/api_req_kaisou/unsetslot_all': [kcsapi.NullHandler()],
             # Rebuilding.
