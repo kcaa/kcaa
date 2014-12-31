@@ -115,17 +115,21 @@ void handleEquipmentDefinitionList(Assistant assistant, AssistantModel model,
 void handleEquipmentList(Assistant assistant, AssistantModel model,
                          Map<String, dynamic> data) {
   model.numEquipments = 0;
-  model.equipmentMap.clear();
+  var newMap = new Map<int, Equipment>();
   for (var definition in model.equipmentDefinitions) {
     definition.instances.clear();
   }
   for (var equipmentData in (data["items"] as Map).values) {
-    Equipment equipment = new Equipment();
+    Equipment equipment = model.equipmentMap[equipmentData["id"]];
+    if (equipment == null) {
+      equipment = new Equipment();
+    }
     equipment.update(equipmentData, model.equipmentDefinitionMap);
-    model.equipmentMap[equipment.id]= equipment;
+    newMap[equipment.id] = equipment;
     equipment.definition.instances.add(equipment);
     model.numEquipments += 1;
   }
+  model.equipmentMap = newMap;
   // Virtual entry representing an empty equipment slot.
   var emptyDefinition = new EquipmentDefinition();
   emptyDefinition.id = -1;
