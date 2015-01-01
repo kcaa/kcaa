@@ -128,6 +128,13 @@ void handleEquipmentList(Assistant assistant, AssistantModel model,
     newMap[equipment.id] = equipment;
     equipment.definition.instances.add(equipment);
     model.numEquipments += 1;
+    // For debugging, uncomment the following and `sort -n`.
+    // TODO: Consider exposing this info to UI when debugging is enabled.
+    // That may need considerable infra change, which might not be worth it.
+    // print(
+    //     "${equipment.id}) ${equipment.definition.name} " +
+    //     "ship ${equipment.ship != null ? equipment.ship.name : '(None)'}, " +
+    //     "level: ${equipment.level}, locked: ${equipment.locked}");
   }
   model.equipmentMap = newMap;
   // Virtual entry representing an empty equipment slot.
