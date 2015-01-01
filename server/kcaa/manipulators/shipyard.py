@@ -173,3 +173,61 @@ class AutoDissolveShips(base.AutoManipulator):
             self.objects['ShipList'], self.objects['PlayerInfo'])
         if target_ship:
             yield self.do_manipulator(DissolveShip, ship_id=target_ship.id)
+
+
+class DissolveEquipment(base.Manipulator):
+
+    def run(self, equipment_ids):
+        if not isinstance(equipment_ids, list):
+            equipment_ids = [int(equipment_id) for equipment_id in
+                             equipment_ids.split(',')]
+        equipment_list = self.objects.get('EquipmentList')
+        if not equipment_list:
+            logger.error('No equipment list was found. Giving up.')
+            return
+        ship_list = self.objects.get('ShipList')
+        if not ship_list:
+            logger.error('No ship list was found. Giving up.')
+            return
+        logger.info('Dissolving equipment {}'.format(', '.join(
+            str(equipment_id) for equipment_id in equipment_ids)))
+        for equipment_id in equipment_ids:
+            if str(equipment_id) not in equipment_list.items:
+                logger.error('Equipment ({}) is not found. Giving up.'.format(
+                    equipment_id))
+                return
+            if equipment_list.items[str(equipment_id)].locked:
+                logger.error('Equipment ({}) is locked. Giving up.'.format(
+                    equipment_id))
+                return
+        unequipped_items = equipment_list.get_unequipped_items(ship_list)
+        while equipment_ids:
+            max_page = equipment_list.get_max_page(unequipped_items)
+            first_page = max_page
+            indices = []
+            ids_to_dissolve = set()
+            for equipment_id in equipment_ids:
+                page, in_page_index = equipment_list.compute_page_position(
+                    equipment_id, unequipped_items)
+                if page is None:
+                    logger.error('Eqiupment ({}) is equipped. Giving up.'
+                                 .format(equipment_id))
+                    return
+                if page < first_page:
+                    first_page = page
+                    indices = [in_page_index]
+                    ids_to_dissolve = set([equipment_id])
+                elif page == first_page:
+                    indices.append(in_page_index)
+                    ids_to_dissolve.add(equipment_id)
+            yield self.screen.change_screen(screens.PORT_SHIPYARD)
+            yield self.screen.try_item_dissolution()
+            yield self.screen.select_item_page(first_page, max_page)
+            for in_page_index in indices:
+                yield self.screen.select_item(in_page_index)
+            yield self.screen.confirm_item_dissolution()
+            yield self.screen.unfocus_selection()
+            unequipped_items = [item for item in unequipped_items if
+                                item.id not in ids_to_dissolve]
+            equipment_ids = [equipment_id for equipment_id in equipment_ids if
+                             equipment_id not in ids_to_dissolve]

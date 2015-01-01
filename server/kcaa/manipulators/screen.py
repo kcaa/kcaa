@@ -1059,7 +1059,7 @@ class PortShipyardScreen(PortOperationsScreen):
 
     def select_ship(self, index):
         def select_ship_task(task):
-            self.click(300, 135 + 32 * index)
+            self.click(300, 140 + 31 * index)
             yield 2.0
         return self.do_task(select_ship_task)
 
@@ -1070,10 +1070,10 @@ class PortShipyardScreen(PortOperationsScreen):
         return self.do_task(confirm_dissolution_task)
 
     def unfocus_selection(self):
-        def unfocus_ship_selection_task(task):
+        def unfocus_selection_task(task):
             self.click(120, 120)
             yield 2.0
-        return self.do_task(unfocus_ship_selection_task)
+        return self.do_task(unfocus_selection_task)
 
     def click_big_skip(self, base_x, base_y):
         self.click(base_x + 184, base_y + 46)
@@ -1102,6 +1102,22 @@ class PortShipyardScreen(PortOperationsScreen):
 
     def click_page_skip_5(self):
         self.click(465, 450)
+
+    def try_item_dissolution(self):
+        def try_item_dissolution_task(task):
+            self.click(220, 415)
+            yield 2.0
+        return self.do_task(try_item_dissolution_task)
+
+    select_item_page = select_page
+
+    def select_item(self, index):
+        def select_item_task(task):
+            self.click(300, 140 + 31 * index)
+            yield 1.0
+        return self.do_task(select_item_task)
+
+    confirm_item_dissolution = confirm_dissolution
 
 
 class EngageScreen(Screen):
