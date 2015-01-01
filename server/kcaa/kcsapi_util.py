@@ -96,13 +96,14 @@ class KCSAPIHandler(object):
                                      kcsapi.MissionList],
             '/api_req_hensei/change': [kcsapi.FleetList],
             # Equipments (slot items).
-            # Set/unset are covered by ship3 and no need to handle for now.
-            # unsetslot looks strange: a mapping from type to item IDs?
+            # unsetslot holds the order of equipment items per type. This must
+            # be handled after slot_item. Currently the client seem to call it
+            # in the proper order but it could change in the future.
             '/api_get_member/slot_item': [kcsapi.EquipmentList],
-            '/api_get_member/unsetslot': [kcsapi.NullHandler()],
+            '/api_get_member/unsetslot': [kcsapi.EquipmentList],
             '/api_req_kaisou/lock': [kcsapi.EquipmentList],
-            '/api_req_kaisou/slotset': [kcsapi.NullHandler()],
-            '/api_req_kaisou/unsetslot_all': [kcsapi.NullHandler()],
+            '/api_req_kaisou/slotset': [kcsapi.EquipmentList],
+            '/api_req_kaisou/unsetslot_all': [kcsapi.EquipmentList],
             # Rebuilding.
             '/api_req_kaisou/remodeling': [kcsapi.ShipList],
             '/api_req_kaisou/powerup': [kcsapi.ShipList],

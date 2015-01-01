@@ -169,20 +169,37 @@ class Equipment(jsonobject.JSONSerializableObject):
     # Python instance members?
     type = jsonobject.ReadonlyJSONProperty('type', value_type=int)
     """Equipment type, derived from the definition."""
+    in_type_index = jsonobject.JSONProperty('in_type_index', value_type=int)
+    """The position in the equipment list within items that share the type.
+
+    For some unknown reason, the KanColle client seems not to define a
+    deterministic natural order for equipment items. Instead, there is a
+    dedicated KCSAPI with a mysterious name (/api_get_member/unsetslot -- just
+    reused?) to hold the sort order of them per equipment item type.
+
+    This index is 0-origin.
+    """
     sort_order = jsonobject.ReadonlyJSONProperty('sort_order', value_type=int)
     """Sort order, or the encyclopedia ID."""
 
     def definition(self, equipment_def_list):
         return equipment_def_list.items[str(self.item_id)]
 
+    def __cmp__(self, other):
+        if self.type != other.type:
+            return self.type - other.type
+        return self.in_type_index - other.in_type_index
+
     @staticmethod
-    def compare(equipment_a, equipment_b):
+    def compare_on_reassignment(equipment_a, equipment_b):
+        """Special compare function used when reassignment happens.
+
+        See :meth:`EquipmentList.reassign_in_type_index` for details."""
         if equipment_a.type != equipment_b.type:
             return equipment_a.type - equipment_b.type
         if equipment_a.sort_order != equipment_b.sort_order:
             return equipment_a.sort_order - equipment_b.sort_order
-        # Items are reversed in terms of instance IDs; newer items come first.
-        return -(equipment_a.id - equipment_b.id)
+        return equipment_a.id - equipment_b.id
 
 
 class EquipmentIdList(jsonobject.JSONSerializableObject):
@@ -202,6 +219,9 @@ class EquipmentList(model.KCAAObject):
 
     Keyed by the slot item definition ID, this map contains the list of slot
     item instances.
+
+    The order doesn't matter; a client is responsible for sorting actual
+    equipment instances if any.
     """
 
     def get_unequipped_items(self, ship_list):
@@ -212,7 +232,7 @@ class EquipmentList(model.KCAAObject):
                     equipped_item_ids.add(equipment_id)
         items = [item for item in self.items.values() if
                  item.id not in equipped_item_ids]
-        items.sort(Equipment.compare)
+        items.sort()
         return items
 
     def compute_page_position(self, equipment_id, unequipped_items):
@@ -243,10 +263,32 @@ class EquipmentList(model.KCAAObject):
                     level=data.api_level,
                     locked=data.api_locked != 0,
                     type=definition.type,
+                    in_type_index=-1,
                     sort_order=definition.sort_order))
+                # in_type_index will soon be overwritten by upcoming unsetslot
+                # call.
+        elif api_name == '/api_get_member/unsetslot':
+            for equipment_type in equipment_def_list.types:
+                equipment_ids = getattr(
+                    response.api_data,
+                    'api_slottype{}'.format(equipment_type.id))
+                if equipment_ids == -1:
+                    continue
+                # Here I assume unsetslot happens after slot_item.
+                for i, equipment_id in enumerate(equipment_ids):
+                    self.items[str(equipment_id)].in_type_index = i
         elif api_name == '/api_req_kaisou/lock':
             self.items[request.api_slotitem_id].locked = (
                 response.api_data.api_locked == 1)
+            # For the record, here is a good place to output eqiupment item ID
+            # to check how equipment items are sorted.
+            # logger.debug(request.api_slotitem_id)
+        elif api_name == '/api_req_kaisou/slotset':
+            # This handles both setting and unsetting an equipment.
+            # In either case in type indices are reassigned.
+            self.reassign_in_type_index(equipment_def_list)
+        elif api_name == '/api_req_kaisou/unsetslot_all':
+            self.reassign_in_type_index(equipment_def_list)
         elif api_name == '/api_req_kousyou/createitem':
             if response.api_data.api_create_flag:
                 data = response.api_data.api_slot_item
@@ -259,9 +301,14 @@ class EquipmentList(model.KCAAObject):
                     locked=False,
                     type=definition.type,
                     sort_order=definition.sort_order))
+                # Assign in_type_index.
+                for i, equipment_id in enumerate(
+                        response.api_data.api_unsetslot):
+                    self.items[str(equipment_id)].in_type_index = i
         elif api_name == '/api_req_kousyou/destroyitem2':
             for instance_id in request.api_slotitem_ids.split(','):
                 self.remove_item(instance_id)
+            # No in_type_index is reassigned.
         elif api_name == '/api_req_kousyou/destroyship':
             ship_list = objects.get('ShipList')
             if not ship_list:
@@ -271,7 +318,7 @@ class EquipmentList(model.KCAAObject):
             for equipment_id in ship.equipment_ids:
                 if equipment_id != -1:
                     self.remove_item(equipment_id)
-
+            # No in_type_index is reassigned.
         elif api_name == '/api_req_kousyou/getship':
             for data in response.api_data.api_slotitem:
                 definition = equipment_def_list.items[
@@ -283,6 +330,7 @@ class EquipmentList(model.KCAAObject):
                     locked=False,
                     type=definition.type,
                     sort_order=definition.sort_order))
+            # No in_type_index is reassigned.
 
     def add_item(self, item):
         self.items[str(item.id)] = item
@@ -296,3 +344,13 @@ class EquipmentList(model.KCAAObject):
         item = self.items[str(instance_id)]
         del self.items[str(instance_id)]
         self.item_instances[str(item.item_id)].item_ids.remove(item.id)
+
+    def reassign_in_type_index(self, equipment_def_list):
+        for equipment_type in equipment_def_list.types:
+            items_for_type = [item for item in self.items.itervalues() if
+                              item.type == equipment_type.id]
+            items_for_type.sort(Equipment.compare_on_reassignment)
+            for i, item in enumerate(items_for_type):
+                item.in_type_index = i
+        for instances in self.item_instances.itervalues():
+            instances.item_ids.sort()
