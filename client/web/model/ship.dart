@@ -316,7 +316,7 @@ class Ship extends Observable {
 
   static bool filterCanWarmUp(Ship s) {
     return (s.stateClass == "good" || s.stateClass == "") &&
-        s.vitality < Fleet.WARMUP_VITALITY;
+        s.vitality < Fleet.WARMUP_VITALITY && !s.awayForMission && s.locked;
   }
 
   static bool filterRoomInFirepower(Ship s) {
