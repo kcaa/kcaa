@@ -50,7 +50,7 @@ class Task(object):
         Whether this task is running or not.
 
         A task starts to run from the beginning, i.e., at the time of
-        initialization. A task stop running when :meth:`suspend` is called or
+        initialization. A task stops running when :meth:`suspend` is called or
         finalized. Stopped :attr:`alive` task may be resumed by calling
         :meth:`resume`.
         """
