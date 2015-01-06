@@ -258,6 +258,41 @@ class TestTask(object):
         manager.remove(t)
         assert t.finalized
 
+    def test_success(self):
+        class Task(task.Task):
+            def run(self):
+                yield 0.0
+
+        t = Task()
+        assert t.alive
+        assert not t.success
+        with pytest.raises(StopIteration):
+            t.update(0.1)
+        assert not t.alive
+        assert t.success
+
+    def test_exception(self):
+        class Task(task.Task):
+            finalized = False
+
+            def run(self):
+                yield 0.0
+                self.thrown = Exception()
+                raise self.thrown
+
+            def finalize(self):
+                self.finalized = True
+
+        t = Task()
+        assert t.alive
+        assert not t.success
+        with pytest.raises(StopIteration):
+            t.update(0.1)
+        assert not t.alive
+        assert not t.success
+        assert t.exception is t.thrown
+        assert t.finalized
+
     def test_suspend_resume(self):
         class Task(task.Task):
             def run(self):

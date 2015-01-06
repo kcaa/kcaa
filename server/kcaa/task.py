@@ -25,6 +25,8 @@ class Task(object):
         self._time = 0.0
         self._dtime = 0.0
         self._finalized = False
+        self._success = False
+        self._exception = None
         self._running = True
         self._last_running = True
         self._last_call = 0.0
@@ -55,6 +57,29 @@ class Task(object):
         :meth:`resume`.
         """
         return self._running
+
+    @property
+    def success(self):
+        """
+        Whether this task has completed successfully or not.
+
+        This is set to True only when it finished :meth:`run` without throwing
+        any exception. An alive task holds False for this property.
+
+        If this property is False after it completed, you can check
+        :attr:`exception` to inspect what happened.
+        """
+        return self._success
+
+    @property
+    def exception(self):
+        """
+        Exception thrown by :meth:`run`, if any.
+
+        This property holds the exception thrown in :meth:`run`. If this is
+        None, it means the task completed successfully or it is still alive.
+        """
+        return self._exception
 
     @property
     def epoch(self):
@@ -111,6 +136,7 @@ class Task(object):
 
         :param args: positional arguments passed to :meth:`__init__`
         :param kwargs: keyword arguments passed to :meth:`__init__`
+        :raises Exception: when your implementation throws it
 
         This abstract method is the entry point for the task. You can write
         any code in it as far as it has at least one ``yield`` statement.
@@ -136,8 +162,12 @@ class Task(object):
 
         You will get `'123 None foo'` on the standard output.
 
+        You can throw an arbitrary exception when needed. If that happens,
+        :attr:`exception` is set to the one thrown from this method and the
+        task stops running, :attr:`success` being false.
+
         When finishing the execution of this method, :meth:`finalize` will be
-        called.
+        called, regardless of its success.
         """
         pass
 
@@ -182,6 +212,7 @@ class Task(object):
             return
         self.finalize(*self._args, **self._kwargs)
         self._finalized = True
+        self._success = self._exception is None
         self.suspend()
         self.finished()
 
@@ -242,9 +273,13 @@ class Task(object):
                     self.suspend()
                     return delay
                 self._next_call += delay
-            except StopIteration, e:
+            except StopIteration as e:
                 self.call_finalizer()
                 raise e
+            except Exception as e:
+                self._exception = e
+                self.call_finalizer()
+                raise StopIteration()
 
     _finished = event.Event()
 
