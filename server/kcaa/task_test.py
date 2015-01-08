@@ -341,6 +341,19 @@ class TestTask(object):
         assert not t.running
         assert t.finished
 
+    def test_custom_return_value(self):
+        class Task(task.Task):
+            def run(self):
+                yield 0.1
+                self.custom_value = 123
+
+        manager = task.TaskManager(0.0)
+        t = Task()
+        assert not(hasattr(t, 'custom_value'))
+        with pytest.raises(StopIteration):
+            t.update(0.2)
+        assert t.custom_value == 123
+
 
 class TestFunctionTask(object):
 
@@ -422,6 +435,17 @@ class TestFunctionTask(object):
         manager.remove(t)
         manager.update(0.2)
         assert l[0] == 2
+
+    def test_custom_return_value(self):
+        def do_task(task):
+            yield 0.1
+            task.custom_value = 123
+
+        manager = task.TaskManager(0.0)
+        t = manager.add(do_task)
+        assert not(hasattr(t, 'custom_value'))
+        manager.update(0.2)
+        assert t.custom_value == 123
 
 
 class TestTaskManager(object):
