@@ -13,6 +13,36 @@ class MockManipulatorManager(object):
         self.screen_manager = None
 
 
+class TestManipulator(object):
+
+    def test_require_objects(object):
+        class Manipulator(base.Manipulator):
+            def run(self):
+                self.require_objects(['ShipList', 'FleetList'])
+                yield 0.0
+
+        manager = MockManipulatorManager()
+        manipulator = Manipulator(manager, priority=0)
+        with pytest.raises(Exception):
+            manipulator.update(0.1)
+        assert not manipulator.alive
+        assert (manipulator.exception.message ==
+                'Required object ShipList not found')
+        manager.objects['ShipList'] = None
+        manipulator = Manipulator(manager, priority=0)
+        with pytest.raises(Exception):
+            manipulator.update(0.1)
+        assert not manipulator.alive
+        assert (manipulator.exception.message ==
+                'Required object FleetList not found')
+        manager.objects['FleetList'] = None
+        manipulator = Manipulator(manager, priority=0)
+        with pytest.raises(StopIteration):
+            manipulator.update(0.1)
+        assert not manipulator.alive
+        assert manipulator.success
+
+
 class MockAutoManipulator(base.AutoManipulator):
 
     mockable_required_objects = []

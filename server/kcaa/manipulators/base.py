@@ -72,6 +72,14 @@ class Manipulator(task.Task):
         return self.manager.add_manipulator(
             manipulator(self.manager, priority, *args, **kwargs))
 
+    def require_objects(self, object_names):
+        """Declare the objects are required to run, and fail if any of them is
+        not available."""
+        for object_name in object_names:
+            if object_name not in self.objects:
+                raise Exception('Required object {} not found'.format(
+                    object_name))
+
 
 class AutoManipulatorTriggerer(Manipulator):
 
