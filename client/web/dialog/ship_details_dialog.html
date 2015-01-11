@@ -56,6 +56,13 @@
                        data-slot="{{equipment.index}}">
                       {{definition.name}}
                     </a>
+                    <template if="{{equipment.value.definition.id != -1}}">
+                      <button class="action"
+                              on-click="{{clearEquipment}}"
+                              data-slot="{{equipment.index}}">
+                        &times;
+                      </button>
+                    </template>
                   </div>
                   <div>{{definition.typeName}}</div>
                 </div>

@@ -115,10 +115,22 @@ class ShipDetailsDialog extends KcaaDialog {
     selectedEquipmentRow.classes.add("selected");
   }
 
+  void clearEquipment(Event e, var detail, ButtonElement target) {
+    var slot = int.parse(target.dataset["slot"]);
+    var equipmentDefinitionIds = new List<int>.generate(
+        ship.equipments.length, (_) => EquipmentDefinition.ID_KEEP);
+    equipmentDefinitionIds[slot] = EquipmentDefinition.ID_EMPTY;
+    requestReplaceEquipments(equipmentDefinitionIds);
+  }
+
   void replaceEquipment(Event e, int equipmentDefinitionId, Element target) {
     var equipmentDefinitionIds = new List<int>.generate(
-        ship.equipments.length, (_) => Equipment.EQUIPMENT_ID_KEEP);
+        ship.equipments.length, (_) => EquipmentDefinition.ID_KEEP);
     equipmentDefinitionIds[selectedSlot] = equipmentDefinitionId;
+    requestReplaceEquipments(equipmentDefinitionIds);
+  }
+
+  void requestReplaceEquipments(List<int> equipmentDefinitionIds) {
     Uri request = assistant.serverManipulate.resolveUri(
         new Uri(queryParameters: {
           "type": "ReplaceEquipments",

@@ -52,16 +52,6 @@ class TestReplaceEquipments(object):
             ship, equipment_defs, ship_def_list, ship_list,
             equipment_list) is None
 
-    def test_select_equipment_ids_non_empty_slot_after_empty_slots(
-            self, ship_def_list, ship_list, equipment_list):
-        ship = ship_list.ships['1']
-        equipment_defs = [
-            None,
-            kcsapi.EquipmentDefinition(id=1000, type=10000, name=u'1000')]
-        assert rebuilding.ReplaceEquipments.select_equipment_ids(
-            ship, equipment_defs, ship_def_list, ship_list,
-            equipment_list) is None
-
     def test_select_equipment_ids_no_avialable_unequipped(
             self, ship_def_list, ship_list, equipment_list):
         ship = ship_list.ships['1']

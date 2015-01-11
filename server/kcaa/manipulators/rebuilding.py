@@ -334,9 +334,6 @@ class ReplaceEquipments(base.Manipulator):
             if definition is None:
                 equipment_ids.append(-1)
                 continue
-            if any(equipment_id == -1 for equipment_id in equipment_ids):
-                logger.error('Non-empty slot after empty slots')
-                return None
             ship_type_def = ship_def_list.ship_types[
                 str(target_ship.ship_type)]
             if not ship_type_def.loadable_equipment_types[
@@ -402,7 +399,7 @@ class ReplaceEquipments(base.Manipulator):
         for i, def_id in enumerate(equipment_definition_ids):
             if def_id == -1:
                 equipment_defs.append(None)
-            if def_id == -2:
+            elif def_id == -2:
                 # TODO: Consider refactoring. This is duplicating what's in
                 # select_equipment_ids().
                 if target_ship.equipment_ids[i] == -1:
@@ -433,13 +430,21 @@ class ReplaceEquipments(base.Manipulator):
             logger.info('No change in eqiupments.')
             return
         yield self.do_manipulator(SelectShip, ship_id=target_ship.id)
+        # Note: this logic needs to be polished when the list is just a
+        # reordered one of the original (e.g. [1, 2, 3] from [3, 1, 2]).
+        # Maybe abstract the scheduler and write tests for them.
+        num_cleared_items = 0
         for slot_index, equipment_id in enumerate(equipment_ids):
             if equipment_id == -1:
                 yield self.screen.clear_item_slot(slot_index)
+                num_cleared_items += 1
                 continue
+            # Note that target_ship is not updated during this manipulator.
+            # This may change in the future when the KCSAPI handler is
+            # rewritten. Beware!
             if equipment_id == target_ship.equipment_ids[slot_index]:
                 continue
-            yield self.screen.select_item_slot(slot_index)
+            yield self.screen.select_item_slot(slot_index - num_cleared_items)
             unequipped_items = ReplaceEquipments.filter_out_unloadable(
                 equipment_list.get_unequipped_items(ship_list), target_ship,
                 ship_def_list)
