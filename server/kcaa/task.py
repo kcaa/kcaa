@@ -27,6 +27,7 @@ class Task(object):
         self._finalized = False
         self._success = False
         self._exception = None
+        self._last_blocking = False
         self._running = True
         self._last_running = True
         self._last_call = 0.0
@@ -296,6 +297,28 @@ class Task(object):
     def finished(self, value):
         pass
 
+    @property
+    def last_blocking(self):
+        """
+        The last task that blocked this task.
+
+        This is especially useful when you want to check the return value of
+        the blocking task. For example::
+
+            class TaskA(task.Task):
+
+                def run(self):
+                    # Do some task...
+                    yield TaskB()
+                    assert self.last_blocking.success
+                    # Do some task...
+        """
+        return self._last_blocking
+
+    @last_blocking.setter
+    def last_blocking(self, value):
+        self._last_blocking = value
+
 
 class FunctionTask(Task):
     """
@@ -439,6 +462,7 @@ class TaskManager(object):
                     blocking_task = task.update(current)
                     running_count += 1 if task.alive and task.running else 0
                     if blocking_task:
+                        task.last_blocking = blocking_task
                         def make_resume(task):
                             def resume(sender):
                                 task.resume()

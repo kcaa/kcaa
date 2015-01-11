@@ -354,6 +354,31 @@ class TestTask(object):
             t.update(0.2)
         assert t.custom_value == 123
 
+    def test_last_blocking(self):
+        class BlockingTask(task.Task):
+            def run(self):
+                yield 0.1
+
+        class Task(task.Task):
+            def run(self, manager, blocking_task):
+                yield manager.add(blocking_task)
+                assert self.last_blocking is blocking_task
+
+        manager = task.TaskManager(0.0)
+        b = BlockingTask()
+        assert b.alive
+        t = Task(manager, b)
+        manager.add(t)
+        # Call manager.update() twice as a single call would not start running
+        # the blocking task.
+        # TODO: Consider running a blocking task immediately if the manager is
+        # the same.
+        manager.update(0.1)
+        manager.update(0.2)
+        assert not b.alive
+        assert b.success
+        assert t.last_blocking is b
+
 
 class TestFunctionTask(object):
 
