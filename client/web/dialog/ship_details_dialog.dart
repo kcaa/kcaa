@@ -7,6 +7,7 @@ import '../util.dart';
 
 @CustomTag('kcaa-ship-details-dialog')
 class ShipDetailsDialog extends KcaaDialog {
+
   @observable Ship ship;
   @observable List<String> tags = new ObservableList<String>();
   @observable List<int> loadableEquipmentTypes = new ObservableList<int>();
@@ -105,8 +106,8 @@ class ShipDetailsDialog extends KcaaDialog {
   }
 
   void replaceEquipment(Event e, int equipmentDefinitionId, Element target) {
-    var equipmentDefinitionIds = new List<int>.from(
-        ship.equipments.map((e) => e.definition.id));
+    var equipmentDefinitionIds = new List<int>.generate(
+        ship.equipments.length, (_) => Equipment.EQUIPMENT_ID_KEEP);
     equipmentDefinitionIds[selectedSlot] = equipmentDefinitionId;
     Uri request = assistant.serverManipulate.resolveUri(
         new Uri(queryParameters: {

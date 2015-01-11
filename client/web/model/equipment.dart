@@ -43,6 +43,11 @@ class EquipmentDefinition extends Observable {
 }
 
 class Equipment extends Observable implements Comparable<Equipment> {
+  // ID meaning the slow should be empty.
+  static final int EQUIPMENT_ID_EMPTY = -1;
+  // ID meaning the slot should be kept intact.
+  static final int EQUIPMENT_ID_KEEP = -2;
+
   @observable int id;
   @observable EquipmentDefinition definition;
   @observable int level;
@@ -142,7 +147,7 @@ void handleEquipmentList(Assistant assistant, AssistantModel model,
   model.equipmentMap = newMap;
   // Virtual entry representing an empty equipment slot.
   var emptyDefinition = new EquipmentDefinition();
-  emptyDefinition.id = -1;
+  emptyDefinition.id = Equipment.EQUIPMENT_ID_EMPTY;
   emptyDefinition.name = "(なし)";
   emptyDefinition.typeName = "空きスロット";
   var emptySlot = new Equipment();
