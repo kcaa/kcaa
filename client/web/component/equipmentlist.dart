@@ -21,6 +21,8 @@ class EquipmentListElement extends PolymerElement {
   @published Assistant assistant;
   @published List<EquipmentDefinition> definitions;
   @published List<int> enabledtypes;
+  @published List<int> expandedtypes;
+  @published int selectedid;
   @observable List<EquipmentGroup> groups =
       new ObservableList<EquipmentGroup>();
 
@@ -42,6 +44,9 @@ class EquipmentListElement extends PolymerElement {
           continue;
         }
         var group = new EquipmentGroup(definition.type, definition.typeName);
+        if (expandedtypes != null && expandedtypes.contains(definition.type)) {
+          group.hidden = false;
+        }
         group.definitions.add(definition);
         groupMap[definition.type] = group;
         groups.add(group);

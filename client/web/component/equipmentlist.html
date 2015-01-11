@@ -40,7 +40,8 @@
         </div>
         <template if="{{!group.hidden}}">
           <template repeat="{{definition in group.definitions}}">
-            <div class="trow {{ {'unavailable': definition.numAvailable == 0} }}">
+            <div class="trow {{ {'unavailable': definition.numAvailable == 0,
+                                 'selected': definition.id == selectedid} }}">
               <div class="description">
                 <div class="title">
                   <!-- TODO: Make it possible to replace with the

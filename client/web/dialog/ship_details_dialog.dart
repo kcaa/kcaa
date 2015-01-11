@@ -11,6 +11,8 @@ class ShipDetailsDialog extends KcaaDialog {
   @observable Ship ship;
   @observable List<String> tags = new ObservableList<String>();
   @observable List<int> loadableEquipmentTypes = new ObservableList<int>();
+  @observable List<int> expandedEquipmentTypes = new ObservableList<int>();
+  @observable int selectedDefinitionId;
   @observable bool selectingEquipment;
   int selectedSlot;
   Element selectedEquipmentRow;
@@ -95,6 +97,8 @@ class ShipDetailsDialog extends KcaaDialog {
     selectingEquipment = false;
     selectedSlot = null;
     selectedEquipmentRow = null;
+    expandedEquipmentTypes.clear();
+    selectedDefinitionId = null;
   }
 
   void clearEquipments() {
@@ -122,6 +126,10 @@ class ShipDetailsDialog extends KcaaDialog {
     selectedSlot = slot;
     selectedEquipmentRow = target.parent.parent.parent;
     selectedEquipmentRow.classes.add("selected");
+    expandedEquipmentTypes.clear();
+    var definition = ship.equipments[slot].definition;
+    expandedEquipmentTypes.add(definition.type);
+    selectedDefinitionId = definition.id;
   }
 
   void clearEquipment(Event e, var detail, ButtonElement target) {
