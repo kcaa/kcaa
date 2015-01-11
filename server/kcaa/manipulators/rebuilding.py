@@ -185,7 +185,7 @@ class RebuildShip(base.Manipulator):
                 material_ship.id, material_ship_ids[:i])
             yield self.screen.select_material_page(page, max_page)
             yield self.screen.select_material_ship(in_page_index)
-        yield self.screen.finalyze_rebuilding()
+        yield self.screen.finalize_rebuilding()
         yield self.screen.confirm_rebuilding()
         yield self.screen.check_rebuilding_result()
         yield self.screen.cancel()
@@ -297,6 +297,42 @@ class AutoEnhanceBestShip(base.AutoManipulator):
 
     def run(self):
         yield self.do_manipulator(EnhanceBestShip)
+
+
+class RemodelShip(base.Manipulator):
+
+    def run(self, ship_id):
+        ship_id = int(ship_id)
+        self.require_objects(['ShipList', 'PlayerResources'])
+        ship_list = self.objects['ShipList']
+        target_ship = ship_list.ships[str(ship_id)]
+        logger.info('Remodeling {}'.format(target_ship.name.encode('utf8')))
+        if not target_ship.upgrade_to:
+            raise Exception('Target ship has no upgrade anymore.')
+        if target_ship.level < target_ship.upgrade_level:
+            raise Exception(
+                'Target ship\'s level is insufficient. Required {}, but has '
+                'only {}.'.format(target_ship.upgrade_level,
+                                  target_ship.level))
+        if target_ship.is_under_repair or target_ship.away_for_mission:
+            raise Exception('Target ship is not ready for upgrade.')
+        resources = self.objects['PlayerResources']
+        # TODO: Maybe factor out to kcsapi/player.py?
+        upgrade_resource = target_ship.upgrade_resource
+        if (upgrade_resource.fuel > resources.fuel or
+                upgrade_resource.ammo > resources.ammo):
+            raise Exception(
+                'Resource insufficient. Required {} fuel and {} ammo, but has '
+                'only {} fuel and {} ammo.'.format(
+                    upgrade_resource.fuel, upgrade_resource.ammo,
+                    resources.fuel, resources.ammo))
+        yield self.screen.change_screen(screens.PORT_REBUILDING)
+        yield self.do_manipulator(ClearEquipments, ship_id=target_ship.id)
+        # The target ship is still selected after ClearEquipments.
+        yield self.screen.try_remodeling()
+        yield self.screen.finalize_remodeling()
+        yield self.screen.confirm_remodeling()
+        yield self.screen.check_remodeling_result()
 
 
 class ClearEquipments(base.Manipulator):

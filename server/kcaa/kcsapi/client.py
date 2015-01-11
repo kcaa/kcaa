@@ -37,6 +37,7 @@ class Screen(model.KCAAObject):
         '/api_req_map/start': screens.EXPEDITION,
         '/api_req_mission/result': screens.MISSION_RESULT,
         '/api_req_kaisou/powerup': screens.PORT_REBUILDING_REBUILDRESULT,
+        '/api_req_kaisou/remodeling': screens.PORT_REBUILDING_REMODELRESULT,
         '/api_req_kousyou/createitem': screens.PORT_SHIPYARD_GETEQUIPMENT,
         '/api_req_kousyou/getship': screens.PORT_SHIPYARD_GETSHIP,
         '/api_req_practice/battle': screens.PRACTICE_COMBAT,

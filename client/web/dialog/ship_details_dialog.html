@@ -176,6 +176,12 @@
       <h4>その他の操作</h4>
       <div>
         <button on-click="{{placeAsFlagship}}">第1艦隊旗艦に配置</button>
+        <button on-click="{{remodel}}"
+                disabled?="{{ship.upgradeLevel == 0 ||
+                            ship.level < ship.upgradeLevel ||
+                            ship.isUnderRepair || ship.awayForMission}}">
+          上位設計に改造
+        </button>
       </div>
       <h4>タグ</h4>
       <div>

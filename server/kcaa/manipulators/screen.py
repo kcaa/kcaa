@@ -644,11 +644,11 @@ class PortRebuildingScreen(PortOperationsScreen):
             yield 1.0
         return self.do_task(select_slot_task)
 
-    def finalyze_rebuilding(self):
-        def finalyze_rebuilding_task(task):
+    def finalize_rebuilding(self):
+        def finalize_rebuilding_task(task):
             self.click(710, 440)
             yield 1.0
-        return self.do_task(finalyze_rebuilding_task)
+        return self.do_task(finalize_rebuilding_task)
 
     def confirm_rebuilding(self):
         def confirm_rebuilding_task(task):
@@ -662,6 +662,22 @@ class PortRebuildingScreen(PortOperationsScreen):
             self.click_somewhere()
             yield 2.0
         return self.do_task(check_rebuilding_result_task)
+
+    def try_remodeling(self):
+        def try_remodeling_task(task):
+            self.click(735, 440)
+            yield 2.0
+        return self.do_task(try_remodeling_task)
+
+    finalize_remodeling = finalize_rebuilding
+
+    def confirm_remodeling(self):
+        def confirm_remodeling_task(task):
+            self.click(490, 410)
+            yield self.wait_transition(screens.PORT_REBUILDING_REMODELRESULT)
+        return self.do_task(confirm_remodeling_task)
+
+    check_remodeling_result = check_rebuilding_result
 
     def cancel(self):
         def cancel_task(task):

@@ -69,6 +69,15 @@ class ShipDetailsDialog extends KcaaDialog {
     HttpRequest.getString(request.toString());
   }
 
+  void remodel() {
+    Uri request = assistant.serverManipulate.resolveUri(
+        new Uri(queryParameters: {
+          "type": "RemodelShip",
+          "ship_id": ship.id.toString(),
+        }));
+    HttpRequest.getString(request.toString());
+  }
+
   void resetLoadableEquipmentTypes() {
     loadableEquipmentTypes.clear();
     model.shipTypeDefinitionMap[ship.shipTypeId].loadableEquipmentTypes.forEach(
