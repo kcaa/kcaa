@@ -75,6 +75,7 @@ class Ship extends Observable {
     "roomInThunderstroke": filterRoomInThunderstroke,
     "roomInAntiAir": filterRoomInAntiAir,
     "roomInArmor": filterRoomInArmor,
+    "upgradable": filterUpgradable,
     "locked": filterLocked,
     "notLocked": filterNotLocked,
   };
@@ -333,6 +334,10 @@ class Ship extends Observable {
 
   static bool filterRoomInArmor(Ship s) {
     return s.enhancedArmor < s.armor.maximum;
+  }
+
+  static bool filterUpgradable(Ship s) {
+    return s.upgradeLevel != 0 && s.level >= s.upgradeLevel;
   }
 
   static bool filterLocked(Ship s) {
