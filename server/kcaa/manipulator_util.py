@@ -3,6 +3,7 @@
 import datetime
 import heapq
 import logging
+import traceback
 
 import browser
 from kcaa import kcsapi
@@ -430,6 +431,17 @@ class ManipulatorManager(object):
             self.last_task = None
 
     def finish_current_task(self):
+        if not self.current_task.success:
+            exception = self.current_task.exception
+            if exception.message:
+                self._logger.error('{}: {}'.format(
+                    type(exception).__name__, exception.message))
+            else:
+                self._logger.error(
+                    'Some exception of type {} happened.'.format(
+                        type(exception).__name__))
+            self._logger.debug(''.join(traceback.format_exception(
+                type(exception), exception, self.current_task.traceback)))
         self.last_task = self.current_task
         self.current_task = None
         # This removes the entry when the first instance of the
