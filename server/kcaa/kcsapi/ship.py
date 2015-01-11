@@ -383,6 +383,9 @@ class Ship(ShipDefinition):
             ammo=round(float(loaded.ammo) / capacity.ammo, 1))
     enhanced_ability = jsonobject.ReadonlyJSONProperty(
         'enhanced_ability', value_type=AbilityEnhancement)
+    aircraft_slot_loaded = jsonobject.ReadonlyJSONProperty(
+        'aircraft_slot_loaded', value_type=list, element_type=int)
+    """Aircraft loaded for each slot."""
     equipment_ids = jsonobject.JSONProperty(
         'equipment_ids', value_type=list, element_type=int)
     """IDs of equipments."""
@@ -671,6 +674,7 @@ class ShipList(model.KCAAObject):
                 thunderstroke=ship_data.api_kyouka[1],
                 anti_air=ship_data.api_kyouka[2],
                 armor=ship_data.api_kyouka[3]),
+            'aircraft_slot_loaded': ship_data.api_onslot,
             'equipment_ids': [id for id in ship_data.api_slot],
             'sort_order': ship_data.api_sortno})
         del ship['equipment_ids'][ship['slot_count']:]

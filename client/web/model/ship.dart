@@ -100,6 +100,8 @@ class Ship extends Observable {
   @observable String firepowerClass, thunderstrokeClass, antiAirClass,
     armorClass;
   @observable Variable antiSubmarine, avoidance, scouting, luck;
+  @observable final List<int> aircraftSlotLoaded = new ObservableList<int>();
+  @observable final List<int> aircraftSlotCapacity = new ObservableList<int>();
   @observable final List<Equipment> equipments =
       new ObservableList<Equipment>();
   @observable bool locked;
@@ -144,6 +146,10 @@ class Ship extends Observable {
     avoidance = new Variable.fromJSON(data["avoidance"]);
     scouting = new Variable.fromJSON(data["scouting"]);
     luck = new Variable.fromJSON(data["luck"]);
+    aircraftSlotLoaded.clear();
+    aircraftSlotLoaded.addAll(data["aircraft_slot_loaded"]);
+    aircraftSlotCapacity.clear();
+    aircraftSlotCapacity.addAll(data["aircraft_slot_capacity"]);
     equipments.clear();
     for (var equipmentId in data["equipment_ids"]) {
       // equipmentId can be -1, which means an empty slot.
