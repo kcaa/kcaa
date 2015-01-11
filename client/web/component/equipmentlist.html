@@ -58,7 +58,10 @@
               <div class="numberColumn">{{definition.antiAir}}</div>
               <div class="numberColumn">{{definition.antiSubmarine}}</div>
               <div class="numberColumn">{{definition.fireFlee}}</div>
-              <div class="numberColumn">{{definition.instances.length}}</div>
+              <div class="numberColumn">
+                {{definition.numAvailable}}<span
+                  class="subordinate">/{{definition.instances.length}}</span>
+              </div>
             </div>
           </template>
         </template>

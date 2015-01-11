@@ -17,6 +17,7 @@ class EquipmentDefinition extends Observable {
   @observable int rarity;
   @observable int sortOrder;
   @observable final List<Equipment> instances = new ObservableList<Equipment>();
+  @observable int numAvailable;
 
   void update(Map<String, dynamic> data) {
     id = data["id"];
@@ -136,6 +137,7 @@ void handleEquipmentList(Assistant assistant, AssistantModel model,
     //     "ship ${equipment.ship != null ? equipment.ship.name : '(None)'}, " +
     //     "level: ${equipment.level}, locked: ${equipment.locked}");
   }
+  updateAvailableEquipments(model);
   model.equipmentMap = newMap;
   // Virtual entry representing an empty equipment slot.
   var emptyDefinition = new EquipmentDefinition();
@@ -145,4 +147,11 @@ void handleEquipmentList(Assistant assistant, AssistantModel model,
   var emptySlot = new Equipment();
   emptySlot.definition = emptyDefinition;
   model.equipmentMap[-1] = emptySlot;
+}
+
+void updateAvailableEquipments(AssistantModel model) {
+  for (var definition in model.equipmentDefinitions) {
+    definition.numAvailable =
+        definition.instances.where((e) => e.ship == null).length;
+  }
 }

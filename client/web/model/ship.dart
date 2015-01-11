@@ -644,6 +644,7 @@ void handleShipList(Assistant assistant, AssistantModel model,
         model.equipmentMap);
     presentShips.add(id);
   }
+  updateAvailableEquipments(model);
   // Remove ships that are no longer available.
   Set<int> removedShips =
       new Set<int>.from(model.shipMap.keys).difference(presentShips);

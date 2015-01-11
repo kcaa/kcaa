@@ -305,8 +305,8 @@ div.title {
   width: 100%;
 }
 .subordinate {
-  font-size: 90%;
-  opacity: 0.7;
+  font-size: 90% !important;
+  opacity: 0.7 !important;
 }
 .tag {
   background-color: hsl(240, 60%, 30%);
