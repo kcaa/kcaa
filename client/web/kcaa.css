@@ -308,6 +308,10 @@ div.title {
   font-size: 90% !important;
   opacity: 0.7 !important;
 }
+.unavailable {
+  background-color: hsla(0, 0%, 80%, 0.5);
+  opacity: 0.7;
+}
 .tag {
   background-color: hsl(240, 60%, 30%);
   border-radius: 3px;

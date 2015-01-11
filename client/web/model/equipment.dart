@@ -38,6 +38,7 @@ class EquipmentDefinition extends Observable {
     firingRange = data["firing_range"];
     rarity = data["rarity"];
     sortOrder = data["sort_order"];
+    numAvailable = 0;  // updated by updateAvailableEquipments()
   }
 }
 

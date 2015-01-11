@@ -40,14 +40,21 @@
         </div>
         <template if="{{!group.hidden}}">
           <template repeat="{{definition in group.definitions}}">
-            <div class="trow">
+            <div class="trow {{ {'unavailable': definition.numAvailable == 0} }}">
               <div class="description">
                 <div class="title">
-                  <a href="#"
-                     on-click="{{clickOnEquipment}}"
-                     data-equipment-definition-id="{{definition.id}}">
+                  <!-- TODO: Make it possible to replace with the
+                       least-recently-used equipment. -->
+                  <template if="{{definition.numAvailable > 0}}">
+                    <a href="#"
+                       on-click="{{clickOnEquipment}}"
+                       data-equipment-definition-id="{{definition.id}}">
+                      {{definition.name}}
+                    </a>
+                  </template>
+                  <template if="{{definition.numAvailable == 0}}">
                     {{definition.name}}
-                  </a>
+                  </template>
                 </div>
                 <div>{{definition.typeName}}</div>
               </div>
