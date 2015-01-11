@@ -137,15 +137,21 @@ class LockShips(base.Manipulator):
 
 class LockUniqueShips(base.Manipulator):
 
+    @staticmethod
+    def get_unlocked_unique_ship_ids(ship_list):
+        ship_ids = []
+        for ship in ship_list.ships.itervalues():
+            if not ship.locked and ship_list.is_unique(ship):
+                ship_ids.append(ship.id)
+        return ship_ids
+
     def run(self):
         self.require_objects(['ShipList'])
         ship_list = self.objects['ShipList']
-        ship_ids_to_lock = []
-        for ship in ship_list.ships.itervalues():
-            if not ship.locked and ship_list.is_unique(ship):
-                ship_ids_to_lock.append(ship.id)
-        if ship_ids_to_lock:
-            yield self.do_manipulator(LockShips, ship_ids_to_lock, True)
+        ship_ids = LockUniqueShips.get_unlocked_unique_ship_ids(ship_list)
+        if ship_ids:
+            yield self.do_manipulator(LockShips, ship_ids=ship_ids,
+                                      locked=True)
 
 
 class AutoLockUniqueShips(base.AutoManipulator):
@@ -158,7 +164,9 @@ class AutoLockUniqueShips(base.AutoManipulator):
     def can_trigger(cls, owner):
         if owner.screen_id != screens.PORT_MAIN:
             return
-        return {}
+        ship_list = owner.objects['ShipList']
+        if LockUniqueShips.get_unlocked_unique_ship_ids(ship_list):
+            return {}
 
     def run(self):
         yield self.do_manipulator(LockUniqueShips)
