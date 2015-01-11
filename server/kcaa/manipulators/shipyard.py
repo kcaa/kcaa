@@ -6,6 +6,7 @@ import time
 import base
 from kcaa import kcsapi
 from kcaa import screens
+import organizing
 
 
 logger = logging.getLogger('kcaa.manipulators.shipyard')
@@ -62,6 +63,7 @@ class ReceiveShip(base.Manipulator):
         yield self.screen.change_screen(screens.PORT_SHIPYARD)
         yield self.screen.select_slot(slot_id - 1)
         yield self.screen.check_ship()
+        yield self.do_manipulator(organizing.LockUniqueShips)
 
 
 class AutoReceiveShips(base.AutoManipulator):
