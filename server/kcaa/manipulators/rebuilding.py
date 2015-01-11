@@ -405,10 +405,13 @@ class ReplaceEquipments(base.Manipulator):
             if def_id == -2:
                 # TODO: Consider refactoring. This is duplicating what's in
                 # select_equipment_ids().
-                current_equipment = (
-                    equipment_list.items[str(target_ship.equipment_ids[i])])
-                equipment_defs.append(
-                    current_equipment.definition(equipment_def_list))
+                if target_ship.equipment_ids[i] == -1:
+                    equipment_defs.append(None)
+                else:
+                    current_equipment = equipment_list.items[
+                        str(target_ship.equipment_ids[i])]
+                    equipment_defs.append(
+                        current_equipment.definition(equipment_def_list))
             else:
                 equipment_defs.append(equipment_def_list.items[str(def_id)])
         logger.info('Replace equipments of ship {} ({}) with [{}]'.format(
