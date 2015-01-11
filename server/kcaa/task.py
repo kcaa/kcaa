@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import abc
+import sys
 import types
 
 import event
@@ -27,6 +28,7 @@ class Task(object):
         self._finalized = False
         self._success = False
         self._exception = None
+        self._traceback = None
         self._last_blocking = False
         self._running = True
         self._last_running = True
@@ -81,6 +83,12 @@ class Task(object):
         None, it means the task completed successfully or it is still alive.
         """
         return self._exception
+
+    @property
+    def traceback(self):
+        """Traceback information for the :attr:`exception`."""
+        # TODO: Test this.
+        return self._traceback
 
     @property
     def epoch(self):
@@ -279,6 +287,7 @@ class Task(object):
                 raise e
             except Exception as e:
                 self._exception = e
+                self._traceback = sys.exc_info()[2]
                 self.call_finalizer()
                 raise StopIteration()
 
