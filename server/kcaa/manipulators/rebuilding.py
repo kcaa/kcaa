@@ -299,6 +299,22 @@ class AutoEnhanceBestShip(base.AutoManipulator):
         yield self.do_manipulator(EnhanceBestShip)
 
 
+class ClearEquipments(base.Manipulator):
+
+    def run(self, ship_id):
+        ship_id = int(ship_id)
+        self.require_objects(['ShipList'])
+        ship_list = self.objects['ShipList']
+        target_ship = ship_list.ships[str(ship_id)]
+        logger.info('Clearing equipments of {}'.format(
+            target_ship.name.encode('utf8')))
+        if target_ship.is_under_repair or target_ship.away_for_mission:
+            raise Exception(
+                'Target ship is not ready for equipment replacement.')
+        yield self.do_manipulator(SelectShip, ship_id=target_ship.id)
+        yield self.screen.clear_all_item_slots(len(target_ship.equipment_ids))
+
+
 class ReplaceEquipments(base.Manipulator):
 
     @staticmethod

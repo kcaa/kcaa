@@ -755,6 +755,14 @@ class PortRebuildingScreen(PortOperationsScreen):
     def click_material_page_skip_5(self):
         self.click(725, 450)
 
+    def clear_all_item_slots(self, num_slots):
+        def clear_all_item_slots_task(task):
+            self.click(327, 168 + 32 * num_slots)
+            yield 2.0
+        if num_slots == 1:
+            return self.clear_item_slot(0)
+        return self.do_task(clear_all_item_slots_task)
+
     def clear_item_slot(self, slot_index):
         def clear_item_slot_task(task):
             self.click(550, 177 + 32 * slot_index)

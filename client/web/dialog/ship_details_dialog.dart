@@ -88,6 +88,16 @@ class ShipDetailsDialog extends KcaaDialog {
     selectedEquipmentRow = null;
   }
 
+  void clearEquipments() {
+    Uri request = assistant.serverManipulate.resolveUri(
+        new Uri(queryParameters: {
+          "type": "ClearEquipments",
+          "ship_id": ship.id.toString(),
+        }));
+    HttpRequest.getString(request.toString());
+    resetEquipmentSelectionMode();
+  }
+
   void selectNewEquipment(Event e, var detail, AnchorElement target) {
     e.preventDefault();
     if (selectedEquipmentRow != null) {
