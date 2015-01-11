@@ -51,6 +51,14 @@
               </div>
             </div>
             <h4>資源</h4>
+            <!-- TODO: Better representation. -->
+            <!-- TODO: Show trend in 24h or so. -->
+            <div>
+              <div>燃料: {{model.resources.fuel}}</div>
+              <div>弾薬: {{model.resources.ammo}}</div>
+              <div>鋼材: {{model.resources.steel}}</div>
+              <div>ボーキ: {{model.resources.bauxite}}</div>
+            </div>
             <button on-click="{{showModalDialog}}"
                     data-dialog="kcaaJournalDialog"
                     data-type="PlayerResourcesJournal"

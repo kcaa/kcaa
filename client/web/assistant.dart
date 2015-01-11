@@ -57,6 +57,7 @@ class Assistant extends PolymerElement {
     "EquipmentList": handleEquipmentList,
     "FleetList": handleFleetList,
     "MissionList": handleMissionList,
+    "PlayerResources": handlePlayerResources,
     "PracticeList": handlePracticeList,
     "Preferences": handlePreferences,
     "QuestList": handleQuestList,

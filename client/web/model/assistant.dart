@@ -15,6 +15,7 @@ part 'client.dart';
 part 'equipment.dart';
 part 'fleet.dart';
 part 'mission.dart';
+part 'player.dart';
 part 'practice.dart';
 part 'preferences.dart';
 part 'repairdock.dart';
@@ -22,6 +23,9 @@ part 'ship.dart';
 part 'shipyard.dart';
 
 class AssistantModel extends Observable {
+  // Player.
+  @observable PlayerResources resources = new PlayerResources();
+
   // Quests.
   @observable int numQuests = 0;
   @observable int numQuestsUndertaken = 0;
