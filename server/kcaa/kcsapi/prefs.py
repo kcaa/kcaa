@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import equipment
 import fleet
 import jsonobject
 import model
@@ -53,6 +54,14 @@ class FleetPreferences(jsonobject.JSONSerializableObject):
         'saved_fleets', [], value_type=list,
         element_type=fleet.FleetDeployment)
     """Saved fleets."""
+
+
+class EquipmentPreferences(jsonobject.JSONSerializableObject):
+
+    deployments = jsonobject.JSONProperty(
+        'deployments', [], value_type=list,
+        element_type=equipment.EquipmentGeneralDeployment)
+    """Equipment deployments."""
 
 
 class PracticePlan(jsonobject.JSONSerializableObject):
@@ -124,6 +133,10 @@ class Preferences(model.KCAAObject):
     fleet_prefs = jsonobject.JSONProperty(
         'fleet_prefs', FleetPreferences(), value_type=FleetPreferences)
     """Fleet preferences."""
+    equipment_prefs = jsonobject.JSONProperty(
+        'equipment_prefs', EquipmentPreferences(),
+        value_type=EquipmentPreferences)
+    """Equipment preferences."""
     practice_prefs = jsonobject.JSONProperty(
         'practice_prefs', PracticePreferences(),
         value_type=PracticePreferences)

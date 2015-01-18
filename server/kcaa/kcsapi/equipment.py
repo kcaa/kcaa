@@ -4,6 +4,7 @@ import logging
 
 import jsonobject
 import model
+import ship
 
 
 logger = logging.getLogger('kcaa.kcsapi.equipment')
@@ -355,3 +356,228 @@ class EquipmentList(model.KCAAObject):
                 item.in_type_index = i
         for instances in self.item_instances.itervalues():
             instances.item_ids.sort()
+
+
+# TODO: Somehow share the logic with ShipPropertyFilter?
+class EquipmentPropertyFilter(jsonobject.JSONSerializableObject):
+
+    property = jsonobject.JSONProperty('property', value_type=unicode)
+    """Property."""
+    value = jsonobject.JSONProperty('value')
+    """Value."""
+    operator = jsonobject.JSONProperty('operator', value_type=int)
+    """Operator."""
+    OPERATOR_EQUAL = 0
+    OPERATOR_NOT_EQUAL = 1
+    OPERATOR_LESS_THAN = 2
+    OPERATOR_LESS_THAN_EQUAL = 3
+    OPERATOR_GREATER_THAN = 4
+    OPERATOR_GREATER_THAN_EQUAL = 5
+    OPERATOR_MAP = {
+        OPERATOR_EQUAL: lambda a, b: a == b,
+        OPERATOR_NOT_EQUAL: lambda a, b: a != b,
+        OPERATOR_LESS_THAN: lambda a, b: a < b,
+        OPERATOR_LESS_THAN_EQUAL: lambda a, b: a <= b,
+        OPERATOR_GREATER_THAN: lambda a, b: a > b,
+        OPERATOR_GREATER_THAN_EQUAL: lambda a, b: a >= b,
+    }
+
+    def apply(self, equipment, equipment_def_list):
+        property_spec = self.property.encode('utf8').split('.')
+        property_value = EquipmentPropertyFilter.get_property_value(
+            ship, property_spec, equipment_def_list)
+        if property_value is None:
+            return False
+        operator = EquipmentPropertyFilter.OPERATOR_MAP.get(self.operator)
+        if not operator:
+            return False
+        return operator(property_value, self.value)
+
+    @staticmethod
+    def get_property_value(target, property_spec, equipment_def_list):
+        indirect_properties = [
+            [(Equipment, 'definition'),
+             lambda equipment: equipment.definition(equipment_def_list)],
+        ]
+        if not property_spec:
+            return target
+        if target is None:
+            return None
+        # Resolve the indirect property.
+        for entry in indirect_properties:
+            if (isinstance(target, entry[0][0]) and
+                    property_spec[0] == entry[0][1]):
+                return EquipmentPropertyFilter.get_property_value(
+                    entry[1](target), property_spec[1:], equipment_def_list)
+        # Get the normal property.
+        if not hasattr(target, property_spec[0]):
+            return None
+        return EquipmentPropertyFilter.get_property_value(
+            getattr(target, property_spec[0]), property_spec[1:],
+            equipment_def_list)
+
+
+class EquipmentTagFilter(jsonobject.JSONSerializableObject):
+    pass
+
+
+class EquipmentFilter(jsonobject.JSONSerializableObject):
+    pass
+
+
+class EquipmentPredicate(jsonobject.JSONSerializableObject):
+    """Predicate for eqiupment selection.
+
+    An equipment predicate is a notation to determine if a certain condition is
+    met with the given equipment.
+
+    Only one of the conditions if valid for one predicate at a time.
+    """
+
+    true_ = jsonobject.JSONProperty('true', value_type=bool)
+    """TRUE condition.
+
+    This predicate itself will be always true.
+    """
+    false_ = jsonobject.JSONProperty('false', value_type=bool)
+    """FALSE condition.
+
+    This predicate itself will be always false.
+    """
+    or_ = jsonobject.JSONProperty('or', value_type=list)
+    """OR conditions.
+
+    This predicate itself will be true if any of the child predicates is true.
+    """
+    and_ = jsonobject.JSONProperty('and', value_type=list)
+    """AND conditions.
+
+    This predicate itself will be true if all of the child predicates are true.
+    """
+    not_ = jsonobject.JSONProperty('not')
+    """NOT condition.
+
+    This predicate itself will be true if the child predicate is false.
+    """
+    property_filter = jsonobject.JSONProperty(
+        'property_filter', value_type=EquipmentPropertyFilter)
+    """Property filter.
+
+    This predicate itself will be true if the given filter yields true."""
+    tag_filter = jsonobject.JSONProperty(
+        'tag_filter', value_type=EquipmentTagFilter)
+    """Tag filter.
+
+    This predicate itself will be true if the given tag is or is not contained.
+    """
+    filter = jsonobject.JSONProperty('filter', value_type=EquipmentFilter)
+    """Ship filter.
+
+    This predicate itself will be true if the given filter yields true."""
+
+    def apply(self, equipment, equipment_def_list):
+        """Apply the predicate to the given ship."""
+        if self.true_:
+            return True
+        if self.false_:
+            return False
+        if self.or_:
+            return any(or_.apply(equipment, equipment_def_list) for or_ in
+                       self.or_)
+        if self.and_:
+            return all(and_.apply(equipment, equipment_def_list) for and_ in
+                       self.and_)
+        if self.not_:
+            return not self.not_.apply(equipment, equipment_def_list)
+        if self.property_filter:
+            return self.property_filter.apply(equipment, equipment_def_list)
+        if self.tag_filter:
+            return self.tag_filter.apply(equipment, equipment_def_list)
+        # TODO: Consider equipment filter.
+        return True
+
+
+# These value or element types cannot be set in the class body. Sounds like a
+# flaw in language design...
+# For now this hack resolves the issue.
+EquipmentPredicate.or_._element_type = EquipmentPredicate
+EquipmentPredicate.and_._element_type = EquipmentPredicate
+EquipmentPredicate.not_._value_type = EquipmentPredicate
+
+
+class EquipmentSorter(jsonobject.JSONSerializableObject):
+
+    name = jsonobject.JSONProperty('name', value_type=unicode)
+    """Name."""
+    reversed = jsonobject.JSONProperty('reversed', value_type=bool)
+    """Reversed or not.
+
+    By default the sorter sorts equipments in ascending order of the metric
+    that it cares about (i.e. from smallest to largest). When this property is
+    true, the order is reversed (i.e. from largest to smallest).
+    """
+
+    def sort(self, equipments):
+        if not self.name:
+            return
+        sorter = getattr(EquipmentSorter, self.name)
+        equipments.sort(sorter, reverse=self.reversed)
+
+    @staticmethod
+    def definition(equipment_a, equipment_b):
+        # Natural order defined by Equipment.__cmp__, which respects the
+        # definition type and IDs within a type.
+        return cmp(equipment_a, equipment_b)
+
+
+class EquipmentRequirement(jsonobject.JSONSerializableObject):
+
+    target_slot = jsonobject.JSONProperty('target_slot', value_type=int)
+    """Target slot type."""
+    TARGET_SLOT_TOPMOST = 0
+    TARGET_SLOT_LARGEST_AIRCRAFT_CAPACITY = 1
+    predicate = jsonobject.JSONProperty('predicate',
+                                        value_type=EquipmentPredicate)
+    """Predicate."""
+    sorter = jsonobject.JSONProperty('scorer', value_type=EquipmentSorter)
+    """Sorter."""
+    omittable = jsonobject.JSONProperty('omittable', False, value_type=bool)
+    """Omittable.
+
+    An omittable eqiupment can be omitted if a ship doesn't have a slot
+    capacity to fit or no equipment is available for the given predicate."""
+
+
+class EquipmentDeployment(jsonobject.JSONSerializableObject):
+
+    ship_predicate = jsonobject.JSONProperty('ship_predicate',
+                                             value_type=ship.ShipPredicate)
+    """Ship predicate.
+
+    A deployment can filter its scope with this predicate. Typically this is
+    filter the ship type. For example, one can build a deployment for
+    destroyers and another for aircraft battleships and combine both in one
+    general deployment, and name as 'anti-submarine'.
+    """
+    requirements = jsonobject.JSONProperty('requirements',
+                                           value_type=EquipmentRequirement)
+    """Equipment requirements.
+
+    A deployment is considered not fit if any of requirement cannot be met.
+    This may be due to insufficient slot capacity of a ship or unavailability
+    of equipment.
+    """
+
+
+class EquipmentGeneralDeployment(jsonobject.JSONSerializableObject):
+
+    name = jsonobject.JSONProperty('name', value_type=unicode)
+    """Name of the deployment."""
+    deployments = jsonobject.JSONProperty(
+        'deployments', value_type=list, element_type=EquipmentDeployment)
+    """Deployments.
+
+    Each deployment represents a specific deployment. If a ship tries to apply
+    a general deployment, it actually applies the first deployment that fits to
+    it. Those filtering may be done by the ship filter, or due to equipment
+    availability."""
