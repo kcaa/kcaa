@@ -320,17 +320,18 @@ class EquipmentList(model.KCAAObject):
                     self.remove_item(equipment_id)
             # No in_type_index is reassigned.
         elif api_name == '/api_req_kousyou/getship':
-            for data in response.api_data.api_slotitem:
-                definition = equipment_def_list.items[
-                    str(data.api_slotitem_id)]
-                self.add_item(Equipment(
-                    id=data.api_id,
-                    item_id=data.api_slotitem_id,
-                    level=0,
-                    locked=False,
-                    type=definition.type,
-                    sort_order=definition.sort_order))
-            # No in_type_index is reassigned.
+            if hasattr(response.api_data, 'api_slotitem'):
+                for data in response.api_data.api_slotitem:
+                    definition = equipment_def_list.items[
+                        str(data.api_slotitem_id)]
+                    self.add_item(Equipment(
+                        id=data.api_id,
+                        item_id=data.api_slotitem_id,
+                        level=0,
+                        locked=False,
+                        type=definition.type,
+                        sort_order=definition.sort_order))
+                # No in_type_index is reassigned.
 
     def add_item(self, item):
         self.items[str(item.id)] = item
