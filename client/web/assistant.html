@@ -131,8 +131,6 @@
                         data-fleet-id="{{fleet.id}}"></button>
               </h4>
               <div>
-                <button on-click="{{saveFleet}}"
-                        data-fleet-id="{{fleet.id}}">艦隊を保存</button>
                 <button on-click="{{warmUpFleet}}"
                         data-fleet-id="{{fleet.id}}"
                         disabled?="{{!fleet.canWarmUp}}">キラキラ化</button>
@@ -265,6 +263,37 @@
           <kcaa-equipmentlist id="equipmentlist" assistant="{{this}}"
                               definitions="{{model.equipmentDefinitions}}">
           </kcaa-equipmentlist>
+        </div>
+      </div>
+      <div class="row horizontal">
+        <div class="board">
+          <h3 data-collapsed="true">装備構成</h3>
+          <div>
+            <button on-click="{{showModalDialog}}"
+                    data-dialog="kcaaEquipmentDeploymentDialog">新規構成</button>
+          </div>
+          <div class="table">
+            <div class="trow thead">
+              <div class="description">構成</div>
+            </div>
+            <template repeat="{{deployment in
+                                model.preferences.equipmentPrefs.deployments}}">
+              <div class="trow">
+                <div class="description">
+                  <div class="title">
+                    <a href="#"
+                       on-click="{{showModalDialog}}"
+                       data-dialog="kcaaEquipmentDeploymentDialog"
+                       data-deployment-name="{{deployment.name}}">
+                      {{deployment.name}}
+                    </a>
+                  </div>
+                  <!-- TODO: Maybe user-edited description? -->
+                  <div>装備構成</div>
+                </div>
+              </div>
+            </template>
+          </div>
         </div>
       </div>
       <div class="row horizontal">

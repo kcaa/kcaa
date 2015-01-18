@@ -57,14 +57,14 @@ class FleetOrganizationDialog extends KcaaDialog {
           "新しい艦隊編成が保存されていません。破棄する場合は削除ボタンを押してください。";
     } else {
       super.close();
+      // Hack to avoid an incomplete initialization on fleet.globalPredicate; if
+      // the fleet is kept intact and the next fleet is set with the same
+      // globalPredicate.type, the select element item is reset to "TRUE" (the
+      // first item) even though globalPredicate.type.value is correctly set.
+      // Do not do this reset in show(). It's important to have a cycle between
+      // this reset and the next set on fleet.
+      fleet = null;
     }
-    // Hack to avoid an incomplete initialization on fleet.globalPredicate; if
-    // the fleet is kept intact and the next fleet is set with the same
-    // globalPredicate.type, the select element item is reset to "TRUE" (the
-    // first item) even though globalPredicate.type.value is correctly set.
-    // Do not do this reset in show(). It's important to have a cycle between
-    // this reset and the next set on fleet.
-    fleet = null;
   }
 
   void initFromFleetName(String fleetName) {

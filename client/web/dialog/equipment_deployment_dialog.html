@@ -1,0 +1,58 @@
+<!-- Be sure to use the path starting from the parent path.
+     It seems it is mandatory that all custom elements sources the same
+     polymer.html in terms of the path representation. -->
+<link rel="import" href="../packages/polymer/polymer.html">
+<meta charset="utf-8">
+<polymer-element name="kcaa-equipment-deployment-dialog">
+  <template>
+    <!-- TODO: Reduce the number of columns. -->
+    <link rel="stylesheet" href="packages/bootjack/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../kcaa.css">
+    <link rel="stylesheet" href="dialog.css">
+    <div class="modal-header">
+      <button class="close" on-click="{{close}}">&times;</button>
+      <h3 class="modal-title">
+        装備構成 -
+        <template if="{{editingDeploymentName}}">
+          <input type="text" value="{{newDeploymentName}}">
+          <button on-click="{{renameDeployment}}" class="action">&#10004;</button>
+          <button on-click="{{cancelRenaming}}" class="action">&#10008;</button>
+        </template>
+        <template if="{{!editingDeploymentName}}">
+          <template if="{{generalDeployment != null}}">
+            {{generalDeployment.name}}
+          </template>
+          <button on-click="{{editDeploymentName}}"
+                  class="action">&#9998;</button>
+        </template>
+        </h3>
+    </div>
+    <div class="modal-body">
+      <h4>構成予測</h4>
+      <div>TODO</div>
+      <h4>構成設定</h4>
+      <template if="{{generalDeployment != null}}">
+        <template repeat="{{deployment in generalDeployment.deployments}}">
+          <div>TODO: Deployment</div>
+        </template>
+      </template>
+      <div>
+        <button on-click="{{update}}">更新</button>
+      </div>
+      <h4>装備構成操作</h4>
+      <div>
+        <button on-click="{{duplicate}}">複製</button>
+      </div>
+      <div>
+        <input type="text" value="{{deploymentNameToDelete}}"
+               id="deploymentNameToDelete">を本当に
+        <button on-click="{{delete}}">削除</button>
+      </div>
+      <div class="errorMessage">{{errorMessage}}</div>
+    </div>
+    <div class="modal-footer">
+      <button class="cancel" on-click="{{close}}">Cancel</button>
+    </div>
+  </template>
+  <script type="application/dart" src="equipment_deployment_dialog.dart"></script>
+</polymer-element>
