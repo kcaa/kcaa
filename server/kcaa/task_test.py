@@ -286,8 +286,9 @@ class TestTask(object):
         t = Task()
         assert t.alive
         assert not t.success
-        with pytest.raises(StopIteration):
+        with pytest.raises(Exception) as excinfo:
             t.update(0.1)
+        assert excinfo.value is t.thrown
         assert not t.alive
         assert not t.success
         assert t.exception is t.thrown
@@ -571,6 +572,59 @@ class TestTaskManager(object):
         manager.update(5.01)
         assert not t1.running
         assert not t1.alive
+
+    def test_exception(self):
+        def throws_exception(task):
+            yield 0.0
+            raise Exception()
+
+        manager = task.TaskManager(0.0)
+        t = manager.add(throws_exception)
+        # The TaskManager should not die, even if the task has thrown an
+        # exception.
+        manager.update(0.1)
+        assert not t.alive
+        assert not t.success
+        assert t.exception
+
+    def test_propagate_exception(self):
+        def throws_exception(task):
+            yield 0.0
+            raise Exception()
+
+        def receives_exception(task, manager):
+            yield manager.add(throws_exception)
+
+        manager = task.TaskManager(0.0)
+        t = manager.add(receives_exception, manager)
+        manager.update(0.1)
+        assert not t.alive
+        assert not t.success
+        assert t.exception
+        assert not t.last_blocking.alive
+        assert not t.last_blocking.success
+        assert t.last_blocking.exception is t.exception
+
+    def test_catch_propagated_exception(self):
+        def throws_exception(task):
+            yield 0.0
+            raise Exception()
+
+        def receives_exception(task, manager):
+            task.result = 0
+            try:
+                yield manager.add(throws_exception)
+            except Exception:
+                task.result = 123
+
+        manager = task.TaskManager(0.0)
+        t = manager.add(receives_exception, manager)
+        manager.update(0.1)
+        assert not t.alive
+        assert t.success
+        assert not t.last_blocking.alive
+        assert not t.last_blocking.success
+        assert t.result == 123
 
 
 def main():

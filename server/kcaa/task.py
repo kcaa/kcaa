@@ -30,6 +30,8 @@ class Task(object):
         self._exception = None
         self._traceback = None
         self._last_blocking = False
+        self._blocked = []
+        self._exception_in_blocking = None
         self._running = True
         self._last_running = True
         self._last_call = 0.0
@@ -274,7 +276,11 @@ class Task(object):
                 if self._unit_delayed:
                     self._next_call += self._dtime
                     self._unit_delayed = False
-                delay = self._iterator.next()
+                if self._exception_in_blocking:
+                    delay = self._iterator.throw(self._exception_in_blocking)
+                    self._exception_in_blocking = None
+                else:
+                    delay = self._iterator.next()
                 if delay == self.unit:
                     self._unit_delayed = True
                     return
@@ -289,7 +295,7 @@ class Task(object):
                 self._exception = e
                 self._traceback = sys.exc_info()[2]
                 self.call_finalizer()
-                raise StopIteration()
+                raise e
 
     _finished = event.Event()
 
@@ -327,6 +333,15 @@ class Task(object):
     @last_blocking.setter
     def last_blocking(self, value):
         self._last_blocking = value
+
+    def propagate_exception(self, exception):
+        """
+        Propagate the exception to this task.
+
+        This is internally used by the task manager to notify this task of the
+        exception happened in the blocking task.
+        """
+        self._exception_in_blocking = exception
 
 
 class FunctionTask(Task):
@@ -472,15 +487,23 @@ class TaskManager(object):
                     running_count += 1 if task.alive and task.running else 0
                     if blocking_task:
                         task.last_blocking = blocking_task
+
                         def make_resume(task):
                             def resume(sender):
                                 task.resume()
                                 self._add_pending(task)
                             resume.task = task
                             return resume
+
                         blocking_task.finished += make_resume(task)
+                        blocking_task._blocked.append(task)
                 except StopIteration:
                     to_be_removed.append(task)
+                except Exception as e:
+                    to_be_removed.append(task)
+                    for blocked in task._blocked:
+                        blocked.propagate_exception(e)
+                    del task._blocked[:]
             tasks = self._get_pending()
         self._tasks = filter(lambda task: task not in to_be_removed,
                              self._tasks)
