@@ -131,6 +131,8 @@
                         data-fleet-id="{{fleet.id}}"></button>
               </h4>
               <div>
+                <button on-click="{{saveFleet}}"
+                        data-fleet-id="{{fleet.id}}">艦隊を保存</button>
                 <button on-click="{{warmUpFleet}}"
                         data-fleet-id="{{fleet.id}}"
                         disabled?="{{!fleet.canWarmUp}}">キラキラ化</button>
