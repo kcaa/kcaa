@@ -593,6 +593,9 @@ class ShipList(model.KCAAObject):
                                  objects).convert_to_dict()
             ShipList.update_ship(ship, response.api_data.api_ship)
             self.ships[str(ship['id'])] = Ship(**ship)
+        elif api_name == '/api_req_mission/start':
+            # FleetList updates away_for_mission.
+            pass
         elif api_name in ('/api_req_sortie/battle',
                           '/api_req_practice/battle'):
             self.update_battle(objects['Battle'], objects['FleetList'])

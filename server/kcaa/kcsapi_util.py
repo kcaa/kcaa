@@ -156,7 +156,9 @@ class KCSAPIHandler(object):
                                                   kcsapi.ShipList],
             # Missions.
             '/api_get_member/mission': [kcsapi.MissionList],
-            '/api_req_mission/start': [kcsapi.NullHandler()],
+            '/api_req_mission/start': [kcsapi.ShipList,
+                                       kcsapi.FleetList,
+                                       kcsapi.MissionList],
             '/api_req_mission/result': [kcsapi.NullHandler()],
             # Items.
             #'/api_get_member/useitem': [],

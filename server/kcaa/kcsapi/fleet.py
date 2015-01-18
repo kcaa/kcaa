@@ -76,6 +76,10 @@ class FleetList(model.KCAAObject):
                     except ValueError:
                         pass
                 fleet.ship_ids[ship_index] = ship_id
+        elif api_name == '/api_req_mission/start':
+            fleet = self.fleets[int(request.api_deck_id) - 1]
+            fleet.mission_id = int(request.api_mission_id)
+            self.update_ship_away_for_mission(ship_list)
 
     def update_fleets(self, fleet_data, ship_list):
         self.fleets = []
@@ -94,6 +98,9 @@ class FleetList(model.KCAAObject):
                 ship_ids=filter(lambda x: x != -1, data.api_ship),
                 mission_id=mission_id,
                 mission_complete=mission_complete))
+        self.update_ship_away_for_mission(ship_list)
+
+    def update_ship_away_for_mission(self, ship_list):
         # Update Ship.away_for_mission.
         # TODO: Consider doing this in ShipList. However that will require the
         # dependency order to be FleetList -> ShipList.
