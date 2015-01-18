@@ -635,6 +635,20 @@ class ShipRequirement extends Observable {
   @observable bool omittable;
 
   ShipRequirement(this.predicate, this.sorter, this.omittable);
+
+  ShipRequirement.fromJSON(Map<String, dynamic> data) {
+    predicate = new ShipPredicate.fromJSON(data["predicate"]);
+    sorter = new ShipSorter.fromJSON(data["sorter"]);
+    omittable = data["omittable"];
+  }
+
+  Map<String, dynamic> toJSONEncodable() {
+    return {
+      "predicate": predicate.toJSONEncodable(),
+      "sorter": sorter.toJSONEncodable(),
+      "omittable": omittable,
+    };
+  }
 }
 
 void handleShipList(Assistant assistant, AssistantModel model,

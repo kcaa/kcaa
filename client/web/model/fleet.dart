@@ -93,11 +93,7 @@ class FleetDeployment extends Observable {
     name = data["name"];
     globalPredicate = new ShipPredicate.fromJSON(data["global_predicate"]);
     for (var shipRequirement in data["ship_requirements"]) {
-      shipRequirements.add(
-        new ShipRequirement(
-            new ShipPredicate.fromJSON(shipRequirement["predicate"]),
-            new ShipSorter.fromJSON(shipRequirement["sorter"]),
-            shipRequirement["omittable"]));
+      shipRequirements.add(new ShipRequirement.fromJSON(shipRequirement));
     }
   }
 
@@ -105,11 +101,8 @@ class FleetDeployment extends Observable {
     return {
       "name": name,
       "global_predicate": globalPredicate.toJSONEncodable(),
-      "ship_requirements": shipRequirements.map((shipRequirement) => {
-        "predicate": shipRequirement.predicate.toJSONEncodable(),
-        "sorter": shipRequirement.sorter.toJSONEncodable(),
-        "omittable": shipRequirement.omittable,
-      }).toList(),
+      "ship_requirements": shipRequirements.map((shipRequirement) =>
+          shipRequirement.toJSONEncodable()).toList(),
     };
   }
 }
