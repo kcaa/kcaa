@@ -141,7 +141,9 @@ class MissionList(model.KCAAObject):
             self.update_mission_fleets(response.api_data)
         elif api_name == '/api_req_mission/start':
             mission = self.get_mission(int(request.api_mission_id))
-            mission.undertaking_fleet = int(request.api_deck_id)
+            # Fake the name of the undertaking fleet. Maybe there is no real
+            # point to retrieve FleetList to get the name.
+            mission.undertaking_fleet = [int(request.api_deck_id), u'']
             # Note that this is misspelt in the API.
             mission.eta = long(response.api_complatetime)
         elif api_name == '/api_port/port':
