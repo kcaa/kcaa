@@ -172,6 +172,7 @@ class ManipulatorManager(object):
             'ReplaceEquipments': manipulators.rebuilding.ReplaceEquipments,
             # Repair
             'RepairShips': manipulators.repair.RepairShips,
+            'BoostShipRepairing': manipulators.repair.BoostShipRepairing,
             # Shipyard
             'BuildShip': manipulators.shipyard.BuildShip,
             'BoostShipBuilding': manipulators.shipyard.BoostShipBuilding,

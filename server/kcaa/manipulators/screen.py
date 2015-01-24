@@ -913,6 +913,18 @@ class PortRepairScreen(PortOperationsScreen):
             yield 3.0
         return self.do_task(confirm_repair_task)
 
+    def boost_repair(self, slot_index):
+        def boost_repair_task(task):
+            self.click(755, 160 + 80 * slot_index)
+            yield 2.0
+        return self.do_task(boost_repair_task)
+
+    def confirm_boost(self):
+        def confirm_boost_task(task):
+            self.click(505, 405)
+            yield 5.0
+        return self.do_task(confirm_boost_task)
+
     def click_page(self, position):
         # position ranges from 0 to 4.
         self.click(516 + 32 * position, 460)

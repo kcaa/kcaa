@@ -309,6 +309,7 @@
               <div class="description">艦船</div>
               <div>HP</div>
               <div class="superWide">修理完了</div>
+              <div class="superWide">操作</div>
             </div>
             <template repeat="{{slot in model.repairSlots}}">
               <div class="trow {{slot.ship.stateClass}}">
@@ -333,6 +334,12 @@
                   </template>
                 </div>
                 <div class="superWide">{{slot.etaDatetimeString}}</div>
+                <div class="superWide labelColumn">
+                  <template if="{{slot.ship != null}}">
+                    <button on-click="{{boostShipRepairing}}"
+                            data-slot-id="{{slot.id}}">高速修復</button>
+                  </template>
+                </div>
               </div>
             </template>
           </div>

@@ -88,6 +88,23 @@ class AutoRepairShips(base.AutoManipulator):
         yield self.do_manipulator(RepairShips, ship_ids)
 
 
+class BoostShipRepairing(base.Manipulator):
+
+    def run(self, slot_id):
+        slot_id = int(slot_id)
+        self.require_objects(['RepairDock'])
+        repair_dock = self.objects['RepairDock']
+        logger.info('Boosting the ship repairing at the slot {}'.format(
+            slot_id))
+        slot_index = slot_id - 1
+        slot = repair_dock.slots[slot_index]
+        if not slot.in_use:
+            raise Exception('Slot {} is empty.'.format(slot_id))
+        yield self.screen.change_screen(screens.PORT_REPAIR)
+        yield self.screen.boost_repair(slot_index)
+        yield self.screen.confirm_boost()
+
+
 class AutoCheckRepairResult(base.AutoManipulator):
 
     # Repair can be completed 60 seconds earlier than the reported ETA.
