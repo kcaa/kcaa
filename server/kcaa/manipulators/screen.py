@@ -1014,6 +1014,18 @@ class PortShipyardScreen(PortOperationsScreen):
             yield 2.0
         return self.do_task(confirm_building_task)
 
+    def boost_build(self, slot_index):
+        def boost_build_task(task):
+            self.click(745, 185 + 80 * slot_index)
+            yield 2.0
+        return self.do_task(boost_build_task)
+
+    def confirm_boost(self):
+        def confirm_boost_task(task):
+            self.click(485, 385)
+            yield 10.0
+        return self.do_task(confirm_boost_task)
+
     def check_ship(self):
         def check_ship_task(task):
             yield 10.0

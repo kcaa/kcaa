@@ -531,6 +531,26 @@ class Assistant extends PolymerElement {
     HttpRequest.getString(request.toString());
   }
 
+  void boostShipBuilding(Event e, var detail, Element target) {
+    var slotId = int.parse(target.dataset["slotId"]);
+    Uri request = serverManipulate.resolveUri(
+        new Uri(queryParameters: {
+          "type": "BoostShipBuilding",
+          "slot_id": slotId.toString(),
+        }));
+    HttpRequest.getString(request.toString());
+  }
+
+  void receiveShip(Event e, var detail, Element target) {
+    var slotId = int.parse(target.dataset["slotId"]);
+    Uri request = serverManipulate.resolveUri(
+        new Uri(queryParameters: {
+          "type": "ReceiveShip",
+          "slot_id": slotId.toString(),
+        }));
+    HttpRequest.getString(request.toString());
+  }
+
   void developEquipment() {
     Uri request = serverManipulate.resolveUri(
         new Uri(queryParameters: {

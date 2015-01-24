@@ -31,7 +31,7 @@ class BuildShip(base.Manipulator):
         if not empty_slots:
             logger.error('No empty build slot was found.')
             return
-        slot_id = empty_slots[0].id - 1
+        slot_index = empty_slots[0].id - 1
         if grand:
             if (fuel < 1500 or fuel > 7000 or fuel % 10 != 0 or
                     ammo < 1500 or ammo > 7000 or ammo % 10 != 0 or
@@ -48,12 +48,34 @@ class BuildShip(base.Manipulator):
                 logger.error('Resource amount is invalid for normal building.')
                 return
         yield self.screen.change_screen(screens.PORT_SHIPYARD)
-        yield self.screen.select_slot(slot_id)
+        yield self.screen.select_slot(slot_index)
         if grand:
             yield self.screen.try_grand_building()
             yield self.screen.set_material(material)
         yield self.screen.set_resource(grand, fuel, ammo, steel, bauxite)
         yield self.screen.confirm_building()
+
+
+class BoostShipBuilding(base.Manipulator):
+
+    def run(self, slot_id):
+        slot_id = int(slot_id)
+        self.require_objects(['BuildDock'])
+        build_dock = self.objects['BuildDock']
+        logger.info('Boosting the ship building at the slot {}'.format(
+            slot_id))
+        slot_index = slot_id - 1
+        slot = build_dock.slots[slot_index]
+        if slot.empty:
+            raise Exception('Slot {} is empty.'.format(slot_id))
+        now = long(1000 * time.time())
+        if slot.completed(now):
+            logger.info('Slot {} has completed the build.')
+            return
+        yield self.screen.change_screen(screens.PORT_SHIPYARD)
+        yield self.screen.boost_build(slot_index)
+        yield self.screen.confirm_boost()
+        yield self.do_manipulator(ReceiveShip, slot_id=slot_id)
 
 
 class ReceiveShip(base.Manipulator):

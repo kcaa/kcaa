@@ -174,6 +174,7 @@ class ManipulatorManager(object):
             'RepairShips': manipulators.repair.RepairShips,
             # Shipyard
             'BuildShip': manipulators.shipyard.BuildShip,
+            'BoostShipBuilding': manipulators.shipyard.BoostShipBuilding,
             'ReceiveShip': manipulators.shipyard.ReceiveShip,
             'DevelopEquipment': manipulators.shipyard.DevelopEquipment,
             'DissolveShip': manipulators.shipyard.DissolveShip,

@@ -24,7 +24,7 @@ class BuildSlot(jsonobject.JSONSerializableObject):
     eta = jsonobject.JSONProperty('eta', value_type=long)
     """Estimated Time of Arrival, in UNIX time with millisecond precision."""
 
-    @property
+    @jsonobject.jsonproperty
     def empty(self):
         return self.state == BuildSlot.STATE_EMPTY
 
