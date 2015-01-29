@@ -2,6 +2,7 @@
 
 import datetime
 
+import dateutil.tz
 import gviz_api
 
 import jsonobject
@@ -149,14 +150,16 @@ class PlayerResourcesJournal(model.KCAAJournalObject.typed(PlayerResources)):
     def update(self, api_names, player_resources):
         self.add_entry(player_resources.clean_copy())
 
-    def request(self, subtype):
+    def request(self, subtype, tzoffset):
+        tz = dateutil.tz.tzoffset(None, int(tzoffset))
         if subtype == 'basic':
             description = {'datetime': ('datetime', 'Datetime'),
                            'fuel': ('number', 'Fuel'),
                            'ammo': ('number', 'Ammo'),
                            'steel': ('number', 'Steel'),
                            'bauxite': ('number', 'Bauxite')}
-            data = [{'datetime': datetime.datetime.fromtimestamp(entry.time),
+            data = [{'datetime':
+                        datetime.datetime.fromtimestamp(entry.time, tz=tz),
                      'fuel': entry.value.fuel,
                      'ammo': entry.value.ammo,
                      'steel': entry.value.steel,
@@ -172,7 +175,8 @@ class PlayerResourcesJournal(model.KCAAJournalObject.typed(PlayerResources)):
                            'repair_booster': ('number', 'Repair booster'),
                            'build_material': ('number', 'Build material'),
                            'rebuild_material': ('number', 'Rebuild material')}
-            data = [{'datetime': datetime.datetime.fromtimestamp(entry.time),
+            data = [{'datetime':
+                        datetime.datetime.fromtimestamp(entry.time, tz=tz),
                      'build_booster': entry.value.build_booster,
                      'repair_booster': entry.value.repair_booster,
                      'build_material': entry.value.build_material,

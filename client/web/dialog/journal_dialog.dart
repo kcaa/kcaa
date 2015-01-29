@@ -76,8 +76,10 @@ class JournalDialog extends KcaaDialog {
     ($["chart"] as Element).children.clear();
     labels.clear();
     var loadFuture = LineChart.load();
-    assistant.requestObject(type, {"subtype": subtype}).then(
-        (Map<String, dynamic> data) {
+    assistant.requestObject(type, {
+        "subtype": subtype,
+        "tzoffset": new DateTime.now().timeZoneOffset.inSeconds.toString(),
+      }).then((Map<String, dynamic> data) {
       labels.addAll((data["cols"] as List).map((column) => column["label"]));
       labels.removeAt(0);
 
