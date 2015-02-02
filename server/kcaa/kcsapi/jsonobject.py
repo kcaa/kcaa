@@ -262,7 +262,7 @@ class JSONSerializableObject(object):
 
     def __str__(self):
         try:
-            return self.json()
+            return '<{}>{}'.format(self.__class__.__name__, self.json())
         except:
             return super(JSONSerializableObject, self).__str__()
 
@@ -583,7 +583,7 @@ class JSONProperty(CustomizableJSONProperty):
                     raise TypeError(
                         ('Property {} expected a {} of elements of type {}, '
                          'but got {}').format(
-                             self.name, self._value_type,
+                             self.name, self._value_type.__name__,
                              self._element_type.__name__, value))
             elif issubclass(self._value_type, dict):
                 bad_key = lambda k: (not isinstance(k, str) and

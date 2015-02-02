@@ -559,8 +559,8 @@ class EquipmentDeployment(jsonobject.JSONSerializableObject):
     destroyers and another for aircraft battleships and combine both in one
     general deployment, and name as 'anti-submarine'.
     """
-    requirements = jsonobject.JSONProperty('requirements',
-                                           value_type=EquipmentRequirement)
+    requirements = jsonobject.JSONProperty(
+        'requirements', value_type=list, element_type=EquipmentRequirement)
     """Equipment requirements.
 
     A deployment is considered not fit if any of requirement cannot be met.
