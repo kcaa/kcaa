@@ -99,22 +99,24 @@ class AutoReceiveShips(base.AutoManipulator):
         return ['BuildDock']
 
     @classmethod
+    def get_receivable_slots(cls, objects):
+        build_dock = objects.get('BuildDock')
+        now = long(1000 * time.time()) + cls.precursor_duration
+        return [slot for slot in build_dock.slots if slot.completed(now)]
+
+    @classmethod
     def can_trigger(cls, owner):
         if not screens.in_category(owner.screen_id, screens.PORT):
             return
-        build_dock = owner.objects.get('BuildDock')
-        now = long(1000 * time.time()) + cls.precursor_duration
-        slot_ids = []
-        for slot in build_dock.slots:
-            if slot.completed(now):
-                slot_ids.append(slot.id)
-        if slot_ids:
-            return {'slot_ids': slot_ids}
+        if owner.manager.is_manipulator_scheduled('BoostShipBuilding'):
+            return
+        if AutoReceiveShips.get_receivable_slots(owner.objects):
+            return {}
 
-    def run(self, slot_ids):
+    def run(self):
         yield 1.0
-        for slot_id in slot_ids:
-            yield self.do_manipulator(ReceiveShip, slot_id=slot_id)
+        for slot in AutoReceiveShips.get_receivable_slots(self.objects):
+            yield self.do_manipulator(ReceiveShip, slot_id=slot.id)
 
 
 class DevelopEquipment(base.Manipulator):
