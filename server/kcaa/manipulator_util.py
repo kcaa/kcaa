@@ -233,14 +233,18 @@ class ManipulatorManager(object):
             # unique ship.
             'AutoLockUniqueShips': -8000,
             # AutoEnhanceBestShip should precede AutoDissolveShips and
-            # AutoWarmUpIdleShips, and # recede AutoLockUniqueShips.
-            'AutoEnhanceBestShip': -3000,
+            # AutoWarmUpIdleShips, and recede AutoLockUniqueShips.
+            'AutoEnhanceBestShip': -4000,
             # AutoDissolveShips must recede AutoEnhanceBestShip. It is always
             # better to use a ship for enhancement rather than just dissolving
             # it to a small amount of materials.
-            'AutoDissolveShips': -2000,
+            'AutoDissolveShips': -3000,
             # AutoCheckRepairResult can be anywhere.
-            'AutoCheckRepairResult': -1000,
+            'AutoCheckRepairResult': -2000,
+            # AutoGoOnMission can run anytime, but doesn't take much time. It
+            # can precede other manual manipulators.
+            # when idle.
+            'AutoGoOnMission': -1000,
             # AutoRepairShips should have a lower priority than WarmUp.
             # Priority of -2 ensures that this doesn't bother the current
             # WarmUp call chain, but precedes consequent WarmUp invocations.
@@ -259,10 +263,7 @@ class ManipulatorManager(object):
             # thus should precede other time-consuming low priority tasks.
             'AutoHandleAllPractices': 2000,
             # AutoReceiveShips runs when idle.
-            'AutoReceiveShips': 8000,
-            # AutoGoOnMission should not bother other manipulators. It can run
-            # when idle.
-            'AutoGoOnMission': 9000,
+            'AutoReceiveShips': 9000,
             # AutoWarmUpIdleShips can run only when idle. Other low priority
             # tasks should usually precede as this would take considerable
             # time.
