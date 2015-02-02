@@ -110,15 +110,11 @@ class AutoGoOnMission(base.AutoManipulator):
     def monitored_objects(cls):
         return ['ShipList', 'FleetList']
 
-    @classmethod
-    def can_trigger(cls, owner):
-        if not screens.in_category(owner.screen_id, screens.PORT):
-            return
-        if owner.manager.is_manipulator_scheduled('GoOnMission'):
-            return
-        fleet_list = owner.objects.get('FleetList')
-        ship_list = owner.objects.get('ShipList')
-        if not owner.manager.preferences.mission_prefs:
+    @staticmethod
+    def get_go_on_config(objects, preferences):
+        fleet_list = objects.get('FleetList')
+        ship_list = objects.get('ShipList')
+        if not preferences.mission_prefs:
             return
         go_on_config = {}
         for fleet_ in fleet_list.fleets:
@@ -127,12 +123,11 @@ class AutoGoOnMission(base.AutoManipulator):
             # TODO: This is ugly. Consider givin a direct access to Preferences
             # object.
             mission_plan = (
-                owner.manager.preferences.mission_prefs.get_mission_plan(
-                    fleet_.id))
+                preferences.mission_prefs.get_mission_plan(fleet_.id))
             if not mission_plan:
                 continue
             matching_fleets = [
-                sf for sf in owner.manager.preferences.fleet_prefs.saved_fleets
+                sf for sf in preferences.fleet_prefs.saved_fleets
                 if sf.name == mission_plan.fleet_name]
             if not matching_fleets:
                 continue
@@ -140,11 +135,22 @@ class AutoGoOnMission(base.AutoManipulator):
             if not fleet_deployment.are_all_ships_ready(ship_list):
                 continue
             go_on_config[fleet_.id] = mission_plan
-        if go_on_config:
-            return {'go_on_config': go_on_config}
+        return go_on_config
 
-    def run(self, go_on_config):
+    @classmethod
+    def can_trigger(cls, owner):
+        if not screens.in_category(owner.screen_id, screens.PORT):
+            return
+        if owner.manager.is_manipulator_scheduled('GoOnMission'):
+            return
+        if AutoGoOnMission.get_go_on_config(owner.objects,
+                                            owner.manager.preferences):
+            return {}
+
+    def run(self):
         yield 1.0
+        go_on_config = AutoGoOnMission.get_go_on_config(
+            self.objects, self.manager.preferences)
         for fleet_id, mission_plan in go_on_config.iteritems():
             self.add_manipulator(organizing.LoadFleet, fleet_id,
                                  mission_plan.fleet_name.encode('utf8'))
