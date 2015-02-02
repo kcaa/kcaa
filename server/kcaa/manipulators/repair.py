@@ -66,25 +66,30 @@ class AutoRepairShips(base.AutoManipulator):
     def monitored_objects(cls):
         return ['ShipList', 'FleetList', 'RepairDock']
 
+    @staticmethod
+    def get_ships_to_repair(objects):
+        ship_list = objects.get('ShipList')
+        fleet_list = objects.get('FleetList')
+        repair_dock = objects.get('RepairDock')
+        empty_slots = [slot for slot in repair_dock.slots if not slot.in_use]
+        if not empty_slots:
+            return []
+        return sorted(
+            ship_list.repairable_ships(fleet_list),
+            kcsapi.ship.ShipSorter.hitpoint_ratio)[:len(empty_slots)]
+
     @classmethod
     def can_trigger(cls, owner):
         if not screens.in_category(owner.screen_id, screens.PORT):
             return
         if owner.screen_id == screens.PORT_REPAIR:
             return
-        ship_list = owner.objects.get('ShipList')
-        fleet_list = owner.objects.get('FleetList')
-        repair_dock = owner.objects.get('RepairDock')
-        empty_slots = [slot for slot in repair_dock.slots if not slot.in_use]
-        if not empty_slots:
-            return
-        ships_to_repair = sorted(
-            ship_list.repairable_ships(fleet_list),
-            kcsapi.ship.ShipSorter.hitpoint_ratio)[:len(empty_slots)]
-        if ships_to_repair:
-            return {'ship_ids': [s.id for s in ships_to_repair]}
+        if AutoRepairShips.get_ships_to_repair(owner.objects):
+            return {}
 
-    def run(self, ship_ids):
+    def run(self):
+        ship_ids = [s.id for s in
+                    AutoRepairShips.get_ships_to_repair(self.objects)]
         yield self.do_manipulator(RepairShips, ship_ids)
 
 
