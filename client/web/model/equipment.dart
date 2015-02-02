@@ -343,6 +343,13 @@ class EquipmentRequirement extends Observable {
   EquipmentRequirement(this.targetSlot, this.predicate, this.sorter,
       this.omittable);
 
+  EquipmentRequirement.any() {
+    targetSlot = TARGET_SLOT_TOPMOST;
+    predicate = new EquipmentPredicate.fromTRUE();
+    sorter = new EquipmentSorter.definition(false);
+    omittable = false;
+  }
+
   EquipmentRequirement.fromJSON(Map<String, dynamic> data) {
     predicate = new EquipmentPredicate.fromJSON(data["predicate"]);
     sorter = new EquipmentSorter.fromJSON(data["sorter"]);
@@ -362,6 +369,10 @@ class EquipmentDeployment extends Observable {
   @observable ShipPredicate shipPredicate;
   @observable final ObservableList<EquipmentRequirement> requirements =
       new ObservableList<EquipmentRequirement>();
+
+  EquipmentDeployment() {
+    shipPredicate = new ShipPredicate.fromTRUE();
+  }
 
   EquipmentDeployment.fromJSON(Map<String, dynamic> data) {
     shipPredicate = new ShipPredicate.fromJSON(data["ship_predicate"]);

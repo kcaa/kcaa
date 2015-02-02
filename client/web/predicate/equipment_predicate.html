@@ -1,0 +1,69 @@
+<!-- Be sure to use the path starting from the parent path.
+     It seems it is mandatory that all custom elements sources the same
+     polymer.html in terms of the path representation. -->
+<link rel="import" href="../packages/polymer/polymer.html">
+<link rel="import" href="kselection.html">
+<meta charset="utf-8">
+<polymer-element name="kcaa-equipment-predicate" attributes="predicate">
+  <template>
+    <template id="equipment-property-filter">
+      <kcaa-kselection kselection="{{property}}"
+                       on-selectionchange="{{dispatchChange}}">
+      </kcaa-kselection>
+      <kcaa-kselection kselection="{{operator}}"
+                       on-selectionchange="{{dispatchChange}}">
+      </kcaa-kselection>
+      <input type="text" value="{{value}}" on-change="{{dispatchChange}}">
+    </template>
+
+    <template id="equipment-tag-filter">
+      <input type="text" value="{{tag}}" on-change="{{dispatchChange}}">
+      <kcaa-kselection kselection="{{operator}}"
+                       on-selectionchange="{{dispatchChange}}">
+      </kcaa-kselection>
+    </template>
+
+    <link rel="stylesheet" href="packages/bootjack/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../kcaa.css">
+    <link rel="stylesheet" href="predicate.css">
+    <fieldset>
+      <legend>
+        <kcaa-kselection kselection="{{predicate.type}}"
+                         on-selectionchange="{{updateType}}"></kcaa-kselection>
+      </legend>
+      <template if="{{predicate.type.value == 'or'}}">
+        <template repeat="{{or in predicate.or | enumerate}}">
+          <button class="action delete" on-click="{{deleteOr}}"
+                  data-index="{{or.index}}">&times;</button>
+          <kcaa-equipment-predicate predicate="{{or.value}}">
+          </kcaa-equipment-predicate>
+        </template>
+        <button class="action" on-click="{{addOr}}">+</button>
+      </template>
+      <template if="{{predicate.type.value == 'and'}}">
+        <template repeat="{{and in predicate.and | enumerate}}">
+          <button class="action delete" on-click="{{deleteAnd}}"
+                  data-index="{{and.index}}">&times;</button>
+          <kcaa-equipment-predicate predicate="{{and.value}}">
+          </kcaa-equipment-predicate>
+        </template>
+        <button class="action" on-click="{{addAnd}}">+</button>
+      </template>
+      <template if="{{predicate.type.value == 'not' && predicate.not != null}}">
+        <kcaa-equipment-predicate predicate="{{predicate.not}}">
+        </kcaa-equipment-predicate>
+      </template>
+      <template if="{{predicate.type.value == 'propertyFilter'}}"
+                ref="equipment-property-filter"
+                bind="{{predicate.propertyFilter}}">
+      </template>
+      <template if="{{predicate.type.value == 'tagFilter'}}"
+                ref="equipment-tag-filter" bind="{{predicate.tagFilter}}">
+      </template>
+      <template if="{{predicate.type.value == 'filter'}}">
+        <!-- TODO: Implement. -->
+      </template>
+    </fieldset>
+  </template>
+  <script type="application/dart" src="equipment_predicate.dart"></script>
+</polymer-element>

@@ -142,4 +142,26 @@ class EquipmentDeploymentDialog extends KcaaDialog {
     assistant.savePreferences();
     close();
   }
+
+  void addNewDeployment() {
+    generalDeployment.deployments.add(new EquipmentDeployment());
+  }
+
+  void deleteDeployment(Event e, var detail, Element target) {
+    var deploymentIndex = int.parse(target.dataset["deploymentIndex"]);
+    generalDeployment.deployments.removeAt(deploymentIndex);
+  }
+
+  void addNewRequirement(Event e, var detail, Element target) {
+    var deploymentIndex = int.parse(target.dataset["deploymentIndex"]);
+    generalDeployment.deployments[deploymentIndex].requirements.add(
+        new EquipmentRequirement.any());
+  }
+
+  void deleteRequirement(Event e, var detail, Element target) {
+    var deploymentIndex = int.parse(target.dataset["deploymentIndex"]);
+    var requirementIndex = int.parse(target.dataset["requirementIndex"]);
+    generalDeployment.deployments[deploymentIndex].requirements.removeAt(
+        requirementIndex);
+  }
 }

@@ -2,6 +2,8 @@
      It seems it is mandatory that all custom elements sources the same
      polymer.html in terms of the path representation. -->
 <link rel="import" href="../packages/polymer/polymer.html">
+<link rel="import" href="../predicate/equipment_predicate.html">
+<link rel="import" href="../predicate/ship_predicate.html">
 <meta charset="utf-8">
 <polymer-element name="kcaa-equipment-deployment-dialog">
   <template>
@@ -32,9 +34,61 @@
       <div>TODO</div>
       <h4>構成設定</h4>
       <template if="{{generalDeployment != null}}">
-        <template repeat="{{deployment in generalDeployment.deployments}}">
-          <div>TODO: Deployment</div>
+        <template repeat="{{deployment in generalDeployment.deployments |
+                            enumerate}}">
+          <fieldset>
+            <legend>
+              構成 {{deployment.index + 1}}
+              <button class="action"
+                      on-click="{{deleteDeployment}}"
+                      data-deployment-index="{{deployment.index}}">
+                &times;
+              </button>
+            </legend>
+            <div>艦船フィルタ</div>
+            <kcaa-ship-predicate predicate="{{deployment.value.shipPredicate}}"
+                                 on-predicatechange="{{updateExpectation}}">
+            </kcaa-ship-predicate>
+            <div class="table">
+              <div class="trow thead">
+                <div>決定順</div>
+                <div class="description">条件</div>
+              </div>
+              <template repeat="{{req in deployment.value.requirements |
+                                  enumerate}}">
+                <div class="trow">
+                  <div class="numberColumn">
+                    {{req.index + 1}}
+                    <button class="action"
+                            on-click="{{deleteRequirement}}"
+                            data-deployment-index="{{deployment.index}}"
+                            data-requirement-index="{{req.index}}">
+                      &times;
+                    </button>
+                  </div>
+                  <div class="description">
+                    <kcaa-equipment-predicate
+                        predicate="{{req.value.predicate}}">
+                    </kcaa-equipment-predicate>
+                  </div>
+                </div>
+              </template>
+              <div class="trow">
+                <div class="numberColumn">
+                  {{deployment.value.requirements.length + 1}}
+                </div>
+                <div class="description">
+                  <button class="action"
+                          on-click="{{addNewRequirement}}"
+                          data-deployment-index="{{deployment.index}}">
+                    +
+                  </button>
+                </div>
+              </div>
+            </div>
+          </fieldset>
         </template>
+        <button class="action" on-click="{{addNewDeployment}}">+</button>
       </template>
       <div>
         <button on-click="{{update}}">更新</button>
