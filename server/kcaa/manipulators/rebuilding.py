@@ -491,11 +491,11 @@ class ReplaceEquipments(base.Manipulator):
             # Write tests instead.
             logger.debug('position: {}-{}, max page: {}'.format(
                 page, in_page_index, max_page))
-            for i in xrange(10 * page, min(10 * (page + 1),
-                                           len(unequipped_items))):
+            for i in xrange(10 * (page - 1), min(10 * page,
+                                                 len(unequipped_items))):
                 definition = unequipped_items[i].definition(equipment_def_list)
                 logger.debug('{}-{}: {} ({})'.format(
-                    page, i - page, definition.name.encode('utf8'),
+                    page, i - 10 * (page - 1), definition.name.encode('utf8'),
                     definition.type_name.encode('utf8')))
             yield self.screen.select_item_page(page, max_page)
             yield self.screen.select_item(in_page_index)
