@@ -4,7 +4,8 @@
 <link rel="import" href="../packages/polymer/polymer.html">
 <meta charset="utf-8">
 <polymer-element name="kcaa-equipmentlist"
-                 attributes="assistant definitions enabledtypes">
+                 attributes="assistant definitions enabledtypes expandedtypes
+                             selectedid disableunavailable">
   <template>
     <link rel="stylesheet" href="../kcaa.css">
 
@@ -40,20 +41,23 @@
         </div>
         <template if="{{!group.hidden}}">
           <template repeat="{{definition in group.definitions}}">
-            <div class="trow {{ {'unavailable': definition.numAvailable == 0,
+            <div class="trow {{ {'unavailable': definition.numAvailable == 0 &&
+                                     disableunavailable,
                                  'selected': definition.id == selectedid} }}">
               <div class="description">
                 <div class="title">
                   <!-- TODO: Make it possible to replace with the
                        least-recently-used equipment. -->
-                  <template if="{{definition.numAvailable > 0}}">
+                  <template if="{{!disableunavailable ||
+                                  definition.numAvailable > 0}}">
                     <a href="#"
                        on-click="{{clickOnEquipment}}"
                        data-equipment-definition-id="{{definition.id}}">
                       {{definition.name}}
                     </a>
                   </template>
-                  <template if="{{definition.numAvailable == 0}}">
+                  <template if="{{disableunavailable &&
+                                  definition.numAvailable == 0}}">
                     {{definition.name}}
                   </template>
                 </div>

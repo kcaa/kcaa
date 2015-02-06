@@ -23,6 +23,7 @@ class EquipmentListElement extends PolymerElement {
   @published List<int> enabledtypes;
   @published List<int> expandedtypes;
   @published int selectedid;
+  @published bool disableunavailable;
   @observable List<EquipmentGroup> groups =
       new ObservableList<EquipmentGroup>();
 
