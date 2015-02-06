@@ -190,12 +190,19 @@ class Assistant extends PolymerElement {
     }
   }
 
-  void filterShips(MouseEvent e) {
-    var target = e.target as Element;
+  void filterShips(Event e, var detail, Element target) {
     var filterType = target.dataset["filterType"];
     var filter = Ship.SHIP_FILTER[filterType];
     model.numFilteredShips = model.ships.where((ship) => filter(ship)).length;
     model.shipList.filter = filter;
+  }
+
+  void filterShipsByTag(Event e, var detail, Element target) {
+    var tag = target.dataset["tag"];
+    var filter = Ship.makeFilterByTag(tag);
+    model.numFilteredShips = model.ships.where((ship) => filter(ship)).length;
+    model.shipList.filter = filter;
+    e.preventDefault();
   }
 
   Future reloadAllObjects() {
@@ -571,5 +578,10 @@ class Assistant extends PolymerElement {
           "bauxite": model.developBauxite,
         }));
     HttpRequest.getString(request.toString());
+  }
+
+  void deleteShipTag(Event e, var detail, Element target) {
+    var tag = target.dataset["tag"];
+    // TODO: Implement.
   }
 }

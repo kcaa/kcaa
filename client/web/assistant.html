@@ -253,6 +253,20 @@
                     data-filter-type="notLocked">ロックなし</button>
           </div>
           <div>
+            タグ:
+            <template repeat="{{tag in model.shipTags}}">
+              <span class="tag">
+                <a href="#" on-click="{{filterShipsByTag}}" data-tag="{{tag}}">
+                  {{tag}}
+                </a>
+                <!-- TODO: Move this to somewhere more difficult to push, or
+                     support undo-ing the deletion. -->
+                <button class="action" on-click="{{deleteShipTag}}"
+                        data-tag="{{tag}}">&times;</button>
+              </span>
+            </template>
+          </div>
+          <div>
             <kcaa-shiplist id="shiplist" assistant="{{this}}"
                            ships="{{model.ships}}" disabled>
             </kcaa-shiplist>

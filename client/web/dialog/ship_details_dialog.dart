@@ -57,6 +57,7 @@ class ShipDetailsDialog extends KcaaDialog {
       ship.tags.clear();
       ship.tags.addAll(tags);
       assistant.savePreferences();
+      updateShipTags(model);
     }
     close();
   }

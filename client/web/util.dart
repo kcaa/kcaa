@@ -26,6 +26,18 @@ bool iterableEquals(Iterable a, Iterable b) {
   }
 }
 
+void copyListOnDifference(List src, List dest) {
+  if (src.length != dest.length) {
+    throw new Exception(
+        "List lengths differ: ${src.length} vs. ${dest.length}");
+  }
+  for (int i = 0; i < src.length; i++) {
+    if (dest[i] != src[i]) {
+      dest[i] = src[i];
+    }
+  }
+}
+
 class ReverseMapBuilder<K, V> {
   Map<K, V> buildFrom(Map<V, K> map) {
     var reverseMap = new Map<K, V>();

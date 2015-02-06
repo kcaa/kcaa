@@ -353,6 +353,10 @@ class Ship extends Observable {
   static bool filterNotLocked(Ship s) {
     return !s.locked;
   }
+
+  static ShipFilterer makeFilterByTag(String tag) {
+    return (Ship s) => s.tags.contains(tag);
+  }
 }
 
 class ShipPropertyFilter extends Observable {
@@ -679,6 +683,7 @@ void handleShipList(Assistant assistant, AssistantModel model,
   reorderShipList(model);
   model.numFilteredShips =
       model.ships.where((ship) => model.shipList.filter(ship)).length;
+  updateShipTags(model);
 }
 
 void reorderShipList(AssistantModel model) {
@@ -710,6 +715,17 @@ void notifyShipList(AssistantModel model) {
       ship.belongingFleet = null;
     }
   }
+}
+
+void updateShipTags(AssistantModel model) {
+  Set<String> shipTags = new Set<String>();
+  for (var ship in model.ships) {
+    shipTags.addAll(ship.tags);
+  }
+  var sortedShipTags = shipTags.toList();
+  sortedShipTags.sort();
+  resizeList(model.shipTags, sortedShipTags.length, () => "");
+  copyListOnDifference(sortedShipTags, model.shipTags);
 }
 
 void handleShipDefinitionList(Assistant assistant, AssistantModel model,
