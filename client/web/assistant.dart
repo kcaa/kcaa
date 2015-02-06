@@ -582,6 +582,19 @@ class Assistant extends PolymerElement {
 
   void deleteShipTag(Event e, var detail, Element target) {
     var tag = target.dataset["tag"];
-    // TODO: Implement.
+    var shipPrefs = model.preferences.shipPrefs;
+    for (var ship in model.ships) {
+      if (!ship.tags.contains(tag)) {
+        continue;
+      }
+      ship.tags.remove(tag);
+      var prefsTags = shipPrefs.tags[ship.id];
+      prefsTags.tags.remove(tag);
+      if (prefsTags.tags.isEmpty) {
+        shipPrefs.tags.remove(ship.id);
+      }
+    }
+    savePreferences();
+    updateShipTags(model);
   }
 }
