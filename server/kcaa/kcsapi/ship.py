@@ -408,7 +408,9 @@ class Ship(ShipDefinition):
                 not self.is_under_repair and
                 not self.away_for_mission and
                 self.hitpoint.ratio > 0.5 and
-                self.vitality >= 30)
+                self.vitality >= 30 and
+                self.loaded_resource.fuel == self.resource_capacity.fuel and
+                self.loaded_resource.ammo == self.resource_capacity.ammo)
 
     @property
     def alive(self):
