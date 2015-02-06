@@ -21,27 +21,35 @@
           <div>ロック</div>
           <div>個数</div>
         </div>
-        <template repeat="{{group in instanceGroups}}">
+        <template repeat="{{group in instanceGroups | enumerate}}">
           <div class="trow">
             <div class="description">
-              <template if="{{group.ship != null}}">
-                <div class="title {{group.ship.lockedClass}}">
-                  {{group.ship.name}}
-                  <span class="subordinate">({{group.ship.id}})</span>
+              <template if="{{group.value.ship != null}}">
+                <div class="title {{group.value.ship.lockedClass}}">
+                  {{group.value.ship.name}}
+                  <span class="subordinate">({{group.value.ship.id}})</span>
+                  <template if="{{!group.value.ship.isUnderRepair &&
+                                  !group.value.ship.awayForMission}}">
+                    <button class="action"
+                            on-click="{{dismantle}}"
+                            data-group-index="{{group.index}}">
+                      &times;
+                    </button>
+                  </template>
                 </div>
-                <div>{{group.ship.shipType}}</div>
+                <div>{{group.value.ship.shipType}}</div>
               </template>
-              <template if="{{group.ship == null}}">
+              <template if="{{group.value.ship == null}}">
                 <div class="title">(なし)</div>
                 <div>未装備</div>
               </template>
             </div>
-            <div class="numberColumn">{{group.level}}</div>
+            <div class="numberColumn">{{group.value.level}}</div>
             <div class="numberColumn">
-              <template if="{{group.locked}}">あり</template>
-              <template if="{{!group.locked}}">なし</template>
+              <template if="{{group.value.locked}}">あり</template>
+              <template if="{{!group.value.locked}}">なし</template>
             </div>
-            <div class="numberColumn">{{group.instances.length}}</div>
+            <div class="numberColumn">{{group.value.instances.length}}</div>
           </div>
         </template>
       </div>

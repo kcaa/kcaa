@@ -50,4 +50,31 @@ class EquipmentDetailsDialog extends KcaaDialog {
   void ok() {
     close();
   }
+
+  void dismantle(Event e, var detail, Element target) {
+    var groupIndex = int.parse(target.dataset["groupIndex"]);
+    var group = instanceGroups[groupIndex];
+    var ship = group.ship;
+
+    var equipmentDefinitionIds = new List<int>();
+    for (var equipment in ship.equipments) {
+      var id = EquipmentDefinition.ID_KEEP;
+      if (group.instances.contains(equipment)) {
+        id = EquipmentDefinition.ID_EMPTY;
+      }
+      equipmentDefinitionIds.add(id);
+    }
+    requestReplaceEquipments(ship, equipmentDefinitionIds);
+  }
+
+  // TODO: Factor out to the ServerRequests class or somewhere.
+  void requestReplaceEquipments(Ship ship, List<int> equipmentDefinitionIds) {
+    Uri request = assistant.serverManipulate.resolveUri(
+        new Uri(queryParameters: {
+          "type": "ReplaceEquipments",
+          "ship_id": ship.id.toString(),
+          "equipment_definition_ids": equipmentDefinitionIds.join(","),
+        }));
+    HttpRequest.getString(request.toString());
+  }
 }
