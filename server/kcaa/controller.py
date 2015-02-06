@@ -59,7 +59,7 @@ def load_preferences(args, logger):
 def save_preferences(args, logger, preferences):
     with open(args.preferences, 'w') as preferences_file:
         preferences_string = preferences.json(
-            indent=2, separators=(',', ': '),
+            indent=2, separators=(',', ': '), sort_keys=True,
             ensure_ascii=False).encode('utf8')
         preferences_file.write(preferences_string)
 

@@ -222,7 +222,7 @@ class KCSAPIHandler(object):
                 name, filename))
             with open(filename, 'w') as journal_file:
                 journal_string = journal.json(
-                    indent=2, separators=(',', ': '),
+                    indent=2, separators=(',', ': '), sort_keys=True,
                     ensure_ascii=False).encode('utf8')
                 journal_file.write(journal_string)
 
