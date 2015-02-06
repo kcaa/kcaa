@@ -729,12 +729,26 @@ class ShipList(model.KCAAObject):
         self.update_tags(preferences.ship_prefs.tags)
 
     def update_tags(self, tags):
-        for ship_id, ship_tags in tags.iteritems():
-            if ship_id in self.ships:
+        for ship_id, ship in self.ships.iteritems():
+            if ship_id in tags:
+                ship_tags = tags[ship_id]
+                if ship_tags.tags != self.ships[ship_id].tags:
+                    if ship.tags is None:
+                        ship.tags = []
+                    logger.debug(
+                        'Tags updated for ship {} ({}): [{}] -> [{}]'.format(
+                            ship.name.encode('utf8'), ship.id,
+                            ', '.join(tag.encode('utf8') for tag in ship.tags),
+                            ', '.join(tag.encode('utf8') for tag in
+                                      ship_tags.tags)))
                 self.ships[ship_id].tags = ship_tags.tags
-            else:
-                logger.info(
-                    'Tags found for non-existent ship {}'.format(ship_id))
+            elif ship.tags:
+                logger.debug('Tags cleared for ship {} ({})'.format(
+                    ship.name.encode('utf8'), ship.id))
+                ship.tags = None
+        # Optionally, it might be good to notify the user when a tag entry is
+        # defined for a non-existent ship. That can be deleted automatically
+        # when it is lost.
 
 
 class ShipPropertyFilter(jsonobject.JSONSerializableObject):
