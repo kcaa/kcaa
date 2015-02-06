@@ -88,7 +88,11 @@ def reload_modules():
     # If a module A contains a class definition referenced in another module B,
     # the module A should precede B. (Or it **MUST** if the classes rely on
     # deriving relationship.)
-    referenced_modules = [jsonobject, model, resource, ship, battle, fleet]
+    # Failing to do this would result in a TypeError when reloading KCSAPI
+    # handler objects -- they require a formal type compatibility, i.e., if a
+    # variable accepts B', it would rejects B.
+    referenced_modules = [jsonobject, model, resource, ship, battle, fleet,
+                          equipment]
     for module in referenced_modules:
         reload(module)
         logger.info('Reloaded module {}'.format(module.__name__))
