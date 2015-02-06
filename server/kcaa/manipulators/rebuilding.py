@@ -495,7 +495,8 @@ class ReplaceEquipments(base.Manipulator):
                                            len(unequipped_items))):
                 definition = unequipped_items[i].definition(equipment_def_list)
                 logger.debug('{}-{}: {} ({})'.format(
-                    page, i - page, definition.name, definition.type_name))
+                    page, i - page, definition.name.encode('utf8'),
+                    definition.type_name.encode('utf8')))
             yield self.screen.select_item_page(page, max_page)
             yield self.screen.select_item(in_page_index)
             yield self.screen.confirm_item_replacement()
