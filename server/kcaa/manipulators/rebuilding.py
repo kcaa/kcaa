@@ -487,6 +487,15 @@ class ReplaceEquipments(base.Manipulator):
             page, in_page_index = equipment_list.compute_page_position(
                 equipment_id, unequipped_items)
             max_page = equipment_list.get_max_page(unequipped_items)
+            # TODO: Remove this debug logging after the issue is resolved.
+            # Write tests instead.
+            logger.debug('position: {}-{}, max page: {}'.format(
+                page, in_page_index, max_page))
+            for i in xrange(10 * page, min(10 * (page + 1),
+                                           len(unequipped_items))):
+                definition = unequipped_items[i].definition(equipment_def_list)
+                logger.debug('{}-{}: {} ({})'.format(
+                    page, i - page, definition.name, definition.type_name))
             yield self.screen.select_item_page(page, max_page)
             yield self.screen.select_item(in_page_index)
             yield self.screen.confirm_item_replacement()
