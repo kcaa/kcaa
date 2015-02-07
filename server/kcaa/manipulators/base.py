@@ -83,18 +83,21 @@ class Manipulator(task.Task):
 
 class AutoManipulatorTriggerer(Manipulator):
 
-    def __init__(self, manager, priority, manipulator, interval=-1, *args,
-                 **kwargs):
+    def __init__(self, manager, priority, manipulator, interval=-1,
+                 check_interval=60, *args, **kwargs):
         super(AutoManipulatorTriggerer, self).__init__(manager, priority,
                                                        *args, **kwargs)
         self._manipulator = manipulator
         self._interval = interval
+        self._check_interval = check_interval
         self._last_screen_generation = 0
         self._last_generations = (
             {obj_name: 0 for obj_name in manipulator.monitored_objects()})
+        self._last_check_time = 0.0
 
     def run(self, *args, **kwargs):
         manipulator_name = self.manipulator.__name__
+        self._last_check_time = self.epoch
         while True:
             screen_generation = self.screen.screen_generation
             has_monitored_objects, has_updates, updates = (
@@ -104,10 +107,12 @@ class AutoManipulatorTriggerer(Manipulator):
                     not self.has_required_objects() or
                     not has_monitored_objects or
                     (screen_generation <= self._last_screen_generation and
-                     not has_updates)):
+                     self.time <= self._last_check_time + self._check_interval
+                     and not has_updates)):
                 yield self._interval
                 continue
             self._last_screen_generation = self.screen.screen_generation
+            self._last_check_time = self.time
             if has_updates:
                 self.update_generations(updates)
             params = self.manipulator.can_trigger(self, *args, **kwargs)
