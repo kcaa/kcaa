@@ -17,6 +17,9 @@ import logenv
 KANCOLLE_URL = 'http://www.dmm.com/netgame/social/-/gadgets/=/app_id=854854/'
 
 COMMAND_CLICK = 'click'
+COMMAND_CLICK_HOLD = 'click_hold'
+COMMAND_CLICK_RELEASE = 'click_release'
+COMMAND_MOVE_MOUSE = 'move_mouse'
 COMMAND_COVER = 'cover'
 COMMAND_TAKE_SCREENSHOT = 'take_screenshot'
 
@@ -251,6 +254,38 @@ def setup_kancolle_browser(args, controller_conn, to_exit):
                         if covered:
                             time.sleep(0.1)
                             show_game_frame_cover(browser, True)
+                    elif command_type == COMMAND_CLICK_HOLD:
+                        logger.debug('click hold!')
+                        x, y = command_args
+                        x += dx
+                        y += dy
+                        actions = action_chains.ActionChains(browser)
+                        actions.move_to_element_with_offset(game_frame, x, y)
+                        actions.click_and_hold(None)
+                        if covered:
+                            show_game_frame_cover(browser, False)
+                            time.sleep(0.1)
+                        actions.perform()
+                    elif command_type == COMMAND_CLICK_RELEASE:
+                        logger.debug('click release!')
+                        x, y = command_args
+                        x += dx
+                        y += dy
+                        actions = action_chains.ActionChains(browser)
+                        actions.move_to_element_with_offset(game_frame, x, y)
+                        actions.release(None)
+                        actions.perform()
+                        if covered:
+                            time.sleep(0.1)
+                            show_game_frame_cover(browser, True)
+                    elif command_type == COMMAND_MOVE_MOUSE:
+                        logger.debug('mouse move!')
+                        x, y = command_args
+                        x += dx
+                        y += dy
+                        actions = action_chains.ActionChains(browser)
+                        actions.move_to_element_with_offset(game_frame, x, y)
+                        actions.perform()
                     elif command_type == COMMAND_COVER:
                         is_shown = command_args[0]
                         if is_shown != covered:

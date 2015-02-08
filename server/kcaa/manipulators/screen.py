@@ -19,8 +19,30 @@ class Screen(object):
     def click(self, x, y):
         callsite_info = traceback.extract_stack()[-2]
         caller_name = callsite_info[2]
-        self._logger.debug('Click {}, {} ({})'.format(x, y, caller_name))
+        self._logger.debug('Mouse click at {}, {} ({})'.format(
+            x, y, caller_name))
         self.manager.click(x, y)
+
+    def click_hold(self, x, y):
+        callsite_info = traceback.extract_stack()[-2]
+        caller_name = callsite_info[2]
+        self._logger.debug('Mouse click and hold at {}, {} ({})'.format(
+            x, y, caller_name))
+        self.manager.click_hold(x, y)
+
+    def click_release(self, x, y):
+        callsite_info = traceback.extract_stack()[-2]
+        caller_name = callsite_info[2]
+        self._logger.debug('Mouse release at {}, {} ({})'.format(
+            x, y, caller_name))
+        self.manager.click_release(x, y)
+
+    def move_mouse(self, x, y):
+        callsite_info = traceback.extract_stack()[-2]
+        caller_name = callsite_info[2]
+        self._logger.debug('Mouse move to {}, {} ({})'.format(
+            x, y, caller_name))
+        self.manager.move_mouse(x, y)
 
     @property
     def screen_id(self):
@@ -538,6 +560,30 @@ class PortOrganizingScreen(PortOperationsScreen):
             self.click(200, 160)
             yield 2.0
         return self.do_task(unfocus_ship_selection_task)
+
+    def dissolve_combined_fleet(self):
+        def dissolve_combined_fleet_task(task):
+            self.click(150, 105)
+            yield 2.0
+        return self.do_task(dissolve_combined_fleet_task)
+
+    def form_combined_fleet(self, fleet_type):
+        def form_combined_fleet_task(task):
+            self.click_hold(165, 120)
+            yield 1.0
+            # This subtle mouse move is required to be recognized as the drag
+            # and drop from the Kancolle player.
+            self.move_mouse(155, 120)
+            yield 1.0
+            self.move_mouse(145, 120)
+            yield 1.0
+            self.click_release(135, 120)
+            yield 2.0
+            self.click(300 + 200 * fleet_type, 240)
+            yield 2.0
+            self.click(400, 420)
+            yield 2.0
+        return self.do_task(form_combined_fleet_task)
 
     def click_page(self, position):
         # position ranges from 0 to 4.

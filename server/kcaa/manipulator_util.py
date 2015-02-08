@@ -79,6 +79,15 @@ class ScreenManager(object):
     def click(self, x, y):
         self.browser_conn.send((browser.COMMAND_CLICK, (x, y)))
 
+    def click_hold(self, x, y):
+        self.browser_conn.send((browser.COMMAND_CLICK_HOLD, (x, y)))
+
+    def click_release(self, x, y):
+        self.browser_conn.send((browser.COMMAND_CLICK_RELEASE, (x, y)))
+
+    def move_mouse(self, x, y):
+        self.browser_conn.send((browser.COMMAND_MOVE_MOUSE, (x, y)))
+
     def add_task(self, t):
         return self.task_manager.add(t)
 
@@ -162,6 +171,7 @@ class ManipulatorManager(object):
             'LoadFleet': manipulators.organizing.LoadFleet,
             'LockShips': manipulators.organizing.LockShips,
             'LockUniqueShips': manipulators.organizing.LockUniqueShips,
+            'FormCombinedFleet': manipulators.organizing.FormCombinedFleet,
             # Logistics
             'ChargeFleet': manipulators.logistics.ChargeFleet,
             # Rebuilding

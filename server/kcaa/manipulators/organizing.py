@@ -170,3 +170,24 @@ class AutoLockUniqueShips(base.AutoManipulator):
 
     def run(self):
         yield self.do_manipulator(LockUniqueShips)
+
+
+class FormCombinedFleet(base.Manipulator):
+
+    FLEET_TYPE_MOBILE = 0
+    # Mobile fleet, with plenty of aircraft carriers.
+    FLEET_TYPE_SURFACE = 1
+    # Surface ship fleet, a usual fleet with battleships or cruisers.
+
+    def run(self, fleet_type):
+        fleet_type = int(fleet_type)
+        assert (fleet_type == FormCombinedFleet.FLEET_TYPE_MOBILE or
+                fleet_type == FormCombinedFleet.FLEET_TYPE_SURFACE)
+        logger.info('Trying to form a combined fleet.')
+        fleet_list = self.objects['FleetList']
+        if len(fleet_list.fleets) < 2 or fleet_list.fleets[1].mission_id:
+            raise Exception('Fleet 2 is not available.')
+        yield self.screen.change_screen(screens.PORT_ORGANIZING)
+        yield self.screen.select_fleet(2)
+        yield self.screen.dissolve_combined_fleet()
+        yield self.screen.form_combined_fleet(fleet_type)
