@@ -82,14 +82,18 @@ class AutoRepairShips(base.AutoManipulator):
     def can_trigger(cls, owner):
         if not screens.in_category(owner.screen_id, screens.PORT):
             return
-        if owner.screen_id == screens.PORT_REPAIR:
-            return
+        # Once this avoided to trigger when in PORT_REPAIR screen. Probably
+        # there was a reason for that. But... what? To avoid collision with
+        # repair boost?
         if AutoRepairShips.get_ships_to_repair(owner.objects):
             return {}
 
     def run(self):
         ship_ids = [s.id for s in
                     AutoRepairShips.get_ships_to_repair(self.objects)]
+        # To avoid collision with repair boosts, wait a bit before running.
+        if ship_ids and self.screen_id == screens.PORT_REPAIR:
+            yield 7.0
         yield self.do_manipulator(RepairShips, ship_ids)
 
 
