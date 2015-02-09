@@ -174,6 +174,7 @@ class ManipulatorManager(object):
             'FormCombinedFleet': manipulators.organizing.FormCombinedFleet,
             # Logistics
             'ChargeFleet': manipulators.logistics.ChargeFleet,
+            'ChargeAllFleets': manipulators.logistics.ChargeAllFleets,
             # Rebuilding
             'RebuildShip': manipulators.rebuilding.RebuildShip,
             'EnhanceBestShip': manipulators.rebuilding.EnhanceBestShip,

@@ -599,13 +599,10 @@ class Assistant extends PolymerElement {
   }
 
   void chargeAllFleets() {
-    for (var fleet in model.fleets) {
-      Uri request = serverManipulate.resolveUri(
-          new Uri(queryParameters: {
-            "type": "ChargeFleet",
-            "fleet_id": fleet.id.toString(),
-          }));
-      HttpRequest.getString(request.toString());
-    }
+    Uri request = serverManipulate.resolveUri(
+        new Uri(queryParameters: {
+          "type": "ChargeAllFleets",
+        }));
+    HttpRequest.getString(request.toString());
   }
 }

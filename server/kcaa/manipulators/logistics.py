@@ -31,6 +31,14 @@ class ChargeFleet(base.Manipulator):
         yield self.screen.charge_both()
 
 
+class ChargeAllFleets(base.Manipulator):
+
+    def run(self):
+        fleet_list = self.objects['FleetList']
+        for fleet in fleet_list.fleets:
+            yield self.do_manipulator(ChargeFleet, fleet_id=fleet.id)
+
+
 class AutoChargeFleet(base.AutoManipulator):
 
     @classmethod
