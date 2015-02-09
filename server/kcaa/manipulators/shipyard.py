@@ -182,8 +182,7 @@ class AutoDissolveShips(base.AutoManipulator):
 
     @classmethod
     def can_trigger(cls, owner):
-        if (owner.screen_id != screens.PORT_MAIN and
-                owner.screen_id != screens.PORT_SHIPYARD):
+        if not screens.in_category(owner.screen_id, screens.PORT):
             return
         if (owner.manager.is_manipulator_scheduled('DissolveShip') or
                 owner.manager.is_manipulator_scheduled('EnhanceBestShip') or
