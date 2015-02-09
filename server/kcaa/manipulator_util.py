@@ -393,11 +393,13 @@ class ManipulatorManager(object):
     def activate_auto_manipulator(self):
         if self.are_auto_manipulator_scheduled():
             if self.resume_auto_manipulators():
+                self._logger.debug('Auto manipulators activated')
                 self.leave_port()
                 self.rmo.auto_manipulators_active = True
                 self.rmo.generation += 1
         else:
             if self.suppress_auto_manipulators():
+                self._logger.debug('Auto manipulators suppressed')
                 self.rmo.auto_manipulators_active = False
                 self.rmo.generation += 1
 
