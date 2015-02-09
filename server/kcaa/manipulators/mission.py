@@ -6,6 +6,7 @@ import time
 
 import base
 import fleet
+import logistics
 import organizing
 from kcaa import screens
 
@@ -18,6 +19,7 @@ class CheckMissionResult(base.Manipulator):
     def run(self):
         logger.info('Checking mission result')
         yield self.screen.check_mission_result()
+        self.add_manipulator(logistics.ChargeAllFleets)
 
 
 class AutoCheckMissionResult(base.AutoManipulator):
