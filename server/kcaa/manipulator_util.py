@@ -215,6 +215,8 @@ class ManipulatorManager(object):
             'AutoEnhanceBestShip': manipulators.rebuilding.AutoEnhanceBestShip,
             # Repair
             'AutoRepairShips': manipulators.repair.AutoRepairShips,
+            'AutoBoostShipRepairing':
+            manipulators.repair.AutoBoostShipRepairing,
             'AutoCheckRepairResult': manipulators.repair.AutoCheckRepairResult,
             # Shipyard
             'AutoReceiveShips': manipulators.shipyard.AutoReceiveShips,
@@ -283,6 +285,8 @@ class ManipulatorManager(object):
             # AutoHandleAllPractices runs when idle. It may take some time, and
             # thus should precede other time-consuming low priority tasks.
             'AutoHandleAllPractices': 2000,
+            # AutoBoostShipRepairing runs when idle.
+            'AutoBoostShipRepairing': 8000,
             # AutoReceiveShips runs when idle.
             'AutoReceiveShips': 9000,
             # AutoWarmUpIdleShips can run only when idle. Other low priority

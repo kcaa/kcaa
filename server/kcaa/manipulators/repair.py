@@ -114,6 +114,29 @@ class BoostShipRepairing(base.Manipulator):
         yield self.screen.confirm_boost()
 
 
+class AutoBoostShipRepairing(base.AutoManipulator):
+
+    # TODO: Move this to preferences
+    boost_threshold = 7200
+
+    @classmethod
+    def monitored_objects(cls):
+        return ['RepairDock']
+
+    @classmethod
+    def can_trigger(cls, owner):
+        if not screens.in_category(owner.screen_id, screens.PORT):
+            return
+        repair_dock = owner.objects['RepairDock']
+        now = long(1000 * time.time())
+        for slot in repair_dock.slots:
+            if slot.in_use and now + cls.boost_threshold < slot.eta:
+                return {'slot_id': slot.id}
+
+    def run(self, slot_id):
+        yield self.do_manipulator(BoostShipRepairing, slot_id=slot_id)
+
+
 class AutoCheckRepairResult(base.AutoManipulator):
 
     # Repair can be completed 60 seconds earlier than the reported ETA.
