@@ -5,6 +5,7 @@ import logging
 
 import base
 import fleet
+import logistics
 import organizing
 from kcaa import kcsapi
 from kcaa import screens
@@ -242,6 +243,7 @@ class EngagePractice(base.Manipulator):
                                           timeout=300.0)
         yield self.screen.dismiss_result_overview()
         yield self.screen.dismiss_result_details()
+        self.add_manipulator(logistics.ChargeFleet, fleet_id=battle.fleet_id)
 
     def should_go_night_combat(self, battle, ships):
         expected_result = kcsapi.battle.expect_result(
