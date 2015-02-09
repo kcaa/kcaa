@@ -14,6 +14,17 @@ class ChargeFleet(base.Manipulator):
     def run(self, fleet_id):
         fleet_id = int(fleet_id)
         logger.info('Charging fleet {}'.format(fleet_id))
+        ship_list = self.objects['ShipList']
+        fleet_list = self.objects['FleetList']
+        resource_full = True
+        for ship_id in fleet_list.fleets[fleet_id - 1].ship_ids:
+            ship = ship_list.ships[str(ship_id)]
+            if not ship.resource_full:
+                resource_full = False
+                break
+        if resource_full:
+            logger.debug('Fleet {} is full of resources.'.format(fleet_id))
+            return
         yield self.screen.change_screen(screens.PORT_LOGISTICS)
         yield self.screen.select_fleet(fleet_id)
         yield self.screen.select_all_members()

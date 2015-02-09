@@ -76,6 +76,9 @@
               <template if="{{model.numPracticesDone < 5}}">
                 <button on-click="{{handleAllPractices}}">全演習実行</button>
               </template>
+              <template if="{{model.someFleetChargeable}}">
+                <button on-click="{{chargeAllFleets}}">全艦隊を補充</button>
+              </template>
               <button on-click="{{enhanceBestShip}}">最上位艦船を近代化改修</button>
               <button on-click="{{warmUpIdleShips}}">暇な艦船をキラキラ化</button>
             </div>

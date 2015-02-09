@@ -119,4 +119,6 @@ void handleFleetList(Assistant assistant, AssistantModel model,
     model.fleets[i].update(data["fleets"][i], model.shipMap, model.missions);
   }
   notifyShipList(model);
+  model.someFleetChargeable = model.fleets.any((f) => f.ships.any((s) =>
+      s.fuel < s.fuelCapacity || s.ammo < s.ammoCapacity));
 }

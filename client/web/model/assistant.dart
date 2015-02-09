@@ -43,6 +43,7 @@ class AssistantModel extends Observable {
 
   // Fleets.
   @observable final List<Fleet> fleets = new ObservableList<Fleet>();
+  @observable boolean someFleetChargeable = false;
   // TODO: Move this to somewhere appropriate. (ExpeditionPlan?)
   @observable KSelection formations = new KSelection.from(
       [["0", "単縦陣"],

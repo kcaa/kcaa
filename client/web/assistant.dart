@@ -597,4 +597,15 @@ class Assistant extends PolymerElement {
     savePreferences();
     updateShipTags(model);
   }
+
+  void chargeAllFleets() {
+    for (var fleet in model.fleets) {
+      Uri request = serverManipulate.resolveUri(
+          new Uri(queryParameters: {
+            "type": "ChargeFleet",
+            "fleet_id": fleet.id.toString(),
+          }));
+      HttpRequest.getString(request.toString());
+    }
+  }
 }
