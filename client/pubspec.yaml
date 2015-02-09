@@ -8,3 +8,8 @@ dependencies:
 transformers:
 - polymer:
     entry_points: web/index.html
+    inline_stylesheets:
+      packages/bootjack/css/bootstrap.min.css: false
+      web/dialog/dialog.css: false
+      web/kcaa.css: false
+      web/predicate/predicate.css: false
