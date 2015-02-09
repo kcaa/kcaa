@@ -4,6 +4,7 @@ import logging
 
 import base
 import fleet
+import logistics
 import organizing
 from kcaa import kcsapi
 from kcaa import screens
@@ -162,15 +163,21 @@ class EngageExpedition(base.Manipulator):
             yield self.screen.dismiss_new_ship()
         if expedition.is_terminal:
             yield self.screen.wait_transition(screens.PORT_MAIN)
+            self.add_manipulator(logistics.ChargeFleet,
+                                 fleet_id=expedition.fleet_id)
             return
         if ships[0].fatal:
             yield self.screen.forcedly_drop_out()
+            self.add_manipulator(logistics.ChargeFleet,
+                                 fleet_id=expedition.fleet_id)
             return
         if self.should_go_next(expedition, battle, ships):
             yield self.screen.go_for_next_battle()
             yield self.do_manipulator(SailOnExpeditionMap, formation=formation)
         else:
             yield self.screen.drop_out()
+            self.add_manipulator(logistics.ChargeFleet,
+                                 fleet_id=expedition.fleet_id)
 
     def should_go_night_combat(self, expedition, battle, ships, formation):
         expected_result = kcsapi.battle.expect_result(
