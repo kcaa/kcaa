@@ -16,8 +16,11 @@ class ChargeFleet(base.Manipulator):
         logger.info('Charging fleet {}'.format(fleet_id))
         ship_list = self.objects['ShipList']
         fleet_list = self.objects['FleetList']
+        fleet = fleet_list.fleets[fleet_id - 1]
+        if fleet.mission_id:
+            raise Exception('Fleet {} is away for mission.'.format(fleet_id))
         resource_full = True
-        for ship_id in fleet_list.fleets[fleet_id - 1].ship_ids:
+        for ship_id in fleet.ship_ids:
             ship = ship_list.ships[str(ship_id)]
             if not ship.resource_full:
                 resource_full = False
@@ -34,9 +37,14 @@ class ChargeFleet(base.Manipulator):
 class ChargeAllFleets(base.Manipulator):
 
     def run(self):
+        ship_list = self.objects['ShipList']
         fleet_list = self.objects['FleetList']
         for fleet in fleet_list.fleets:
-            yield self.do_manipulator(ChargeFleet, fleet_id=fleet.id)
+            ships = [ship_list.ships[str(ship_id)] for ship_id in
+                     fleet.ship_ids]
+            if not fleet.mission_id and any([not ship.resource_full for ship in
+                                             ships]):
+                yield self.do_manipulator(ChargeFleet, fleet_id=fleet.id)
 
 
 class AutoChargeFleet(base.AutoManipulator):
