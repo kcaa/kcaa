@@ -29,6 +29,9 @@ class ScreenManager(object):
         self._current_screen = manipulators.screen.Screen(self)
         self.define_screens()
 
+    def reset_objects(self, objects):
+        self.objects = objects
+
     def define_screens(self):
         self.screens = {
             screens.SPECIAL_START: manipulators.screen.StartScreen,
@@ -124,8 +127,8 @@ class ManipulatorManager(object):
     def __init__(self, browser_conn, objects, preferences, epoch):
         self._logger = logging.getLogger('kcaa.manipulator_util')
         self.browser_conn = browser_conn
-        self.objects = objects
         self.preferences = preferences
+        self.objects = objects
         self.initialize(epoch)
 
     def initialize(self, epoch):
@@ -143,10 +146,15 @@ class ManipulatorManager(object):
         self.register_auto_manipulators()
         self.define_manipulator_priorities()
         self.current_schedule_fragment = None
-        self.rmo = kcsapi.client.RunningManipulators()
+        self.rmo = kcsapi.RunningManipulators()
         self.rmo_last_generation = self.rmo.generation
         self.objects['RunningManipulators'] = self.rmo
         self.set_auto_manipulator_preferences(self.preferences.automan_prefs)
+
+    def reset_objects(self, objects):
+        self.objects = objects
+        objects['RunningManipulators'] = self.rmo
+        self.screen_manager.reset_objects(objects)
 
     def define_manipulators(self):
         self.manipulators = {

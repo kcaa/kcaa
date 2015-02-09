@@ -136,7 +136,7 @@ def control(args, to_exit):
                     kcsapi_handler = kcsapi_util.KCSAPIHandler(
                         har_manager, args.journal_basedir, args.debug)
                     kcsapi_handler.deserialize_objects(serialized_objects)
-                    manipulator_manager.objects = kcsapi_handler.objects
+                    manipulator_manager.reset_objects(kcsapi_handler.objects)
                 elif command_type == COMMAND_RELOAD_MANIPULATORS:
                     reload(manipulator_util)
                     manipulator_util.reload_modules()
