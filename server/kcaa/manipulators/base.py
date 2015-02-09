@@ -44,7 +44,7 @@ class Manipulator(task.Task):
         logger.debug('Manipulator.do_manipulator({}, *{}, **{})'.format(
             manipulator.__name__, args, kwargs))
         return self.manager.task_manager.add(
-            manipulator(self.manager, 0, *args, **kwargs))
+            manipulator(self.manager, self.priority - 1, *args, **kwargs))
 
     def add_manipulator(self, manipulator, *args, **kwargs):
         """Schedule a manipulator.
