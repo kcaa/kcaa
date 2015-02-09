@@ -153,6 +153,8 @@ class ManipulatorManager(object):
 
     def reset_objects(self, objects):
         self.objects = objects
+        self.rmo = kcsapi.RunningManipulators()
+        self.rmo_last_generation = self.rmo.generation
         objects['RunningManipulators'] = self.rmo
         self.screen_manager.reset_objects(objects)
 
