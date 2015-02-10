@@ -204,9 +204,13 @@ class ManipulatorManager(object):
         }
 
     def define_auto_manipulators(self):
+        # NOTE: AutoReturnWithFatalShip is a special auto manipulator that
+        # should run even when a user is manually operating the client.
         self.auto_manipulators = {
             # Expedition
             'AutoWarmUpIdleShips': manipulators.expedition.AutoWarmUpIdleShips,
+            'AutoReturnWithFatalShip':
+            manipulators.expedition.AutoReturnWithFatalShip,
             # Organizing
             'AutoLockUniqueShips': manipulators.organizing.AutoLockUniqueShips,
             # Logistics

@@ -314,3 +314,33 @@ class AutoWarmUpIdleShips(base.AutoManipulator):
 
     def run(self, num_ships):
         yield self.do_manipulator(WarmUpIdleShips, 1, min(num_ships, 1))
+
+
+class AutoReturnWithFatalShip(base.AutoManipulator):
+
+    @classmethod
+    def monitored_objects(cls):
+        return ['ExpeditionResult']
+
+    @classmethod
+    def can_trigger(cls, owner):
+        if owner.screen_id != screens.EXPEDITION_RESULT:
+            return
+        if owner.manager.is_manipulator_scheduled('EngageExpedition'):
+            return
+        ship_list = owner.objects['ShipList']
+        fleet_list = owner.objects['FleetList']
+        expedition = owner.objects['Expedition']
+        if expedition.is_terminal:
+            return
+        fleet = fleet_list.fleets[expedition.fleet_id - 1]
+        ships = [ship_list.ships[str(ship_id)] for ship_id in fleet.ship_ids]
+        if any([ship.fatal for ship in ships]):
+            return {}
+
+    def run(self):
+        yield self.screen.dismiss_result_overview()
+        yield self.screen.dismiss_result_details()
+        while self.screen_id != screens.PORT_MAIN:
+            yield 3.0
+            yield self.screen.drop_out()
