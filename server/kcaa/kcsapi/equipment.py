@@ -275,9 +275,14 @@ class EquipmentList(model.KCAAObject):
                     'api_slottype{}'.format(equipment_type.id))
                 if equipment_ids == -1:
                     continue
-                # Here I assume unsetslot happens after slot_item.
+                # Usually unsetslot happens after slot_item, however, when a
+                # new item of an unseen type has arrived, unsetslot might
+                # precede slot_item. Ignore the key error as another unsetslot
+                # would follow slot_item KCSAPI.
                 for i, equipment_id in enumerate(equipment_ids):
-                    self.items[str(equipment_id)].in_type_index = i
+                    item = self.items.get(str(equipment_id))
+                    if item:
+                        item.in_type_index = i
         elif api_name == '/api_req_kaisou/lock':
             self.items[request.api_slotitem_id].locked = (
                 response.api_data.api_locked == 1)
