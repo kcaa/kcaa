@@ -24,6 +24,7 @@ part 'shipyard.dart';
 
 class AssistantModel extends Observable {
   // Player.
+  @observable PlayerInfo playerInfo = new PlayerInfo();
   @observable PlayerResources resources = new PlayerResources();
 
   // Quests.

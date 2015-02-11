@@ -79,6 +79,12 @@
               <template if="{{model.someFleetChargeable}}">
                 <button on-click="{{chargeAllFleets}}">全艦隊を補充</button>
               </template>
+              <template if="{{model.playerInfo.maxShips - model.ships.length <
+                              5}}">
+                <button on-click="{{dissolveLeastValuableShips}}">
+                  余剰艦船を解体
+                </button>
+              </template>
               <button on-click="{{enhanceBestShip}}">最上位艦船を近代化改修</button>
               <button on-click="{{warmUpIdleShips}}">暇な艦船をキラキラ化</button>
             </div>

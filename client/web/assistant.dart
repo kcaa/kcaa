@@ -57,6 +57,7 @@ class Assistant extends PolymerElement {
     "EquipmentList": handleEquipmentList,
     "FleetList": handleFleetList,
     "MissionList": handleMissionList,
+    "PlayerInfo": handlePlayerInfo,
     "PlayerResources": handlePlayerResources,
     "PracticeList": handlePracticeList,
     "Preferences": handlePreferences,
@@ -602,6 +603,14 @@ class Assistant extends PolymerElement {
     Uri request = serverManipulate.resolveUri(
         new Uri(queryParameters: {
           "type": "ChargeAllFleets",
+        }));
+    HttpRequest.getString(request.toString());
+  }
+
+  void dissolveLeastValuableShips() {
+    Uri request = serverManipulate.resolveUri(
+        new Uri(queryParameters: {
+          "type": "DissolveLeastValuableShips",
         }));
     HttpRequest.getString(request.toString());
   }

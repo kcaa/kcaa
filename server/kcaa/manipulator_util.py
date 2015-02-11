@@ -200,6 +200,8 @@ class ManipulatorManager(object):
             'ReceiveShip': manipulators.shipyard.ReceiveShip,
             'DevelopEquipment': manipulators.shipyard.DevelopEquipment,
             'DissolveShip': manipulators.shipyard.DissolveShip,
+            'DissolveLeastValuableShips':
+            manipulators.shipyard.DissolveLeastValuableShips,
             'DissolveEquipment': manipulators.shipyard.DissolveEquipment,
         }
 

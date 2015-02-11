@@ -166,15 +166,25 @@ class DissolveShip(base.Manipulator):
         yield self.screen.unfocus_selection()
 
 
-class AutoDissolveShips(base.AutoManipulator):
+class DissolveLeastValuableShips(base.Manipulator):
 
     @staticmethod
-    def get_target_ship(ship_list, player_info):
-        if player_info.max_ships - len(ship_list.ships) >= 5:
+    def get_target_ships(ship_list, player_info):
+        num_dissolvable = len(ship_list.ships) - (player_info.max_ships - 5)
+        if num_dissolvable <= 0:
             return None
         target_ships = sorted(
             ship_list.dissolvable_ships(), kcsapi.ShipSorter.rebuilding_rank)
-        return target_ships[0] if target_ships else None
+        return target_ships[:num_dissolvable]
+
+    def run(self):
+        target_ships = DissolveLeastValuableShips.get_target_ships(
+            self.objects['ShipList'], self.objects['PlayerInfo'])
+        for target_ship in target_ships:
+            yield self.do_manipulator(DissolveShip, ship_id=target_ship.id)
+
+
+class AutoDissolveShips(base.AutoManipulator):
 
     @classmethod
     def monitored_objects(cls):
@@ -188,15 +198,14 @@ class AutoDissolveShips(base.AutoManipulator):
                 owner.manager.is_manipulator_scheduled('EnhanceBestShip') or
                 owner.manager.is_manipulator_scheduled('AutoEnhanceBestShip')):
             return
-        target_ship = AutoDissolveShips.get_target_ship(
-            owner.objects['ShipList'], owner.objects['PlayerInfo'])
-        if target_ship:
+        if DissolveLeastValuableShips.get_target_ships(
+                owner.objects['ShipList'], owner.objects['PlayerInfo']):
             return {}
 
     def run(self):
-        target_ship = AutoDissolveShips.get_target_ship(
+        target_ships = DissolveLeastValuableShips.get_target_ships(
             self.objects['ShipList'], self.objects['PlayerInfo'])
-        if target_ship:
+        for target_ship in target_ships:
             yield self.do_manipulator(DissolveShip, ship_id=target_ship.id)
 
 
