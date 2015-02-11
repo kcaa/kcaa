@@ -62,8 +62,9 @@ class Manipulator(task.Task):
 
         Typically the caller will not block itself.
         """
+        priority = 0 if self.priority > 0 else self.priority
         return self.add_manipulator_priority(
-            manipulator, self.priority - 1, *args, **kwargs)
+            manipulator, priority - 1, *args, **kwargs)
 
     def add_manipulator_priority(self, manipulator, priority, *args, **kwargs):
         logger.debug(
