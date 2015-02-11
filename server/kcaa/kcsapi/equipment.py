@@ -100,10 +100,19 @@ class EquipmentDefinition(jsonobject.JSONSerializableObject):
     rarity = jsonobject.ReadonlyJSONProperty('rarity', value_type=int)
     """Rarity."""
     RARITY_COMMON = 0
-    RARITY_RARE = 1
-    RARITY_SUPER_RARE = 2
+    RARITY_UNCOMMON = 1
+    RARITY_RARE = 2
+    RARITY_SUPER_RARE = 3
+    RARITY_PRECIOUS = 4
+    RARITY_DEVINE = 5
     sort_order = jsonobject.ReadonlyJSONProperty('sort_order', value_type=int)
     """Sort order, or the encyclopedia ID."""
+
+    # Some equipment items have a special type. A 51 cm gun (ID 128) is a good
+    # example. It's classified as type 3 but it's actually of type 38.
+    SPECIAL_ID_TO_TYPE_MAP = {
+        128: 38,
+    }
 
 
 class EquipmentDefinitionList(model.KCAAObject):
@@ -127,11 +136,14 @@ class EquipmentDefinitionList(model.KCAAObject):
             # ID 500 and later are reserved for enemies.
             if data.api_id >= 500:
                 continue
+            type = data.api_type[2]
+            if data.api_id in EquipmentDefinition.SPECIAL_ID_TO_TYPE_MAP:
+                type = EquipmentDefinition.SPECIAL_ID_TO_TYPE_MAP[data.api_id]
             self.items[str(data.api_id)] = EquipmentDefinition(
                 id=data.api_id,
                 name=data.api_name,
-                type=data.api_type[2],
-                type_name=self.types[data.api_type[2] - 1].name,
+                type=type,
+                type_name=self.types[type - 1].name,
                 description=data.api_info,
                 armor=data.api_souk,
                 firepower=data.api_houg,
