@@ -138,6 +138,9 @@ class KCSAPIHandler(object):
             '/api_get_member/mapinfo': [kcsapi.NullHandler()],
             '/api_req_battle_midnight/battle': [kcsapi.MidnightBattle,
                                                 kcsapi.ShipList],
+            '/api_req_battle_midnight/sp_midnight':
+            [kcsapi.MidnightEncounterBattle,
+             kcsapi.ShipList],
             '/api_req_map/start': [kcsapi.Expedition],
             '/api_req_map/next': [kcsapi.Expedition],
             '/api_req_sortie/battle': [kcsapi.Battle,

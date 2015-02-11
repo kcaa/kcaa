@@ -608,6 +608,9 @@ class ShipList(model.KCAAObject):
                           '/api_req_practice/midnight_battle'):
             self.update_midnight_battle(objects['MidnightBattle'],
                                         objects['FleetList'])
+        elif api_name == '/api_req_battle_midnight/sp_midnight':
+            self.update_midnight_battle(objects['MidnightEncounterBattle'],
+                                        objects['FleetList'])
         elif api_name == '/api_get_member/deck':
             # FleetList updates away_for_mission.
             pass

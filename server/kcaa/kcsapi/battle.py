@@ -389,3 +389,28 @@ class MidnightBattle(model.KCAAObject):
     def update_enemy_ships(self, data):
         self.enemy_ships = initialize_enemy_ships(data)
         deal_enemy_damage_in_phase(self.phase, self.enemy_ships)
+
+
+class MidnightEncounterBattle(model.KCAAObject):
+    """Detailed information about the last midnight encounter battle."""
+
+    fleet_id = jsonobject.JSONProperty('fleet_id', value_type=int)
+    """ID of the fleet which joined this battle."""
+    phase = jsonobject.JSONProperty('phase', value_type=GunfirePhase)
+    """Gunfire/thunderstroke phase."""
+    enemy_ships = jsonobject.JSONProperty(
+        'enemy_ships', value_type=list, element_type=ship.Ship)
+    """Enemy ships."""
+
+    def update(self, api_name, request, response, objects, debug):
+        super(MidnightEncounterBattle, self).update(
+            api_name, request, response, objects, debug)
+        data = response.api_data
+        self.fleet_id = int(data.api_deck_id)
+        self.phase = GunfirePhase(
+            attacks=GunfireAttack.create_list_from_hougeki(data.api_hougeki))
+        self.update_enemy_ships(data)
+
+    def update_enemy_ships(self, data):
+        self.enemy_ships = initialize_enemy_ships(data)
+        deal_enemy_damage_in_phase(self.phase, self.enemy_ships)
