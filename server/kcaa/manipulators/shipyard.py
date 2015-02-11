@@ -180,6 +180,8 @@ class DissolveLeastValuableShips(base.Manipulator):
     def run(self):
         target_ships = DissolveLeastValuableShips.get_target_ships(
             self.objects['ShipList'], self.objects['PlayerInfo'])
+        if not target_ships:
+            return
         for target_ship in target_ships:
             yield self.do_manipulator(DissolveShip, ship_id=target_ship.id)
 
@@ -205,6 +207,8 @@ class AutoDissolveShips(base.AutoManipulator):
     def run(self):
         target_ships = DissolveLeastValuableShips.get_target_ships(
             self.objects['ShipList'], self.objects['PlayerInfo'])
+        if not target_ships:
+            return
         for target_ship in target_ships:
             yield self.do_manipulator(DissolveShip, ship_id=target_ship.id)
 
