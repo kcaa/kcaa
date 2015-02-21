@@ -598,6 +598,7 @@ class ShipList(model.KCAAObject):
             pass
         elif api_name in ('/api_req_sortie/battle',
                           '/api_req_practice/battle',
+                          '/api_req_combined_battle/battle',
                           '/api_req_combined_battle/battle_water'):
             self.update_battle(objects['Battle'], objects['FleetList'])
         elif api_name in ('/api_req_battle_midnight/battle',
@@ -712,6 +713,7 @@ class ShipList(model.KCAAObject):
                                       ships)
         for gunfire_phase in battle.gunfire_phases:
             ShipList.deal_damage_in_phase(gunfire_phase, ships)
+        ShipList.deal_damage_in_phase(battle.thunderstroke_phase, ships)
         if battle.combined_fleet_id:
             combined_fleet = fleet_list.fleets[battle.combined_fleet_id - 1]
             combined_ships = [self.ships[str(ship_id)] for ship_id in
@@ -720,10 +722,8 @@ class ShipList(model.KCAAObject):
                                           combined_ships)
             ShipList.deal_damage_in_phase(battle.gunfire_phase_combined,
                                           combined_ships)
-            ShipList.deal_damage_in_phase(battle.thunderstroke_phase,
+            ShipList.deal_damage_in_phase(battle.thunderstroke_phase_combined,
                                           combined_ships)
-        else:
-            ShipList.deal_damage_in_phase(battle.thunderstroke_phase, ships)
 
     def update_midnight_battle(self, battle, fleet_list):
         fleet = fleet_list.fleets[battle.fleet_id - 1]

@@ -34,6 +34,7 @@ class Screen(model.KCAAObject):
         '/api_port/port': screens.PORT_MAIN,
         '/api_req_battle_midnight/battle': screens.EXPEDITION_NIGHTCOMBAT,
         '/api_req_battle_midnight/sp_midnight': screens.EXPEDITION_NIGHTCOMBAT,
+        '/api_req_combined_battle/battle': screens.EXPEDITION_COMBAT,
         '/api_req_combined_battle/battleresult': screens.EXPEDITION_RESULT,
         '/api_req_combined_battle/battle_water': screens.EXPEDITION_COMBAT,
         '/api_req_combined_battle/midnight_battle':

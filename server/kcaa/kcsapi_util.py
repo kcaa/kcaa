@@ -136,6 +136,8 @@ class KCSAPIHandler(object):
             # Expedition.
             '/api_get_member/mapcell': [kcsapi.NullHandler()],
             '/api_get_member/mapinfo': [kcsapi.NullHandler()],
+            '/api_req_combined_battle/battle': [kcsapi.Battle,
+                                                kcsapi.ShipList],
             '/api_req_combined_battle/battleresult': [kcsapi.ExpeditionResult],
             '/api_req_combined_battle/battle_water': [kcsapi.Battle,
                                                       kcsapi.ShipList],

@@ -237,6 +237,9 @@ class Battle(model.KCAAObject):
     thunderstroke_phase = jsonobject.JSONProperty(
         'thunderstroke_phase', value_type=ThunderstrokePhase)
     """Thunderstroke phase."""
+    thunderstroke_phase_combined = jsonobject.JSONProperty(
+        'thunderstroke_phase_combined', value_type=ThunderstrokePhase)
+    """Thunderstroke phase for the combined fleet."""
     need_midnight_battle = jsonobject.JSONProperty(
         'need_midnight_battle', value_type=bool)
     """Whether to need a midnight battle to fully defeat the enemy."""
@@ -268,11 +271,14 @@ class Battle(model.KCAAObject):
         if api_name in ('/api_req_sortie/battle',
                         '/api_req_practice/battle'):
             self.fleet_id = data.api_dock_id
-        elif api_name == '/api_req_combined_battle/battle_water':
+            self.combined_fleet_id = None
+        elif api_name in ('/api_req_combined_battle/battle',
+                          '/api_req_combined_battle/battle_water'):
             self.fleet_id = 1
             self.combined_fleet_id = 2
         else:
             raise Exception('Unexpected API: {}'.format(api_name))
+        begin_with_combined = api_name == '/api_req_combined_battle/battle'
         # Aircraft attack phase.
         self.aircraft_phase = None
         if data.api_kouku.api_stage3:
@@ -285,30 +291,64 @@ class Battle(model.KCAAObject):
                 attacks=AircraftAttack.create_list_from_kouku(
                     data.api_kouku.api_stage3_combined))
         # Opening thunderstroke phase.
+        # TODO: Check if the target of enemy's thunderstrokes are really the
+        # main fleet.
         self.opening_thunderstroke_phase = None
-        if data.api_opening_atack:
+        if data.api_opening_flag != 0:
             self.opening_thunderstroke_phase = ThunderstrokePhase(
                 attacks=ThunderstrokeAttack.create_list_from_raigeki(
                     data.api_opening_atack))
+        # Detect the attack phases.
+        main_hougekis = []
+        main_raigeki = None
+        combined_hougeki = None
+        combined_raigeki = None
+        if not self.combined_fleet_id:
+            # For usual battles.
+            main_hougekis = [data.api_hougeki1]
+            if data.api_hourai_flag[1] != 0:
+                main_hougekis.append(data.api_hougeki2)
+            if data.api_hourai_flag[2] != 0:
+                main_raigeki = data.api_raigeki
+        elif not begin_with_combined:
+            # For combined surface fleet battles.
+            main_hougekis = [data.api_hougeki1]
+            if data.api_hourai_flag[1] != 0:
+                main_hougekis.append(data.api_hougeki2)
+            if data.api_hourai_flag[2] != 0:
+                combined_hougeki = data.api_hougeki3
+            if data.api_hourai_flag[3] != 0:
+                combined_raigeki = data.api_raigeki
+        else:
+            # For combined mobile fleet battles.
+            combined_hougeki = data.api_hougeki1
+            if data.api_hourai_flag[1] != 0:
+                combined_raigeki = data.api_raigeki
+            if data.api_hourai_flag[2] != 0:
+                main_hougekis.append(data.api_hougeki2)
+            if data.api_hourai_flag[3] != 0:
+                main_hougekis.append(data.api_hougeki3)
         # Gunfire phases.
-        hougekis = [data.api_hougeki1]
-        if data.api_hourai_flag[1] != 0:
-            hougekis.append(data.api_hougeki2)
         self.gunfire_phases = (
             [GunfirePhase(
                 attacks=GunfireAttack.create_list_from_hougeki(hougeki))
-             for hougeki in hougekis if hougeki])
+             for hougeki in main_hougekis])
         self.gunfire_phase_combined = None
-        if data.api_hourai_flag[2] != 0:
+        if combined_hougeki:
             self.gunfire_phase_combined = GunfirePhase(
                 attacks=GunfireAttack.create_list_from_hougeki(
-                    data.api_hougeki3))
+                    combined_hougeki))
         # Thunderstroke phase.
         self.thunderstroke_phase = None
-        if data.api_hourai_flag[3] != 0:
+        if main_raigeki:
             self.thunderstroke_phase = ThunderstrokePhase(
                 attacks=ThunderstrokeAttack.create_list_from_raigeki(
-                    data.api_raigeki))
+                    main_raigeki))
+        self.thunderstroke_phase_combined = None
+        if combined_raigeki:
+            self.thunderstroke_phase_combined = ThunderstrokePhase(
+                attacks=ThunderstrokeAttack.create_list_from_raigeki(
+                    combined_raigeki))
         self.need_midnight_battle = data.api_midnight_flag != 0
         self.update_enemy_ships(data)
 
