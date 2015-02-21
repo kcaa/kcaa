@@ -57,8 +57,9 @@ class MissionPlan extends Observable {
   @observable int fleetId;
   @observable int missionId;
   @observable String fleetName;
+  @observable bool enabled;
 
-  MissionPlan(this.fleetId, this.missionId, this.fleetName);
+  MissionPlan(this.fleetId, this.missionId, this.fleetName, this.enabled);
 }
 
 class MissionPrefs extends Observable {
@@ -112,6 +113,7 @@ class Preferences extends Observable {
           "fleet_id": missionPlan.fleetId,
           "mission_id": missionPlan.missionId,
           "fleet_name": missionPlan.fleetName,
+          "enabled": missionPlan.enabled,
         }).toList(),
       },
     });
@@ -147,7 +149,8 @@ void handlePreferences(Assistant assistant, AssistantModel model,
     MissionPlan missionPlanObject = new MissionPlan(
         missionPlan["fleet_id"],
         missionPlan["mission_id"],
-        missionPlan["fleet_name"]);
+        missionPlan["fleet_name"],
+        missionPlan["enabled"]);
     prefs.missionPrefs.missionPlans.add(missionPlanObject);
   }
   model.preferences = prefs;

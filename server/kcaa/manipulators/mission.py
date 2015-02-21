@@ -134,7 +134,7 @@ class AutoGoOnMission(base.AutoManipulator):
             # object.
             mission_plan = (
                 preferences.mission_prefs.get_mission_plan(fleet_.id))
-            if not mission_plan:
+            if not mission_plan or not mission_plan.enabled:
                 continue
             matching_fleets = [
                 sf for sf in preferences.fleet_prefs.saved_fleets

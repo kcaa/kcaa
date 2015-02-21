@@ -16,12 +16,16 @@
     <div class="modal-body">
       <div class="table">
         <div class="trow thead">
+          <div>有効</div>
           <div>艦隊</div>
           <div class="description">遠征</div>
           <div class="ultraWide">出撃艦隊</div>
         </div>
         <template repeat="{{missionPlan in missionPlans}}">
           <div class="trow">
+            <div class="labelColumn">
+              <input type="checkbox" checked="{{missionPlan.enabled}}">
+            </div>
             <div class="labelColumn">{{missionPlan.fleetId}}</div>
             <div class="description">
               <kcaa-kselection kselection="{{missionPlan.mission}}">
