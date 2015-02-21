@@ -33,7 +33,10 @@ class PlayerInfo(model.KCAAObject):
     max_ships = jsonobject.JSONProperty('max_ships', value_type=int)
     """Maximum number of ships."""
     max_equipments = jsonobject.JSONProperty('max_equipments', value_type=int)
-    """Maximum number of equipments."""
+    """Maximum number of equipments.
+
+    The limit for equipment development is 3 less than this.
+    """
     max_resouces = jsonobject.JSONProperty('max_resouces', value_type=int)
     """Maximum amount of resources to which they generates over time."""
     num_expedition_wins = jsonobject.JSONProperty('num_expedition_wins',
@@ -159,7 +162,7 @@ class PlayerResourcesJournal(model.KCAAJournalObject.typed(PlayerResources)):
                            'steel': ('number', 'Steel'),
                            'bauxite': ('number', 'Bauxite')}
             data = [{'datetime':
-                        datetime.datetime.fromtimestamp(entry.time, tz=tz),
+                     datetime.datetime.fromtimestamp(entry.time, tz=tz),
                      'fuel': entry.value.fuel,
                      'ammo': entry.value.ammo,
                      'steel': entry.value.steel,
@@ -176,7 +179,7 @@ class PlayerResourcesJournal(model.KCAAJournalObject.typed(PlayerResources)):
                            'build_material': ('number', 'Build material'),
                            'rebuild_material': ('number', 'Rebuild material')}
             data = [{'datetime':
-                        datetime.datetime.fromtimestamp(entry.time, tz=tz),
+                     datetime.datetime.fromtimestamp(entry.time, tz=tz),
                      'build_booster': entry.value.build_booster,
                      'repair_booster': entry.value.repair_booster,
                      'build_material': entry.value.build_material,

@@ -134,6 +134,13 @@ class DevelopEquipment(base.Manipulator):
                 bauxite < 10 or bauxite > 300):
             logger.error('Resource amount is invalid for development.')
             return
+        equipment_list = self.objects['EquipmentList']
+        player_info = self.objects['PlayerInfo']
+        # TODO: Consider making this 3 to be some constant in PlayerInfo?
+        if len(equipment_list.items) + 3 >= player_info.max_equipments:
+            raise Exception(
+                'Owned equipments will exceed the limit ({}).'.format(
+                    player_info.max_equipments))
         yield self.screen.change_screen(screens.PORT_SHIPYARD)
         yield self.screen.try_equipment_development()
         yield self.screen.set_development_resource(fuel, ammo, steel, bauxite)
