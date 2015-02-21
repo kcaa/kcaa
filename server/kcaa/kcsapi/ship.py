@@ -392,6 +392,14 @@ class Ship(ShipDefinition):
     """Enhanced ability by rebuilding or growth."""
     locked = jsonobject.JSONProperty('locked', value_type=bool)
     """True if this ship is locked."""
+    unique = jsonobject.JSONProperty('unique', value_type=bool)
+    """True if this ship is unique.
+
+    A ship will be unique if:
+    - it is the only ship which has its signature, or
+    - it is the ship with highest level among ships that share the
+      signature
+    """
     is_under_repair = jsonobject.JSONProperty(
         'is_under_repair', value_type=bool)
     """True if the ship is under repair."""
@@ -470,7 +478,7 @@ class ShipList(model.KCAAObject):
                 not ship.locked and
                 (not fleet_list.find_fleet_for_ship(ship.id) or
                  not fleet_list.find_fleet_for_ship(ship.id).mission_id) and
-                not self.is_unique(ship)]
+                not ship.unique]
 
     def rebuilding_material_ships(self, ship_ids_already_added=[]):
         return [ship for ship in self.ships.itervalues() if
@@ -528,20 +536,6 @@ class ShipList(model.KCAAObject):
         page = 1 + ship_index / 10
         in_page_index = ship_index % 10
         return page, in_page_index
-
-    def is_unique(self, ship):
-        """Returns true if the ship is unique.
-
-        A ship will be unique if:
-        - it is the only ship which has its signature, or
-        - it is the ship with highest level among ships that share the
-          signature
-        """
-        ships_with_signature = sorted(
-            [s for s in self.ships.itervalues() if
-             s.signature == ship.signature],
-            ShipSorter.kancolle_level, reverse=True)
-        return ships_with_signature[0].id == ship.id
 
     def update(self, api_name, request, response, objects, debug):
         super(ShipList, self).update(api_name, request, response, objects,
@@ -624,6 +618,7 @@ class ShipList(model.KCAAObject):
                 'Preferences' in objects):
             self.load_preferences(objects['Preferences'])
             self._prefs_loaded = True
+        self.update_unique()
 
     def get_ship(self, ship_data, objects):
         try:
@@ -757,6 +752,16 @@ class ShipList(model.KCAAObject):
         # Optionally, it might be good to notify the user when a tag entry is
         # defined for a non-existent ship. That can be deleted automatically
         # when it is lost.
+
+    def update_unique(self):
+        signature_to_ships = {}
+        for ship in self.ships.itervalues():
+            ships = signature_to_ships.get(ship.signature, [])
+            ships.append(ship)
+            ships.sort(ShipSorter.kancolle_level, reverse=True)
+            signature_to_ships[ship.signature] = ships
+        for ship in self.ships.itervalues():
+            ship.unique = signature_to_ships[ship.signature][0] is ship
 
 
 class ShipPropertyFilter(jsonobject.JSONSerializableObject):

@@ -173,7 +173,7 @@ class RebuildShip(base.Manipulator):
                 logger.error('Material ship {} is undertaking a mission.'
                              .format(name))
                 return
-            if ship_list.is_unique(material_ship):
+            if material_ship.unique:
                 logger.error('Material ship {} is unique.'.format(name))
                 return
         yield self.do_manipulator(SelectShip, ship_id=target_ship.id)

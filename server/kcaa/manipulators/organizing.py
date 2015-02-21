@@ -141,7 +141,7 @@ class LockUniqueShips(base.Manipulator):
     def get_unlocked_unique_ship_ids(ship_list):
         ship_ids = []
         for ship in ship_list.ships.itervalues():
-            if not ship.locked and ship_list.is_unique(ship):
+            if not ship.locked and ship.unique:
                 ship_ids.append(ship.id)
         return ship_ids
 
