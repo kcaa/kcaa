@@ -526,6 +526,7 @@ class ShipList(model.KCAAObject):
         This does not return ships under repair or away for mission.
         """
         return [ship for ship in self.ships.itervalues() if
+                not ship.unique and
                 not ship.locked and
                 not ship.is_under_repair and
                 not ship.away_for_mission]

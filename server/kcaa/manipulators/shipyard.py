@@ -152,6 +152,12 @@ class DissolveShip(base.Manipulator):
         ship = ship_list.ships[str(ship_id)]
         logger.info('Dissolving a ship {} ({})'.format(
             ship.name.encode('utf8'), ship_id))
+        if ship.unique:
+            raise Exception(
+                'Ship {} ({}) is unique. You cannot dissolve unique ships '
+                'from KCAA for preventing unexpected ship losses. Do it '
+                'manually if you really want to.'.format(
+                    ship.name.encode('utf8'), ship_id))
         # TODO: Check if the ship has a locked equipment.
         if ship.locked or ship.is_under_repair or ship.away_for_mission:
             logger.error('Ship {} ({}) is not ready for dissolution.'.format(
