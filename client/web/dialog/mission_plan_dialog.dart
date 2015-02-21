@@ -9,6 +9,7 @@ class FriendlyMissionPlan extends Observable {
   @observable int fleetId;
   @observable KSelection mission = new KSelection();
   @observable KSelection fleetName = new KSelection();
+  @observable bool enabled;
 
   FriendlyMissionPlan(MissionPlan plan, List<Mission> missions,
       List<FleetDeployment> fleetDeployments) {
@@ -19,10 +20,12 @@ class FriendlyMissionPlan extends Observable {
     fleetName.updateCandidates(fleetDeployments.map((fleetDeployment) =>
         fleetDeployment.name));
     fleetName.value = plan.fleetName;
+    enabled = plan.enabled;
   }
 
   MissionPlan toMissionPlan() {
-    return new MissionPlan(fleetId, int.parse(mission.value), fleetName.value);
+    return new MissionPlan(fleetId, int.parse(mission.value), fleetName.value,
+        enabled);
   }
 }
 
