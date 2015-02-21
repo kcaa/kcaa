@@ -597,14 +597,14 @@ class ShipList(model.KCAAObject):
             # FleetList updates away_for_mission.
             pass
         elif api_name in ('/api_req_sortie/battle',
-                          '/api_req_practice/battle'):
+                          '/api_req_practice/battle',
+                          '/api_req_combined_battle/battle_water'):
             self.update_battle(objects['Battle'], objects['FleetList'])
         elif api_name in ('/api_req_battle_midnight/battle',
-                          '/api_req_practice/midnight_battle'):
+                          '/api_req_practice/midnight_battle',
+                          '/api_req_battle_midnight/sp_midnight',
+                          '/api_req_combined_battle/midnight_battle'):
             self.update_midnight_battle(objects['MidnightBattle'],
-                                        objects['FleetList'])
-        elif api_name == '/api_req_battle_midnight/sp_midnight':
-            self.update_midnight_battle(objects['MidnightEncounterBattle'],
                                         objects['FleetList'])
         elif api_name == '/api_get_member/deck':
             # FleetList updates away_for_mission.
@@ -712,7 +712,18 @@ class ShipList(model.KCAAObject):
                                       ships)
         for gunfire_phase in battle.gunfire_phases:
             ShipList.deal_damage_in_phase(gunfire_phase, ships)
-        ShipList.deal_damage_in_phase(battle.thunderstroke_phase, ships)
+        if battle.combined_fleet_id:
+            combined_fleet = fleet_list.fleets[battle.combined_fleet_id - 1]
+            combined_ships = [self.ships[str(ship_id)] for ship_id in
+                              combined_fleet.ship_ids]
+            ShipList.deal_damage_in_phase(battle.aircraft_phase_combined,
+                                          combined_ships)
+            ShipList.deal_damage_in_phase(battle.gunfire_phase_combined,
+                                          combined_ships)
+            ShipList.deal_damage_in_phase(battle.thunderstroke_phase,
+                                          combined_ships)
+        else:
+            ShipList.deal_damage_in_phase(battle.thunderstroke_phase, ships)
 
     def update_midnight_battle(self, battle, fleet_list):
         fleet = fleet_list.fleets[battle.fleet_id - 1]

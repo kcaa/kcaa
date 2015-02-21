@@ -136,11 +136,15 @@ class KCSAPIHandler(object):
             # Expedition.
             '/api_get_member/mapcell': [kcsapi.NullHandler()],
             '/api_get_member/mapinfo': [kcsapi.NullHandler()],
+            '/api_req_combined_battle/battleresult': [kcsapi.ExpeditionResult],
+            '/api_req_combined_battle/battle_water': [kcsapi.Battle,
+                                                      kcsapi.ShipList],
+            '/api_req_combined_battle/midnight_battle': [kcsapi.MidnightBattle,
+                                                         kcsapi.ShipList],
             '/api_req_battle_midnight/battle': [kcsapi.MidnightBattle,
                                                 kcsapi.ShipList],
-            '/api_req_battle_midnight/sp_midnight':
-            [kcsapi.MidnightEncounterBattle,
-             kcsapi.ShipList],
+            '/api_req_battle_midnight/sp_midnight': [kcsapi.MidnightBattle,
+                                                     kcsapi.ShipList],
             '/api_req_map/start': [kcsapi.Expedition],
             '/api_req_map/next': [kcsapi.Expedition],
             '/api_req_sortie/battle': [kcsapi.Battle,
@@ -262,7 +266,7 @@ class KCSAPIHandler(object):
                 request = kcsapi.jsonobject.parse(
                     {param['name']: param['value'] for param in
                      entry['request']['postData']['params']},
-                    readonly=True)
+                    readonly=True, omittable=False)
                 content = entry['response']['content']
                 text = content['text']
                 # Highly likely the KCSAPI response is Base64 encoded, because
@@ -285,8 +289,8 @@ class KCSAPIHandler(object):
                         ' '.join(('{:X}'.format(ord(c))) for c in text[:64])))
                     continue
                 # KCSAPI response should be in UTF-8.
-                response = kcsapi.jsonobject.parse_text(text, readonly=True,
-                                                        encoding='utf8')
+                response = kcsapi.jsonobject.parse_text(
+                    text, readonly=True, omittable=False, encoding='utf8')
                 yield api_name, request, response
 
     def dispatch(self, api_name, request, response):

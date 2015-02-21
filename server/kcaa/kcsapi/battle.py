@@ -67,13 +67,16 @@ class AircraftAttack(jsonobject.JSONSerializableObject):
                 attackee_lid=i,
                 hit_type=kouku.api_fcl_flag[i],
                 damage=int(kouku.api_fdam[i])))
-        for i in xrange(1, len(kouku.api_edam)):
-            if kouku.api_edam[i] == 0:
-                continue
-            attacks.append(AircraftAttack(
-                attackee_lid=i + 6,
-                hit_type=kouku.api_ecl_flag[i],
-                damage=int(kouku.api_edam[i])))
+        # For the combined fleet, the response doesn't have a damage entry for
+        # the enemies (as it's redundant).
+        if hasattr(kouku, 'api_edam'):
+            for i in xrange(1, len(kouku.api_edam)):
+                if kouku.api_edam[i] == 0:
+                    continue
+                attacks.append(AircraftAttack(
+                    attackee_lid=i + 6,
+                    hit_type=kouku.api_ecl_flag[i],
+                    damage=int(kouku.api_edam[i])))
         return attacks
 
 
@@ -112,7 +115,8 @@ class GunfireAttack(jsonobject.JSONSerializableObject):
     """Local ship ID of the attacker.
 
     Local ID represents the position of a ship. 1-6 represents the friend ships
-    in the fleet, and 7-12 means the enemy ships."""
+    in the fleet, and 7-12 means the enemy ships.
+    """
     attackee_lid = jsonobject.JSONProperty('attackee_lid', value_type=int)
     """Local ship ID of the attackee."""
     attack_type = jsonobject.JSONProperty('attack_type', value_type=int)
@@ -211,15 +215,25 @@ class Battle(model.KCAAObject):
 
     fleet_id = jsonobject.JSONProperty('fleet_id', value_type=int)
     """ID of the fleet which joined this battle."""
+    combined_fleet_id = jsonobject.JSONProperty('combined_fleet_id',
+                                                value_type=int)
+    """ID of the combined fleet which joined this battle. Can be None if this
+    is a usual battle."""
     aircraft_phase = jsonobject.JSONProperty(
         'aircraft_phase', value_type=AircraftPhase)
     """Aircraft phase."""
+    aircraft_phase_combined = jsonobject.JSONProperty(
+        'aircraft_phase_combined', value_type=AircraftPhase)
+    """Aircraft phase for the combined fleet."""
     opening_thunderstroke_phase = jsonobject.JSONProperty(
         'opening_thunderstroke_phase', value_type=ThunderstrokePhase)
     """Opening thunderstroke phase."""
     gunfire_phases = jsonobject.JSONProperty('gunfire_phases', value_type=list,
                                              element_type=GunfirePhase)
     """Gunfire phases."""
+    gunfire_phase_combined = jsonobject.JSONProperty(
+        'gunfire_phase_combined', value_type=GunfirePhase)
+    """Gunfire phase for the combined fleet."""
     thunderstroke_phase = jsonobject.JSONProperty(
         'thunderstroke_phase', value_type=ThunderstrokePhase)
     """Thunderstroke phase."""
@@ -251,13 +265,25 @@ class Battle(model.KCAAObject):
     def update(self, api_name, request, response, objects, debug):
         super(Battle, self).update(api_name, request, response, objects, debug)
         data = response.api_data
-        self.fleet_id = data.api_dock_id
+        if api_name in ('/api_req_sortie/battle',
+                        '/api_req_practice/battle'):
+            self.fleet_id = data.api_dock_id
+        elif api_name == '/api_req_combined_battle/battle_water':
+            self.fleet_id = 1
+            self.combined_fleet_id = 2
+        else:
+            raise Exception('Unexpected API: {}'.format(api_name))
         # Aircraft attack phase.
         self.aircraft_phase = None
         if data.api_kouku.api_stage3:
             self.aircraft_phase = AircraftPhase(
                 attacks=AircraftAttack.create_list_from_kouku(
                     data.api_kouku.api_stage3))
+        self.aircraft_phase_combined = None
+        if hasattr(data.api_kouku, 'api_stage3_combined'):
+            self.aircraft_phase_combined = AircraftPhase(
+                attacks=AircraftAttack.create_list_from_kouku(
+                    data.api_kouku.api_stage3_combined))
         # Opening thunderstroke phase.
         self.opening_thunderstroke_phase = None
         if data.api_opening_atack:
@@ -265,14 +291,21 @@ class Battle(model.KCAAObject):
                 attacks=ThunderstrokeAttack.create_list_from_raigeki(
                     data.api_opening_atack))
         # Gunfire phases.
-        hougekis = [data.api_hougeki1, data.api_hougeki2, data.api_hougeki3]
+        hougekis = [data.api_hougeki1]
+        if data.api_hourai_flag[1] != 0:
+            hougekis.append(data.api_hougeki2)
         self.gunfire_phases = (
             [GunfirePhase(
                 attacks=GunfireAttack.create_list_from_hougeki(hougeki))
              for hougeki in hougekis if hougeki])
+        self.gunfire_phase_combined = None
+        if data.api_hourai_flag[2] != 0:
+            self.gunfire_phase_combined = GunfirePhase(
+                attacks=GunfireAttack.create_list_from_hougeki(
+                    data.api_hougeki3))
         # Thunderstroke phase.
         self.thunderstroke_phase = None
-        if data.api_raigeki:
+        if data.api_hourai_flag[3] != 0:
             self.thunderstroke_phase = ThunderstrokePhase(
                 attacks=ThunderstrokeAttack.create_list_from_raigeki(
                     data.api_raigeki))
@@ -294,8 +327,9 @@ class Battle(model.KCAAObject):
         #   api_df_list: attack target (1-6: friend, 7-12: enemy)
         #   api_si_list: equipment used
         # api_hourai_flag: the presence of phases
-        #                  [1st hougeki, 2nd hougeki, 3rd hougeki,
-        #                   thunderstroke]
+        #                  [1st hougeki, 2nd hougeki,
+        #                   3rd hougeki (for the combined fleet),
+        #                   thunderstroke (of the combined fleet if any)]
         # api_kouku: aircraft fight
         #   api_plane_from: ship that released the planes?
         #   api_stage1: scouting phase
@@ -316,6 +350,7 @@ class Battle(model.KCAAObject):
         #     api_edam: enemy suffered damage
         #     api_erai_flag: enemy attacker affected ships
         #     api_f*: same for friend
+        #   api_stage3_combined: the same for combined fleet, without api_e*
         # api_maxhps: ship max hitpoints
         # api_midnight_flag: possibility of midnight battle
         # api_nowhps: ship current hitpoints (at the beginning)
@@ -362,7 +397,11 @@ class MidnightBattle(model.KCAAObject):
         super(MidnightBattle, self).update(api_name, request, response,
                                            objects, debug)
         data = response.api_data
-        self.fleet_id = int(data.api_deck_id)
+        if api_name == '/api_req_combined_battle/midnight_battle':
+            # The combined fleet will always join the midnight battle.
+            self.fleet_id = 2
+        else:
+            self.fleet_id = int(data.api_deck_id)
         self.phase = GunfirePhase(
             attacks=GunfireAttack.create_list_from_hougeki(data.api_hougeki))
         self.update_enemy_ships(data)
@@ -385,31 +424,6 @@ class MidnightBattle(model.KCAAObject):
         # api_ship_ke: same?
         # api_ship_lv: same
         # api_touch_plane: clutter?
-
-    def update_enemy_ships(self, data):
-        self.enemy_ships = initialize_enemy_ships(data)
-        deal_enemy_damage_in_phase(self.phase, self.enemy_ships)
-
-
-class MidnightEncounterBattle(model.KCAAObject):
-    """Detailed information about the last midnight encounter battle."""
-
-    fleet_id = jsonobject.JSONProperty('fleet_id', value_type=int)
-    """ID of the fleet which joined this battle."""
-    phase = jsonobject.JSONProperty('phase', value_type=GunfirePhase)
-    """Gunfire/thunderstroke phase."""
-    enemy_ships = jsonobject.JSONProperty(
-        'enemy_ships', value_type=list, element_type=ship.Ship)
-    """Enemy ships."""
-
-    def update(self, api_name, request, response, objects, debug):
-        super(MidnightEncounterBattle, self).update(
-            api_name, request, response, objects, debug)
-        data = response.api_data
-        self.fleet_id = int(data.api_deck_id)
-        self.phase = GunfirePhase(
-            attacks=GunfireAttack.create_list_from_hougeki(data.api_hougeki))
-        self.update_enemy_ships(data)
 
     def update_enemy_ships(self, data):
         self.enemy_ships = initialize_enemy_ships(data)

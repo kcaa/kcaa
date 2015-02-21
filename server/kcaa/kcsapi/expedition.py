@@ -35,8 +35,8 @@ class Expedition(model.KCAAObject):
     def update(self, api_name, request, response, objects, debug):
         super(Expedition, self).update(api_name, request, response, objects,
                                        debug)
-        if (api_name == '/api_req_map/start' or
-                api_name == '/api_req_map/next'):
+        if api_name in ('/api_req_map/start',
+                        '/api_req_map/next'):
             if api_name == '/api_req_map/start':
                 self.fleet_id = int(request.api_deck_id)
                 self.maparea_id = int(request.api_maparea_id)
@@ -68,7 +68,8 @@ class ExpeditionResult(model.KCAAObject):
     def update(self, api_name, request, response, objects, debug):
         super(ExpeditionResult, self).update(api_name, request, response,
                                              objects, debug)
-        if api_name == '/api_req_sortie/battleresult':
+        if api_name in ('/api_req_sortie/battleresult',
+                        '/api_req_combined_battle/battleresult'):
             self.result = battle.Battle.get_result_for_win_rank(
                 response.api_data.api_win_rank)
             self.got_ship = response.api_data.api_get_flag[1] == 1
