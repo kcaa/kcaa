@@ -341,6 +341,8 @@ class AutoReturnWithFatalShip(base.AutoManipulator):
     def run(self):
         yield self.screen.dismiss_result_overview()
         yield self.screen.dismiss_result_details()
+        # TODO: Do this only when the battle is done with a combined fleet.
+        yield self.screen.dismiss_result_details()
         while self.screen_id != screens.PORT_MAIN:
             yield 3.0
             yield self.screen.drop_out()
