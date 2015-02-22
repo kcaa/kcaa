@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:html';
 import 'package:polymer/polymer.dart';
 
@@ -21,7 +22,10 @@ class CombinedFleetOrganizationDialog extends KcaaDialog {
   @observable KSelection escotingFleet = new KSelection();
   @observable bool supportingFleetEnabled;
   @observable KSelection supportingFleet = new KSelection();
-//  @observable final List<Ship> ships = new ObservableList<Ship>();
+  @observable final List<Ship> primaryShips = new ObservableList<Ship>();
+  @observable final List<Ship> secondaryShips = new ObservableList<Ship>();
+  @observable final List<Ship> escotingShips = new ObservableList<Ship>();
+  @observable final List<Ship> supportingShips = new ObservableList<Ship>();
 
   @observable bool editingFleetName;
   @observable String newFleetName;
@@ -30,9 +34,28 @@ class CombinedFleetOrganizationDialog extends KcaaDialog {
 
   CombinedFleetOrganizationDialog.created() : super.created();
 
+  // TODO: Consider refactoring with fleet_organization_dialog.dart.
+  Ship getShip(int shipId) {
+    var ship = model.shipMap[shipId];
+    if (ship == null) {
+      ship = new Ship();
+      if (shipId == 0) {
+        ship.name = "該当なし(省略可)";
+        ship.stateClass = "dangerous";
+      } else {
+        ship.name = "該当なし(省略不可)";
+        ship.stateClass = "fatal";
+      }
+    }
+    return ship;
+  }
+
   @override
   void show(Element target) {
-//    ships.clear();
+    primaryShips.clear();
+    secondaryShips.clear();
+    escotingShips.clear();
+    supportingShips.clear();
 
     var fleetNames = model.preferences.fleetPrefs.savedFleets.map(
         (savedFleet) => savedFleet.name).toList();
@@ -69,7 +92,7 @@ class CombinedFleetOrganizationDialog extends KcaaDialog {
   }
 
   void ok() {
-    update();
+    update(true);
     close();
   }
 
@@ -94,14 +117,7 @@ class CombinedFleetOrganizationDialog extends KcaaDialog {
       supportingFleetEnabled = true;
       supportingFleet.value = fleet.supportingFleetName;
     }
-/*
-    assistant.requestObject("SavedFleetDeploymentShipIdList",
-        {"fleet_name": fleetName}).then((Map<String, dynamic> data) {
-      for (var shipId in data["ship_ids"]) {
-        ships.add(getShip(shipId));
-      }
-    });
-*/
+    updateExpectation();
   }
 
   void initFromScratch() {
@@ -138,7 +154,38 @@ class CombinedFleetOrganizationDialog extends KcaaDialog {
     editingFleetName = false;
   }
 
-  void update() {
+  void updateExpectation() {
+    update(false);
+    var fleetDeployment = JSON.encode(fleet.toJSONEncodable());
+    assistant.requestObject("CombinedFleetDeploymentShipIdList",
+        {"combined_fleet_deployment": fleetDeployment}).then(
+            (Map<String, dynamic> data) {
+      primaryShips.clear();
+      for (var shipId in data["primary_ship_ids"]) {
+        primaryShips.add(getShip(shipId));
+      }
+      secondaryShips.clear();
+      if (fleet.secondaryFleetName != null) {
+        for (var shipId in data["secondary_ship_ids"]) {
+          secondaryShips.add(getShip(shipId));
+        }
+      }
+      escotingShips.clear();
+      if (fleet.escotingFleetName != null) {
+        for (var shipId in data["escoting_ship_ids"]) {
+          escotingShips.add(getShip(shipId));
+        }
+      }
+      supportingShips.clear();
+      if (fleet.supportingFleetName != null) {
+        for (var shipId in data["supporting_ship_ids"]) {
+          supportingShips.add(getShip(shipId));
+        }
+      }
+    });
+  }
+
+  void update(bool save) {
     fleet.combinedFleetType = int.parse(combinedFleetType.value);
     fleet.primaryFleetName = primaryFleet.value;
     fleet.secondaryFleetName =
@@ -148,6 +195,9 @@ class CombinedFleetOrganizationDialog extends KcaaDialog {
     fleet.supportingFleetName =
         supportingFleetEnabled ? supportingFleet.value : null;
 
+    if (!save) {
+      return;
+    }
     if (fleetIndexInPrefs != null) {
       model.preferences.fleetPrefs.savedCombinedFleets[fleetIndexInPrefs] =
           fleet;
@@ -168,7 +218,7 @@ class CombinedFleetOrganizationDialog extends KcaaDialog {
     }
     fleet.name = fleetName;
     fleetIndexInPrefs = null;
-    update();
+    update(true);
   }
 
   void delete() {

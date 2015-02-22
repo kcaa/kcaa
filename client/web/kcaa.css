@@ -188,6 +188,13 @@ h4 {
   margin: 10px 0 0;
   text-shadow: 2px 2px 2px hsla(150, 20%, 20%, 0.5);
 }
+h5 {
+  color: hsl(180, 30%, 40%);
+  font-size: 1em;
+  font-weight: bold;
+  margin: 10px 0 0;
+  text-shadow: 2px 2px 2px hsla(180, 20%, 30%, 0.5);
+}
 .hidden {
   display: none !important;
 }

@@ -184,6 +184,8 @@ class KCSAPIHandler(object):
             'SavedFleetDeploymentShipIdList':
             kcsapi.SavedFleetDeploymentShipIdList(),
             'FleetDeploymentShipIdList': kcsapi.FleetDeploymentShipIdList(),
+            'CombinedFleetDeploymentShipIdList':
+            kcsapi.CombinedFleetDeploymentShipIdList(),
         }
 
     def define_journals(self):

@@ -30,11 +30,26 @@
       <h4>再現</h4>
       <div>TODO</div>
       <h4>編成予測</h4>
-      TODO
+      <h5>主力艦隊</h5>
+      <kcaa-shiplist ships="{{primaryShips}}" fleet></kcaa-shiplist>
+      <template if="{{secondaryShips.length > 0}}">
+        <h5>水雷分隊</h5>
+        <kcaa-shiplist ships="{{secondaryShips}}" fleet></kcaa-shiplist>
+      </template>
+      <template if="{{escotingShips.length > 0}}">
+        <h5>道中支援艦隊</h5>
+        <kcaa-shiplist ships="{{escotingShips}}" fleet></kcaa-shiplist>
+      </template>
+      <template if="{{supportingShips.length > 0}}">
+        <h5>決戦支援艦隊</h5>
+        <kcaa-shiplist ships="{{supportingShips}}" fleet></kcaa-shiplist>
+      </template>
       <div>優先順位: 主力艦隊 &gt; 水雷分隊 &gt; 決戦支援艦隊 &gt; 道中支援艦隊</div>
       <h4>編成設定</h4>
       <div>
-      <kcaa-kselection kselection="{{combinedFleetType}}"></kcaa-kselection>
+      <kcaa-kselection kselection="{{combinedFleetType}}"
+                       on-selectionchange="{{updateExpectation}}">
+      </kcaa-kselection>
       </div>
       <div class="table">
         <div class="trow thead">
@@ -46,7 +61,9 @@
           <div class="labelColumn">✓</div>
           <div class="superWide">主力艦隊</div>
           <div class="description">
-            <kcaa-kselection kselection="{{primaryFleet}}"></kcaa-kselection>
+            <kcaa-kselection kselection="{{primaryFleet}}"
+                             on-selectionchange="{{updateExpectation}}">
+            </kcaa-kselection>
           </div>
         </div>
         <div class="trow">
@@ -56,28 +73,33 @@
           <div class="superWide">水雷分隊</div>
           <div class="description">
             <kcaa-kselection kselection="{{secondaryFleet}}"
+                             on-selectionchange="{{updateExpectation}}"
                              disabled="{{combinedFleetType.value == '0'}}">
             </kcaa-kselection>
           </div>
         </div>
         <div class="trow">
           <div class="labelColumn">
-            <input type="checkbox" checked="{{escotingFleetEnabled}}">
+            <input type="checkbox" checked="{{escotingFleetEnabled}}"
+                   on-change="{{updateExpectation}}">
           </div>
           <div class="superWide">道中支援艦隊</div>
           <div class="description">
             <kcaa-kselection kselection="{{escotingFleet}}"
+                             on-selectionchange="{{updateExpectation}}"
                              disabled={{!escotingFleetEnabled}}>
             </kcaa-kselection>
           </div>
         </div>
         <div class="trow">
           <div class="labelColumn">
-            <input type="checkbox" checked="{{supportingFleetEnabled}}">
+            <input type="checkbox" checked="{{supportingFleetEnabled}}"
+                   on-change="{{updateExpectation}}">
           </div>
           <div class="superWide">決戦支援艦隊</div>
           <div class="description">
             <kcaa-kselection kselection="{{supportingFleet}}"
+                             on-selectionchange="{{updateExpectation}}"
                              disabled={{!supportingFleetEnabled}}>
             </kcaa-kselection>
           </div>
