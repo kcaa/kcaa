@@ -12,9 +12,12 @@ class ShortLogFormatter(logging.Formatter):
 
     def format(self, record):
         now = datetime.datetime.now()
-        return '{} {:5s}: {}'.format(now.strftime('%H:%M:%S'),
-                                     record.levelname[:5],
-                                     record.getMessage())
+        message = record.getMessage()
+        if isinstance(message, str):
+            message = message.decode('utf8')
+        return u'{} {:5s}: {}'.format(now.strftime('%H:%M:%S'),
+                                      record.levelname[:5],
+                                      message)
 
 
 # Set up a logger.

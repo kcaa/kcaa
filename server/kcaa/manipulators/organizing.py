@@ -129,8 +129,8 @@ class LockShips(base.Manipulator):
             yield self.screen.toggle_lock(index)
             ship = ship_list.ships[str(ship_id)]
             if ship.locked != locked:
-                logger.error('Failed to {} the ship {} ().'.format(
-                    'lock' if locked else 'unlock', ship.name.encode('utf8')))
+                logger.error(u'Failed to {} the ship {} ().'.format(
+                    'lock' if locked else 'unlock', ship.name))
                 return
         self.screen.unfocus_ship_selection()
 

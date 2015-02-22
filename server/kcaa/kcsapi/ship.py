@@ -751,15 +751,14 @@ class ShipList(model.KCAAObject):
                     if ship.tags is None:
                         ship.tags = []
                     logger.debug(
-                        'Tags updated for ship {} ({}): [{}] -> [{}]'.format(
-                            ship.name.encode('utf8'), ship.id,
-                            ', '.join(tag.encode('utf8') for tag in ship.tags),
-                            ', '.join(tag.encode('utf8') for tag in
-                                      ship_tags.tags)))
+                        u'Tags updated for ship {} ({}): [{}] -> [{}]'.format(
+                            ship.name, ship.id,
+                            u', '.join(tag for tag in ship.tags),
+                            u', '.join(tag for tag in ship_tags.tags)))
                 self.ships[ship_id].tags = ship_tags.tags
             elif ship.tags:
-                logger.debug('Tags cleared for ship {} ({})'.format(
-                    ship.name.encode('utf8'), ship.id))
+                logger.debug(u'Tags cleared for ship {} ({})'.format(
+                    ship.name, ship.id))
                 ship.tags = None
         # Optionally, it might be good to notify the user when a tag entry is
         # defined for a non-existent ship. That can be deleted automatically
