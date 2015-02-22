@@ -3,10 +3,11 @@
      polymer.html in terms of the path representation. -->
 <link rel="import" href="../packages/polymer/polymer.html">
 <meta charset="utf-8">
-<polymer-element name="kcaa-kselection" attributes="kselection">
+<polymer-element name="kcaa-kselection" attributes="kselection disabled">
   <template>
     <link rel="stylesheet" href="../kcaa.css">
-    <select value="{{kselection.value}}" on-change="{{dispatchChange}}">
+    <select value="{{kselection.value}}" on-change="{{dispatchChange}}"
+            disabled?="{{disabled}}">
       <option template repeat="{{candidate in kselection.candidates}}"
               value="{{candidate.id}}">
         {{candidate.name}}

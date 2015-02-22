@@ -123,6 +123,7 @@ class FleetOrganizationDialog extends KcaaDialog {
         missionPlan.fleetName = newFleetName;
       }
     }
+    // TODO: Fix the name in combined fleets.
     fleet.name = newFleetName;
     if (fleetIndexInPrefs != null) {
       model.preferences.fleetPrefs.savedFleets[fleetIndexInPrefs] = fleet;

@@ -6,6 +6,7 @@ import '../util.dart';
 @CustomTag('kcaa-kselection')
 class KSelectionElement extends PolymerElement {
   @published KSelection kselection;
+  @published bool disabled = false;
 
   CustomEvent change = new CustomEvent("selectionchange");
 

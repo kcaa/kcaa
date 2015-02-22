@@ -67,6 +67,7 @@ class KSelection extends Observable {
   }
 
   void updateCandidates(List list) {
+    candidates.clear();
     for (var entry in list) {
       if (entry is List) {
         if (entry.length != 2) {

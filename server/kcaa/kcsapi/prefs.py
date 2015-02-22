@@ -54,6 +54,10 @@ class FleetPreferences(jsonobject.JSONSerializableObject):
         'saved_fleets', [], value_type=list,
         element_type=fleet.FleetDeployment)
     """Saved fleets."""
+    saved_combined_fleets = jsonobject.JSONProperty(
+        'saved_combined_fleets', [], value_type=list,
+        element_type=fleet.CombinedFleetDeployment)
+    """Saved combined fleets."""
 
 
 class EquipmentPreferences(jsonobject.JSONSerializableObject):

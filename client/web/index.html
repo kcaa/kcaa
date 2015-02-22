@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="kcaa.css">
 <script src="https://www.google.com/jsapi"></script>
 <link rel="import" href="assistant.html">
+<link rel="import" href="dialog/combined_fleet_organization_dialog.html">
 <link rel="import" href="dialog/equipment_deployment_dialog.html">
 <link rel="import" href="dialog/equipment_details_dialog.html">
 <link rel="import" href="dialog/fleet_mission_dialog.html">
@@ -38,6 +39,9 @@
      aria-describedby="KCAA modal dialog">
   <div class="modal-dialog row horizontal">
     <div id="kcaaDialogContainer" class="modal-content board">
+      <kcaa-combined-fleet-organization-dialog
+        id="kcaaCombinedFleetOrganizationDialog" class="hidden">
+      </kcaa-combined-fleet-organization-dialog>
       <kcaa-equipment-details-dialog id="kcaaEquipmentDetailsDialog"
                                      class="hidden">
       </kcaa-equipment-details-dialog>

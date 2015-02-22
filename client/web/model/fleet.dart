@@ -107,6 +107,39 @@ class FleetDeployment extends Observable {
   }
 }
 
+class CombinedFleetDeployment extends Observable {
+  @observable String name;
+  @observable String primaryFleetName;
+  @observable String secondaryFleetName;
+  @observable int combinedFleetType;
+  @observable String escotingFleetName;
+  @observable String supportingFleetName;
+
+  CombinedFleetDeployment(this.name, this.primaryFleetName,
+      this.secondaryFleetName, this.escotingFleetName,
+          this.supportingFleetName);
+
+  CombinedFleetDeployment.fromJSON(Map<String, dynamic> data) {
+    name = data["name"];
+    primaryFleetName = data["primary_fleet_name"];
+    secondaryFleetName = data["secondary_fleet_name"];
+    combinedFleetType = data["combined_fleet_type"];
+    escotingFleetName = data["escoting_fleet_name"];
+    supportingFleetName = data["supporting_fleet_name"];
+  }
+
+  Map<String, dynamic> toJSONEncodable() {
+    return {
+      "name": name,
+      "primary_fleet_name": primaryFleetName,
+      "secondary_fleet_name": secondaryFleetName,
+      "combined_fleet_type": combinedFleetType,
+      "escoting_fleet_name": escotingFleetName,
+      "supporting_fleet_name": supportingFleetName,
+    };
+  }
+}
+
 void handleFleetList(Assistant assistant, AssistantModel model,
                      Map<String, dynamic> data) {
   var fleetsLength = data["fleets"].length;

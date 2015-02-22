@@ -33,6 +33,8 @@ class ShipPrefs extends Observable {
 class FleetPrefs extends Observable {
   @observable final List<FleetDeployment> savedFleets =
       new ObservableList<FleetDeployment>();
+  @observable final List<CombinedFleetDeployment> savedCombinedFleets =
+      new ObservableList<CombinedFleetDeployment>();
 }
 
 class EquipmentPrefs extends Observable {
@@ -96,6 +98,9 @@ class Preferences extends Observable {
       "fleet_prefs": {
         "saved_fleets": fleetPrefs.savedFleets.map((savedFleet) =>
             savedFleet.toJSONEncodable()).toList(),
+        "saved_combined_fleets": fleetPrefs.savedCombinedFleets.map(
+            (savedCombinedFleet) => savedCombinedFleet.toJSONEncodable())
+            .toList(),
       },
       "equipment_prefs": {
         "deployments": equipmentPrefs.deployments.map((deployment) =>
@@ -133,6 +138,10 @@ void handlePreferences(Assistant assistant, AssistantModel model,
       prefs.shipPrefs.tags[int.parse(shipId)] = new ShipTags(tags["tags"]));
   for (var savedFleet in data["fleet_prefs"]["saved_fleets"]) {
     prefs.fleetPrefs.savedFleets.add(new FleetDeployment.fromJSON(savedFleet));
+  }
+  for (var savedFleet in data["fleet_prefs"]["saved_combined_fleets"]) {
+    prefs.fleetPrefs.savedCombinedFleets.add(
+        new CombinedFleetDeployment.fromJSON(savedFleet));
   }
   for (var deployment in data["equipment_prefs"]["deployments"]) {
     prefs.equipmentPrefs.deployments.add(

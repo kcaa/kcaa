@@ -174,6 +174,7 @@ class AutoLockUniqueShips(base.AutoManipulator):
 
 class FormCombinedFleet(base.Manipulator):
 
+    # TODO: Reuse the one from CombinedFleetDeployment.
     FLEET_TYPE_MOBILE = 0
     # Mobile fleet, with plenty of aircraft carriers.
     FLEET_TYPE_SURFACE = 1

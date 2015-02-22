@@ -196,6 +196,45 @@
       </div>
       <div class="row horizontal">
         <div class="board">
+          <h3 data-collapsed="true">連合艦隊編成</h3>
+          <div>
+            <button on-click="{{showModalDialog}}"
+                    data-dialog="kcaaCombinedFleetOrganizationDialog">
+              新規連合艦隊編成
+            </button>
+          </div>
+          <div class="table">
+            <div class="trow thead">
+              <div class="description">連合艦隊</div>
+              <div class="wider">出撃</div>
+            </div>
+            <template
+              repeat="{{savedFleet in
+                        model.preferences.fleetPrefs.savedCombinedFleets}}">
+              <div class="trow">
+                <div class="description">
+                  <div class="title">
+                    <a href="#"
+                       on-click="{{showModalDialog}}"
+                       data-dialog="kcaaCombinedFleetOrganizationDialog"
+                       data-fleet-name="{{savedFleet.name}}">
+                      {{savedFleet.name}}
+                    </a>
+                  </div>
+                  <!-- TODO: Fill this from the backend data. -->
+                  <div>どこかのマップ用</div>
+                </div>
+                <div class="wider labelColumn">
+                  <button disabled
+                          data-name="{{savedFleet.name}}">出撃</button>
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
+      </div>
+      <div class="row horizontal">
+        <div class="board">
           <h3 data-collapsed="true">艦船
             (<template if="{{model.ships.length != model.numFilteredShips}}"
              >{{model.numFilteredShips}}/</template>{{model.ships.length}}隻)

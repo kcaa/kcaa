@@ -190,3 +190,33 @@ class FleetDeploymentShipIdList(ship.ShipIdList):
         ships = fleet_deployment.get_ships(ship_list)
         self.ship_ids = [ship.id for ship in ships]
         return self
+
+
+class CombinedFleetDeployment(jsonobject.JSONSerializableObject):
+
+    name = jsonobject.JSONProperty('name', value_type=unicode)
+    """Name of the combined fleet."""
+    primary_fleet_name = jsonobject.JSONProperty('primary_fleet_name',
+                                                 value_type=unicode)
+    """Name of the primary fleet."""
+    secondary_fleet_name = jsonobject.JSONProperty('secondary_fleet_name',
+                                                   value_type=unicode)
+    """Name of the secondary fleet. Can be null if this combined fleet consists
+    of a single fleet."""
+    combined_fleet_type = jsonobject.JSONProperty('combined_fleet_type',
+                                                  value_type=int)
+    """Type of the combined fleet."""
+    COMBINED_FLEET_TYPE_SINGLE = 0
+    # Single fleet.
+    COMBINED_FLEET_TYPE_MOBILE = 1
+    # Mobile fleet, with plenty of aircraft carriers.
+    COMBINED_FLEET_TYPE_SURFACE = 2
+    # Surface ship fleet, a usual fleet with battleships or cruisers.
+    escoting_fleet_name = jsonobject.JSONProperty('escoting_fleet_name',
+                                                  value_type=unicode)
+    """Name of the fleet escoting the primary fleet the whole way before the
+    boss fleet. Can be null if no fleet is needed."""
+    supporting_fleet_name = jsonobject.JSONProperty('supporting_fleet_name',
+                                                    value_type=unicode)
+    """Name of the fleet supporting the primary fleet in the battle against the
+    boss fleet. Can be null if no fleet is needed."""
