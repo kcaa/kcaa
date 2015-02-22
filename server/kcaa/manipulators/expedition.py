@@ -4,6 +4,7 @@ import logging
 
 import base
 import fleet
+import kcaa
 import logistics
 import organizing
 from kcaa import kcsapi
@@ -319,6 +320,10 @@ class AutoWarmUpIdleShips(base.AutoManipulator):
 class AutoReturnWithFatalShip(base.AutoManipulator):
 
     @classmethod
+    def required_objects(cls):
+        return ['ShipList', 'FleetList']
+
+    @classmethod
     def monitored_objects(cls):
         return ['ExpeditionResult']
 
@@ -335,14 +340,21 @@ class AutoReturnWithFatalShip(base.AutoManipulator):
             return
         fleet = fleet_list.fleets[expedition.fleet_id - 1]
         ships = [ship_list.ships[str(ship_id)] for ship_id in fleet.ship_ids]
+        combined = (fleet_list.combined_fleet_type !=
+                    kcaa.FleetList.COMBINED_FLEET_TYPE_SINGLE)
+        if combined:
+            secondary_fleet = fleet_list.fleets[1]
+            secondary_ships = [ship_list.ships[str(ship_id)] for ship_id in
+                               secondary_fleet.ship_ids]
+            ships.extend(secondary_ships)
         if any([ship.fatal for ship in ships]):
-            return {}
+            return {'combined': combined}
 
-    def run(self):
+    def run(self, combined):
         yield self.screen.dismiss_result_overview()
         yield self.screen.dismiss_result_details()
-        # TODO: Do this only when the battle is done with a combined fleet.
-        yield self.screen.dismiss_result_details()
+        if combined:
+            yield self.screen.dismiss_result_details()
         while self.screen_id != screens.PORT_MAIN:
             yield 3.0
             yield self.screen.drop_out()
