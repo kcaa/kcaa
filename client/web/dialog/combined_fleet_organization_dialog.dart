@@ -11,6 +11,7 @@ import '../util.dart';
 @CustomTag('kcaa-combined-fleet-organization-dialog')
 class CombinedFleetOrganizationDialog extends KcaaDialog {
   @observable CombinedFleetDeployment fleet;
+  bool fleetDirty = false;
   int fleetIndexInPrefs;
   @observable KSelection primaryFleet = new KSelection();
   @observable KSelection secondaryFleet = new KSelection();
@@ -119,6 +120,7 @@ class CombinedFleetOrganizationDialog extends KcaaDialog {
       supportingFleet.value = fleet.supportingFleetName;
     }
     updateExpectation();
+    fleetDirty = false;
   }
 
   void initFromScratch() {
@@ -127,6 +129,7 @@ class CombinedFleetOrganizationDialog extends KcaaDialog {
     fleet = new CombinedFleetDeployment("新規連合艦隊編成", defaultFleet, null,
         null, null);
     updateExpectation();
+    fleetDirty = false;
   }
 
   void editFleetName() {
@@ -159,6 +162,7 @@ class CombinedFleetOrganizationDialog extends KcaaDialog {
 
   void updateExpectation() {
     update(false);
+    fleetDirty = true;
     var fleetDeployment = JSON.encode(fleet.toJSONEncodable());
     assistant.requestObject("CombinedFleetDeploymentShipIdList",
         {"combined_fleet_deployment": fleetDeployment}).then(
@@ -199,9 +203,10 @@ class CombinedFleetOrganizationDialog extends KcaaDialog {
     fleet.supportingFleetName =
         supportingFleetEnabled ? supportingFleet.value : null;
 
-    if (!save) {
+    if (!save || !fleetDirty) {
       return;
     }
+    fleetDirty = false;
     if (fleetIndexInPrefs != null) {
       model.preferences.fleetPrefs.savedCombinedFleets[fleetIndexInPrefs] =
           fleet;
