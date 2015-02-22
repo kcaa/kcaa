@@ -3,7 +3,7 @@
 import logging
 
 import base
-import kcaa
+from kcaa import kcsapi
 from kcaa import screens
 
 
@@ -82,10 +82,8 @@ class LoadFleet(base.Manipulator):
         unicode_fleet_name = saved_fleet_name.decode('utf8')
         logger.info('Loading saved fleet {} to fleet {}'.format(
             saved_fleet_name, fleet_id))
-        ship_list = self.objects.get('ShipList')
-        if not ship_list:
-            logger.error('No ship list was found. Giving up.')
-            return
+        ship_list = self.objects['ShipList']
+        fleet_list = self.objects['FleetList']
         matching_fleets = [
             sf for sf in self.manager.preferences.fleet_prefs.saved_fleets
             if sf.name == unicode_fleet_name]
@@ -103,6 +101,8 @@ class LoadFleet(base.Manipulator):
                 saved_fleet_name))
             return
         ship_ids = [s.id for s in ships]
+        if fleet_list.combined:
+            yield self.screen.dissolve_combined_fleet()
         yield self.do_manipulator(LoadShips, fleet_id, ship_ids)
 
 
@@ -177,15 +177,19 @@ class FormCombinedFleet(base.Manipulator):
 
     def run(self, fleet_type):
         fleet_type = int(fleet_type)
+        fleet_list = self.objects['FleetList']
+        if fleet_list.combined_fleet_type == fleet_type:
+            logger.info('Fleets is already in the desired combined type.')
+            return
         fleet_type_index = {
-            kcaa.FleetList.COMBINED_FLEET_TYPE_MOBILE: 0,
-            kcaa.FleetList.COMBINED_FLEET_TYPE_SURFACE: 1,
+            kcsapi.FleetList.COMBINED_FLEET_TYPE_MOBILE: 0,
+            kcsapi.FleetList.COMBINED_FLEET_TYPE_SURFACE: 1,
         }[fleet_type]
         logger.info('Trying to form a combined fleet.')
-        fleet_list = self.objects['FleetList']
         if len(fleet_list.fleets) < 2 or fleet_list.fleets[1].mission_id:
             raise Exception('Fleet 2 is not available.')
         yield self.screen.change_screen(screens.PORT_ORGANIZING)
         yield self.screen.select_fleet(2)
-        yield self.screen.dissolve_combined_fleet()
+        if fleet_list.combined:
+            yield self.screen.dissolve_combined_fleet()
         yield self.screen.form_combined_fleet(fleet_type_index)

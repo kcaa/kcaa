@@ -34,6 +34,9 @@ class CombinedFleetOrganizationDialog extends KcaaDialog {
   @observable String fleetNameToDelete;
   @observable String errorMessage;
 
+  @observable String mapareaId = "1";
+  @observable String mapId = "1";
+
   CombinedFleetOrganizationDialog.created() : super.created();
 
   // TODO: Consider refactoring with fleet_organization_dialog.dart.
@@ -158,6 +161,20 @@ class CombinedFleetOrganizationDialog extends KcaaDialog {
 
   void cancelRenaming() {
     editingFleetName = false;
+  }
+
+  void goOnExpedition(Event e, var detail, Element target) {
+    update(true);
+    Uri request = assistant.serverManipulate.resolveUri(
+        new Uri(queryParameters: {
+          "type": "HandleExpeditionCombinedFleet",
+          "saved_combined_fleet_name": fleet.name,
+          "maparea_id": mapareaId,
+          "map_id": mapId,
+          "formation": "14",
+        }));
+    HttpRequest.getString(request.toString());
+    close();
   }
 
   void updateExpectation() {

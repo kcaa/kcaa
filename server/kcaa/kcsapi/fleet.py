@@ -40,6 +40,8 @@ class FleetList(model.KCAAObject):
 
     Note that this list has 0-origin, while other objects use 1-origin index to
     reference a fleet."""
+    combined = jsonobject.JSONProperty('combined', value_type=bool)
+    """Whether the fleets are combined."""
     combined_fleet_type = jsonobject.JSONProperty('combined_fleet_type',
                                                   value_type=int)
     """Type of the combined fleet."""
@@ -62,13 +64,17 @@ class FleetList(model.KCAAObject):
         ship_list = objects.get('ShipList')
         if api_name == '/api_port/port':
             self.update_fleets(response.api_data.api_deck_port, ship_list)
-            self.combined_fleet_type = response.api_data.api_combined_flag
+            combined_flag = response.api_data.api_combined_flag
+            self.combined = combined_flag != 0
+            self.combined_fleet_type = combined_flag
         elif api_name == '/api_get_member/deck':
             self.update_fleets(response.api_data, ship_list)
         elif api_name == '/api_get_member/ship3':
             self.update_fleets(response.api_data.api_deck_data, ship_list)
         elif api_name == '/api_req_hensei/combined':
-            self.combined_fleet_type = int(request.api_combined_type)
+            combined_flag = int(request.api_combined_type)
+            self.combined = combined_flag != 0
+            self.combined_fleet_type = combined_flag
         elif api_name == '/api_req_hensei/change':
             fleet = self.fleets[int(request.api_id)-1]
             ship_index = int(request.api_ship_idx)

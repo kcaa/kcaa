@@ -94,6 +94,7 @@ class KCSAPIHandler(object):
             '/api_get_member/deck': [kcsapi.ShipList,  # For away_for_mission
                                      kcsapi.FleetList,
                                      kcsapi.MissionList],
+            '/api_req_hensei/combined': [kcsapi.FleetList],
             '/api_req_hensei/change': [kcsapi.FleetList],
             # Equipments (slot items).
             # unsetslot holds the order of equipment items per type. This must

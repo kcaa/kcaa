@@ -4,8 +4,8 @@ import logging
 
 import base
 import fleet
-import kcaa
 import logistics
+import mission
 import organizing
 from kcaa import kcsapi
 from kcaa import screens
@@ -19,6 +19,27 @@ WARMUP_VITALITY = 75
 logger = logging.getLogger('kcaa.manipulators.expedition')
 
 
+# TODO: Check if the admiral can go to the destination. That should be in
+# PlayerInfo.
+def is_valid_destination_map(maparea_id, map_id):
+    # TODO: Check if the event is running.
+    if maparea_id == 'E' and map_id >= 1 and map_id <= 5:
+        return True
+    maparea_id = int(maparea_id)
+    return (maparea_id >= 1 and maparea_id <= 6 and
+            map_id >= 1 and map_id <= 5)
+
+
+# TODO: Generalize?
+def get_supporting_fleet_mission_id(maparea_id, to_boss):
+    if maparea_id == 'E':
+        return 142 if to_boss else 141
+    maparea_id = int(maparea_id)
+    if maparea_id == 5:
+        return 34 if to_boss else 33
+    raise Exception('Invalid maparea_id: {}'.format(maparea_id))
+
+
 def can_warm_up(ship_):
     return (ship_.vitality < WARMUP_VITALITY and
             ship_.ready and
@@ -30,7 +51,8 @@ class GoOnExpedition(base.Manipulator):
 
     def run(self, fleet_id, maparea_id, map_id, formation):
         fleet_id = int(fleet_id)
-        maparea_id = int(maparea_id)
+        if maparea_id != 'E':
+            maparea_id = int(maparea_id)
         map_id = int(map_id)
         formation = int(formation)
         logger.info(
@@ -38,18 +60,93 @@ class GoOnExpedition(base.Manipulator):
             'formation {}'.format(
                 fleet_id, maparea_id, map_id, formation))
         # TODO: Move maparea definition to a separate module like kcsapic.
-        if maparea_id > kcsapi.Mission.MAPAREA_MIDDLE:
-            logger.error('Maparea {} is not supported.'.format(maparea_id))
+        if not is_valid_destination_map(maparea_id, map_id):
+            raise Exception('Maparea {} is not supported.'.format(maparea_id))
         if not fleet.are_all_ships_available(self, fleet_id):
-            return
+            raise Exception(
+                'Not all ships in the fleet {} is not ready.'.format(
+                    fleet_id))
         # Check ship slot and equipment slot requiement.
         yield self.screen.change_screen(screens.PORT_EXPEDITION)
         yield self.screen.select_maparea(maparea_id)
-        yield self.screen.select_map(map_id)
+        yield self.screen.select_map(maparea_id, map_id)
         yield self.screen.try_expedition()
         yield self.screen.select_fleet(fleet_id)
         yield self.screen.confirm_expedition()
         yield self.do_manipulator(SailOnExpeditionMap, formation=formation)
+
+
+class HandleExpeditionCombinedFleet(base.Manipulator):
+
+    def run(self, saved_combined_fleet_name, maparea_id, map_id, formation):
+        if isinstance(saved_combined_fleet_name, str):
+            saved_combined_fleet_name = saved_combined_fleet_name.decode(
+                'utf8')
+        if maparea_id != 'E':
+            maparea_id = int(maparea_id)
+        map_id = int(map_id)
+        formation = int(formation)
+        logger.info(
+            u'Making the combined fleet {} go on the expedition {}-{} with '
+            u'the formation {}'.format(
+                saved_combined_fleet_name, maparea_id, map_id, formation))
+        assert formation >= 11 and formation <= 14
+        if not is_valid_destination_map(maparea_id, map_id):
+            raise Exception('Maparea {} is not supported.'.format(maparea_id))
+        ship_list = self.objects['ShipList']
+        fleet_list = self.objects['FleetList']
+        matching_fleets = [
+            sf for sf in (
+                self.manager.preferences.fleet_prefs.saved_combined_fleets) if
+            sf.name == saved_combined_fleet_name]
+        if not matching_fleets:
+            return
+        combined_fleet_deployment = matching_fleets[0]
+        id_list = combined_fleet_deployment.get_ships(
+            ship_list, fleet_list, self.manager.preferences)
+        if not id_list.loadable:
+            raise Exception(u'Combined fleet {} is not loadable.'.format(
+                saved_combined_fleet_name))
+        # Reverse the fleet IDs for easier popping.
+        fleet_ids = list(reversed(id_list.available_fleet_ids))
+        # Primary fleet.
+        self.add_manipulator(organizing.LoadShips, fleet_id=fleet_ids.pop(),
+                             ship_ids=id_list.primary_ship_ids)
+        # Secondary fleet.
+        if id_list.secondary_ship_ids:
+            self.add_manipulator(organizing.LoadShips,
+                                 fleet_id=fleet_ids.pop(),
+                                 ship_ids=id_list.secondary_ship_ids)
+            self.add_manipulator(
+                organizing.FormCombinedFleet,
+                fleet_type=combined_fleet_deployment.combined_fleet_type)
+        # Escoting fleet.
+        if id_list.escoting_ship_ids:
+            escoting_fleet_id = fleet_ids.pop()
+            self.add_manipulator(organizing.LoadShips,
+                                 fleet_id=escoting_fleet_id,
+                                 ship_ids=id_list.escoting_ship_ids)
+        # Supporting fleet.
+        if id_list.supporting_ship_ids:
+            supporting_fleet_id = fleet_ids.pop()
+            self.add_manipulator(organizing.LoadShips,
+                                 fleet_id=supporting_fleet_id,
+                                 ship_ids=id_list.supporting_ship_ids)
+        # Escoting and/or supporting fleet missions.
+        if id_list.escoting_ship_ids:
+            self.add_manipulator(
+                mission.GoOnMission,
+                fleet_id=escoting_fleet_id,
+                mission_id=get_supporting_fleet_mission_id(maparea_id, False))
+        if id_list.supporting_ship_ids:
+            self.add_manipulator(
+                mission.GoOnMission,
+                fleet_id=supporting_fleet_id,
+                mission_id=get_supporting_fleet_mission_id(maparea_id, True))
+        # Finally, go on the mission!
+        self.add_manipulator(GoOnExpedition, fleet_id=1, maparea_id=maparea_id,
+                             map_id=map_id, formation=formation)
+        yield 0.0
 
 
 class SailOnExpeditionMap(base.Manipulator):
@@ -108,6 +205,7 @@ class EngageExpedition(base.Manipulator):
     def run(self, formation):
         # The screen must be EXPEDITION_COMBAT or EXPEDITION_NIGHTCOMBAT at
         # this moment. The caller must ensure this assumption is always true.
+        # TODO: Handle the event boss battle properly.
         logger.info('Engaging an enemy fleet in expedition.')
         expedition = self.objects.get('Expedition')
         fleet_list = self.objects.get('FleetList')
@@ -122,8 +220,14 @@ class EngageExpedition(base.Manipulator):
         fleet_ = fleet_list.fleets[expedition.fleet_id - 1]
         ships = map(lambda ship_id: ship_list.ships[str(ship_id)],
                     fleet_.ship_ids)
+        midnight_battle_ships = ships
+        secondary_ships = []
+        if fleet_list.combined:
+            secondary_ships = [ship_list.ships[str(ship_id)] for ship_id in
+                               fleet_list.fleets[1].ship_ids]
+            midnight_battle_ships = secondary_ships
         to_go_for_night_combat = self.should_go_night_combat(
-            expedition, battle, ships, formation)
+            expedition, battle, midnight_battle_ships, formation)
         if to_go_for_night_combat:
             logger.info('Going for the night combat.')
         else:
@@ -159,6 +263,9 @@ class EngageExpedition(base.Manipulator):
             return
         yield self.screen.dismiss_result_overview()
         yield self.screen.dismiss_result_details()
+        if fleet_list.combined:
+            yield 5.0
+            yield self.screen.dismiss_result_details()
         if expedition_result.got_ship:
             self.screen.update_screen_id(screens.EXPEDITION_REWARDS)
             yield self.screen.dismiss_new_ship()
@@ -172,7 +279,9 @@ class EngageExpedition(base.Manipulator):
             self.add_manipulator(logistics.ChargeFleet,
                                  fleet_id=expedition.fleet_id)
             return
-        if self.should_go_next(expedition, battle, ships):
+        # TODO: Handle the case where there is the headquarter equipped by the
+        # flagship and there is a healthy destroyer in the secondary fleet.
+        if self.should_go_next(expedition, battle, ships + secondary_ships):
             yield self.screen.go_for_next_battle()
             yield self.do_manipulator(SailOnExpeditionMap, formation=formation)
         else:
@@ -204,6 +313,8 @@ class EngageExpedition(base.Manipulator):
         return False
 
     def should_go_next(self, expedition, battle, ships):
+        # TODO: Should go next even if the flagship of the secondary fleet is
+        # fatal.
         fatal_ships = [s for s in ships if s.fatal]
         return not fatal_ships
 
@@ -317,6 +428,10 @@ class AutoWarmUpIdleShips(base.AutoManipulator):
         yield self.do_manipulator(WarmUpIdleShips, 1, min(num_ships, 1))
 
 
+# TODO: Handle the case where there is the headquarter equipped by the flagship
+# and there is a healthy destroyer in the secondary fleet.
+# TODO: Should not trigger even if the flagship of the secondary fleet is
+# fatal.
 class AutoReturnWithFatalShip(base.AutoManipulator):
 
     @classmethod
@@ -340,15 +455,13 @@ class AutoReturnWithFatalShip(base.AutoManipulator):
             return
         fleet = fleet_list.fleets[expedition.fleet_id - 1]
         ships = [ship_list.ships[str(ship_id)] for ship_id in fleet.ship_ids]
-        combined = (fleet_list.combined_fleet_type !=
-                    kcaa.FleetList.COMBINED_FLEET_TYPE_SINGLE)
-        if combined:
+        if fleet_list.combined:
             secondary_fleet = fleet_list.fleets[1]
             secondary_ships = [ship_list.ships[str(ship_id)] for ship_id in
                                secondary_fleet.ship_ids]
             ships.extend(secondary_ships)
         if any([ship.fatal for ship in ships]):
-            return {'combined': combined}
+            return {'combined': fleet_list.combined}
 
     def run(self, combined):
         yield self.screen.dismiss_result_overview()

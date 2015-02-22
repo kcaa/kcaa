@@ -27,8 +27,15 @@
         </h3>
     </div>
     <div class="modal-body">
-      <h4>再現</h4>
-      <div>TODO</div>
+      <h4>出撃</h4>
+      <div>
+        <input type="text" value="{{mapareaId}}" size="2">
+        -
+        <input type="text" value="{{mapId}}" size="2">
+        に
+        <button on-click="{{goOnExpedition}}"
+                disabled?="{{!loadable}}">出撃</button>
+      </div>
       <h4>編成予測</h4>
       <h5>主力艦隊</h5>
       <kcaa-shiplist ships="{{primaryShips}}" fleet></kcaa-shiplist>

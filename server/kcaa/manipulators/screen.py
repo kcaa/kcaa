@@ -296,22 +296,40 @@ class PortExpeditionScreen(PortScreen):
 
     def select_maparea(self, maparea_id):
         def select_maparea_task(task):
-            self.click(80 + 75 * maparea_id, 440)
+            if maparea_id == 'E':
+                self.click(715, 440)
+            else:
+                self.click(80 + 75 * maparea_id, 440)
             yield 1.0
         return self.do_task(select_maparea_task)
 
-    def select_map(self, map_id):
+    def select_map(self, maparea_id, map_id):
         def select_map_task(task):
-            if map_id <= 4:
-                x = 285 + 340 * ((map_id - 1) % 2)
-                y = 210 + 140 * ((map_id - 1) / 2)
-                self.click(x, y)
-                yield 2.0
+            # TODO: Generalize?
+            # TODO: Abort when the difficulty has not been selected?
+            if maparea_id == 'E':
+                if map_id <= 3:
+                    self.click(650, 85 + 100 * map_id)
+                    yield 2.0
+                    if map_id == 1:
+                        yield self.dismiss_event_notification()
+                else:
+                    self.click(440, 280)
+                    yield 1.0
+                    self.click(440, 215 + 145 * (map_id - 4))
+                    yield 2.0
+                yield self.dismiss_event_notification()
             else:
-                self.click(785, 280)
-                yield 1.0
-                self.click(450, 210 + 140 * (map_id - 5))
-                yield 2.0
+                if map_id <= 4:
+                    x = 285 + 340 * ((map_id - 1) % 2)
+                    y = 210 + 140 * ((map_id - 1) / 2)
+                    self.click(x, y)
+                    yield 2.0
+                else:
+                    self.click(785, 280)
+                    yield 1.0
+                    self.click(450, 210 + 140 * (map_id - 5))
+                    yield 2.0
         return self.do_task(select_map_task)
 
     def try_expedition(self):
@@ -331,6 +349,12 @@ class PortExpeditionScreen(PortScreen):
             self.click(635, 445)
             yield 7.0
         return self.do_task(confirm_expedition_task)
+
+    def dismiss_event_notification(self):
+        def dismiss_event_notification_task(task):
+            self.click(650, 240)
+            yield 2.0
+        return self.do_task(dismiss_event_notification_task)
 
 
 class PortPracticeScreen(PortScreen):
@@ -1218,13 +1242,17 @@ class EngageScreen(Screen):
 
     def select_formation(self, formation):
         def select_formation_task(task):
-            click_positions = [
-                (450, 185),  # FORMATION_SINGLE_LINE
-                (580, 185),  # FORMATION_DOUBLE_LINES
-                (710, 185),  # FORMATION_CIRCLE
-                (520, 345),  # FORMATION_LADDER
-                (650, 345),  # FORMATION_HORIZONTAL_LINE
-            ]
+            click_positions = {
+                0: (450, 185),   # FORMATION_SINGLE_LINE
+                1: (580, 185),   # FORMATION_DOUBLE_LINES
+                2: (710, 185),   # FORMATION_CIRCLE
+                3: (520, 345),   # FORMATION_LADDER
+                4: (650, 345),   # FORMATION_HORIZONTAL_LINE
+                11: (500, 175),  # FORMATION_COMBINED_ANTI_SUBMARINE
+                12: (665, 175),  # FORMATION_COMBINED_LOOKOUT
+                13: (500, 315),  # FORMATION_COMBINED_CIRCLE
+                14: (665, 315),  # FORMATION_COMBINED_COMBAT
+            }
             self.click(*click_positions[formation])
             yield 1.0
         return self.do_task(select_formation_task)

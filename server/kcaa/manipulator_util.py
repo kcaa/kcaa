@@ -162,6 +162,8 @@ class ManipulatorManager(object):
         self.manipulators = {
             # Expedition
             'GoOnExpedition': manipulators.expedition.GoOnExpedition,
+            'HandleExpeditionCombinedFleet':
+            manipulators.expedition.HandleExpeditionCombinedFleet,
             'SailOnExpeditionMap': manipulators.expedition.SailOnExpeditionMap,
             'EngageExpedition': manipulators.expedition.EngageExpedition,
             'WarmUp': manipulators.expedition.WarmUp,
