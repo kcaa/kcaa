@@ -305,7 +305,9 @@ class Battle(model.KCAAObject):
         combined_raigeki = None
         if not self.combined_fleet_id:
             # For usual battles.
-            main_hougekis = [data.api_hougeki1]
+            main_hougekis = []
+            if data.api_hourai_flag[0] != 0:
+                main_hougekis.append(data.api_hougeki1)
             if data.api_hourai_flag[1] != 0:
                 main_hougekis.append(data.api_hougeki2)
             # Seems like api_hourai_flag[2] is always 0.
@@ -313,7 +315,9 @@ class Battle(model.KCAAObject):
                 main_raigeki = data.api_raigeki
         elif not begin_with_combined:
             # For combined surface fleet battles.
-            main_hougekis = [data.api_hougeki1]
+            main_hougekis = []
+            if data.api_hourai_flag[0] != 0:
+                main_hougekis.append(data.api_hougeki1)
             if data.api_hourai_flag[1] != 0:
                 main_hougekis.append(data.api_hougeki2)
             if data.api_hourai_flag[2] != 0:
@@ -322,7 +326,8 @@ class Battle(model.KCAAObject):
                 combined_raigeki = data.api_raigeki
         else:
             # For combined mobile fleet battles.
-            combined_hougeki = data.api_hougeki1
+            if data.api_hourai_flag[0] != 0:
+                combined_hougeki = data.api_hougeki1
             if data.api_hourai_flag[1] != 0:
                 combined_raigeki = data.api_raigeki
             if data.api_hourai_flag[2] != 0:
