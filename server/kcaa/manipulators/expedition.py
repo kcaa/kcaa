@@ -120,6 +120,9 @@ class HandleExpeditionCombinedFleet(base.Manipulator):
             self.add_manipulator(
                 organizing.FormCombinedFleet,
                 fleet_type=combined_fleet_deployment.combined_fleet_type)
+        else:
+            self.screen.change_screen(screens.PORT_ORGANIZING)
+            self.screen.dissolve_combined_fleet()
         # Escoting fleet.
         if id_list.escoting_ship_ids:
             escoting_fleet_id = fleet_ids.pop()
