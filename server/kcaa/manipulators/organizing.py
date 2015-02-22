@@ -90,7 +90,8 @@ class LoadFleet(base.Manipulator):
         if not matching_fleets:
             return
         fleet_deployment = matching_fleets[0]
-        ships = [s for s in fleet_deployment.get_ships(ship_list) if
+        ship_pool = ship_list.ships.itervalues()
+        ships = [s for s in fleet_deployment.get_ships(ship_pool) if
                  s.id != 0]
         if any([s.id < 0 for s in ships]):
             logger.error('Saved fleet {} has missing ships.'.format(
