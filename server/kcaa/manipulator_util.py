@@ -441,9 +441,12 @@ class ManipulatorManager(object):
             try:
                 self.add_manipulator(manipulator(self, None, **command_args))
             except TypeError:
+                self._logger.error(traceback.format_exc())
                 raise TypeError(
-                    'manipulator argument mismatch. type = {}, args = {}'
-                    .format(command_type, command_args))
+                    'TypeError raised. This may be a manipulator argument '
+                    'mismatch or usual error in the manipulator code. '
+                    'Manipulator type = {}, args = {}'.format(
+                        command_type, command_args))
         else:
             raise ValueError('Unknown command type: {}'.format(command_type))
 
