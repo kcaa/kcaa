@@ -178,8 +178,8 @@ class FormCombinedFleet(base.Manipulator):
     def run(self, fleet_type):
         fleet_type = int(fleet_type)
         fleet_type_index = {
-            kcaa.CombinedFleetDeployment.COMBINED_FLEET_TYPE_MOBILE: 0,
-            kcaa.CombinedFleetDeployment.COMBINED_FLEET_TYPE_SURFACE: 1,
+            kcaa.FleetList.COMBINED_FLEET_TYPE_MOBILE: 0,
+            kcaa.FleetList.COMBINED_FLEET_TYPE_SURFACE: 1,
         }[fleet_type]
         logger.info('Trying to form a combined fleet.')
         fleet_list = self.objects['FleetList']

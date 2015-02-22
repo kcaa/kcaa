@@ -40,6 +40,15 @@ class FleetList(model.KCAAObject):
 
     Note that this list has 0-origin, while other objects use 1-origin index to
     reference a fleet."""
+    combined_fleet_type = jsonobject.JSONProperty('combined_fleet_type',
+                                                  value_type=int)
+    """Type of the combined fleet."""
+    COMBINED_FLEET_TYPE_SINGLE = 0
+    # Single fleet.
+    COMBINED_FLEET_TYPE_MOBILE = 1
+    # Mobile fleet, with plenty of aircraft carriers.
+    COMBINED_FLEET_TYPE_SURFACE = 2
+    # Surface ship fleet, a usual fleet with battleships or cruisers.
 
     def find_fleet_for_ship(self, ship_id):
         for fleet in self.fleets:
@@ -53,10 +62,13 @@ class FleetList(model.KCAAObject):
         ship_list = objects.get('ShipList')
         if api_name == '/api_port/port':
             self.update_fleets(response.api_data.api_deck_port, ship_list)
+            self.combined_fleet_type = response.api_data.api_combined_flag
         elif api_name == '/api_get_member/deck':
             self.update_fleets(response.api_data, ship_list)
         elif api_name == '/api_get_member/ship3':
             self.update_fleets(response.api_data.api_deck_data, ship_list)
+        elif api_name == '/api_req_hensei/combined':
+            self.combined_fleet_type = int(request.api_combined_type)
         elif api_name == '/api_req_hensei/change':
             fleet = self.fleets[int(request.api_id)-1]
             ship_index = int(request.api_ship_idx)
@@ -211,12 +223,6 @@ class CombinedFleetDeployment(jsonobject.JSONSerializableObject):
     combined_fleet_type = jsonobject.JSONProperty('combined_fleet_type',
                                                   value_type=int)
     """Type of the combined fleet."""
-    COMBINED_FLEET_TYPE_SINGLE = 0
-    # Single fleet.
-    COMBINED_FLEET_TYPE_MOBILE = 1
-    # Mobile fleet, with plenty of aircraft carriers.
-    COMBINED_FLEET_TYPE_SURFACE = 2
-    # Surface ship fleet, a usual fleet with battleships or cruisers.
     escoting_fleet_name = jsonobject.JSONProperty('escoting_fleet_name',
                                                   value_type=unicode)
     """Name of the fleet escoting the primary fleet the whole way before the

@@ -50,7 +50,8 @@ class TestFleetList(object):
                             0
                         ]
                     }
-                ]
+                ],
+                "api_combined_flag": 0
             }
         }""")
         fleet_list = fleet.FleetList()
@@ -62,6 +63,8 @@ class TestFleetList(object):
         assert fleet_.ship_ids == [123, 456, 789]
         assert fleet_.mission_id == 111
         assert not fleet_.mission_complete
+        assert (fleet_list.combined_fleet_type ==
+                fleet.FleetList.COMBINED_FLEET_TYPE_SINGLE)
 
     def test_update_ship_deployment(self, fleet_list):
         # Add the ship 4 to the end of the ship list.
