@@ -171,7 +171,7 @@ class CombinedFleetOrganizationDialog extends KcaaDialog {
           "saved_combined_fleet_name": fleet.name,
           "maparea_id": mapareaId,
           "map_id": mapId,
-          "formation": "14",
+          "formation": fleet.combinedFleetType != 0 ? "14" : "1",
         }));
     HttpRequest.getString(request.toString());
     close();
