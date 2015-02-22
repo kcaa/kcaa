@@ -3,6 +3,7 @@
 import logging
 
 import base
+import kcaa
 from kcaa import screens
 
 
@@ -174,16 +175,12 @@ class AutoLockUniqueShips(base.AutoManipulator):
 
 class FormCombinedFleet(base.Manipulator):
 
-    # TODO: Reuse the one from CombinedFleetDeployment.
-    FLEET_TYPE_MOBILE = 0
-    # Mobile fleet, with plenty of aircraft carriers.
-    FLEET_TYPE_SURFACE = 1
-    # Surface ship fleet, a usual fleet with battleships or cruisers.
-
     def run(self, fleet_type):
         fleet_type = int(fleet_type)
-        assert (fleet_type == FormCombinedFleet.FLEET_TYPE_MOBILE or
-                fleet_type == FormCombinedFleet.FLEET_TYPE_SURFACE)
+        fleet_type_index = {
+            kcaa.CombinedFleetDeployment.COMBINED_FLEET_TYPE_MOBILE: 0,
+            kcaa.CombinedFleetDeployment.COMBINED_FLEET_TYPE_SURFACE: 1,
+        }[fleet_type]
         logger.info('Trying to form a combined fleet.')
         fleet_list = self.objects['FleetList']
         if len(fleet_list.fleets) < 2 or fleet_list.fleets[1].mission_id:
@@ -191,4 +188,4 @@ class FormCombinedFleet(base.Manipulator):
         yield self.screen.change_screen(screens.PORT_ORGANIZING)
         yield self.screen.select_fleet(2)
         yield self.screen.dissolve_combined_fleet()
-        yield self.screen.form_combined_fleet(fleet_type)
+        yield self.screen.form_combined_fleet(fleet_type_index)
