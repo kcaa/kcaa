@@ -226,6 +226,80 @@ class CombinedFleetDeployment(jsonobject.JSONSerializableObject):
     """Name of the fleet supporting the primary fleet in the battle against the
     boss fleet. Can be null if no fleet is needed."""
 
+    def get_ships(self, ship_list, fleet_list, preferences):
+        id_list = CombinedFleetDeploymentShipIdList()
+        ship_pool = ship_list.ships.values()
+        id_list.available_fleet_ids = [fleet.id for fleet in fleet_list.fleets
+                                       if fleet.ready]
+        # Primary fleet.
+        primary_fleet = CombinedFleetDeployment.find_saved_fleet(
+            preferences, self.primary_fleet_name)
+        id_list.primary_ship_ids, ship_pool = (
+            CombinedFleetDeployment.extract_ids_and_rest(
+                primary_fleet.get_ships(ship_pool), ship_pool))
+        id_list.loadable = CombinedFleetDeployment.fleet_loadable(
+            id_list.primary_ship_ids)
+        num_fleets = 1
+        # Secondary fleet.
+        if self.secondary_fleet_name:
+            secondary_fleet = CombinedFleetDeployment.find_saved_fleet(
+                preferences, self.secondary_fleet_name)
+            id_list.secondary_ship_ids, ship_pool = (
+                CombinedFleetDeployment.extract_ids_and_rest(
+                    secondary_fleet.get_ships(ship_pool), ship_pool))
+            id_list.loadable = (
+                id_list.loadable and
+                2 in id_list.available_fleet_ids and
+                CombinedFleetDeployment.fleet_loadable(
+                    id_list.secondary_ship_ids))
+            num_fleets += 1
+        # Supporting fleet.
+        if self.supporting_fleet_name:
+            supporting_fleet = CombinedFleetDeployment.find_saved_fleet(
+                preferences, self.supporting_fleet_name)
+            id_list.supporting_ship_ids, ship_pool = (
+                CombinedFleetDeployment.extract_ids_and_rest(
+                    supporting_fleet.get_ships(ship_pool), ship_pool))
+            id_list.loadable = (
+                id_list.loadable and
+                CombinedFleetDeployment.fleet_loadable(
+                    id_list.supporting_ship_ids))
+            num_fleets += 1
+        # Escoting fleet.
+        if self.escoting_fleet_name:
+            escoting_fleet = CombinedFleetDeployment.find_saved_fleet(
+                preferences, self.escoting_fleet_name)
+            id_list.escoting_ship_ids, ship_pool = (
+                CombinedFleetDeployment.extract_ids_and_rest(
+                    escoting_fleet.get_ships(ship_pool), ship_pool))
+            id_list.loadable = (
+                id_list.loadable and
+                CombinedFleetDeployment.fleet_loadable(
+                    id_list.escoting_ship_ids))
+            num_fleets += 1
+        id_list.loadable = (id_list.loadable and
+                            len(id_list.available_fleet_ids) >= num_fleets)
+        return id_list
+
+    @staticmethod
+    def find_saved_fleet(preferences, fleet_name):
+        matching_fleets = [sf for sf in preferences.fleet_prefs.saved_fleets
+                           if sf.name == fleet_name]
+        if not matching_fleets:
+            raise Exception(u'Saved fleet of name {} was not found.'.format(
+                fleet_name))
+        return matching_fleets[0]
+
+    @staticmethod
+    def extract_ids_and_rest(ships, ship_pool):
+        ship_ids = [ship.id for ship in ships]
+        rest = [ship for ship in ship_pool if ship not in ships]
+        return ship_ids, rest
+
+    @staticmethod
+    def fleet_loadable(ship_ids):
+        return all([ship_id != -1 for ship_id in ship_ids])
+
 
 class CombinedFleetDeploymentShipIdList(model.KCAARequestableObject):
 
@@ -255,80 +329,5 @@ class CombinedFleetDeploymentShipIdList(model.KCAARequestableObject):
                 preferences):
         combined_fleet_deployment = CombinedFleetDeployment.parse_text(
             combined_fleet_deployment)
-        ship_pool = list(ship_list.ships.itervalues())
-        self.available_fleet_ids = [fleet.id for fleet in fleet_list.fleets if
-                                    fleet.ready]
-        # Primary fleet.
-        primary_fleet = CombinedFleetDeploymentShipIdList.find_saved_fleet(
-            preferences, combined_fleet_deployment.primary_fleet_name)
-        self.primary_ship_ids, ship_pool = (
-            CombinedFleetDeploymentShipIdList.extract_ids_and_rest(
-                primary_fleet.get_ships(ship_pool), ship_pool))
-        self.loadable = CombinedFleetDeploymentShipIdList.fleet_loadable(
-            self.primary_ship_ids)
-        num_fleets = 1
-        # Secondary fleet.
-        if combined_fleet_deployment.secondary_fleet_name:
-            secondary_fleet = (
-                CombinedFleetDeploymentShipIdList.find_saved_fleet(
-                    preferences,
-                    combined_fleet_deployment.secondary_fleet_name))
-            self.secondary_ship_ids, ship_pool = (
-                CombinedFleetDeploymentShipIdList.extract_ids_and_rest(
-                    secondary_fleet.get_ships(ship_pool), ship_pool))
-            self.loadable = (
-                self.loadable and
-                2 in self.available_fleet_ids and
-                CombinedFleetDeploymentShipIdList.fleet_loadable(
-                    self.secondary_ship_ids))
-            num_fleets += 1
-        # Supporting fleet.
-        if combined_fleet_deployment.supporting_fleet_name:
-            supporting_fleet = (
-                CombinedFleetDeploymentShipIdList.find_saved_fleet(
-                    preferences,
-                    combined_fleet_deployment.supporting_fleet_name))
-            self.supporting_ship_ids, ship_pool = (
-                CombinedFleetDeploymentShipIdList.extract_ids_and_rest(
-                    supporting_fleet.get_ships(ship_pool), ship_pool))
-            self.loadable = (
-                self.loadable and
-                CombinedFleetDeploymentShipIdList.fleet_loadable(
-                    self.supporting_ship_ids))
-            num_fleets += 1
-        # Escoting fleet.
-        if combined_fleet_deployment.escoting_fleet_name:
-            escoting_fleet = (
-                CombinedFleetDeploymentShipIdList.find_saved_fleet(
-                    preferences,
-                    combined_fleet_deployment.escoting_fleet_name))
-            self.escoting_ship_ids, ship_pool = (
-                CombinedFleetDeploymentShipIdList.extract_ids_and_rest(
-                    escoting_fleet.get_ships(ship_pool), ship_pool))
-            self.loadable = (
-                self.loadable and
-                CombinedFleetDeploymentShipIdList.fleet_loadable(
-                    self.escoting_ship_ids))
-            num_fleets += 1
-        self.loadable = (self.loadable and
-                         len(self.available_fleet_ids) > num_fleets)
-        return self
-
-    @staticmethod
-    def find_saved_fleet(preferences, fleet_name):
-        matching_fleets = [sf for sf in preferences.fleet_prefs.saved_fleets
-                           if sf.name == fleet_name]
-        if not matching_fleets:
-            raise Exception(u'Saved fleet of name {} was not found.'.format(
-                fleet_name))
-        return matching_fleets[0]
-
-    @staticmethod
-    def extract_ids_and_rest(ships, ship_pool):
-        ship_ids = [ship.id for ship in ships]
-        rest = [ship for ship in ship_pool if ship not in ships]
-        return ship_ids, rest
-
-    @staticmethod
-    def fleet_loadable(ship_ids):
-        return all([ship_id != -1 for ship_id in ship_ids])
+        return combined_fleet_deployment.get_ships(
+            ship_list, fleet_list, preferences)
