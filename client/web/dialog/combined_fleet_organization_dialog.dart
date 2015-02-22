@@ -122,8 +122,10 @@ class CombinedFleetOrganizationDialog extends KcaaDialog {
 
   void initFromScratch() {
     fleetIndexInPrefs = null;
-    fleet = new CombinedFleetDeployment("新規連合艦隊編成", null, null, null,
-        null);
+    var defaultFleet = primaryFleet.candidates[0].id;
+    fleet = new CombinedFleetDeployment("新規連合艦隊編成", defaultFleet, null,
+        null, null);
+    updateExpectation();
   }
 
   void editFleetName() {
