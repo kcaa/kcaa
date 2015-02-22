@@ -308,7 +308,8 @@ class Battle(model.KCAAObject):
             main_hougekis = [data.api_hougeki1]
             if data.api_hourai_flag[1] != 0:
                 main_hougekis.append(data.api_hougeki2)
-            if data.api_hourai_flag[2] != 0:
+            # Seems like api_hourai_flag[2] is always 0.
+            if data.api_hourai_flag[3] != 0:
                 main_raigeki = data.api_raigeki
         elif not begin_with_combined:
             # For combined surface fleet battles.
