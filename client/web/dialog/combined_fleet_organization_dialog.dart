@@ -26,6 +26,7 @@ class CombinedFleetOrganizationDialog extends KcaaDialog {
   @observable final List<Ship> secondaryShips = new ObservableList<Ship>();
   @observable final List<Ship> escotingShips = new ObservableList<Ship>();
   @observable final List<Ship> supportingShips = new ObservableList<Ship>();
+  @observable bool loadable = false;
 
   @observable bool editingFleetName;
   @observable String newFleetName;
@@ -184,6 +185,7 @@ class CombinedFleetOrganizationDialog extends KcaaDialog {
           supportingShips.add(getShip(shipId));
         }
       }
+      loadable = data["loadable"];
     });
   }
 

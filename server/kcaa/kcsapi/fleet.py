@@ -26,6 +26,10 @@ class Fleet(jsonobject.JSONSerializableObject):
     """True if the mission is complete. Updated when the screen transitioned to
     PORT_MAIN."""
 
+    @property
+    def ready(self):
+        return not self.mission_id
+
 
 class FleetList(model.KCAAObject):
     """List of fleets (decks)."""
@@ -237,21 +241,32 @@ class CombinedFleetDeploymentShipIdList(model.KCAARequestableObject):
     supporting_ship_ids = jsonobject.JSONProperty(
         'supporting_ship_ids', value_type=list, element_type=int)
     """IDs of ships in the supporting fleet."""
+    available_fleet_ids = jsonobject.JSONProperty(
+        'available_fleet_ids', value_type=list, element_type=int)
+    """IDs of available fleets."""
+    loadable = jsonobject.JSONProperty('loadable', value_type=bool)
+    """Whether this combined fleet can be loadable immediately."""
 
     @property
     def required_objects(self):
-        return ['ShipList', 'Preferences']
+        return ['ShipList', 'FleetList', 'Preferences']
 
-    def request(self, combined_fleet_deployment, ship_list, preferences):
+    def request(self, combined_fleet_deployment, ship_list, fleet_list,
+                preferences):
         combined_fleet_deployment = CombinedFleetDeployment.parse_text(
             combined_fleet_deployment)
         ship_pool = list(ship_list.ships.itervalues())
+        self.available_fleet_ids = [fleet.id for fleet in fleet_list.fleets if
+                                    fleet.ready]
         # Primary fleet.
         primary_fleet = CombinedFleetDeploymentShipIdList.find_saved_fleet(
             preferences, combined_fleet_deployment.primary_fleet_name)
         self.primary_ship_ids, ship_pool = (
             CombinedFleetDeploymentShipIdList.extract_ids_and_rest(
                 primary_fleet.get_ships(ship_pool), ship_pool))
+        self.loadable = CombinedFleetDeploymentShipIdList.fleet_loadable(
+            self.primary_ship_ids)
+        num_fleets = 1
         # Secondary fleet.
         if combined_fleet_deployment.secondary_fleet_name:
             secondary_fleet = (
@@ -261,6 +276,12 @@ class CombinedFleetDeploymentShipIdList(model.KCAARequestableObject):
             self.secondary_ship_ids, ship_pool = (
                 CombinedFleetDeploymentShipIdList.extract_ids_and_rest(
                     secondary_fleet.get_ships(ship_pool), ship_pool))
+            self.loadable = (
+                self.loadable and
+                2 in self.available_fleet_ids and
+                CombinedFleetDeploymentShipIdList.fleet_loadable(
+                    self.secondary_ship_ids))
+            num_fleets += 1
         # Supporting fleet.
         if combined_fleet_deployment.supporting_fleet_name:
             supporting_fleet = (
@@ -270,6 +291,11 @@ class CombinedFleetDeploymentShipIdList(model.KCAARequestableObject):
             self.supporting_ship_ids, ship_pool = (
                 CombinedFleetDeploymentShipIdList.extract_ids_and_rest(
                     supporting_fleet.get_ships(ship_pool), ship_pool))
+            self.loadable = (
+                self.loadable and
+                CombinedFleetDeploymentShipIdList.fleet_loadable(
+                    self.supporting_ship_ids))
+            num_fleets += 1
         # Escoting fleet.
         if combined_fleet_deployment.escoting_fleet_name:
             escoting_fleet = (
@@ -279,6 +305,13 @@ class CombinedFleetDeploymentShipIdList(model.KCAARequestableObject):
             self.escoting_ship_ids, ship_pool = (
                 CombinedFleetDeploymentShipIdList.extract_ids_and_rest(
                     escoting_fleet.get_ships(ship_pool), ship_pool))
+            self.loadable = (
+                self.loadable and
+                CombinedFleetDeploymentShipIdList.fleet_loadable(
+                    self.escoting_ship_ids))
+            num_fleets += 1
+        self.loadable = (self.loadable and
+                         len(self.available_fleet_ids) > num_fleets)
         return self
 
     @staticmethod
@@ -295,3 +328,7 @@ class CombinedFleetDeploymentShipIdList(model.KCAARequestableObject):
         ship_ids = [ship.id for ship in ships]
         rest = [ship for ship in ship_pool if ship not in ships]
         return ship_ids, rest
+
+    @staticmethod
+    def fleet_loadable(ship_ids):
+        return all([ship_id != -1 for ship_id in ship_ids])
