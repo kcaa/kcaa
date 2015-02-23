@@ -64,9 +64,13 @@ class FleetList(model.KCAAObject):
         ship_list = objects.get('ShipList')
         if api_name == '/api_port/port':
             self.update_fleets(response.api_data.api_deck_port, ship_list)
-            combined_flag = response.api_data.api_combined_flag
-            self.combined = combined_flag != 0
-            self.combined_fleet_type = combined_flag
+            if hasattr(response.api_data, 'api_combined_flag'):
+                combined_flag = response.api_data.api_combined_flag
+                self.combined = combined_flag != 0
+                self.combined_fleet_type = combined_flag
+            else:
+                self.combined = False
+                self.combined_fleet_type = FleetList.COMBINED_FLEET_TYPE_SINGLE
         elif api_name == '/api_get_member/deck':
             self.update_fleets(response.api_data, ship_list)
         elif api_name == '/api_get_member/ship3':
