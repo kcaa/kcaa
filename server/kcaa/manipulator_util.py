@@ -389,11 +389,23 @@ class ManipulatorManager(object):
     def resume_auto_manipulators(self):
         previously_run = True
         for t in self.running_auto_triggerer:
-            # TODO: Test. Sometimes an auto triggerer is considered finalized,
-            # though it should never die. Thus it reports not running and
-            # resume() throws StopIteration. Such a case is observed when auto
-            # manipulators are suppressed and then reactivated.
-            if not t.running:
+            if not t.alive:
+                self._logger.debug('Resuming auto triggerer {}'.format(
+                    t.manipulator.__name__))
+                self.running_auto_triggerer.remove(t)
+                exception = t.exception
+                if exception.message:
+                    self._logger.error('{}: {}'.format(
+                        type(exception).__name__, exception.message))
+                else:
+                    self._logger.error(
+                        'Some exception of type {} happened.'.format(
+                            type(exception).__name__))
+                self._logger.debug(''.join(traceback.format_exception(
+                    type(exception), exception, t.traceback)))
+            elif not t.running:
+                self._logger.debug('Resuming auto triggerer {}'.format(
+                    t.manipulator.__name__))
                 t.resume()
                 previously_run = False
         return not previously_run
