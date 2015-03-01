@@ -65,7 +65,8 @@
                 <div>
                   <label>
                     <input type="checkbox"
-                           checked="{{req.value.equipmentEnabled}}">
+                           checked="{{req.value.equipmentEnabled}}"
+                           on-change="{{updateExpectation}}">
                     装備:
                   </label>
                   <kcaa-kselection
