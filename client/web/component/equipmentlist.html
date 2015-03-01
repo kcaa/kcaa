@@ -52,13 +52,16 @@
                                   definition.numAvailable > 0}}">
                     <a href="#"
                        on-click="{{clickOnEquipment}}"
-                       data-equipment-definition-id="{{definition.id}}">
+                       data-equipment-definition-id="{{definition.id}}"
+                       title="ID: {{definition.id}}">
                       {{definition.name}}
                     </a>
                   </template>
                   <template if="{{disableunavailable &&
                                   definition.numAvailable == 0}}">
-                    {{definition.name}}
+                    <span title="ID: {{definition.id}}">
+                      {{definition.name}}
+                    </span>
                   </template>
                 </div>
                 <div>{{definition.typeName}}</div>

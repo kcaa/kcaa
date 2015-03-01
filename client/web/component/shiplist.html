@@ -29,14 +29,13 @@
                 <template if="{{assistant != null}}">
                   <a href="#" on-click="{{showModalDialog}}"
                      data-dialog="kcaaShipDetailsDialog"
-                     data-ship-id="{{ship.id}}">
+                     data-ship-id="{{ship.id}}"
+                     title="ID: {{ship.id}}">
                     {{ship.name}}
-                    <span class="subordinate">({{ship.id}})</span>
                   </a>
                 </template>
                 <template if="{{assistant == null}}">
-                  {{ship.name}}
-                  <span class="subordinate">({{ship.id}})</span>
+                  <span title="ID: {{ship.id}}">{{ship.name}}</span>
                 </template>
               </div>
               <div>{{ship.shipType}}</div>
