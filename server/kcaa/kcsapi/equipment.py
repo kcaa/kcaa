@@ -635,6 +635,9 @@ class EquipmentDeployment(jsonobject.JSONSerializableObject):
         equipments = [omittable_equipment] * target_ship.slot_count
         aircraft_slot_capacity = (
             target_ship.aircraft_slot_capacity[:target_ship.slot_count])
+        loadable_types = (
+            ship_def_list.ship_types[str(target_ship.ship_type)].
+            loadable_equipment_types)
         equipment_pool = equipment_pool[:]
         num_placed = 0
         for requirement in self.requirements[:target_ship.slot_count]:
@@ -644,9 +647,9 @@ class EquipmentDeployment(jsonobject.JSONSerializableObject):
                 return False, equipments
             slot_id = requirement.choose_slot_id(equipments,
                                                  aircraft_slot_capacity)
-            # TODO: Filter by loadable equipment types.
             applicable_equipments = [
                 e for e in equipment_pool if
+                loadable_types[str(e.type)] and
                 requirement.predicate.apply(e, equipment_def_list)]
             requirement.sorter.sort(applicable_equipments)
             # For debuggig, it might be useful to uncomment the following.
