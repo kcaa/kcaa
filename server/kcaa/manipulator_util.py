@@ -389,6 +389,10 @@ class ManipulatorManager(object):
     def resume_auto_manipulators(self):
         previously_run = True
         for t in self.running_auto_triggerer:
+            # TODO: Test. Sometimes an auto triggerer is considered finalized,
+            # though it should never die. Thus it reports not running and
+            # resume() throws StopIteration. Such a case is observed when auto
+            # manipulators are suppressed and then reactivated.
             if not t.running:
                 t.resume()
                 previously_run = False
