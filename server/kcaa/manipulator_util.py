@@ -212,7 +212,7 @@ class ManipulatorManager(object):
         # should run even when a user is manually operating the client.
         self.auto_manipulators = {
             # Expedition
-#            'AutoWarmUpIdleShips': manipulators.expedition.AutoWarmUpIdleShips,
+            'AutoWarmUpIdleShips': manipulators.expedition.AutoWarmUpIdleShips,
             'AutoReturnWithFatalShip':
             manipulators.expedition.AutoReturnWithFatalShip,
             # Organizing
