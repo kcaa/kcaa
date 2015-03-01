@@ -198,7 +198,7 @@ class EquipmentPredicate extends Observable {
   @observable EquipmentPredicate not;
   @observable EquipmentPropertyFilter propertyFilter =
       new EquipmentPropertyFilter.equipmentId(0);
-  @observable TagFilter tagFilter = new TagFilter.contains("");
+  @observable ShipTagFilter tagFilter = new ShipTagFilter.contains("");
   @observable EquipmentFilter filter;
 
   EquipmentPredicate.fromTRUE() {
@@ -266,7 +266,7 @@ class EquipmentPredicate extends Observable {
       propertyFilter = new EquipmentPropertyFilter.fromJSON(data["property_filter"]);
     } else if (data["tag_filter"] != null) {
       type.value = "tagFilter";
-      tagFilter = new TagFilter.fromJSON(data["tag_filter"]);
+      tagFilter = new ShipTagFilter.fromJSON(data["tag_filter"]);
     } else if (data["filter"] != null) {
       type.value = "filter";
       filter = new EquipmentFilter.fromJSON(data["filter"]);

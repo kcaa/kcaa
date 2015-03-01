@@ -444,21 +444,21 @@ class ShipPropertyFilter extends Observable {
   }
 }
 
-class TagFilter extends Observable {
+class ShipTagFilter extends Observable {
   @observable String tag;
   @observable KSelection operator = new KSelection.from(
       [["0", "を含む"],
        ["1", "を含まない"]]);
 
-  TagFilter.contains(this.tag) {
+  ShipTagFilter.contains(this.tag) {
     operator.value = "0";
   }
 
-  TagFilter.notContains(this.tag) {
+  ShipTagFilter.notContains(this.tag) {
     operator.value = "1";
   }
 
-  TagFilter.fromJSON(Map<String, dynamic> data) {
+  ShipTagFilter.fromJSON(Map<String, dynamic> data) {
     tag = data["tag"];
     operator.value = data["operator"].toString();
   }
@@ -499,7 +499,7 @@ class ShipPredicate extends Observable {
   @observable ShipPredicate not;
   @observable ShipPropertyFilter propertyFilter =
       new ShipPropertyFilter.shipId(0);
-  @observable TagFilter tagFilter = new TagFilter.contains("");
+  @observable ShipTagFilter tagFilter = new ShipTagFilter.contains("");
   @observable ShipFilter filter;
 
   ShipPredicate.fromTRUE() {
@@ -567,7 +567,7 @@ class ShipPredicate extends Observable {
       propertyFilter = new ShipPropertyFilter.fromJSON(data["property_filter"]);
     } else if (data["tag_filter"] != null) {
       type.value = "tagFilter";
-      tagFilter = new TagFilter.fromJSON(data["tag_filter"]);
+      tagFilter = new ShipTagFilter.fromJSON(data["tag_filter"]);
     } else if (data["filter"] != null) {
       type.value = "filter";
       filter = new ShipFilter.fromJSON(data["filter"]);
