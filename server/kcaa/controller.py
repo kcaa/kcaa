@@ -137,6 +137,9 @@ def control(args, to_exit):
                         har_manager, args.journal_basedir, args.debug)
                     kcsapi_handler.deserialize_objects(serialized_objects)
                     manipulator_manager.reset_objects(kcsapi_handler.objects)
+                    # TODO: Refactor!
+                    preferences = kcsapi_handler.objects['Preferences']
+                    manipulator_manager.preferences = preferences
                 elif command_type == COMMAND_RELOAD_MANIPULATORS:
                     reload(manipulator_util)
                     manipulator_util.reload_modules()
