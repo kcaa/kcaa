@@ -114,6 +114,21 @@ class EquipmentDefinition(jsonobject.JSONSerializableObject):
         128: 38,
     }
 
+    @property
+    def powerup_score(self):
+        return (2 * self.armor +
+                4 * self.firepower +
+                5 * self.fire_hit +
+                2 * self.fire_flee +
+                4 * self.thunderstroke +
+                0 * self.torpedo_hit +
+                4 * self.anti_air +
+                2 * self.anti_submarine +
+                3 * self.bomb_power +
+                2 * self.scouting +
+                1 * self.firing_range +
+                6 * self.rarity)
+
 
 class EquipmentDefinitionList(model.KCAAObject):
     """List of slot item definitions."""
@@ -182,7 +197,8 @@ class Equipment(jsonobject.JSONSerializableObject):
     # Python instance members?
     type = jsonobject.ReadonlyJSONProperty('type', value_type=int)
     """Equipment type, derived from the definition."""
-    in_type_index = jsonobject.JSONProperty('in_type_index', value_type=int)
+    in_type_index = jsonobject.JSONProperty(
+        'in_type_index', -1, value_type=int)
     """The position in the equipment list within items that share the type.
 
     For some unknown reason, the KanColle client seems not to define a
@@ -194,6 +210,13 @@ class Equipment(jsonobject.JSONSerializableObject):
     """
     sort_order = jsonobject.ReadonlyJSONProperty('sort_order', value_type=int)
     """Sort order, or the encyclopedia ID."""
+    powerup_score = jsonobject.ReadonlyJSONProperty(
+        'powerup_score', 0, value_type=int)
+    """Score of the power up that this equipment provides.
+
+    The value is determined by the predefined formula. There is a plan to make
+    it possible to customize it.
+    """
 
     def definition(self, equipment_def_list):
         return equipment_def_list.items[str(self.item_id)]
@@ -276,8 +299,8 @@ class EquipmentList(model.KCAAObject):
                     level=data.api_level,
                     locked=data.api_locked != 0,
                     type=definition.type,
-                    in_type_index=-1,
-                    sort_order=definition.sort_order))
+                    sort_order=definition.sort_order,
+                    powerup_score=definition.powerup_score))
                 # in_type_index will soon be overwritten by upcoming unsetslot
                 # call.
         elif api_name == '/api_get_member/unsetslot':
@@ -318,7 +341,8 @@ class EquipmentList(model.KCAAObject):
                     level=0,
                     locked=False,
                     type=definition.type,
-                    sort_order=definition.sort_order))
+                    sort_order=definition.sort_order,
+                    powerup_score=definition.powerup_score))
                 # Assign in_type_index.
                 for i, equipment_id in enumerate(
                         response.api_data.api_unsetslot):
@@ -348,7 +372,8 @@ class EquipmentList(model.KCAAObject):
                         level=0,
                         locked=False,
                         type=definition.type,
-                        sort_order=definition.sort_order))
+                        sort_order=definition.sort_order,
+                        powerup_score=definition.powerup_score))
                 # No in_type_index is reassigned.
 
     def add_item(self, item):
@@ -544,6 +569,10 @@ class EquipmentSorter(jsonobject.JSONSerializableObject):
     def definition(equipment_a, equipment_b):
         return Equipment.compare_on_reassignment(equipment_a, equipment_b)
 
+    @staticmethod
+    def powerup_score(equipment_a, equipment_b):
+        return equipment_a.powerup_score - equipment_b.powerup_score
+
 
 class EquipmentRequirement(jsonobject.JSONSerializableObject):
 
@@ -620,6 +649,15 @@ class EquipmentDeployment(jsonobject.JSONSerializableObject):
                 e for e in equipment_pool if
                 requirement.predicate.apply(e, equipment_def_list)]
             requirement.sorter.sort(applicable_equipments)
+            # For debuggig, it might be useful to uncomment the following.
+#            for equipment in applicable_equipments:
+#                definition = equipment.definition(equipment_def_list)
+#                logger.debug(
+#                    u'{} ({}): type {}, definition {}, in_type_index {}, '
+#                    u'powerup_score {}'.format(
+#                        definition.name, equipment.id, definition.type,
+#                        definition.id, equipment.in_type_index,
+#                        equipment.powerup_score))
             if not applicable_equipments:
                 if not requirement.omittable:
                     equipments[slot_id] = unavailable_equipment

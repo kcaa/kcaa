@@ -322,13 +322,19 @@ class EquipmentPredicate extends Observable {
 // TODO: Somehow merge with ShipSorter.
 class EquipmentSorter extends Observable {
   @observable final KSelection name = new KSelection.from(
-      [["definition", "種類ごとの並び順"]]);
+      [["powerup_score", "強化値スコア"],
+       ["definition", "種類ごとの並び順"]]);
   @observable final KSelection reversed = new KSelection.from(
       [["true", "一番高い"],
        ["false", "一番低い"]]);
 
   EquipmentSorter(String name, bool reversed) {
     this.name.value = name;
+    this.reversed.value = reversed.toString();
+  }
+
+  EquipmentSorter.powerupScore(bool reversed) {
+    name.value = "powerup_score";
     this.reversed.value = reversed.toString();
   }
 
@@ -369,7 +375,7 @@ class EquipmentRequirement extends Observable {
   EquipmentRequirement.any() {
     targetSlot.value = TARGET_SLOT_TOPMOST.toString();
     predicate = new EquipmentPredicate.fromTRUE();
-    sorter = new EquipmentSorter.definition(false);
+    sorter = new EquipmentSorter.powerupScore(true);
     omittable = false;
   }
 
