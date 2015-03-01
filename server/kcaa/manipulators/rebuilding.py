@@ -463,36 +463,58 @@ class ReplaceEquipments(base.Manipulator):
             logger.error('No available equipments. Giving up.')
             return
         yield self.do_manipulator(ReplaceEquipmentsByIds,
-                                  target_ship=target_ship,
+                                  ship_id=target_ship.id,
                                   equipment_ids=equipment_ids)
 
 
 class ReplaceEquipmentsByIds(base.Manipulator):
 
-    def run(self, target_ship, equipment_ids):
-        if equipment_ids == target_ship.equipment_ids:
-            logger.info('No change in eqiupments.')
-            return
+    def run(self, ship_id, equipment_ids):
         ship_def_list = self.objects['ShipDefinitionList']
         ship_list = self.objects['ShipList']
         equipment_def_list = self.objects['EquipmentDefinitionList']
         equipment_list = self.objects['EquipmentList']
+        target_ship = ship_list.ships[str(ship_id)]
+        equipments = [equipment_list.items[str(e_id)] for e_id in
+                      equipment_ids if e_id > 0]
+        current_equipment_ids = target_ship.equipment_ids
+        current_equipments = [equipment_list.items[str(e_id)] for e_id in
+                              current_equipment_ids if e_id > 0]
+        logger.info(
+            u'Replace equipments of ship {} ({}) [{}] with [{}]'.format(
+                target_ship.name, target_ship.id,
+                ', '.join([e.definition(equipment_def_list).name for e in
+                           current_equipments]),
+                ', '.join([e.definition(equipment_def_list).name for e in
+                           equipments])))
+        logger.debug('Equipment IDs to load: {}'.format(equipment_ids))
+        logger.debug('Current equipment IDs: {}'.format(current_equipment_ids))
+        if equipment_ids == target_ship.equipment_ids:
+            logger.info('No change in eqiupments.')
+            return
         yield self.do_manipulator(SelectShip, ship_id=target_ship.id)
-        # TODO: this logic needs to be polished when the list is just a
+        # TODO: this logic needs to be tested when the list is just a
         # reordered one of the original (e.g. [1, 2, 3] from [3, 1, 2]).
         # Maybe abstract the scheduler and write tests for them.
+        num_cleared_items = 0
+        for i, e_id in enumerate(equipment_ids[:-1]):
+            if e_id <= 0:
+                break
+            for j, c_id in enumerate(current_equipment_ids[i + 1:]):
+                if e_id == c_id:
+                    yield self.screen.clear_item_slot(j - num_cleared_items)
+                    del current_equipment_ids[j]
+                    current_equipment_ids.append(-1)
+                    num_cleared_items += 1
         num_cleared_items = 0
         for slot_index, equipment_id in enumerate(equipment_ids):
             # ID of -1 is considered empty.
             # ID of 0 is considered omittable, which is empty in this context.
-            if equipment_id == -1 or equipment_id == 0:
+            if equipment_id <= 0:
                 yield self.screen.clear_item_slot(slot_index)
                 num_cleared_items += 1
                 continue
-            # Note that target_ship is not updated during this manipulator.
-            # This may change in the future when the KCSAPI handler is
-            # rewritten. Beware!
-            if equipment_id == target_ship.equipment_ids[slot_index]:
+            if equipment_id == current_equipment_ids[slot_index]:
                 continue
             yield self.screen.select_item_slot(slot_index - num_cleared_items)
             # TODO: Use LRU equipments as well.

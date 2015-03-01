@@ -118,7 +118,7 @@ class LoadFleet(base.Manipulator):
             if entry[1]:
                 equipment_ids = [e.id for e in entry[1]]
                 yield self.do_manipulator(rebuilding.ReplaceEquipmentsByIds,
-                                          target_ship=entry[0],
+                                          ship_id=entry[0].id,
                                           equipment_ids=equipment_ids)
 
 
