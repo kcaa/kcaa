@@ -58,13 +58,15 @@
                                   enumerate}}">
                 <div class="trow">
                   <div class="numberColumn">
-                    {{req.index + 1}}
-                    <button class="action"
-                            on-click="{{deleteRequirement}}"
-                            data-deployment-index="{{deployment.index}}"
-                            data-requirement-index="{{req.index}}">
-                      &times;
-                    </button>
+                    <div>
+                      {{req.index + 1}}
+                      <button class="action"
+                              on-click="{{deleteRequirement}}"
+                              data-deployment-index="{{deployment.index}}"
+                              data-requirement-index="{{req.index}}">
+                        &times;
+                      </button>
+                    </div>
                   </div>
                   <div class="description">
                     <kcaa-equipment-predicate
@@ -78,11 +80,13 @@
                   {{deployment.value.requirements.length + 1}}
                 </div>
                 <div class="description">
-                  <button class="action"
-                          on-click="{{addNewRequirement}}"
-                          data-deployment-index="{{deployment.index}}">
-                    +
-                  </button>
+                  <div>
+                    <button class="action"
+                            on-click="{{addNewRequirement}}"
+                            data-deployment-index="{{deployment.index}}">
+                      +
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
