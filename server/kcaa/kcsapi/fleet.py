@@ -187,7 +187,7 @@ class FleetDeployment(jsonobject.JSONSerializableObject):
                     current_equipments = [
                         equipment_list.items[str(e_id)] for e_id in
                         target_ship.equipment_ids if
-                        e_id not in equipment_pool_ids]
+                        e_id > 0 and e_id not in equipment_pool_ids]
                     possible, equipments = equipment_deployment.get_equipments(
                         target_ship, equipment_pool + current_equipments,
                         ship_def_list, equipment_def_list)

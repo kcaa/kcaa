@@ -462,16 +462,30 @@ class ReplaceEquipments(base.Manipulator):
         if not equipment_ids:
             logger.error('No available equipments. Giving up.')
             return
+        yield self.do_manipulator(ReplaceEquipmentsByIds,
+                                  target_ship=target_ship,
+                                  equipment_ids=equipment_ids)
+
+
+class ReplaceEquipmentsByIds(base.Manipulator):
+
+    def run(self, target_ship, equipment_ids):
         if equipment_ids == target_ship.equipment_ids:
             logger.info('No change in eqiupments.')
             return
+        ship_def_list = self.objects['ShipDefinitionList']
+        ship_list = self.objects['ShipList']
+        equipment_def_list = self.objects['EquipmentDefinitionList']
+        equipment_list = self.objects['EquipmentList']
         yield self.do_manipulator(SelectShip, ship_id=target_ship.id)
-        # Note: this logic needs to be polished when the list is just a
+        # TODO: this logic needs to be polished when the list is just a
         # reordered one of the original (e.g. [1, 2, 3] from [3, 1, 2]).
         # Maybe abstract the scheduler and write tests for them.
         num_cleared_items = 0
         for slot_index, equipment_id in enumerate(equipment_ids):
-            if equipment_id == -1:
+            # ID of -1 is considered empty.
+            # ID of 0 is considered omittable, which is empty in this context.
+            if equipment_id == -1 or equipment_id == 0:
                 yield self.screen.clear_item_slot(slot_index)
                 num_cleared_items += 1
                 continue
@@ -481,6 +495,7 @@ class ReplaceEquipments(base.Manipulator):
             if equipment_id == target_ship.equipment_ids[slot_index]:
                 continue
             yield self.screen.select_item_slot(slot_index - num_cleared_items)
+            # TODO: Use LRU equipments as well.
             unequipped_items = ReplaceEquipments.filter_out_unloadable(
                 equipment_list.get_unequipped_items(ship_list), target_ship,
                 ship_def_list)

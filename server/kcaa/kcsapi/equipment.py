@@ -118,7 +118,7 @@ class EquipmentDefinition(jsonobject.JSONSerializableObject):
     def powerup_score(self):
         return (2 * self.armor +
                 4 * self.firepower +
-                5 * self.fire_hit +
+                2 * self.fire_hit +
                 2 * self.fire_flee +
                 4 * self.thunderstroke +
                 0 * self.torpedo_hit +
@@ -127,7 +127,7 @@ class EquipmentDefinition(jsonobject.JSONSerializableObject):
                 3 * self.bomb_power +
                 2 * self.scouting +
                 1 * self.firing_range +
-                6 * self.rarity)
+                2 * self.rarity)
 
 
 class EquipmentDefinitionList(model.KCAAObject):
@@ -633,6 +633,8 @@ class EquipmentDeployment(jsonobject.JSONSerializableObject):
             id=EquipmentDeploymentExpectation.EQUIPMENT_ID_OMITTABLE)
         unavailable_equipment = Equipment(
             id=EquipmentDeploymentExpectation.EQUIPMENT_ID_UNAVAILABLE)
+        if not self.ship_predicate.apply(target_ship):
+            return False, [unavailable_equipment] * len(self.requirements)
         equipments = [omittable_equipment] * target_ship.slot_count
         aircraft_slot_capacity = (
             target_ship.aircraft_slot_capacity[:target_ship.slot_count])

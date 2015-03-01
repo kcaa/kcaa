@@ -3,6 +3,7 @@
 import logging
 
 import base
+import rebuilding
 from kcaa import kcsapi
 from kcaa import screens
 
@@ -113,6 +114,12 @@ class LoadFleet(base.Manipulator):
         if fleet_list.combined:
             yield self.screen.dissolve_combined_fleet()
         yield self.do_manipulator(LoadShips, fleet_id, ship_ids)
+        for entry in entries:
+            if entry[1]:
+                equipment_ids = [e.id for e in entry[1]]
+                yield self.do_manipulator(rebuilding.ReplaceEquipmentsByIds,
+                                          target_ship=entry[0],
+                                          equipment_ids=equipment_ids)
 
 
 class LockShips(base.Manipulator):
