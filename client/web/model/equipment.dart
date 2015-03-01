@@ -158,12 +158,31 @@ class EquipmentPropertyFilter extends Observable {
   }
 }
 
+// TODO: Merge with ShipTagFilter.
 class EquipmentTagFilter {
+  @observable String tag;
+  @observable KSelection operator = new KSelection.from(
+      [["0", "を含む"],
+       ["1", "を含まない"]]);
+
+  EquipmentTagFilter.contains(this.tag) {
+    operator.value = "0";
+  }
+
+  EquipmentTagFilter.notContains(this.tag) {
+    operator.value = "1";
+  }
+
   EquipmentTagFilter.fromJSON(Map<String, dynamic> data) {
+    tag = data["tag"];
+    operator.value = data["operator"].toString();
   }
 
   Map<String, dynamic> toJSONEncodable() {
-    return null;
+    return {
+      "tag": tag,
+      "operator": int.parse(operator.value),
+    };
   }
 }
 
