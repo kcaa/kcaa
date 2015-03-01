@@ -198,6 +198,8 @@ class FleetDeployment(jsonobject.JSONSerializableObject):
                     if possible:
                         applicable_ship = target_ship
                         applicable_equipments = equipments
+                        equipment_pool = [e for e in equipment_pool if
+                                          e not in equipments]
                         break
             if not applicable_ship:
                 if not ship_requirement.omittable:
