@@ -221,7 +221,8 @@ class Equipment(jsonobject.JSONSerializableObject):
     def definition(self, equipment_def_list):
         return equipment_def_list.items[str(self.item_id)]
 
-    def __cmp__(self, other):
+    @staticmethod
+    def compare_unequipped(self, other):
         if self.type != other.type:
             return self.type - other.type
         return self.in_type_index - other.in_type_index
@@ -268,7 +269,7 @@ class EquipmentList(model.KCAAObject):
                     equipped_item_ids.add(equipment_id)
         items = [item for item in self.items.values() if
                  item.id not in equipped_item_ids]
-        items.sort()
+        items.sort(Equipment.compare_unequipped)
         return items
 
     def compute_page_position(self, equipment_id, unequipped_items):
@@ -652,15 +653,15 @@ class EquipmentDeployment(jsonobject.JSONSerializableObject):
                 loadable_types[str(e.type)] and
                 requirement.predicate.apply(e, equipment_def_list)]
             requirement.sorter.sort(applicable_equipments)
-            # For debuggig, it might be useful to uncomment the following.
+            # For debugging, it might be useful to uncomment the following.
 #            for equipment in applicable_equipments:
 #                definition = equipment.definition(equipment_def_list)
 #                logger.debug(
-#                    u'{} ({}): type {}, definition {}, in_type_index {}, '
-#                    u'powerup_score {}'.format(
-#                        definition.name, equipment.id, definition.type,
-#                        definition.id, equipment.in_type_index,
-#                        equipment.powerup_score))
+#                    u'{}: {} ({}): type {}, def {}, index {}, '
+#                    u'score {}'.format(
+#                        target_ship.name, definition.name, equipment.id,
+#                        definition.type, definition.id,
+#                        equipment.in_type_index, equipment.powerup_score))
             if not applicable_equipments:
                 if not requirement.omittable:
                     equipments[slot_id] = unavailable_equipment
