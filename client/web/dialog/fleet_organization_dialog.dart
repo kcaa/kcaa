@@ -45,6 +45,7 @@ class FleetOrganizationDialog extends KcaaDialog {
       var fleetId = int.parse(target.dataset["fleetId"]);
       initFromFleetId(fleetId);
     }
+    updateEquipmentDeployments();
 
     editingFleetName = false;
     fleetNameToDelete = "";
@@ -98,6 +99,14 @@ class FleetOrganizationDialog extends KcaaDialog {
     fleetIndexInPrefs = null;
     var dummy = new DivElement();
     updateExpectation(new Event(""), null, dummy);
+  }
+
+  void updateEquipmentDeployments() {
+    var deployments = model.preferences.equipmentPrefs.deployments.map(
+        (deployment) => [deployment.name, deployment.name]);
+    for (var requirement in fleet.shipRequirements) {
+      requirement.equipmentDeployment.updateCandidates(deployments);
+    }
   }
 
   void editFleetName() {

@@ -968,6 +968,9 @@ class ShipRequirement(jsonobject.JSONSerializableObject):
 
     predicate = jsonobject.JSONProperty('predicate', value_type=ShipPredicate)
     """Predicate."""
+    equipment_deployment = jsonobject.JSONProperty('equipment_deployment',
+                                                   value_type=unicode)
+    """Equipment deployment."""
     sorter = jsonobject.JSONProperty('sorter', value_type=ShipSorter)
     """Sorter."""
     omittable = jsonobject.JSONProperty('omittable', False, value_type=bool)

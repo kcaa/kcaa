@@ -44,7 +44,8 @@
           </template>
         </template>
         <template if="{{expectation.value.possible}}">
-          <kcaa-shiplist ships="{{[expectation.value.ship]}}"></kcaa-shiplist>
+          <kcaa-shiplist ships="{{[expectation.value.ship]}}" fleet>
+          </kcaa-shiplist>
           <kcaa-deployedequipmentlist
               ship="{{expectation.value.ship}}"
               equipments="{{expectation.value.equipments}}">

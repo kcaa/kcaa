@@ -635,6 +635,8 @@ class ShipSorter extends Observable {
 
 class ShipRequirement extends Observable {
   @observable ShipPredicate predicate;
+  @observable KSelection equipmentDeployment = new KSelection();
+  @observable bool equipmentEnabled = false;
   @observable ShipSorter sorter;
   @observable bool omittable;
 
@@ -642,6 +644,8 @@ class ShipRequirement extends Observable {
 
   ShipRequirement.fromJSON(Map<String, dynamic> data) {
     predicate = new ShipPredicate.fromJSON(data["predicate"]);
+    equipmentDeployment.value = data["equipment_deployment"];
+    equipmentEnabled = equipmentDeployment.value != null;
     sorter = new ShipSorter.fromJSON(data["sorter"]);
     omittable = data["omittable"];
   }
@@ -649,6 +653,8 @@ class ShipRequirement extends Observable {
   Map<String, dynamic> toJSONEncodable() {
     return {
       "predicate": predicate.toJSONEncodable(),
+      "equipment_deployment":
+        equipmentEnabled ? equipmentDeployment.value : null,
       "sorter": sorter.toJSONEncodable(),
       "omittable": omittable,
     };

@@ -63,6 +63,18 @@
                                      on-predicatechange="{{updateExpectation}}">
                 </kcaa-ship-predicate>
                 <div>
+                  <label>
+                    <input type="checkbox"
+                           checked="{{req.value.equipmentEnabled}}">
+                    装備:
+                  </label>
+                  <kcaa-kselection
+                      kselection="{{req.value.equipmentDeployment}}"
+                      on-selectionchange="{{updateExpectation}}"
+                      disabled="{{!req.value.equipmentEnabled}}">
+                  </kcaa-kselection>
+                </div>
+                <div>
                   <kcaa-kselection kselection="{{req.value.sorter.name}}"
                                    on-selectionchange="{{updateExpectation}}">
                   </kcaa-kselection>
