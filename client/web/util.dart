@@ -82,7 +82,7 @@ class KSelection extends Observable {
     if (candidates.length == 0) {
       throw new Exception("No candidate is provided");
     }
-    if (!candidates.contains(value)) {
+    if (!candidates.any((candidate) => candidate.id == value)) {
       value = candidates[0].id;
     }
   }
