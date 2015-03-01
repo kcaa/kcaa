@@ -109,6 +109,8 @@ class HandleExpeditionCombinedFleet(base.Manipulator):
                 saved_combined_fleet_name))
         # Reverse the fleet IDs for easier popping.
         fleet_ids = list(reversed(id_list.available_fleet_ids))
+        # TODO: Use LoadFleet instead of LoadShips. LoadFleet takes care of
+        # equipment deployment.
         # Primary fleet.
         self.add_manipulator(organizing.LoadShips, fleet_id=fleet_ids.pop(),
                              ship_ids=id_list.primary_ship_ids)

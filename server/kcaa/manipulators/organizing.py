@@ -84,15 +84,23 @@ class LoadFleet(base.Manipulator):
             saved_fleet_name, fleet_id))
         ship_list = self.objects['ShipList']
         fleet_list = self.objects['FleetList']
+        ship_def_list = self.objects['ShipDefinitionList']
+        equipment_list = self.objects['EquipmentList']
+        equipment_def_list = self.objects['EquipmentDefinitionList']
+        preferences = self.manager.preferences
         matching_fleets = [
             sf for sf in self.manager.preferences.fleet_prefs.saved_fleets
             if sf.name == unicode_fleet_name]
         if not matching_fleets:
             return
         fleet_deployment = matching_fleets[0]
-        ship_pool = ship_list.ships.itervalues()
-        ships = [s for s in fleet_deployment.get_ships(ship_pool) if
-                 s.id != 0]
+        ship_pool = ship_list.ships.values()
+        # TODO: Use LRU equipments as well.
+        equipment_pool = equipment_list.get_unequipped_items(ship_list)
+        entries = fleet_deployment.get_ships(
+            ship_pool, equipment_pool, ship_def_list, equipment_list,
+            equipment_def_list, preferences.equipment_prefs)
+        ships = [e[0] for e in entries if e[0].id != 0]
         if any([s.id < 0 for s in ships]):
             logger.error('Saved fleet {} has missing ships.'.format(
                 saved_fleet_name))

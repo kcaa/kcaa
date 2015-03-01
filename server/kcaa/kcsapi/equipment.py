@@ -693,6 +693,15 @@ class EquipmentGeneralDeployment(jsonobject.JSONSerializableObject):
     it. Those filtering may be done by the ship filter, or due to equipment
     availability."""
 
+    def get_equipments(self, target_ship, equipment_pool, ship_def_list,
+                       equipment_def_list):
+        for deployment in self.deployments:
+            possible, equipments = deployment.get_equipments(
+                target_ship, equipment_pool, ship_def_list, equipment_def_list)
+            if possible:
+                return possible, equipments
+        return False, []
+
 
 class EquipmentDeploymentExpectation(jsonobject.JSONSerializableObject):
 

@@ -117,6 +117,11 @@ class GoOnMission(base.Manipulator):
 class AutoGoOnMission(base.AutoManipulator):
 
     @classmethod
+    def required_objects(cls):
+        return ['ShipDefinitionList', 'EquipmentList',
+                'EquipmentDefinitionList']
+
+    @classmethod
     def monitored_objects(cls):
         return ['ShipList', 'FleetList']
 
@@ -124,6 +129,9 @@ class AutoGoOnMission(base.AutoManipulator):
     def get_go_on_config(objects, preferences):
         fleet_list = objects.get('FleetList')
         ship_list = objects.get('ShipList')
+        ship_def_list = objects['ShipDefinitionList']
+        equipment_list = objects['EquipmentList']
+        equipment_def_list = objects['EquipmentDefinitionList']
         if not preferences.mission_prefs:
             return
         go_on_config = {}
@@ -142,7 +150,9 @@ class AutoGoOnMission(base.AutoManipulator):
             if not matching_fleets:
                 continue
             fleet_deployment = matching_fleets[0]
-            if not fleet_deployment.are_all_ships_ready(ship_list):
+            if not fleet_deployment.are_all_ships_ready(
+                    ship_list, ship_def_list, equipment_list,
+                    equipment_def_list, preferences.equipment_prefs):
                 continue
             go_on_config[fleet_.id] = mission_plan
         return go_on_config

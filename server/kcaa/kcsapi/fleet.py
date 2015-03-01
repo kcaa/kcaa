@@ -160,39 +160,68 @@ class FleetDeployment(jsonobject.JSONSerializableObject):
         element_type=ship.ShipRequirement)
     """Ship requirements."""
 
-    def get_ships(self, ship_pool):
+    def get_ships(self, ship_pool, equipment_pool, ship_def_list,
+                  equpiment_list, equipment_def_list, equipment_prefs):
         # TODO: Unit test.
         ship_pool = list(ship_pool)[:]
+        equipment_pool = list(equipment_pool)[:]
         if self.global_predicate:
             ship_pool = [s for s in ship_pool if
                          self.global_predicate.apply(s)]
-        ships = []
+        entries = []
         for ship_requirement in self.ship_requirements:
             predicate = ship_requirement.predicate
             applicable_ships = [s for s in ship_pool if predicate.apply(s)]
             ship_requirement.sorter.sort(applicable_ships)
+            applicable_ship = None
+            applicable_equipments = None
             if not applicable_ships:
-                if not ship_requirement.omittable:
-                    ships.append(ship.Ship(id=-1))
-                else:
-                    ships.append(ship.Ship(id=0))
+                pass
+            elif not ship_requirement.equipment_deployment:
+                applicable_ship = applicable_ships[0]
             else:
-                ships.append(applicable_ships[0])
-                ship_pool.remove(applicable_ships[0])
-        return ships
+                equipment_deployment = equipment_prefs.get_deployment(
+                    ship_requirement.equipment_deployment)
+                for target_ship in applicable_ships:
+                    # TODO: Use currently equipped items as well.
+                    possible, equipments = equipment_deployment.get_equipments(
+                        target_ship, equipment_pool, ship_def_list,
+                        equipment_def_list)
+                    if possible:
+                        applicable_ship = target_ship
+                        applicable_equipments = equipments
+                        break
+            if not applicable_ship:
+                if not ship_requirement.omittable:
+                    entries.append([ship.Ship(id=-1), None])
+                else:
+                    entries.append([ship.Ship(id=0), None])
+            else:
+                entries.append([applicable_ship, applicable_equipments])
+                ship_pool.remove(applicable_ship)
+        return entries
 
-    def are_all_ships_ready(self, ship_list):
-        return all(s.id == 0 or s.ready for s in
-                   self.get_ships(ship_list.ships.itervalues()))
+    def are_all_ships_ready(self, ship_list, ship_def_list, equipment_list,
+                            equipment_def_list, eqiupment_prefs):
+        return all([s[0].id == 0 or s[0].ready for s in
+                    self.get_ships(
+                        ship_list.ships.values(),
+                        equipment_list.get_unequipped_items(ship_list),
+                        ship_def_list,
+                        equipment_list,
+                        equipment_def_list,
+                        eqiupment_prefs)])
 
 
 class SavedFleetDeploymentShipIdList(ship.ShipIdList):
 
     @property
     def required_objects(self):
-        return ['ShipList', 'Preferences']
+        return ['ShipDefinitionList', 'ShipList', 'EquipmentDefinitionList',
+                'EquipmentList', 'Preferences']
 
-    def request(self, fleet_name, ship_list, preferences):
+    def request(self, fleet_name, ship_definition_list, ship_list,
+                equipment_definition_list, equipment_list, preferences):
         unicode_fleet_name = fleet_name.decode('utf8')
         matching_fleets = [sf for sf in preferences.fleet_prefs.saved_fleets
                            if sf.name == unicode_fleet_name]
@@ -201,8 +230,13 @@ class SavedFleetDeploymentShipIdList(ship.ShipIdList):
                 fleet_name))
             return None
         fleet_deployment = matching_fleets[0]
-        ships = fleet_deployment.get_ships(ship_list.ships.itervalues())
-        self.ship_ids = [ship.id for ship in ships]
+        ship_pool = ship_list.ships.values()
+        # TODO: Use LRU equipments as well.
+        equipment_pool = equipment_list.get_unequipped_items(ship_list)
+        entries = fleet_deployment.get_ships(
+            ship_pool, equipment_pool, ship_definition_list, equipment_list,
+            equipment_definition_list, preferences.equipment_prefs)
+        self.ship_ids = [e[0].id for e in entries]
         return self
 
 
@@ -210,12 +244,19 @@ class FleetDeploymentShipIdList(ship.ShipIdList):
 
     @property
     def required_objects(self):
-        return ['ShipList']
+        return ['ShipDefinitionList', 'ShipList', 'EquipmentDefinitionList',
+                'EquipmentList', 'Preferences']
 
-    def request(self, fleet_deployment, ship_list):
+    def request(self, fleet_deployment, ship_definition_list, ship_list,
+                equipment_definition_list, equipment_list, preferences):
         fleet_deployment = FleetDeployment.parse_text(fleet_deployment)
-        ships = fleet_deployment.get_ships(ship_list.ships.itervalues())
-        self.ship_ids = [ship.id for ship in ships]
+        ship_pool = ship_list.ships.values()
+        # TODO: Use LRU equipments as well.
+        equipment_pool = equipment_list.get_unequipped_items(ship_list)
+        entries = fleet_deployment.get_ships(
+            ship_pool, equipment_pool, ship_definition_list, equipment_list,
+            equipment_definition_list, preferences.equipment_prefs)
+        self.ship_ids = [e[0].id for e in entries]
         return self
 
 
@@ -242,17 +283,26 @@ class CombinedFleetDeployment(jsonobject.JSONSerializableObject):
     """Name of the fleet supporting the primary fleet in the battle against the
     boss fleet. Can be null if no fleet is needed."""
 
-    def get_ships(self, ship_list, fleet_list, preferences):
+    def get_ships(self, ship_list, fleet_list, ship_def_list, equipment_list,
+                  equipment_def_list, preferences):
+        # TODO: Refactor this method. Too long!!! Too many boilerplates!
+        # NOTE: Unlike FleetDeployment.get_ships(), this method doesn't return
+        # the entries of ship ID and equipment list pairs.
         id_list = CombinedFleetDeploymentShipIdList()
         ship_pool = ship_list.ships.values()
+        # TODO: Use LRU equipments as well.
+        equipment_pool = equipment_list.get_unequipped_items(ship_list)
         id_list.available_fleet_ids = [fleet.id for fleet in fleet_list.fleets
                                        if fleet.ready]
         # Primary fleet.
         primary_fleet = CombinedFleetDeployment.find_saved_fleet(
             preferences, self.primary_fleet_name)
-        id_list.primary_ship_ids, ship_pool = (
+        id_list.primary_ship_ids, ship_pool, equipment_pool = (
             CombinedFleetDeployment.extract_ids_and_rest(
-                primary_fleet.get_ships(ship_pool), ship_pool))
+                primary_fleet.get_ships(
+                    ship_pool, equipment_pool, ship_def_list, equipment_list,
+                    equipment_def_list, preferences.equipment_prefs),
+                ship_pool, equipment_pool))
         id_list.loadable = CombinedFleetDeployment.fleet_loadable(
             id_list.primary_ship_ids)
         num_fleets = 1
@@ -260,9 +310,13 @@ class CombinedFleetDeployment(jsonobject.JSONSerializableObject):
         if self.secondary_fleet_name:
             secondary_fleet = CombinedFleetDeployment.find_saved_fleet(
                 preferences, self.secondary_fleet_name)
-            id_list.secondary_ship_ids, ship_pool = (
+            id_list.secondary_ship_ids, ship_pool, equipment_pool = (
                 CombinedFleetDeployment.extract_ids_and_rest(
-                    secondary_fleet.get_ships(ship_pool), ship_pool))
+                    secondary_fleet.get_ships(
+                        ship_pool, equipment_pool, ship_def_list,
+                        equipment_list, equipment_def_list,
+                        preferences.equipment_prefs),
+                    ship_pool, equipment_pool))
             id_list.loadable = (
                 id_list.loadable and
                 2 in id_list.available_fleet_ids and
@@ -273,9 +327,13 @@ class CombinedFleetDeployment(jsonobject.JSONSerializableObject):
         if self.supporting_fleet_name:
             supporting_fleet = CombinedFleetDeployment.find_saved_fleet(
                 preferences, self.supporting_fleet_name)
-            id_list.supporting_ship_ids, ship_pool = (
+            id_list.supporting_ship_ids, ship_pool, equipment_pool = (
                 CombinedFleetDeployment.extract_ids_and_rest(
-                    supporting_fleet.get_ships(ship_pool), ship_pool))
+                    supporting_fleet.get_ships(
+                        ship_pool, equipment_pool, ship_def_list,
+                        equipment_list, equipment_def_list,
+                        preferences.equipment_prefs),
+                    ship_pool, equipment_pool))
             id_list.loadable = (
                 id_list.loadable and
                 CombinedFleetDeployment.fleet_loadable(
@@ -285,9 +343,13 @@ class CombinedFleetDeployment(jsonobject.JSONSerializableObject):
         if self.escoting_fleet_name:
             escoting_fleet = CombinedFleetDeployment.find_saved_fleet(
                 preferences, self.escoting_fleet_name)
-            id_list.escoting_ship_ids, ship_pool = (
+            id_list.escoting_ship_ids, ship_pool, equipment_pool = (
                 CombinedFleetDeployment.extract_ids_and_rest(
-                    escoting_fleet.get_ships(ship_pool), ship_pool))
+                    escoting_fleet.get_ships(
+                        ship_pool, equipment_pool, ship_def_list,
+                        equipment_list, equipment_def_list,
+                        preferences.equipment_prefs),
+                    ship_pool, equipment_pool))
             id_list.loadable = (
                 id_list.loadable and
                 CombinedFleetDeployment.fleet_loadable(
@@ -307,10 +369,17 @@ class CombinedFleetDeployment(jsonobject.JSONSerializableObject):
         return matching_fleets[0]
 
     @staticmethod
-    def extract_ids_and_rest(ships, ship_pool):
-        ship_ids = [ship.id for ship in ships]
-        rest = [ship for ship in ship_pool if ship not in ships]
-        return ship_ids, rest
+    def extract_ids_and_rest(entries, ship_pool, equipment_pool):
+        ship_ids = [e[0].id for e in entries]
+        ships = frozenset([e[0] for e in entries])
+        ship_pool_rest = [s for s in ship_pool if s not in ships]
+        equipment_ids = set()
+        for entry in entries:
+            if entry[1]:
+                equipment_ids.union([e.id for e in entry[1]])
+        equipment_pool_rest = [e for e in equipment_pool if
+                               e.id not in equipment_ids]
+        return ship_ids, ship_pool_rest, equipment_pool_rest
 
     @staticmethod
     def fleet_loadable(ship_ids):
@@ -339,11 +408,14 @@ class CombinedFleetDeploymentShipIdList(model.KCAARequestableObject):
 
     @property
     def required_objects(self):
-        return ['ShipList', 'FleetList', 'Preferences']
+        return ['ShipDefinitionList', 'ShipList', 'FleetList',
+                'EquipmentDefinitionList', 'EquipmentList', 'Preferences']
 
-    def request(self, combined_fleet_deployment, ship_list, fleet_list,
-                preferences):
+    def request(self, combined_fleet_deployment, ship_definition_list,
+                ship_list, fleet_list, equipment_definition_list,
+                equipment_list, preferences):
         combined_fleet_deployment = CombinedFleetDeployment.parse_text(
             combined_fleet_deployment)
         return combined_fleet_deployment.get_ships(
-            ship_list, fleet_list, preferences)
+            ship_list, fleet_list, ship_definition_list, equipment_list,
+            equipment_definition_list, preferences)

@@ -67,6 +67,11 @@ class EquipmentPreferences(jsonobject.JSONSerializableObject):
         element_type=equipment.EquipmentGeneralDeployment)
     """Equipment deployments."""
 
+    def get_deployment(self, name):
+        matches = [deployment for deployment in self.deployments if
+                   deployment.name == name]
+        return matches[0] if matches else None
+
 
 class PracticePlan(jsonobject.JSONSerializableObject):
     opponent_fleet_type = jsonobject.JSONProperty(
