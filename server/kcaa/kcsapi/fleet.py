@@ -188,8 +188,12 @@ class FleetDeployment(jsonobject.JSONSerializableObject):
                         equipment_list.items[str(e_id)] for e_id in
                         target_ship.equipment_ids if
                         e_id > 0 and e_id not in equipment_pool_ids]
+                    # Note that the order of current_equipments and
+                    # equipment_pool matters. This avoids unnecessary equipment
+                    # swap when equipments are loaded from the top to bottom.
+                    # TODO: Handle the case with most aircraft capacity.
                     possible, equipments = equipment_deployment.get_equipments(
-                        target_ship, equipment_pool + current_equipments,
+                        target_ship, current_equipments + equipment_pool,
                         ship_def_list, equipment_def_list)
                     if possible:
                         applicable_ship = target_ship
