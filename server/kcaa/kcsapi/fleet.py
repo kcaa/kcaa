@@ -161,7 +161,7 @@ class FleetDeployment(jsonobject.JSONSerializableObject):
     """Ship requirements."""
 
     def get_ships(self, ship_pool, equipment_pool, ship_def_list,
-                  equpiment_list, equipment_def_list, equipment_prefs):
+                  equipment_list, equipment_def_list, equipment_prefs):
         # TODO: Unit test.
         ship_pool = list(ship_pool)[:]
         equipment_pool = list(equipment_pool)[:]
@@ -182,11 +182,15 @@ class FleetDeployment(jsonobject.JSONSerializableObject):
             else:
                 equipment_deployment = equipment_prefs.get_deployment(
                     ship_requirement.equipment_deployment)
+                equipment_pool_ids = frozenset([e.id for e in equipment_pool])
                 for target_ship in applicable_ships:
-                    # TODO: Use currently equipped items as well.
+                    current_equipments = [
+                        equipment_list.items[str(e_id)] for e_id in
+                        target_ship.equipment_ids if
+                        e_id not in equipment_pool_ids]
                     possible, equipments = equipment_deployment.get_equipments(
-                        target_ship, equipment_pool, ship_def_list,
-                        equipment_def_list)
+                        target_ship, equipment_pool + current_equipments,
+                        ship_def_list, equipment_def_list)
                     if possible:
                         applicable_ship = target_ship
                         applicable_equipments = equipments
