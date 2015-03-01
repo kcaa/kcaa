@@ -451,7 +451,7 @@ class AutoReturnWithFatalShip(base.AutoManipulator):
     def can_trigger(cls, owner):
         if owner.screen_id != screens.EXPEDITION_RESULT:
             return
-        if owner.manager.is_manipulator_scheduled('EngageExpedition'):
+        if owner.manager.is_manipulator_scheduled('GoOnExpedition'):
             return
         ship_list = owner.objects['ShipList']
         fleet_list = owner.objects['FleetList']
