@@ -420,9 +420,9 @@ class Assistant extends PolymerElement {
   }
 
   void showModalDialog(MouseEvent e, var detail, Element target) {
+    e.preventDefault();
     var dialogName = target.dataset["dialog"];
     showModalDialogByName(dialogName, target);
-    e.preventDefault();
   }
 
   void savePreferences() {

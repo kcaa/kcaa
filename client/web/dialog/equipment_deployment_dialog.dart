@@ -1,13 +1,28 @@
+import 'dart:convert';
 import 'dart:html';
 import 'package:polymer/polymer.dart';
 
 import 'dialog.dart';
 import '../model/assistant.dart';
 
+class EquipmentDeploymentExpectation extends Observable {
+  @observable bool possible;
+  @observable Ship ship;
+  @observable final ObservableList<Equipment> equipments =
+      new ObservableList<Equipment>();
+
+  EquipmentDeploymentExpectation(this.possible, this.ship,
+                                 Iterable<Equipment> equipments) {
+    this.equipments.addAll(equipments);
+  }
+}
+
 @CustomTag('kcaa-equipment-deployment-dialog')
 class EquipmentDeploymentDialog extends KcaaDialog {
   @observable EquipmentGeneralDeployment generalDeployment;
   int deploymentIndexInPrefs;
+  @observable final List<EquipmentDeploymentExpectation> expectations =
+      new ObservableList<EquipmentDeploymentExpectation>();
 
   @observable bool editingDeploymentName;
   @observable String newDeploymentName;
@@ -16,8 +31,41 @@ class EquipmentDeploymentDialog extends KcaaDialog {
 
   EquipmentDeploymentDialog.created() : super.created();
 
+  // TODO: Merge with FleetOrganizationDialog.
+  Ship getShip(int shipId) {
+    var ship = model.shipMap[shipId];
+    if (ship == null) {
+      ship = new Ship();
+      if (shipId == 0) {
+        ship.id = 0;
+        ship.name = "該当なし(省略可)";
+        ship.stateClass = "dangerous";
+      } else {
+        ship.id = -1;
+        ship.name = "該当なし(省略不可)";
+        ship.stateClass = "fatal";
+      }
+    }
+    return ship;
+  }
+
+  Equipment getEquipment(int equipmentId) {
+    var equipment = model.equipmentMap[equipmentId];
+    if (equipment == null) {
+      equipment = new Equipment();
+      equipment.definition = new EquipmentDefinition();
+      if (equipmentId == 0) {
+        equipment.definition.name = "該当なし(省略可)";
+      } else {
+        equipment.definition.name = "該当なし(省略不可)";
+      }
+    }
+    return equipment;
+  }
+
   @override
   void show(Element target) {
+    expectations.clear();
     var deploymentName = target.dataset["deploymentName"];
     if (deploymentName != null) {
       initFromName(deploymentName);
@@ -53,7 +101,7 @@ class EquipmentDeploymentDialog extends KcaaDialog {
         model.preferences.equipmentPrefs.deployments.indexOf(deploymentInPrefs);
     generalDeployment = new EquipmentGeneralDeployment.fromJSON(
         deploymentInPrefs.toJSONEncodable());
-    // TODO: Update the expected deployment.
+    updateExpectationSafe();
   }
 
   void initFromScratch() {
@@ -91,9 +139,26 @@ class EquipmentDeploymentDialog extends KcaaDialog {
     editingDeploymentName = false;
   }
 
+  void updateExpectationSafe() {
+    updateExpectation(null, null, new DivElement());
+  }
+
   void updateExpectation(Event e, var detail, Element target) {
     try {
-      // TODO: Implement.
+      var deployment = JSON.encode(generalDeployment.toJSONEncodable());
+      target.classes.remove("invalid");
+      assistant.requestObject("EquipmentGeneralDeploymentExpectation",
+          {"general_deployment": deployment}).then(
+              (Map<String, dynamic> data) {
+        expectations.clear();
+        for (var expectation in data["expectations"]) {
+          expectations.add(new EquipmentDeploymentExpectation(
+              expectation["possible"],
+              getShip(expectation["ship_id"]),
+              (expectation["equipment_ids"] as Iterable).map((equipmentId) =>
+                  getEquipment(equipmentId))));
+        }
+      });
     } catch (FormatException) {
       target.classes.add("invalid");
       return;
@@ -145,17 +210,20 @@ class EquipmentDeploymentDialog extends KcaaDialog {
 
   void addNewDeployment() {
     generalDeployment.deployments.add(new EquipmentDeployment());
+    updateExpectationSafe();
   }
 
   void deleteDeployment(Event e, var detail, Element target) {
     var deploymentIndex = int.parse(target.dataset["deploymentIndex"]);
     generalDeployment.deployments.removeAt(deploymentIndex);
+    updateExpectationSafe();
   }
 
   void addNewRequirement(Event e, var detail, Element target) {
     var deploymentIndex = int.parse(target.dataset["deploymentIndex"]);
     generalDeployment.deployments[deploymentIndex].requirements.add(
         new EquipmentRequirement.any());
+    updateExpectationSafe();
   }
 
   void deleteRequirement(Event e, var detail, Element target) {
@@ -163,5 +231,6 @@ class EquipmentDeploymentDialog extends KcaaDialog {
     var requirementIndex = int.parse(target.dataset["requirementIndex"]);
     generalDeployment.deployments[deploymentIndex].requirements.removeAt(
         requirementIndex);
+    updateExpectationSafe();
   }
 }

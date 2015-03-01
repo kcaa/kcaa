@@ -354,22 +354,27 @@ class EquipmentRequirement extends Observable {
   static final int TARGET_SLOT_TOPMOST = 0;
   static final int TARGET_SLOT_LARGEST_AIRCRAFT_CAPACITY = 1;
 
-  @observable int targetSlot;
+  @observable KSelection targetSlot = new KSelection.from(
+      [["0", "一番上"],
+       ["1", "艦載機最多"]]);
   @observable EquipmentPredicate predicate;
   @observable EquipmentSorter sorter;
   @observable bool omittable;
 
-  EquipmentRequirement(this.targetSlot, this.predicate, this.sorter,
-      this.omittable);
+  EquipmentRequirement(int targetSlot, this.predicate, this.sorter,
+      this.omittable) {
+    this.targetSlot.value = targetSlot.toString();
+  }
 
   EquipmentRequirement.any() {
-    targetSlot = TARGET_SLOT_TOPMOST;
+    targetSlot.value = TARGET_SLOT_TOPMOST.toString();
     predicate = new EquipmentPredicate.fromTRUE();
     sorter = new EquipmentSorter.definition(false);
     omittable = false;
   }
 
   EquipmentRequirement.fromJSON(Map<String, dynamic> data) {
+    targetSlot.value = data["target_slot"].toString();
     predicate = new EquipmentPredicate.fromJSON(data["predicate"]);
     sorter = new EquipmentSorter.fromJSON(data["sorter"]);
     omittable = data["omittable"];
@@ -377,6 +382,7 @@ class EquipmentRequirement extends Observable {
 
   Map<String, dynamic> toJSONEncodable() {
     return {
+      "target_slot": int.parse(targetSlot.value),
       "predicate": predicate.toJSONEncodable(),
       "sorter": sorter.toJSONEncodable(),
       "omittable": omittable,

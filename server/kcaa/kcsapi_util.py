@@ -182,11 +182,15 @@ class KCSAPIHandler(object):
 
     def define_requestables(self):
         self.requestables = {
+            # Fleet organization.
             'SavedFleetDeploymentShipIdList':
             kcsapi.SavedFleetDeploymentShipIdList(),
             'FleetDeploymentShipIdList': kcsapi.FleetDeploymentShipIdList(),
             'CombinedFleetDeploymentShipIdList':
             kcsapi.CombinedFleetDeploymentShipIdList(),
+            # Equipment organization.
+            'EquipmentGeneralDeploymentExpectation':
+            kcsapi.EquipmentGeneralDeploymentExpectation(),
         }
 
     def define_journals(self):

@@ -402,7 +402,7 @@ class EquipmentPropertyFilter(jsonobject.JSONSerializableObject):
     def apply(self, equipment, equipment_def_list):
         property_spec = self.property.encode('utf8').split('.')
         property_value = EquipmentPropertyFilter.get_property_value(
-            ship, property_spec, equipment_def_list)
+            equipment, property_spec, equipment_def_list)
         if property_value is None:
             return False
         operator = EquipmentPropertyFilter.OPERATOR_MAP.get(self.operator)
@@ -542,9 +542,7 @@ class EquipmentSorter(jsonobject.JSONSerializableObject):
 
     @staticmethod
     def definition(equipment_a, equipment_b):
-        # Natural order defined by Equipment.__cmp__, which respects the
-        # definition type and IDs within a type.
-        return cmp(equipment_a, equipment_b)
+        return Equipment.compare_on_reassignment(equipment_a, equipment_b)
 
 
 class EquipmentRequirement(jsonobject.JSONSerializableObject):
@@ -556,13 +554,27 @@ class EquipmentRequirement(jsonobject.JSONSerializableObject):
     predicate = jsonobject.JSONProperty('predicate',
                                         value_type=EquipmentPredicate)
     """Predicate."""
-    sorter = jsonobject.JSONProperty('scorer', value_type=EquipmentSorter)
+    sorter = jsonobject.JSONProperty('sorter', value_type=EquipmentSorter)
     """Sorter."""
     omittable = jsonobject.JSONProperty('omittable', False, value_type=bool)
     """Omittable.
 
     An omittable eqiupment can be omitted if a ship doesn't have a slot
     capacity to fit or no equipment is available for the given predicate."""
+
+    def choose_slot_id(self, equipments, aircraft_slot_capacity):
+        omittable_id = EquipmentDeploymentExpectation.EQUIPMENT_ID_OMITTABLE
+        if self.target_slot == EquipmentRequirement.TARGET_SLOT_TOPMOST:
+            return [pair[0] for pair in enumerate(equipments) if
+                    pair[1].id == omittable_id][0]
+        elif (self.target_slot ==
+                EquipmentRequirement.TARGET_SLOT_LARGEST_AIRCRAFT_CAPACITY):
+            pairs = [pair for pair in enumerate(aircraft_slot_capacity) if
+                     equipments[pair[0]].id == omittable_id]
+            pairs.sort(key=lambda pair: pair[1], reverse=True)
+            return pairs[0][0]
+        else:
+            raise Exception('Invalid target slot: {}'.format(self.target_slot))
 
 
 class EquipmentDeployment(jsonobject.JSONSerializableObject):
@@ -585,6 +597,47 @@ class EquipmentDeployment(jsonobject.JSONSerializableObject):
     of equipment.
     """
 
+    def get_equipments(self, target_ship, equipment_pool, ship_def_list,
+                       equipment_def_list):
+        omittable_equipment = Equipment(
+            id=EquipmentDeploymentExpectation.EQUIPMENT_ID_OMITTABLE)
+        unavailable_equipment = Equipment(
+            id=EquipmentDeploymentExpectation.EQUIPMENT_ID_UNAVAILABLE)
+        equipments = [omittable_equipment] * target_ship.slot_count
+        aircraft_slot_capacity = (
+            target_ship.aircraft_slot_capacity[:target_ship.slot_count])
+        equipment_pool = equipment_pool[:]
+        num_placed = 0
+        for requirement in self.requirements[:target_ship.slot_count]:
+            if num_placed >= target_ship.slot_count:
+                if requirement.omittable:
+                    break
+                return False, equipments
+            slot_id = requirement.choose_slot_id(equipments,
+                                                 aircraft_slot_capacity)
+            # TODO: Filter by loadable equipment types.
+            applicable_equipments = [
+                e for e in equipment_pool if
+                requirement.predicate.apply(e, equipment_def_list)]
+            requirement.sorter.sort(applicable_equipments)
+            if not applicable_equipments:
+                if not requirement.omittable:
+                    equipments[slot_id] = unavailable_equipment
+                    num_placed += 1
+                # If it's omittable, just ignore this requirement and let the
+                # next requirement decide.
+            else:
+                equipments[slot_id] = applicable_equipments[0]
+                equipment_pool.remove(applicable_equipments[0])
+                num_placed += 1
+        possible = all([e.id != unavailable_equipment.id for e in equipments])
+        omittable_seen = False
+        for equipment in equipments:
+            if omittable_seen and equipment.id > 0:
+                possible = False
+            omittable_seen = equipment.id == omittable_equipment.id
+        return possible, equipments
+
 
 class EquipmentGeneralDeployment(jsonobject.JSONSerializableObject):
 
@@ -598,3 +651,71 @@ class EquipmentGeneralDeployment(jsonobject.JSONSerializableObject):
     a general deployment, it actually applies the first deployment that fits to
     it. Those filtering may be done by the ship filter, or due to equipment
     availability."""
+
+
+class EquipmentDeploymentExpectation(jsonobject.JSONSerializableObject):
+
+    possible = jsonobject.JSONProperty('possible', value_type=bool)
+    """True if it's possible to deploy."""
+    ship_id = jsonobject.JSONProperty('ship_id', value_type=int)
+    """Ship ID."""
+    SHIP_ID_UNAVAILABLE = -1
+    equipment_ids = jsonobject.JSONProperty('equipment_ids', value_type=list,
+                                            element_type=int)
+    """IDs of eqiupment.
+
+    0 means an omittable equipment. -1 means it was required but nothing is
+    available for the slot. This list is guaranteed to have the same length as
+    the requirements field in the request.
+    """
+    EQUIPMENT_ID_OMITTABLE = 0
+    EQUIPMENT_ID_UNAVAILABLE = -1
+
+
+class EquipmentGeneralDeploymentExpectation(model.KCAARequestableObject):
+
+    expectations = jsonobject.JSONProperty(
+        'expectations', value_type=list,
+        element_type=EquipmentDeploymentExpectation)
+    """Expectations for each deployment."""
+
+    @property
+    def required_objects(self):
+        return ['ShipDefinitionList', 'ShipList', 'EquipmentDefinitionList',
+                'EquipmentList']
+
+    def request(self, general_deployment, ship_definition_list, ship_list,
+                equipment_definition_list, equipment_list):
+        general_deployment = EquipmentGeneralDeployment.parse_text(
+            general_deployment)
+        ship_pool = ship_list.ships.values()
+        equipment_pool = equipment_list.items.values()
+        self.expectations = []
+        for deployment in general_deployment.deployments:
+            unavailable = EquipmentDeploymentExpectation(
+                possible=False,
+                ship_id=EquipmentDeploymentExpectation.SHIP_ID_UNAVAILABLE,
+                equipment_ids=([
+                    EquipmentDeploymentExpectation.EQUIPMENT_ID_UNAVAILABLE] *
+                    len(deployment.requirements)))
+            applicable_ships = [s for s in ship_pool if
+                                deployment.ship_predicate.apply(s)]
+            applicable_ships.sort(ship.ShipSorter.kancolle_level, reverse=True)
+            if not applicable_ships:
+                self.expectations.append(unavailable)
+                continue
+            found = False
+            for target_ship in applicable_ships:
+                possible, equipments = deployment.get_equipments(
+                    target_ship, equipment_pool, ship_definition_list,
+                    equipment_definition_list)
+                if possible:
+                    self.expectations.append(EquipmentDeploymentExpectation(
+                        possible=True,
+                        ship_id=target_ship.id,
+                        equipment_ids=[e.id for e in equipments]))
+                    found = True
+                    break
+            if not found:
+                self.expectations.append(unavailable)
+        return self

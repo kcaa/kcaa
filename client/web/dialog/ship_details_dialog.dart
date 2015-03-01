@@ -2,6 +2,7 @@ import 'dart:html';
 import 'package:polymer/polymer.dart';
 
 import 'dialog.dart';
+import '../component/deployedequipmentlist.dart';
 import '../model/assistant.dart';
 import '../util.dart';
 
@@ -112,32 +113,29 @@ class ShipDetailsDialog extends KcaaDialog {
     resetEquipmentSelectionMode();
   }
 
-  void selectNewEquipment(Event e, var detail, AnchorElement target) {
-    e.preventDefault();
+  void selectNewEquipment(Event e, DeployedEquipmentEventDetail detail, var _) {
     if (selectedEquipmentRow != null) {
       selectedEquipmentRow.classes.remove("selected");
     }
-    var slot = int.parse(target.dataset["slot"]);
-    if (selectingEquipment && slot == selectedSlot) {
+    if (selectingEquipment && detail.slot == selectedSlot) {
       selectingEquipment = false;
       selectedSlot = null;
       return;
     }
     selectingEquipment = true;
-    selectedSlot = slot;
-    selectedEquipmentRow = target.parent.parent.parent;
+    selectedSlot = detail.slot;
+    selectedEquipmentRow = detail.target.parent.parent.parent;
     selectedEquipmentRow.classes.add("selected");
     expandedEquipmentTypes.clear();
-    var definition = ship.equipments[slot].definition;
+    var definition = ship.equipments[detail.slot].definition;
     expandedEquipmentTypes.add(definition.type);
     selectedDefinitionId = definition.id;
   }
 
-  void clearEquipment(Event e, var detail, ButtonElement target) {
-    var slot = int.parse(target.dataset["slot"]);
+  void clearEquipment(Event e, DeployedEquipmentEventDetail detail, var _) {
     var equipmentDefinitionIds = new List<int>.generate(
         ship.equipments.length, (_) => EquipmentDefinition.ID_KEEP);
-    equipmentDefinitionIds[slot] = EquipmentDefinition.ID_EMPTY;
+    equipmentDefinitionIds[detail.slot] = EquipmentDefinition.ID_EMPTY;
     requestReplaceEquipments(equipmentDefinitionIds);
   }
 

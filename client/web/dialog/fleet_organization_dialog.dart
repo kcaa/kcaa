@@ -23,9 +23,11 @@ class FleetOrganizationDialog extends KcaaDialog {
     if (ship == null) {
       ship = new Ship();
       if (shipId == 0) {
+        ship.id = 0;
         ship.name = "該当なし(省略可)";
         ship.stateClass = "dangerous";
       } else {
+        ship.id = -1;
         ship.name = "該当なし(省略不可)";
         ship.stateClass = "fatal";
       }

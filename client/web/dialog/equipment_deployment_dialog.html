@@ -2,6 +2,8 @@
      It seems it is mandatory that all custom elements sources the same
      polymer.html in terms of the path representation. -->
 <link rel="import" href="../packages/polymer/polymer.html">
+<link rel="import" href="../component/deployedequipmentlist.html">
+<link rel="import" href="../component/shiplist.html">
 <link rel="import" href="../predicate/equipment_predicate.html">
 <link rel="import" href="../predicate/ship_predicate.html">
 <meta charset="utf-8">
@@ -31,7 +33,24 @@
     </div>
     <div class="modal-body">
       <h4>構成予測</h4>
-      <div>TODO</div>
+      <template repeat="{{expectation in expectations | enumerate}}">
+        <h5>構成 {{expectation.index + 1}}</h5>
+        <template if="{{!expectation.value.possible}}">
+          <template if="{{expectation.value.ship.id == -1}}">
+            <div class="errorMessage">適用可能艦船なし</div>
+          </template>
+          <template if="{{expectation.value.ship.id != -1}}">
+            <div class="errorMessage">必須装備欠落</div>
+          </template>
+        </template>
+        <template if="{{expectation.value.possible}}">
+          <kcaa-shiplist ships="{{[expectation.value.ship]}}"></kcaa-shiplist>
+          <kcaa-deployedequipmentlist
+              ship="{{expectation.value.ship}}"
+              equipments="{{expectation.value.equipments}}">
+          </kcaa-deployedequipmentlist>
+        </template>
+      </template>
       <h4>構成設定</h4>
       <template if="{{generalDeployment != null}}">
         <template repeat="{{deployment in generalDeployment.deployments |
@@ -69,9 +88,33 @@
                     </div>
                   </div>
                   <div class="description">
-                    <kcaa-equipment-predicate
-                        predicate="{{req.value.predicate}}">
-                    </kcaa-equipment-predicate>
+                    <div>
+                      <kcaa-equipment-predicate
+                          predicate="{{req.value.predicate}}"
+                          on-predicatechange="{{updateExpectation}}">
+                      </kcaa-equipment-predicate>
+                    </div>
+                    <div>
+                      <kcaa-kselection
+                          kselection="{{req.value.targetSlot}}"
+                          on-selectionchange="{{updateExpectation}}">
+                      </kcaa-kselection>
+                      のスロットに
+                      <kcaa-kselection
+                          kselection="{{req.value.sorter.name}}"
+                          on-selectionchange="{{updateExpectation}}">
+                      </kcaa-kselection>
+                      が
+                      <kcaa-kselection
+                          kselection="{{req.value.sorter.reversed}}"
+                          on-selectionchange="{{updateExpectation}}">
+                      </kcaa-kselection>
+                      <label>
+                        <input type="checkbox" checked="{{req.value.omittable}}"
+                               on-change="{{updateExpectation}}">
+                        装備不可能ならば省略可
+                      </label>
+                    </div>
                   </div>
                 </div>
               </template>

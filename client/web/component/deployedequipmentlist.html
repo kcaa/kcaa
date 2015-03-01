@@ -1,0 +1,84 @@
+<!-- Be sure to use the path starting from the parent path.
+     It seems it is mandatory that all custom elements sources the same
+     polymer.html in terms of the path representation. -->
+<link rel="import" href="../packages/polymer/polymer.html">
+<meta charset="utf-8">
+<polymer-element name="kcaa-deployedequipmentlist"
+                 attributes="ship equipments editable">
+  <template>
+    <link rel="stylesheet" href="../kcaa.css">
+
+    <div class="table">
+      <div class="trow thead">
+        <div class="description">装備</div>
+        <div>火力</div>
+        <div>命中</div>
+        <div>雷装</div>
+        <div>爆装</div>
+        <div>対空</div>
+        <div>対潜</div>
+        <div>回避</div>
+        <div>艦載機</div>
+      </div>
+      <template repeat="{{equipment in equipments | enumerate}}">
+        <template if="{{equipment.value == null}}">
+          <div class="trow">
+            <div class="description">
+              <div class="title">(不明)</div>
+              <div>新参艦装備</div>
+            </div>
+            <div class="numberColumn"></div>
+            <div class="numberColumn"></div>
+            <div class="numberColumn"></div>
+            <div class="numberColumn"></div>
+            <div class="numberColumn"></div>
+            <div class="numberColumn"></div>
+            <div class="numberColumn"></div>
+            <div class="numberColumn"></div>
+          </div>
+        </template>
+        <template if="{{equipment.value != null}}">
+          <template bind="{{equipment.value.definition as definition}}">
+            <div class="trow">
+              <div class="description">
+                <div class="title">
+                  <template if="{{editable}}">
+                    <a href="#"
+                       on-click="{{selectEquipment}}"
+                       data-slot="{{equipment.index}}">
+                      {{definition.name}}
+                    </a>
+                    <template if="{{equipment.value.definition.id != -1}}">
+                      <button class="action"
+                              on-click="{{clearEquipment}}"
+                              data-slot="{{equipment.index}}">
+                        &times;
+                      </button>
+                    </template>
+                  </template>
+                  <template if="{{!editable}}">
+                    {{definition.name}}
+                  </template>
+                </div>
+                <div>{{definition.typeName}}</div>
+              </div>
+              <div class="numberColumn">{{definition.firepower}}</div>
+              <div class="numberColumn">{{definition.fireHit}}</div>
+              <div class="numberColumn">{{definition.thunderstroke}}</div>
+              <div class="numberColumn">{{definition.bombPower}}</div>
+              <div class="numberColumn">{{definition.antiAir}}</div>
+              <div class="numberColumn">{{definition.antiSubmarine}}</div>
+              <div class="numberColumn">{{definition.fireFlee}}</div>
+              <div class="numberColumn">
+                {{ship.aircraftSlotLoaded[equipment.index]}}<span
+                  class="subordinate">/{{
+                    ship.aircraftSlotCapacity[equipment.index]}}</span>
+              </div>
+            </div>
+          </template>
+        </template>
+      </template>
+    </div>
+  </template>
+  <script type="application/dart" src="deployedequipmentlist.dart"></script>
+</polymer-element>
