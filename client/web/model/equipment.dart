@@ -159,7 +159,7 @@ class EquipmentPropertyFilter extends Observable {
 }
 
 // TODO: Merge with ShipTagFilter.
-class EquipmentTagFilter {
+class EquipmentTagFilter extends Observable {
   @observable String tag;
   @observable KSelection operator = new KSelection.from(
       [["0", "を含む"],
