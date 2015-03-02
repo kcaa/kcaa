@@ -192,18 +192,28 @@ class Assistant extends PolymerElement {
   }
 
   void filterShips(Event e, var detail, Element target) {
-    var filterType = target.dataset["filterType"];
-    var filter = Ship.SHIP_FILTER[filterType];
-    model.numFilteredShips = model.ships.where((ship) => filter(ship)).length;
-    model.shipList.filter = filter;
+    // This is a very heavy operation.
+    // To avoid being confused with "selection" operation especially on mobile
+    // devices, this will run on background.
+    runLater(0, () {
+      var filterType = target.dataset["filterType"];
+      var filter = Ship.SHIP_FILTER[filterType];
+      model.numFilteredShips = model.ships.where((ship) => filter(ship)).length;
+      model.shipList.filter = filter;
+    });
   }
 
   void filterShipsByTag(Event e, var detail, Element target) {
-    var tag = target.dataset["tag"];
-    var filter = Ship.makeFilterByTag(tag);
-    model.numFilteredShips = model.ships.where((ship) => filter(ship)).length;
-    model.shipList.filter = filter;
     e.preventDefault();
+    // This is safer than filterShips() because this is triggered by a
+    // non-selectable link (probably). That said, it would be better to be
+    // consistent with filterShips().
+    runLater(0, () {
+      var tag = target.dataset["tag"];
+      var filter = Ship.makeFilterByTag(tag);
+      model.numFilteredShips = model.ships.where((ship) => filter(ship)).length;
+      model.shipList.filter = filter;
+    });
   }
 
   Future reloadAllObjects() {
