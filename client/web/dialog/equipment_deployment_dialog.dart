@@ -185,11 +185,6 @@ class EquipmentDeploymentDialog extends KcaaPaperDialog {
     assistant.savePreferences();
   }
 
-  void updateAndClose() {
-    update();
-    close();
-  }
-
   void duplicate() {
     var deploymentName = generalDeployment.name;
     var trial = 2;
