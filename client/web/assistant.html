@@ -1,6 +1,9 @@
 <link rel="import" href="packages/polymer/polymer.html">
+<link rel="import" href="packages/paper_elements/paper_action_dialog.html">
+<link rel="import" href="packages/paper_elements/paper_button.html">
 <link rel="import" href="component/equipmentlist.html">
 <link rel="import" href="component/shiplist.html">
+<link rel="import" href="dialog/equipment_deployment_dialog.html">
 <link rel="import" href="predicate/kselection.html">
 <meta charset="utf-8">
 <polymer-element name="kcaa-assistant">
@@ -334,8 +337,11 @@
         <div class="board">
           <h3 data-collapsed="true">装備構成</h3>
           <div>
-            <button on-click="{{showModalDialog}}"
-                    data-dialog="kcaaEquipmentDeploymentDialog">新規構成</button>
+            <button on-click="{{showPaperDialog}}">
+              新規構成
+              <kcaa-equipment-deployment-dialog>
+              </kcaa-equipment-deployment-dialog>
+            </button>
           </div>
           <div class="table">
             <div class="trow thead">
@@ -346,11 +352,11 @@
               <div class="trow">
                 <div class="description">
                   <div class="title">
-                    <a href="#"
-                       on-click="{{showModalDialog}}"
-                       data-dialog="kcaaEquipmentDeploymentDialog"
-                       data-deployment-name="{{deployment.name}}">
+                    <a href="#" on-click="{{showPaperDialog}}">
                       {{deployment.name}}
+                      <kcaa-equipment-deployment-dialog
+                          deployment="{{deployment.name}}">
+                      </kcaa-equipment-deployment-dialog>
                     </a>
                   </div>
                   <!-- TODO: Maybe user-edited description? -->

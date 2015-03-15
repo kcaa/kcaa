@@ -435,6 +435,19 @@ class Assistant extends PolymerElement {
     showModalDialogByName(dialogName, target);
   }
 
+  void showPaperDialog(Event e, var detail, Element target) {
+    e.preventDefault();
+    for (var child in target.children) {
+      if (!(child is KcaaPaperDialog)) {
+        continue;
+      }
+      KcaaPaperDialog dialog = child;
+      dialog.setup(model, this);
+      dialog.initialize();
+      dialog.open();
+    }
+  }
+
   void savePreferences() {
     HttpRequest.postFormData(serverSetPreferences.toString(), {
       "prefs": model.preferences.toJSON(),
