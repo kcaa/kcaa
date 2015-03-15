@@ -2,21 +2,20 @@
      It seems it is mandatory that all custom elements sources the same
      polymer.html in terms of the path representation. -->
 <link rel="import" href="../packages/polymer/polymer.html">
-<link rel="import" href="../packages/paper_elements/paper_action_dialog.html">
-<link rel="import" href="../packages/paper_elements/paper_button.html">
 <link rel="import" href="../component/deployedequipmentlist.html">
 <link rel="import" href="../component/shiplist.html">
 <link rel="import" href="../predicate/equipment_predicate.html">
 <link rel="import" href="../predicate/ship_predicate.html">
 <meta charset="utf-8">
-<polymer-element name="kcaa-equipment-deployment-dialog"
-                 attributes="deployment">
+<polymer-element name="kcaa-equipment-deployment-dialog">
   <template>
     <!-- TODO: Reduce the number of columns. -->
-    <paper-action-dialog backdrop>
-      <link rel="stylesheet" href="../kcaa.css">
-      <link rel="stylesheet" href="dialog.css" shim-shadowdom>
-      <h3>
+    <link rel="stylesheet" href="packages/bootjack/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../kcaa.css">
+    <link rel="stylesheet" href="dialog.css">
+    <div class="modal-header">
+      <button class="close" on-click="{{close}}">&times;</button>
+      <h3 class="modal-title">
         装備構成 -
         <template if="{{editingDeploymentName}}">
           <input type="text" value="{{newDeploymentName}}">
@@ -30,7 +29,9 @@
           <button on-click="{{editDeploymentName}}"
                   class="action">&#9998;</button>
         </template>
-      </h3>
+        </h3>
+    </div>
+    <div class="modal-body">
       <h4>構成予測</h4>
       <template repeat="{{expectation in expectations | enumerate}}">
         <h5>構成 {{expectation.index + 1}}</h5>
@@ -137,6 +138,9 @@
         </template>
         <button class="action" on-click="{{addNewDeployment}}">+</button>
       </template>
+      <div>
+        <button on-click="{{update}}">更新</button>
+      </div>
       <h4>装備構成操作</h4>
       <div>
         <button on-click="{{duplicate}}">複製</button>
@@ -147,13 +151,10 @@
         <button on-click="{{delete}}">削除</button>
       </div>
       <div class="errorMessage">{{errorMessage}}</div>
-
-      <paper-button dismissive>キャンセル</paper-button>
-      <paper-button affirmative on-click="{{update}}">更新</paper-button>
-      <paper-button affirmative on-click="{{updateAndClose}}">
-        更新して閉じる
-      </paper-button>
-    </paper-action-dialog>
+    </div>
+    <div class="modal-footer">
+      <button class="cancel" on-click="{{close}}">Cancel</button>
+    </div>
   </template>
   <script type="application/dart" src="equipment_deployment_dialog.dart"></script>
 </polymer-element>

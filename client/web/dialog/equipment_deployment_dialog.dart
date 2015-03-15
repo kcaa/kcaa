@@ -18,9 +18,7 @@ class EquipmentDeploymentExpectation extends Observable {
 }
 
 @CustomTag('kcaa-equipment-deployment-dialog')
-class EquipmentDeploymentDialog extends KcaaPaperDialog {
-  @published String deployment;
-
+class EquipmentDeploymentDialog extends KcaaDialog {
   @observable EquipmentGeneralDeployment generalDeployment;
   int deploymentIndexInPrefs;
   @observable final List<EquipmentDeploymentExpectation> expectations =
@@ -32,8 +30,6 @@ class EquipmentDeploymentDialog extends KcaaPaperDialog {
   @observable String errorMessage;
 
   EquipmentDeploymentDialog.created() : super.created();
-  factory EquipmentDeploymentDialog() =>
-      new Element.tag("kcaa-equipment-deployment-dialog");
 
   // TODO: Merge with FleetOrganizationDialog.
   Ship getShip(int shipId) {
@@ -68,10 +64,11 @@ class EquipmentDeploymentDialog extends KcaaPaperDialog {
   }
 
   @override
-  void initialize() {
+  void show(Element target) {
     expectations.clear();
-    if (deployment != null) {
-      initFromName(deployment);
+    var deploymentName = target.dataset["deploymentName"];
+    if (deploymentName != null) {
+      initFromName(deploymentName);
     } else {
       initFromScratch();
     }
@@ -160,9 +157,6 @@ class EquipmentDeploymentDialog extends KcaaPaperDialog {
               getShip(expectation["ship_id"]),
               (expectation["equipment_ids"] as Iterable).map((equipmentId) =>
                   getEquipment(equipmentId))));
-          // Not sure if this is the best solution, but resizeHandler() will
-          // recompute the dialog size.
-          dialog.resizeHandler();
         }
       });
     } catch (FormatException) {
@@ -181,11 +175,6 @@ class EquipmentDeploymentDialog extends KcaaPaperDialog {
       model.preferences.equipmentPrefs.deployments.add(generalDeployment);
     }
     assistant.savePreferences();
-  }
-
-  void updateAndClose() {
-    update();
-    close();
   }
 
   void duplicate() {
