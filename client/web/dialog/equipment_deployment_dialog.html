@@ -2,8 +2,10 @@
      It seems it is mandatory that all custom elements sources the same
      polymer.html in terms of the path representation. -->
 <link rel="import" href="../packages/polymer/polymer.html">
+<link rel="import" href="../packages/core_elements/core_pages.html">
 <link rel="import" href="../packages/paper_elements/paper_action_dialog.html">
 <link rel="import" href="../packages/paper_elements/paper_button.html">
+<link rel="import" href="../packages/paper_elements/paper_tabs.html">
 <link rel="import" href="../component/deployedequipmentlist.html">
 <link rel="import" href="../component/shiplist.html">
 <link rel="import" href="../predicate/equipment_predicate.html">
@@ -15,7 +17,7 @@
     <!-- TODO: Reduce the number of columns. -->
     <paper-action-dialog backdrop>
       <link rel="stylesheet" href="../kcaa.css">
-      <link rel="stylesheet" href="dialog.css" shim-shadowdom>
+      <link rel="stylesheet" href="dialog.css">
       <h3>
         装備構成 -
         <template if="{{editingDeploymentName}}">
@@ -31,121 +33,134 @@
                   class="action">&#9998;</button>
         </template>
       </h3>
-      <h4>構成予測</h4>
-      <template repeat="{{expectation in expectations | enumerate}}">
-        <h5>構成 {{expectation.index + 1}}</h5>
-        <template if="{{!expectation.value.possible}}">
-          <template if="{{expectation.value.ship.id == -1}}">
-            <div class="errorMessage">適用可能艦船なし</div>
-          </template>
-          <template if="{{expectation.value.ship.id != -1}}">
-            <div class="errorMessage">必須装備欠落</div>
-          </template>
-        </template>
-        <template if="{{expectation.value.possible}}">
-          <kcaa-shiplist ships="{{[expectation.value.ship]}}" fleet>
-          </kcaa-shiplist>
-          <kcaa-deployedequipmentlist
-              ship="{{expectation.value.ship}}"
-              equipments="{{expectation.value.equipments}}">
-          </kcaa-deployedequipmentlist>
-        </template>
-      </template>
-      <h4>構成設定</h4>
-      <template if="{{generalDeployment != null}}">
-        <template repeat="{{deployment in generalDeployment.deployments |
-                            enumerate}}">
-          <fieldset>
-            <legend>
-              構成 {{deployment.index + 1}}
-              <button class="action"
-                      on-click="{{deleteDeployment}}"
-                      data-deployment-index="{{deployment.index}}">
-                &times;
-              </button>
-            </legend>
-            <div>艦船フィルタ</div>
-            <kcaa-ship-predicate predicate="{{deployment.value.shipPredicate}}"
-                                 on-predicatechange="{{updateExpectation}}">
-            </kcaa-ship-predicate>
-            <div class="table">
-              <div class="trow thead">
-                <div>決定順</div>
-                <div class="description">条件</div>
-              </div>
-              <template repeat="{{req in deployment.value.requirements |
-                                  enumerate}}">
-                <div class="trow">
-                  <div class="numberColumn">
-                    <div>
-                      {{req.index + 1}}
-                      <button class="action"
-                              on-click="{{deleteRequirement}}"
-                              data-deployment-index="{{deployment.index}}"
-                              data-requirement-index="{{req.index}}">
-                        &times;
-                      </button>
-                    </div>
-                  </div>
-                  <div class="description">
-                    <div>
-                      <kcaa-equipment-predicate
-                          predicate="{{req.value.predicate}}"
-                          on-predicatechange="{{updateExpectation}}">
-                      </kcaa-equipment-predicate>
-                    </div>
-                    <div>
-                      <kcaa-kselection
-                          kselection="{{req.value.targetSlot}}"
-                          on-selectionchange="{{updateExpectation}}">
-                      </kcaa-kselection>
-                      のスロットに
-                      <kcaa-kselection
-                          kselection="{{req.value.sorter.name}}"
-                          on-selectionchange="{{updateExpectation}}">
-                      </kcaa-kselection>
-                      が
-                      <kcaa-kselection
-                          kselection="{{req.value.sorter.reversed}}"
-                          on-selectionchange="{{updateExpectation}}">
-                      </kcaa-kselection>
-                      <label>
-                        <input type="checkbox" checked="{{req.value.omittable}}"
-                               on-change="{{updateExpectation}}">
-                        装備不可能ならば省略可
-                      </label>
-                    </div>
-                  </div>
-                </div>
+      <paper-tabs selected="{{tabPage}}">
+        <paper-tab>構成予測</paper-tab>
+        <paper-tab>構成設定</paper-tab>
+        <paper-tab>その他の操作</paper-tab>
+      </paper-tabs>
+      <core-pages selected="{{tabPage}}">
+        <div>
+          <h4>構成予測</h4>
+          <template repeat="{{expectation in expectations | enumerate}}">
+            <h5>構成 {{expectation.index + 1}}</h5>
+            <template if="{{!expectation.value.possible}}">
+              <template if="{{expectation.value.ship.id == -1}}">
+                <div class="errorMessage">適用可能艦船なし</div>
               </template>
-              <div class="trow">
-                <div class="numberColumn">
-                  {{deployment.value.requirements.length + 1}}
-                </div>
-                <div class="description">
-                  <div>
-                    <button class="action"
-                            on-click="{{addNewRequirement}}"
-                            data-deployment-index="{{deployment.index}}">
-                      +
-                    </button>
+              <template if="{{expectation.value.ship.id != -1}}">
+                <div class="errorMessage">必須装備欠落</div>
+              </template>
+            </template>
+            <template if="{{expectation.value.possible}}">
+              <kcaa-shiplist ships="{{[expectation.value.ship]}}" fleet>
+              </kcaa-shiplist>
+              <kcaa-deployedequipmentlist
+                  ship="{{expectation.value.ship}}"
+                  equipments="{{expectation.value.equipments}}">
+              </kcaa-deployedequipmentlist>
+            </template>
+          </template>
+        </div>
+        <div>
+          <h4>構成設定</h4>
+          <template if="{{generalDeployment != null}}">
+            <template repeat="{{deployment in generalDeployment.deployments |
+                                enumerate}}">
+              <fieldset>
+                <legend>
+                  構成 {{deployment.index + 1}}
+                  <button class="action"
+                          on-click="{{deleteDeployment}}"
+                          data-deployment-index="{{deployment.index}}">
+                    &times;
+                  </button>
+                </legend>
+                <div>艦船フィルタ</div>
+                <kcaa-ship-predicate predicate="{{deployment.value.shipPredicate}}"
+                                     on-predicatechange="{{updateExpectation}}">
+                </kcaa-ship-predicate>
+                <div class="table">
+                  <div class="trow thead">
+                    <div>決定順</div>
+                    <div class="description">条件</div>
+                  </div>
+                  <template repeat="{{req in deployment.value.requirements |
+                                      enumerate}}">
+                    <div class="trow">
+                      <div class="numberColumn">
+                        <div>
+                          {{req.index + 1}}
+                          <button class="action"
+                                  on-click="{{deleteRequirement}}"
+                                  data-deployment-index="{{deployment.index}}"
+                                  data-requirement-index="{{req.index}}">
+                            &times;
+                          </button>
+                        </div>
+                      </div>
+                      <div class="description">
+                        <div>
+                          <kcaa-equipment-predicate
+                              predicate="{{req.value.predicate}}"
+                              on-predicatechange="{{updateExpectation}}">
+                          </kcaa-equipment-predicate>
+                        </div>
+                        <div>
+                          <kcaa-kselection
+                              kselection="{{req.value.targetSlot}}"
+                              on-selectionchange="{{updateExpectation}}">
+                          </kcaa-kselection>
+                          のスロットに
+                          <kcaa-kselection
+                              kselection="{{req.value.sorter.name}}"
+                              on-selectionchange="{{updateExpectation}}">
+                          </kcaa-kselection>
+                          が
+                          <kcaa-kselection
+                              kselection="{{req.value.sorter.reversed}}"
+                              on-selectionchange="{{updateExpectation}}">
+                          </kcaa-kselection>
+                          <label>
+                            <input type="checkbox" checked="{{req.value.omittable}}"
+                                   on-change="{{updateExpectation}}">
+                            装備不可能ならば省略可
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                  </template>
+                  <div class="trow">
+                    <div class="numberColumn">
+                      {{deployment.value.requirements.length + 1}}
+                    </div>
+                    <div class="description">
+                      <div>
+                        <button class="action"
+                                on-click="{{addNewRequirement}}"
+                                data-deployment-index="{{deployment.index}}">
+                          +
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          </fieldset>
-        </template>
-        <button class="action" on-click="{{addNewDeployment}}">+</button>
-      </template>
-      <h4>装備構成操作</h4>
-      <div>
-        <button on-click="{{duplicate}}">複製</button>
-      </div>
-      <div>
-        <input type="text" value="{{deploymentNameToDelete}}"
-               id="deploymentNameToDelete">を本当に
-        <button on-click="{{delete}}">削除</button>
-      </div>
+              </fieldset>
+            </template>
+            <button class="action" on-click="{{addNewDeployment}}">+</button>
+          </template>
+        </div>
+        <div>
+          <h4>装備構成操作</h4>
+          <div>
+            <button on-click="{{duplicate}}">複製</button>
+          </div>
+          <div>
+            <input type="text" value="{{deploymentNameToDelete}}"
+                   id="deploymentNameToDelete">を本当に
+            <button on-click="{{delete}}">削除</button>
+          </div>
+        </div>
+      </core-pages>
       <div class="errorMessage">{{errorMessage}}</div>
 
       <paper-button dismissive>キャンセル</paper-button>
