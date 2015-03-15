@@ -362,6 +362,8 @@ class KCSAPIHandler(object):
             raise ValueError(
                 'Command should have the type and args: {}'.format(command))
         command_type, command_args = command
+        self._logger.debug('KCSAPI request: {}({})'.format(
+            command_type, command_args))
         requestable = self.requestables.get(command_type)
         if requestable:
             try:
