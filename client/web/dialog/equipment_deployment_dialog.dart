@@ -26,8 +26,6 @@ class EquipmentDeploymentDialog extends KcaaPaperDialog {
   @observable final List<EquipmentDeploymentExpectation> expectations =
       new ObservableList<EquipmentDeploymentExpectation>();
 
-  @observable int tabPage = 0;
-
   @observable bool editingDeploymentName;
   @observable String newDeploymentName;
   @observable String deploymentNameToDelete;

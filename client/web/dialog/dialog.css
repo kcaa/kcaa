@@ -5,7 +5,6 @@ paper-dialog, paper-action-dialog {
 paper-dialog::shadow #scroller,
 paper-action-dialog::shadow #scroller {
   width: 635px;
-  min-height: 600px;
 }
 
 paper-button[affirmative] {
@@ -23,14 +22,13 @@ paper-button[dismissive] {
   font-weight: bold;
 }
 
-.modal-body > *, paper-dialog > div, paper-action-dialog > div,
-core-pages > div > div {
+.modal-body > *, paper-dialog > *, paper-action-dialog > * {
   margin-top: 5px;
 }
-.modal-body > h4, h4 {
+.modal-body > h4, paper-dialog > h4, paper-action-dialog > h4 {
   margin-top: 20px;
 }
-.modal-body > h5, h5 {
+.modal-body > h5, paper-dialog > h5, paper-action-dialog > h5 {
   margin-top: 10px;
 }
 
