@@ -454,16 +454,6 @@ class Assistant extends PolymerElement {
     });
   }
 
-  void saveFleet(MouseEvent e, var detail, Element target) {
-    var fleetId = target.dataset["fleetId"];
-    // TODO: Consider passing dataset map rather than Element to
-    // KcaaDialog.show().
-    Element dummy = new DivElement();
-    dummy.dataset["dialog"] = "kcaaFleetOrganizationDialog";
-    dummy.dataset["fleetId"] = fleetId;
-    showModalDialog(new MouseEvent(""), null, dummy);
-  }
-
   void loadFleet(MouseEvent e, var detail, Element target) {
     var fleetName = target.dataset["name"];
     Uri request = serverManipulate.resolveUri(

@@ -2,6 +2,10 @@
      It seems it is mandatory that all custom elements sources the same
      polymer.html in terms of the path representation. -->
 <link rel="import" href="../packages/polymer/polymer.html">
+<link rel="import" href="../packages/core_elements/core_pages.html">
+<link rel="import" href="../packages/paper_elements/paper_action_dialog.html">
+<link rel="import" href="../packages/paper_elements/paper_button.html">
+<link rel="import" href="../packages/paper_elements/paper_tabs.html">
 <link rel="import" href="../component/shiplist.html">
 <link rel="import" href="../predicate/ship_predicate.html">
 <link rel="import" href="../predicate/kselection.html">
@@ -9,12 +13,10 @@
 <polymer-element name="kcaa-fleet-organization-dialog">
   <template>
     <!-- TODO: Reduce the number of columns. -->
-    <link rel="stylesheet" href="packages/bootjack/css/bootstrap.min.css">
-    <link rel="stylesheet" href="../kcaa.css">
-    <link rel="stylesheet" href="dialog.css">
-    <div class="modal-header">
-      <button class="close" on-click="{{close}}">&times;</button>
-      <h3 class="modal-title">
+    <paper-action-dialog backdrop>
+      <link rel="stylesheet" href="../kcaa.css">
+      <link rel="stylesheet" href="dialog.css">
+      <h3>
         艦隊編成 -
         <template if="{{editingFleetName}}">
           <input type="text" value="{{newFleetName}}">
@@ -25,92 +27,103 @@
           <template if="{{fleet != null}}">{{fleet.name}}</template>
           <button on-click="{{editFleetName}}" class="action">&#9998;</button>
         </template>
-        </h3>
-    </div>
-    <div class="modal-body">
-      <h4>再現</h4>
-      <div>
-        <template repeat="{{fleet in model.fleets}}">
-          <button on-click="{{loadFleet}}"
-                  data-fleet-id="{{fleet.id}}"
-                  disabled?="{{fleet.undertakingMission != null}}">
-            第{{fleet.id}}艦隊
-          </button>
-        </template>
-      </div>
-      <h4>編成予測</h4>
-      <kcaa-shiplist ships="{{ships}}" fleet></kcaa-shiplist>
-      <h4>編成設定</h4>
-      <template if="{{fleet != null}}">
+      </h3>
+      <paper-tabs selected="{{tabPage}}">
+        <paper-tab>編成予測</paper-tab>
+        <paper-tab>編成設定</paper-tab>
+        <paper-tab>その他の操作</paper-tab>
+      </paper-tabs>
+      <core-pages selected="{{tabPage}}">
         <div>
-          必須条件:
-          <kcaa-ship-predicate predicate="{{fleet.globalPredicate}}"
-                               on-predicatechange="{{updateExpectation}}">
-          </kcaa-ship-predicate>
-        </div>
-        <div class="table">
-          <div class="trow thead">
-            <div>決定順</div>
-            <div>並び順</div>
-            <div class="description">条件</div>
+          <h4>再現</h4>
+          <div>
+            <template repeat="{{fleet in model.fleets}}">
+              <button on-click="{{loadFleet}}"
+                      data-fleet-id="{{fleet.id}}"
+                      disabled?="{{fleet.undertakingMission != null}}">
+                第{{fleet.id}}艦隊
+              </button>
+            </template>
           </div>
-          <template repeat="{{req in fleet.shipRequirements | enumerate}}">
-            <div class="trow">
-              <div class="numberColumn">{{req.index + 1}}</div>
-              <div class="numberColumn">{{req.index + 1}}</div>
-              <div class="description">
-                <kcaa-ship-predicate predicate="{{req.value.predicate}}"
-                                     on-predicatechange="{{updateExpectation}}">
-                </kcaa-ship-predicate>
-                <div>
-                  <label>
-                    <input type="checkbox"
-                           checked="{{req.value.equipmentEnabled}}"
-                           on-change="{{updateExpectation}}">
-                    装備:
-                  </label>
-                  <kcaa-kselection
-                      kselection="{{req.value.equipmentDeployment}}"
-                      on-selectionchange="{{updateExpectation}}"
-                      disabled="{{!req.value.equipmentEnabled}}">
-                  </kcaa-kselection>
-                </div>
-                <div>
-                  <kcaa-kselection kselection="{{req.value.sorter.name}}"
-                                   on-selectionchange="{{updateExpectation}}">
-                  </kcaa-kselection>
-                  が
-                  <kcaa-kselection kselection="{{req.value.sorter.reversed}}"
-                                   on-selectionchange="{{updateExpectation}}">
-                  </kcaa-kselection>
-                  <label>
-                    <input type="checkbox" checked="{{req.value.omittable}}"
-                           on-change="{{updateExpectation}}">
-                    見つからなければ省略可
-                  </label>
-                </div>
+          <h4>編成予測</h4>
+          <!-- This template-if is a hack to notify kcaa-shiplist. -->
+          <template if="{{ships.length > 0}}">
+            <kcaa-shiplist ships="{{ships}}" fleet></kcaa-shiplist>
+          </template>
+        </div>
+        <div>
+          <h4>編成設定</h4>
+          <template if="{{fleet != null}}">
+            <div>
+              必須条件:
+              <kcaa-ship-predicate predicate="{{fleet.globalPredicate}}"
+                                   on-predicatechange="{{updateExpectation}}">
+              </kcaa-ship-predicate>
+            </div>
+            <div class="table">
+              <div class="trow thead">
+                <div>決定順</div>
+                <div>並び順</div>
+                <div class="description">条件</div>
               </div>
+              <template repeat="{{req in fleet.shipRequirements | enumerate}}">
+                <div class="trow">
+                  <div class="numberColumn">{{req.index + 1}}</div>
+                  <div class="numberColumn">{{req.index + 1}}</div>
+                  <div class="description">
+                    <kcaa-ship-predicate predicate="{{req.value.predicate}}"
+                                         on-predicatechange="{{updateExpectation}}">
+                    </kcaa-ship-predicate>
+                    <div>
+                      <label>
+                        <input type="checkbox"
+                               checked="{{req.value.equipmentEnabled}}"
+                               on-change="{{updateExpectation}}">
+                        装備:
+                      </label>
+                      <kcaa-kselection
+                          kselection="{{req.value.equipmentDeployment}}"
+                          on-selectionchange="{{updateExpectation}}"
+                          disabled="{{!req.value.equipmentEnabled}}">
+                      </kcaa-kselection>
+                    </div>
+                    <div>
+                      <kcaa-kselection kselection="{{req.value.sorter.name}}"
+                                       on-selectionchange="{{updateExpectation}}">
+                      </kcaa-kselection>
+                      が
+                      <kcaa-kselection kselection="{{req.value.sorter.reversed}}"
+                                       on-selectionchange="{{updateExpectation}}">
+                      </kcaa-kselection>
+                      <label>
+                        <input type="checkbox" checked="{{req.value.omittable}}"
+                               on-change="{{updateExpectation}}">
+                        見つからなければ省略可
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </template>
             </div>
           </template>
         </div>
-      </template>
-      <div>
-        <button on-click="{{update}}">更新</button>
-      </div>
-      <h4>艦隊編成操作</h4>
-      <div>
-        <button on-click="{{duplicate}}">複製</button>
-      </div>
-      <div>
-        <input type="text" value="{{fleetNameToDelete}}"
-               id="fleetNameToDelete">を本当に
-        <button on-click="{{delete}}">削除</button>
-      </div>
+        <div>
+          <h4>艦隊編成操作</h4>
+          <div>
+            <button on-click="{{duplicate}}">複製</button>
+          </div>
+          <div>
+            <input type="text" value="{{fleetNameToDelete}}"
+                   id="fleetNameToDelete">を本当に
+            <button on-click="{{delete}}">削除</button>
+          </div>
+        </div>
+      </core-pages>
       <div class="errorMessage">{{errorMessage}}</div>
-    </div>
-    <div class="modal-footer">
-      <button class="cancel" on-click="{{close}}">Cancel</button>
-    </div>
+
+      <paper-button dismissive>キャンセル</paper-button>
+      <paper-button affirmative on-click="{{update}}">更新</paper-button>
+    </paper-action-dialog>
   </template>
   <script type="application/dart" src="fleet_organization_dialog.dart"></script>
 </polymer-element>

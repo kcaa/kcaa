@@ -223,33 +223,6 @@ class FleetDeployment(jsonobject.JSONSerializableObject):
                         eqiupment_prefs)])
 
 
-class SavedFleetDeploymentShipIdList(ship.ShipIdList):
-
-    @property
-    def required_objects(self):
-        return ['ShipDefinitionList', 'ShipList', 'EquipmentDefinitionList',
-                'EquipmentList', 'Preferences']
-
-    def request(self, fleet_name, ship_definition_list, ship_list,
-                equipment_definition_list, equipment_list, preferences):
-        unicode_fleet_name = fleet_name.decode('utf8')
-        matching_fleets = [sf for sf in preferences.fleet_prefs.saved_fleets
-                           if sf.name == unicode_fleet_name]
-        if not matching_fleets:
-            logger.error('Saved fleet {} is not found.'.format(
-                fleet_name))
-            return None
-        fleet_deployment = matching_fleets[0]
-        ship_pool = ship_list.ships.values()
-        # TODO: Use LRU equipments as well.
-        equipment_pool = equipment_list.get_unequipped_items(ship_list)
-        entries = fleet_deployment.get_ships(
-            ship_pool, equipment_pool, ship_definition_list, equipment_list,
-            equipment_definition_list, preferences.equipment_prefs)
-        self.ship_ids = [e[0].id for e in entries]
-        return self
-
-
 class FleetDeploymentShipIdList(ship.ShipIdList):
 
     @property

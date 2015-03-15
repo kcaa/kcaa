@@ -4,12 +4,18 @@ import 'package:polymer/polymer.dart';
 
 import 'dialog.dart';
 import '../model/assistant.dart';
+import '../util.dart';
 
 @CustomTag('kcaa-fleet-organization-dialog')
-class FleetOrganizationDialog extends KcaaDialog {
+class FleetOrganizationDialog extends KcaaPaperDialog {
+  @published String fleetname;
+  @published int fleetid;
+
   @observable FleetDeployment fleet;
   int fleetIndexInPrefs;
   @observable final List<Ship> ships = new ObservableList<Ship>();
+
+  @observable int tabPage = 0;
 
   @observable bool editingFleetName;
   @observable String newFleetName;
@@ -36,17 +42,16 @@ class FleetOrganizationDialog extends KcaaDialog {
   }
 
   @override
-  void show(Element target) {
+  void initialize() {
     ships.clear();
-    var fleetName = target.dataset["fleetName"];
-    if (fleetName != null) {
-      initFromFleetName(fleetName);
+    if (fleetname != null) {
+      initFromFleetName(fleetname);
     } else {
-      var fleetId = int.parse(target.dataset["fleetId"]);
-      initFromFleetId(fleetId);
+      initFromFleetId(fleetid);
     }
     updateEquipmentDeployments();
 
+    tabPage = 0;
     editingFleetName = false;
     fleetNameToDelete = "";
     errorMessage = null;
@@ -77,13 +82,7 @@ class FleetOrganizationDialog extends KcaaDialog {
     fleetIndexInPrefs =
         model.preferences.fleetPrefs.savedFleets.indexOf(fleetInPrefs);
     fleet = new FleetDeployment.fromJSON(fleetInPrefs.toJSONEncodable());
-    // TODO: Consider just calling updateExpectation().
-    assistant.requestObject("SavedFleetDeploymentShipIdList",
-        {"fleet_name": fleetName}).then((Map<String, dynamic> data) {
-      for (var shipId in data["ship_ids"]) {
-        ships.add(getShip(shipId));
-      }
-    });
+    updateExpectationSafe();
   }
 
   void initFromFleetId(int fleetId) {
@@ -98,7 +97,7 @@ class FleetOrganizationDialog extends KcaaDialog {
     fleet = new FleetDeployment.fromShips(fleetName, fleetToSave.ships);
     fleetIndexInPrefs = null;
     var dummy = new DivElement();
-    updateExpectation(new Event(""), null, dummy);
+    updateExpectationSafe();
   }
 
   void updateEquipmentDeployments() {
@@ -160,6 +159,10 @@ class FleetOrganizationDialog extends KcaaDialog {
     close();
   }
 
+  void updateExpectationSafe() {
+    updateExpectation(null, null, new DivElement());
+  }
+
   void updateExpectation(Event e, var detail, Element target) {
     try {
       var fleetDeployment = JSON.encode(fleet.toJSONEncodable());
@@ -171,6 +174,7 @@ class FleetOrganizationDialog extends KcaaDialog {
         for (var shipId in data["ship_ids"]) {
           ships.add(getShip(shipId));
         }
+        dialog.resizeHandler();
       });
     } catch (FormatException) {
       target.classes.add("invalid");
