@@ -1,0 +1,29 @@
+html /deep/ paper-dialog, html /deep/ paper-action-dialog {
+  line-height: 18px;
+}
+html /deep/ paper-dialog::shadow #scroller,
+html /deep/ paper-action-dialog::shadow #scroller {
+  width: 635px;
+  min-height: 600px;
+}
+
+html /deep/ paper-button[affirmative] {
+  background: linear-gradient(
+    hsl(240, 40%, 40%),
+    hsl(210, 90%, 20%));
+  color: white;
+  font-weight: bold;
+}
+html /deep/ paper-button[dismissive] {
+  background: linear-gradient(
+    hsl(240, 10%, 50%),
+    hsl(210, 20%, 30%));
+  color: hsl(0, 0%, 90%);
+  font-weight: bold;
+}
+
+html /deep/ paper-dialog > div,
+html /deep/ paper-action-dialog > div,
+html /deep/ core-pages > div > div {
+  margin-top: 5px;
+}

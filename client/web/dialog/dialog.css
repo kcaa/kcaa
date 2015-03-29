@@ -1,30 +1,4 @@
-/* Dialog size */
-paper-dialog, paper-action-dialog {
-  line-height: 18px;
-}
-paper-dialog::shadow #scroller,
-paper-action-dialog::shadow #scroller {
-  width: 635px;
-  min-height: 600px;
-}
-
-paper-button[affirmative] {
-  background: linear-gradient(
-    hsl(240, 40%, 40%),
-    hsl(210, 90%, 20%));
-  color: white;
-  font-weight: bold;
-}
-paper-button[dismissive] {
-  background: linear-gradient(
-    hsl(240, 10%, 50%),
-    hsl(210, 20%, 30%));
-  color: hsl(0, 0%, 90%);
-  font-weight: bold;
-}
-
-.modal-body > *, paper-dialog > div, paper-action-dialog > div,
-core-pages > div > div {
+.modal-body > * {
   margin-top: 5px;
 }
 .modal-body > h4, h4 {
