@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import logging
+import time
 
 import jsonobject
 import model
@@ -322,7 +323,7 @@ class EquipmentList(model.KCAAObject):
         elif api_name == '/api_req_kaisou/lock':
             self.items[request.api_slotitem_id].locked = (
                 response.api_data.api_locked == 1)
-            # For the record, here is a good place to output eqiupment item ID
+            # For the record, here is a good place to output equipment item ID
             # to check how equipment items are sorted.
             # logger.debug(request.api_slotitem_id)
         elif api_name == '/api_req_kaisou/slotset':
@@ -469,7 +470,7 @@ class EquipmentFilter(jsonobject.JSONSerializableObject):
 
 
 class EquipmentPredicate(jsonobject.JSONSerializableObject):
-    """Predicate for eqiupment selection.
+    """Predicate for equipment selection.
 
     An equipment predicate is a notation to determine if a certain condition is
     met with the given equipment.
@@ -589,7 +590,7 @@ class EquipmentRequirement(jsonobject.JSONSerializableObject):
     omittable = jsonobject.JSONProperty('omittable', False, value_type=bool)
     """Omittable.
 
-    An omittable eqiupment can be omitted if a ship doesn't have a slot
+    An omittable equipment can be omitted if a ship doesn't have a slot
     capacity to fit or no equipment is available for the given predicate."""
 
     def choose_slot_id(self, equipments, aircraft_slot_capacity):
@@ -715,7 +716,7 @@ class EquipmentDeploymentExpectation(jsonobject.JSONSerializableObject):
     SHIP_ID_UNAVAILABLE = -1
     equipment_ids = jsonobject.JSONProperty('equipment_ids', value_type=list,
                                             element_type=int)
-    """IDs of eqiupment.
+    """IDs of equipment.
 
     0 means an omittable equipment. -1 means it was required but nothing is
     available for the slot. This list is guaranteed to have the same length as
@@ -772,3 +773,36 @@ class EquipmentGeneralDeploymentExpectation(model.KCAARequestableObject):
             if not found:
                 self.expectations.append(unavailable)
         return self
+
+
+class RecentlyUsedEquipments(model.KCAAState):
+
+    last_used = jsonobject.JSONProperty('last_used', {}, value_type=dict,
+                                        element_type=long)
+    """Last used time in milliseconds from UNIX epoch, keyed by item ID."""
+
+    @property
+    def required_objects(self):
+        return ['ShipList', 'FleetList', 'EquipmentList']
+
+    def update(self, api_names, ship_list, fleet_list, equipment_list):
+        if '/api_req_map/start' in api_names:
+            self.update_last_used(ship_list, fleet_list)
+        if ('/api_req_kousyou/destroyitem2' in api_names or
+                '/api_req_kousyou/destroyship' in api_names):
+            self.remove_stale_records(equipment_list)
+
+    def update_last_used(self, ship_list, fleet_list):
+        ships = [ship_list.ships[str(ship_id)] for ship_id in
+                 fleet_list.fleets[0].ship_ids]
+        if fleet_list.combined:
+            ships.extend([ship_list.ships[str(ship_id)] for ship_id in
+                          fleet_list.fleets[1].ship_ids])
+        now = long(1000 * time.time())
+        for s in ships:
+            for e_id in s.equipment_ids:
+                self.last_used[str(e_id)] = now
+
+    def remove_stale_records(self, equipment_list):
+        self.last_used = {k: v for k, v in self.last_used.iteritems() if
+                          k in equipment_list.items}

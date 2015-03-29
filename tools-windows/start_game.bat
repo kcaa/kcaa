@@ -26,6 +26,7 @@ set SERVERBIN=%cd%\..\server\server_main.py
   --phantomjs_binary=%PHANTOMJSBIN% ^
   --preferences=%PREFERENCES% ^
   --journal_basedir=%JOURNAL_BASEDIR% ^
+  --state_basedir=%STATE_BASEDIR% ^
   --credentials=%CREDENTIALS% ^
   --debug=%DEBUG% ^
   --log_file=%LOGFILE% ^

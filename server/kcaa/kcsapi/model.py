@@ -273,6 +273,29 @@ class KCAAJournalObject(KCAARequestableObject):
         self._last_generations.update(updates)
 
 
+class KCAAState(jsonobject.JSONSerializableObject):
+
+    def __init__(self, *args, **kwargs):
+        super(KCAAState, self).__init__(*args, **kwargs)
+        self._updated = False
+
+    @property
+    def required_objects(self):
+        return []
+
+    def udpate(self, api_names, **kwargs):
+        raise NotImplementedError()
+
+    def _update(self, api_names, objects):
+        for name in self.required_objects:
+            if name not in objects:
+                return
+        self._updated = True
+        object_args = {translate_object_name(name): objects[name] for name in
+                       self.required_objects}
+        self.update(api_names, **object_args)
+
+
 def translate_object_name(object_name):
     result_name = ''
     for c in object_name:

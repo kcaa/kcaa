@@ -97,7 +97,7 @@ def control(args, to_exit):
         pk.start()
         pc.start()
         kcsapi_handler = kcsapi_util.KCSAPIHandler(
-            har_manager, args.journal_basedir, args.debug)
+            har_manager, args.journal_basedir, args.state_basedir, args.debug)
         kcsapi_handler.update_preferences(preferences)
         manipulator_manager = manipulator_util.ManipulatorManager(
             browser_conn, kcsapi_handler.objects, preferences, time.time())
@@ -130,11 +130,13 @@ def control(args, to_exit):
                     browser_conn.send((browser.COMMAND_CLICK, command_args))
                 elif command_type == COMMAND_RELOAD_KCSAPI:
                     kcsapi_handler.save_journals(args.journal_basedir)
+                    kcsapi_handler.save_states(args.state_basedir)
                     serialized_objects = kcsapi_handler.serialize_objects()
                     reload(kcsapi_util)
                     kcsapi_util.reload_modules()
                     kcsapi_handler = kcsapi_util.KCSAPIHandler(
-                        har_manager, args.journal_basedir, args.debug)
+                        har_manager, args.journal_basedir, args.state_basedir,
+                        args.debug)
                     kcsapi_handler.deserialize_objects(serialized_objects)
                     manipulator_manager.reset_objects(kcsapi_handler.objects)
                     # TODO: Refactor!
@@ -202,3 +204,4 @@ def control(args, to_exit):
     pc.join()
     if kcsapi_handler:
         kcsapi_handler.save_journals(args.journal_basedir)
+        kcsapi_handler.save_states(args.state_basedir)

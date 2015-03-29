@@ -66,6 +66,9 @@ def parse_args(argv):
     parser.add_argument('--journal_basedir', default='',
                         help='Base directory where journal data is stored.'
                              'If not existent, a new one will be created.')
+    parser.add_argument('--state_basedir', default='',
+                        help='Base directory where state data is stored.'
+                             'If not existent, a new one will be created.')
     parser.add_argument('--credentials', default='',
                         help='Credentials file to auto-login. The file should '
                              'contain the login ID and password separated by '

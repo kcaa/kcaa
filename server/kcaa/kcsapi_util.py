@@ -24,7 +24,7 @@ BOM = '\xEF\xBB\xBF'
 
 class KCSAPIHandler(object):
 
-    def __init__(self, har_manager, journal_basedir, debug):
+    def __init__(self, har_manager, journal_basedir, state_basedir, debug):
         self._logger = logging.getLogger('kcaa.kcsapi_util')
         self.har_manager = har_manager
         self.debug = debug
@@ -32,7 +32,9 @@ class KCSAPIHandler(object):
         self.define_handlers()
         self.define_requestables()
         self.define_journals()
+        self.define_states()
         self.load_journals(journal_basedir)
+        self.load_states(state_basedir)
 
     def define_handlers(self):
         """Define KCSAPI handlers.
@@ -196,6 +198,11 @@ class KCSAPIHandler(object):
             'PlayerResourcesJournal': kcsapi.PlayerResourcesJournal,
         }
 
+    def define_states(self):
+        self.states = {
+            'RecentlyUsedEquipments': kcsapi.RecentlyUsedEquipments,
+        }
+
     def load_journals(self, journal_basedir):
         if not journal_basedir:
             self._logger.info('Journal basedir is empty. No journal will be '
@@ -239,6 +246,47 @@ class KCSAPIHandler(object):
                     indent=2, separators=(',', ': '), sort_keys=True,
                     ensure_ascii=False).encode('utf8')
                 journal_file.write(journal_string)
+
+    def load_states(self, state_basedir):
+        # TODO: Somehow merge with load_journals()?
+        if not state_basedir:
+            self._logger.info('State basedir is empty. No state will be saved '
+                              'after the process ends.')
+            self.loaded_states = {name: cls() for name, cls in
+                                  self.states.iteritems()}
+            return
+        if not os.path.isdir(state_basedir):
+            os.mkdir(state_basedir)
+        self.loaded_states = {}
+        for name, cls in self.states.iteritems():
+            filename = os.path.join(state_basedir, name)
+            if state_basedir and os.path.isfile(filename):
+                self._logger.info('Loading state {} from {}'.format(
+                    name, filename))
+                with open(filename, 'r') as state_file:
+                    state = cls.parse_text(state_file.read())
+                    self.loaded_states[name] = state
+            else:
+                self._logger.info('Creating a new state {}'.format(name))
+                self.loaded_states[name] = cls()
+
+    def save_states(self, state_basedir):
+        # TODO: Somehow merge with save_states()?
+        if not state_basedir:
+            return
+        for name, state in self.loaded_states.iteritems():
+            if not state._updated:
+                self._logger.info(
+                    'State {} was never updated. Looks like a bug and the '
+                    'state will not be overwritten.'.format(name))
+                continue
+            filename = os.path.join(state_basedir, name)
+            self._logger.info('Saving state {} to {}'.format(name, filename))
+            with open(filename, 'w') as state_file:
+                state_string = state.json(
+                    indent=2, separators=(',', ': '), sort_keys=True,
+                    ensure_ascii=False).encode('utf8')
+                state_file.write(state_string)
 
     def serialize_objects(self):
         """Serialize objects so that the client can deserialize and restore the
@@ -354,6 +402,8 @@ class KCSAPIHandler(object):
                 api_names.append(api_name)
         for journal in self.loaded_journals.itervalues():
             journal._update(api_names, self.objects)
+        for state in self.loaded_states.itervalues():
+            state._update(api_names, self.objects)
 
     def request(self, command):
         if len(command) != 2:
