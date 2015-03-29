@@ -508,6 +508,18 @@ class TestJSONSerializableObject(object):
         assert s.foo['a'] == 1
         assert s.foo['b'] == 2
 
+    def test_parse_dict_long(self):
+        # Element type declared as long, but it's acceptable to receive int
+        # values. They are always safe to upcast.
+        class SomeObject(jsonobject.JSONSerializableObject):
+            foo = jsonobject.JSONProperty('foo', value_type=dict,
+                                          element_type=long)
+
+        s = SomeObject.parse_text('{"foo": {"a": 1, "b": 2}}')
+        assert len(s.foo) == 2
+        assert s.foo['a'] == 1
+        assert s.foo['b'] == 2
+
     def test_parse_dict_object(self):
         class SomeObject(jsonobject.JSONSerializableObject):
             foo = jsonobject.JSONProperty('foo', 123, value_type=int)

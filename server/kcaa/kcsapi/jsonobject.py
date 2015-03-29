@@ -564,7 +564,9 @@ class JSONProperty(CustomizableJSONProperty):
 
     def _check_type(self, value):
         if value is not None and self._value_type is not None:
-            bad_element = lambda e: not isinstance(e, self._element_type)
+            bad_element = lambda e: (
+                not isinstance(e, self._element_type) and
+                not (isinstance(e, int) and self._element_type == long))
             if not isinstance(value, self._value_type):
                 # Exception is that the value is an int and the expected type
                 # is long. It is always safe to cast it up to long.
@@ -597,8 +599,8 @@ class JSONProperty(CustomizableJSONProperty):
                         raise TypeError(
                             ('Property {} expected a dict with values of type '
                              '{}, but got {}').format(
-                                 self.name, value,
-                                 self._element_type.__name__))
+                                 self.name, self._element_type.__name__,
+                                 value))
 
     def _clone_default(self):
         """Clones the default value if needed.
