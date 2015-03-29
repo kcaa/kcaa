@@ -436,6 +436,8 @@ class TestJSONSerializableObject(object):
             a = jsonobject.JSONProperty('a', value_type=dict, element_type=int)
 
         s = SomeObject(a={'a': 1, 'b': 2})
+        assert s.a['a'] == 1
+        assert s.a['b'] == 2
         with pytest.raises(TypeError):
             s.a = {'a': '1', 'b': '2'}
 
@@ -444,7 +446,11 @@ class TestJSONSerializableObject(object):
             a = jsonobject.JSONProperty('a', value_type=dict)
 
         s = SomeObject(a={'a': 1, 'b': 2})
-        s.a = {u'a': 1, u'b': 2}
+        assert s.a['a'] == 1
+        assert s.a['b'] == 2
+        s.a = {u'a': 3, u'b': 4}
+        assert s.a['a'] == 3
+        assert s.a['b'] == 4
         with pytest.raises(TypeError):
             s.a = {1: 1, 2: 2}
 
@@ -492,7 +498,17 @@ class TestJSONSerializableObject(object):
         assert isinstance(s.bar, SomeObject)
         assert s.bar.foo == 123
 
-    def test_parse_dict(self):
+    def test_parse_dict_int(self):
+        class SomeObject(jsonobject.JSONSerializableObject):
+            foo = jsonobject.JSONProperty('foo', value_type=dict,
+                                          element_type=int)
+
+        s = SomeObject.parse_text('{"foo": {"a": 1, "b": 2}}')
+        assert len(s.foo) == 2
+        assert s.foo['a'] == 1
+        assert s.foo['b'] == 2
+
+    def test_parse_dict_object(self):
         class SomeObject(jsonobject.JSONSerializableObject):
             foo = jsonobject.JSONProperty('foo', 123, value_type=int)
 
