@@ -78,6 +78,32 @@ class LoadShips(base.Manipulator):
 
 class LoadFleet(base.Manipulator):
 
+    @staticmethod
+    def compute_others_equipments(equipment_entries, ship_list,
+                                  equipment_list):
+        equipment_id_to_ships = (
+            equipment_list.get_equipment_id_to_ships(ship_list))
+        ship_to_cleared = {}
+        for entry in equipment_entries:
+            ship, equipments = entry
+            if not equipments:
+                continue
+            for equipment in equipments:
+                equipping_ship = equipment_id_to_ships.get(equipment.id)
+                if equipping_ship and equipping_ship is not ship:
+                    ship_to_cleared.setdefault(equipping_ship, set()).add(
+                        equipment.id)
+                    logger.debug(
+                        u'Dismantle equipment {} from ship {} ({})'.format(
+                            equipment.id, equipping_ship.name,
+                            equipping_ship.id))
+        ship_to_equipment_ids = {}
+        for s, equipment_ids_to_clear in ship_to_cleared.iteritems():
+            ship_to_equipment_ids[s] = [
+                e_id if e_id not in equipment_ids_to_clear else -1 for e_id in
+                s.equipment_ids]
+        return ship_to_equipment_ids
+
     def run(self, fleet_id, saved_fleet_name):
         fleet_id = int(fleet_id)
         unicode_fleet_name = saved_fleet_name.decode('utf8')
@@ -88,6 +114,8 @@ class LoadFleet(base.Manipulator):
         ship_def_list = self.objects['ShipDefinitionList']
         equipment_list = self.objects['EquipmentList']
         equipment_def_list = self.objects['EquipmentDefinitionList']
+        recently_used_equipments = (
+            self.manager.states['RecentlyUsedEquipments'])
         preferences = self.manager.preferences
         matching_fleets = [
             sf for sf in self.manager.preferences.fleet_prefs.saved_fleets
@@ -96,8 +124,8 @@ class LoadFleet(base.Manipulator):
             return
         fleet_deployment = matching_fleets[0]
         ship_pool = ship_list.ships.values()
-        # TODO: Use LRU equipments as well.
-        equipment_pool = equipment_list.get_unequipped_items(ship_list)
+        equipment_pool = equipment_list.get_available_equipments(
+            recently_used_equipments, ship_list)
         entries = fleet_deployment.get_ships(
             ship_pool, equipment_pool, ship_def_list, equipment_list,
             equipment_def_list, preferences.equipment_prefs)
@@ -114,6 +142,13 @@ class LoadFleet(base.Manipulator):
         if fleet_list.combined:
             yield self.screen.dissolve_combined_fleet()
         yield self.do_manipulator(LoadShips, fleet_id, ship_ids)
+        # Clear equipments currently equipped by other ships.
+        for s, equipment_ids in LoadFleet.compute_others_equipments(
+                entries, ship_list, equipment_list).iteritems():
+            yield self.do_manipulator(rebuilding.ReplaceEquipmentsByIds,
+                                      ship_id=s.id,
+                                      equipment_ids=equipment_ids)
+        # Load the equipments.
         for entry in entries:
             if entry[1]:
                 equipment_ids = [e.id for e in entry[1]]

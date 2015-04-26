@@ -100,7 +100,8 @@ def control(args, to_exit):
             har_manager, args.journal_basedir, args.state_basedir, args.debug)
         kcsapi_handler.update_preferences(preferences)
         manipulator_manager = manipulator_util.ManipulatorManager(
-            browser_conn, kcsapi_handler.objects, preferences, time.time())
+            browser_conn, kcsapi_handler.objects, kcsapi_handler.loaded_states,
+            preferences, time.time())
         while True:
             time.sleep(args.backend_update_interval)
             if to_exit.wait(0.0):
@@ -138,7 +139,8 @@ def control(args, to_exit):
                         har_manager, args.journal_basedir, args.state_basedir,
                         args.debug)
                     kcsapi_handler.deserialize_objects(serialized_objects)
-                    manipulator_manager.reset_objects(kcsapi_handler.objects)
+                    manipulator_manager.reset_objects(
+                        kcsapi_handler.objects, kcsapi_handler.loaded_states)
                     # TODO: Refactor!
                     preferences = kcsapi_handler.objects['Preferences']
                     manipulator_manager.preferences = preferences
@@ -146,8 +148,8 @@ def control(args, to_exit):
                     reload(manipulator_util)
                     manipulator_util.reload_modules()
                     manipulator_manager = manipulator_util.ManipulatorManager(
-                        browser_conn, kcsapi_handler.objects, preferences,
-                        time.time())
+                        browser_conn, kcsapi_handler.objects,
+                        kcsapi_handler.loaded_states, preferences, time.time())
                 elif command_type == COMMAND_MANIPULATE:
                     try:
                         manipulator_manager.dispatch(command_args)

@@ -22,6 +22,7 @@ class ScreenManager(object):
     def __init__(self, manipulator_manager):
         self._logger = logging.getLogger('kcaa.manipulator_util')
         self.objects = manipulator_manager.objects
+        self.states = manipulator_manager.states
         self.updated_object_types = manipulator_manager.updated_object_types
         self.browser_conn = manipulator_manager.browser_conn
         self.task_manager = manipulator_manager.task_manager
@@ -29,8 +30,9 @@ class ScreenManager(object):
         self._current_screen = manipulators.screen.Screen(self)
         self.define_screens()
 
-    def reset_objects(self, objects):
+    def reset_objects(self, objects, states):
         self.objects = objects
+        self.states = states
 
     def define_screens(self):
         self.screens = {
@@ -124,11 +126,12 @@ class ManipulatorManager(object):
     """Creates Kancolle manipulator, which assists user interaction by
     manipulating the Kancolle player (Flash) programatically."""
 
-    def __init__(self, browser_conn, objects, preferences, epoch):
+    def __init__(self, browser_conn, objects, states, preferences, epoch):
         self._logger = logging.getLogger('kcaa.manipulator_util')
         self.browser_conn = browser_conn
         self.preferences = preferences
         self.objects = objects
+        self.states = states
         self.initialize(epoch)
 
     def initialize(self, epoch):
@@ -151,12 +154,13 @@ class ManipulatorManager(object):
         self.objects['RunningManipulators'] = self.rmo
         self.set_auto_manipulator_preferences(self.preferences.automan_prefs)
 
-    def reset_objects(self, objects):
+    def reset_objects(self, objects, states):
         self.objects = objects
+        self.states = states
         self.rmo = kcsapi.RunningManipulators()
         self.rmo_last_generation = self.rmo.generation
         objects['RunningManipulators'] = self.rmo
-        self.screen_manager.reset_objects(objects)
+        self.screen_manager.reset_objects(objects, states)
 
     def define_manipulators(self):
         self.manipulators = {

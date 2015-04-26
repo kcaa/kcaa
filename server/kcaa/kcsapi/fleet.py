@@ -187,13 +187,16 @@ class FleetDeployment(jsonobject.JSONSerializableObject):
                     current_equipments = [
                         equipment_list.items[str(e_id)] for e_id in
                         target_ship.equipment_ids if
-                        e_id > 0 and e_id not in equipment_pool_ids]
-                    # Note that the order of current_equipments and
-                    # equipment_pool matters. This avoids unnecessary equipment
-                    # swap when equipments are loaded from the top to bottom.
+                        e_id > 0 and e_id in equipment_pool_ids]
+                    other_equipments = [
+                        equipment for equipment in equipment_pool if
+                        equipment not in current_equipments]
+                    # Prefer currently equipped items.
+                    # This avoids unnecessary equipment swap when equipments
+                    # are loaded from the top to bottom.
                     # TODO: Handle the case with most aircraft capacity.
                     possible, equipments = equipment_deployment.get_equipments(
-                        target_ship, current_equipments + equipment_pool,
+                        target_ship, current_equipments + other_equipments,
                         ship_def_list, equipment_def_list)
                     if possible:
                         applicable_ship = target_ship
@@ -212,11 +215,13 @@ class FleetDeployment(jsonobject.JSONSerializableObject):
         return entries
 
     def are_all_ships_ready(self, ship_list, ship_def_list, equipment_list,
-                            equipment_def_list, eqiupment_prefs):
+                            equipment_def_list, eqiupment_prefs,
+                            recently_used_equipments):
         return all([s[0].id == 0 or s[0].ready for s in
                     self.get_ships(
                         ship_list.ships.values(),
-                        equipment_list.get_unequipped_items(ship_list),
+                        equipment_list.get_available_equipments(
+                            recently_used_equipments, ship_list),
                         ship_def_list,
                         equipment_list,
                         equipment_def_list,
@@ -230,12 +235,17 @@ class FleetDeploymentShipIdList(ship.ShipIdList):
         return ['ShipDefinitionList', 'ShipList', 'EquipmentDefinitionList',
                 'EquipmentList', 'Preferences']
 
+    @property
+    def required_states(self):
+        return ['RecentlyUsedEquipments']
+
     def request(self, fleet_deployment, ship_definition_list, ship_list,
-                equipment_definition_list, equipment_list, preferences):
+                equipment_definition_list, equipment_list, preferences,
+                recently_used_equipments):
         fleet_deployment = FleetDeployment.parse_text(fleet_deployment)
         ship_pool = ship_list.ships.values()
-        # TODO: Use LRU equipments as well.
-        equipment_pool = equipment_list.get_unequipped_items(ship_list)
+        equipment_pool = equipment_list.get_available_equipments(
+            recently_used_equipments, ship_list)
         entries = fleet_deployment.get_ships(
             ship_pool, equipment_pool, ship_definition_list, equipment_list,
             equipment_definition_list, preferences.equipment_prefs)
@@ -267,14 +277,14 @@ class CombinedFleetDeployment(jsonobject.JSONSerializableObject):
     boss fleet. Can be null if no fleet is needed."""
 
     def get_ships(self, ship_list, fleet_list, ship_def_list, equipment_list,
-                  equipment_def_list, preferences):
+                  equipment_def_list, preferences, recently_used_equipments):
         # TODO: Refactor this method. Too long!!! Too many boilerplates!
         # NOTE: Unlike FleetDeployment.get_ships(), this method doesn't return
         # the entries of ship ID and equipment list pairs.
         id_list = CombinedFleetDeploymentShipIdList()
         ship_pool = ship_list.ships.values()
-        # TODO: Use LRU equipments as well.
-        equipment_pool = equipment_list.get_unequipped_items(ship_list)
+        equipment_pool = equipment_list.get_available_equipments(
+            recently_used_equipments, ship_list)
         id_list.available_fleet_ids = [fleet.id for fleet in fleet_list.fleets
                                        if fleet.ready]
         # Primary fleet.

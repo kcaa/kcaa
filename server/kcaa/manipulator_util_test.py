@@ -31,8 +31,9 @@ class TestScreenManager(object):
         objects = {
             'Screen': kcsapi.client.Screen(),
         }
+        states = {}
         manipulator_manager = manipulator_util.ManipulatorManager(
-            MockConnection(), objects, kcsapi.prefs.Preferences(), 0)
+            MockConnection(), objects, states, kcsapi.prefs.Preferences(), 0)
         return manipulator_util.ScreenManager(manipulator_manager)
 
     def test_current_screen_id(self, manager):
@@ -68,8 +69,9 @@ class TestManipulatorManager(object):
         objects = {
             'RunningManipulators': kcsapi.client.RunningManipulators()
         }
+        states = {}
         manager = manipulator_util.ManipulatorManager(
-            MockConnection(), objects, kcsapi.prefs.Preferences(), 0)
+            MockConnection(), objects, states, kcsapi.prefs.Preferences(), 0)
         manager.manipulators = {
             'MockManipulator': MockManipulator,
         }

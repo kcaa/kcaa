@@ -415,7 +415,8 @@ class KCSAPIHandler(object):
         requestable = self.requestables.get(command_type)
         if requestable:
             try:
-                return requestable._request(self.objects, **command_args)
+                return requestable._request(self.objects, self.loaded_states,
+                                            **command_args)
             except TypeError:
                 self._logger.error(
                     'Requestable argument mismatch or some type error. '

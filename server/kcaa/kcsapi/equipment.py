@@ -262,16 +262,45 @@ class EquipmentList(model.KCAAObject):
     equipment instances if any.
     """
 
-    def get_unequipped_items(self, ship_list):
-        equipped_item_ids = set()
+    class AvailableEquipmentEntry(object):
+
+        def __init__(self, equipment, last_used):
+            self.equipment = equipment
+            self.last_used = last_used
+
+        def __cmp__(self, other):
+            if self.last_used != other.last_used:
+                return cmp(self.last_used, other.last_used)
+            return cmp(self.equipment.id, other.equipment.id)
+
+    def get_equipment_id_to_ships(self, ship_list):
+        equipment_id_to_ships = {}
         for ship in ship_list.ships.itervalues():
             for equipment_id in ship.equipment_ids:
                 if equipment_id != -1:
-                    equipped_item_ids.add(equipment_id)
+                    equipment_id_to_ships[equipment_id] = ship
+        return equipment_id_to_ships
+
+    def get_unequipped_items(self, ship_list):
+        equipped_item_ids = frozenset(
+            self.get_equipment_id_to_ships(ship_list).iterkeys())
         items = [item for item in self.items.values() if
                  item.id not in equipped_item_ids]
         items.sort(Equipment.compare_unequipped)
         return items
+
+    def get_available_equipments(self, recently_used_equipments, ship_list):
+        equipment_id_to_ships = self.get_equipment_id_to_ships(ship_list)
+        entries = []
+        for equipment in self.items.itervalues():
+            ship = equipment_id_to_ships.get(equipment.id)
+            if ship and (ship.is_under_repair or ship.away_for_mission):
+                continue
+            last_used = recently_used_equipments.last_used.get(
+                str(equipment.id), 0L)
+            entries.append(EquipmentList.AvailableEquipmentEntry(
+                equipment, last_used))
+        return [entry.equipment for entry in sorted(entries)]
 
     def compute_page_position(self, equipment_id, unequipped_items):
         for index, item in enumerate(unequipped_items):

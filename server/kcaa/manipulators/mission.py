@@ -126,7 +126,7 @@ class AutoGoOnMission(base.AutoManipulator):
         return ['ShipList', 'FleetList']
 
     @staticmethod
-    def get_go_on_config(objects, preferences):
+    def get_go_on_config(objects, preferences, states):
         fleet_list = objects.get('FleetList')
         ship_list = objects.get('ShipList')
         ship_def_list = objects['ShipDefinitionList']
@@ -134,6 +134,7 @@ class AutoGoOnMission(base.AutoManipulator):
         equipment_def_list = objects['EquipmentDefinitionList']
         if not preferences.mission_prefs:
             return
+        recently_used_equipments = states['RecentlyUsedEquipments']
         go_on_config = {}
         for fleet_ in fleet_list.fleets:
             if fleet_.id == 1 or fleet_.mission_id:
@@ -152,7 +153,8 @@ class AutoGoOnMission(base.AutoManipulator):
             fleet_deployment = matching_fleets[0]
             if not fleet_deployment.are_all_ships_ready(
                     ship_list, ship_def_list, equipment_list,
-                    equipment_def_list, preferences.equipment_prefs):
+                    equipment_def_list, preferences.equipment_prefs,
+                    recently_used_equipments):
                 continue
             go_on_config[fleet_.id] = mission_plan
         return go_on_config
@@ -164,13 +166,14 @@ class AutoGoOnMission(base.AutoManipulator):
         if owner.manager.is_manipulator_scheduled('GoOnMission'):
             return
         if AutoGoOnMission.get_go_on_config(owner.objects,
-                                            owner.manager.preferences):
+                                            owner.manager.preferences,
+                                            owner.manager.states):
             return {}
 
     def run(self):
         yield 1.0
         go_on_config = AutoGoOnMission.get_go_on_config(
-            self.objects, self.manager.preferences)
+            self.objects, self.manager.preferences, self.manager.states)
         for fleet_id, mission_plan in go_on_config.iteritems():
             self.add_manipulator(organizing.LoadFleet, fleet_id,
                                  mission_plan.fleet_name.encode('utf8'))

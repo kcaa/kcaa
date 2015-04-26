@@ -492,6 +492,9 @@ class ReplaceEquipmentsByIds(base.Manipulator):
         if equipment_ids == target_ship.equipment_ids:
             logger.info('No change in eqiupments.')
             return
+        if all([equipment_id == -1 for equipment_id in equipment_ids]):
+            yield self.do_manipulator(ClearEquipments, ship_id=ship_id)
+            return
         yield self.do_manipulator(SelectShip, ship_id=target_ship.id)
         # TODO: this logic needs to be tested when the list is just a
         # reordered one of the original (e.g. [1, 2, 3] from [3, 1, 2]).
@@ -511,13 +514,13 @@ class ReplaceEquipmentsByIds(base.Manipulator):
             # ID of -1 is considered empty.
             # ID of 0 is considered omittable, which is empty in this context.
             if equipment_id <= 0:
-                yield self.screen.clear_item_slot(slot_index)
+                yield self.screen.clear_item_slot(
+                    slot_index - num_cleared_items)
                 num_cleared_items += 1
                 continue
             if equipment_id == current_equipment_ids[slot_index]:
                 continue
             yield self.screen.select_item_slot(slot_index - num_cleared_items)
-            # TODO: Use LRU equipments as well.
             unequipped_items = ReplaceEquipments.filter_out_unloadable(
                 equipment_list.get_unequipped_items(ship_list), target_ship,
                 ship_def_list)

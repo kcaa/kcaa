@@ -52,7 +52,7 @@ class TestKCAARequestableObject(object):
     def test_request_no_requestable_objects(self):
         requestable = MockKCAARequestableObject(['SomeObject'])
         assert requestable.called == 0
-        assert requestable._request({}) is None
+        assert requestable._request({}, {}) is None
         assert requestable.called == 0
 
     def test_request_conflicting_name(self):
@@ -61,14 +61,14 @@ class TestKCAARequestableObject(object):
         objects = {'SomeObject': model.KCAAObject(generation=1)}
         # SomeObject conflicts when translated to a variable name: some_object
         with pytest.raises(ValueError):
-            requestable._request(objects, some_object='conflicting')
+            requestable._request(objects, {}, some_object='conflicting')
 
     def test_request_single(self):
         requestable = MockKCAARequestableObject(['SomeObject'])
         assert requestable.called == 0
         # SomeObject present; request() should be called.
         objects = {'SomeObject': model.KCAAObject(generation=1)}
-        assert requestable._request(objects) is requestable
+        assert requestable._request(objects, {}) is requestable
         assert requestable.called == 1
         assert requestable.kwargs == {'some_object': objects['SomeObject']}
 
@@ -79,13 +79,13 @@ class TestKCAARequestableObject(object):
         # SomeObject present but AnotherObject is not; request() should not be
         # called.
         objects = {'SomeObject': model.KCAAObject(generation=1)}
-        assert requestable._request(objects) is None
+        assert requestable._request(objects, {}) is None
         assert requestable.called == 0
         # Both SomeObject and AnotherObject present; request() should be
         # called.
         objects = {'SomeObject': model.KCAAObject(generation=1),
                    'AnotherObject': model.KCAAObject(generation=1)}
-        assert requestable._request(objects) is requestable
+        assert requestable._request(objects, {}) is requestable
         assert requestable.called == 1
         assert requestable.kwargs == {
             'some_object': objects['SomeObject'],

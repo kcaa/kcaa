@@ -117,18 +117,28 @@ class KCAARequestableObject(jsonobject.JSONSerializableObject):
     def required_objects(self):
         return []
 
-    def _request(self, objects, **kwargs):
+    @property
+    def required_states(self):
+        return []
+
+    def _request(self, objects, states, **kwargs):
         for required_object in self.required_objects:
             if required_object not in objects:
                 return None
+        for required_state in self.required_states:
+            if required_state not in states:
+                return None
         object_args = {translate_object_name(name): objects[name] for name in
                        self.required_objects}
+        state_args = {translate_object_name(name): states[name] for name in
+                      self.required_states}
         for key in kwargs:
-            if key in object_args:
+            if key in object_args or key in state_args:
                 raise ValueError(
                     'Requestable {} got a conflicting parameter with required '
                     'objects: {}'.format(self.object_type, key))
         object_args.update(kwargs)
+        object_args.update(state_args)
         return self.request(**object_args)
 
 
