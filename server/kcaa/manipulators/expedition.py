@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- encoding: utf-8 -*-
 
 import logging
 
@@ -7,6 +8,7 @@ import fleet
 import logistics
 import mission
 import organizing
+import rebuilding
 from kcaa import kcsapi
 from kcaa import screens
 
@@ -326,12 +328,21 @@ class EngageExpedition(base.Manipulator):
 
 class WarmUp(base.Manipulator):
 
+    # TODO: Move to the preferences.
+    equipment_deployment_name = u'通常構成'
+
     def run(self, fleet_id):
         fleet_id = int(fleet_id)
         if not fleet.are_all_ships_available(self, fleet_id):
             return
-        ship_list = self.objects.get('ShipList')
-        fleet_list = self.objects.get('FleetList')
+        ship_list = self.objects['ShipList']
+        ship_def_list = self.objects['ShipDefinitionList']
+        equipment_list = self.objects['EquipmentList']
+        equipment_def_list = self.objects['EquipmentDefinitionList']
+        recently_used_equipments = (
+            self.manager.states['RecentlyUsedEquipments'])
+        fleet_list = self.objects['FleetList']
+        preferences = self.manager.preferences
         fleet_ = fleet_list.fleets[fleet_id - 1]
         if len(fleet_.ship_ids) != 1:
             logger.error('More than 1 ship in the fleet {} will not work.'
@@ -340,10 +351,41 @@ class WarmUp(base.Manipulator):
         # TODO: Move this kind of conversion to fleet module.
         ships = map(lambda ship_id: ship_list.ships[str(ship_id)],
                     fleet_.ship_ids)
-        if ships[0].vitality < WARMUP_VITALITY:
-            logger.info('Warming up {}.'.format(ships[0].name.encode('utf8')))
-            self.add_manipulator(GoOnExpedition, fleet_id, 1, 1, 0)
-            self.add_manipulator(WarmUp, fleet_id)
+        target_ship = ships[0]
+        if target_ship.vitality >= WARMUP_VITALITY:
+            return
+        logger.info('Warming up {}.'.format(ships[0].name.encode('utf8')))
+        # First, apply the equipment deployment.
+        if WarmUp.equipment_deployment_name:
+            equipment_deployment = preferences.equipment_prefs.get_deployment(
+                WarmUp.equipment_deployment_name)
+            if equipment_deployment:
+                current_equipments = [
+                    equipment_list.items[str(e_id)] for e_id in
+                    target_ship.equipment_ids if e_id > 0]
+                equipment_pool = equipment_list.get_available_equipments(
+                    recently_used_equipments, ship_list)
+                other_equipments = [
+                    equipment for equipment in equipment_pool if
+                    equipment not in current_equipments]
+                possible, equipments = equipment_deployment.get_equipments(
+                    target_ship, current_equipments + other_equipments,
+                    ship_def_list, equipment_def_list)
+                if possible:
+                    for s, equipment_ids in (
+                            organizing.LoadFleet.compute_others_equipments(
+                                [(target_ship, equipments)], ship_list,
+                                equipment_list)):
+                        yield self.do_manipulator(
+                            rebuilding.ReplaceEquipmentsByIds,
+                            ship_id=s.id,
+                            equipment_ids=equipment_ids)
+                    yield self.do_manipulator(
+                        rebuilding.ReplaceEquipmentsByIds,
+                        ship_id=target_ship.id,
+                        equipment_ids=[e.id for e in equipments])
+        self.add_manipulator(GoOnExpedition, fleet_id, 1, 1, 0)
+        self.add_manipulator(WarmUp, fleet_id)
         yield 0.0
 
 

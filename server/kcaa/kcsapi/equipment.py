@@ -296,8 +296,11 @@ class EquipmentList(model.KCAAObject):
             ship = equipment_id_to_ships.get(equipment.id)
             if ship and (ship.is_under_repair or ship.away_for_mission):
                 continue
-            last_used = recently_used_equipments.last_used.get(
-                str(equipment.id), 0L)
+            if not ship:
+                last_used = 0L
+            else:
+                last_used = recently_used_equipments.last_used.get(
+                    str(equipment.id), 0L)
             entries.append(EquipmentList.AvailableEquipmentEntry(
                 equipment, last_used))
         return [entry.equipment for entry in sorted(entries)]
