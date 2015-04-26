@@ -4,6 +4,7 @@ import logging
 import time
 
 import base
+import rebuilding
 from kcaa import screens
 from kcaa import kcsapi
 
@@ -12,6 +13,9 @@ logger = logging.getLogger('kcaa.manipulators.repair')
 
 
 class RepairShips(base.Manipulator):
+
+    # TODO: Move this to the preferences.
+    clear_items_before_repair = True
 
     def run(self, ship_ids):
         if not isinstance(ship_ids, list):
@@ -49,6 +53,10 @@ class RepairShips(base.Manipulator):
             return
         logger.info('Repairing ships {}.'.format(', '.join(
             s.name.encode('utf8') for s in ships_to_repair)))
+        if RepairShips.clear_items_before_repair:
+            for ship_to_repair in ships_to_repair:
+                yield self.do_manipulator(rebuilding.ClearEquipments,
+                                          ship_id=ship_to_repair.id)
         yield self.screen.change_screen(screens.PORT_REPAIR)
         for ship_to_repair, empty_slot in zip(ships_to_repair, empty_slots):
             yield self.screen.select_slot(empty_slot.id)
