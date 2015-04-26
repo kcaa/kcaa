@@ -400,6 +400,9 @@ class WarmUpIdleShips(base.Manipulator):
 
 class AutoWarmUpIdleShips(base.AutoManipulator):
 
+    # TODO: Move this to the preferences.
+    num_extra_ships_to_warm_up = 4
+
     @classmethod
     def monitored_objects(cls):
         return ['ShipList', 'FleetList', 'RepairDock']
@@ -416,21 +419,23 @@ class AutoWarmUpIdleShips(base.AutoManipulator):
         ship_list = owner.objects.get('ShipList')
         fleet_list = owner.objects.get('FleetList')
         repair_dock = owner.objects.get('RepairDock')
-        # Do not run when no repair slot is available; a ship may be damaged
-        # during warming up, and this could pile up damaged ships.
+        # Do not run when there are too much ships to repair; a ship may be
+        # damaged during warming up, and this could pile up damaged ships.
         # Note that ships that are scheduled for repair may not be in the slots
         # yet at this time (right after getting back to port). They will be
         # added by AutoRepairShips.
         empty_slots = [slot for slot in repair_dock.slots if not slot.in_use]
         ships_to_repair = ship_list.repairable_ships(fleet_list)
+        num_ships_to_warm_up = (
+            AutoWarmUpIdleShips.num_extra_ships_to_warm_up +
+            len(empty_slots) - len(ships_to_repair))
         ships_to_warm_up = [s for s in ship_list.ships.itervalues() if
                             can_warm_up(s)]
-        if len(empty_slots) > len(ships_to_repair) and ships_to_warm_up:
-            return {'num_ships': min(len(empty_slots) - len(ships_to_repair),
-                                     len(ships_to_warm_up))}
+        if num_ships_to_warm_up > 0 and ships_to_warm_up:
+            return {}
 
-    def run(self, num_ships):
-        yield self.do_manipulator(WarmUpIdleShips, 1, min(num_ships, 1))
+    def run(self):
+        yield self.do_manipulator(WarmUpIdleShips, fleet_id=1, num_ships=1)
 
 
 # TODO: Handle the case where there is the headquarter equipped by the flagship
