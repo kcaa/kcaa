@@ -489,10 +489,11 @@ class ReplaceEquipmentsByIds(base.Manipulator):
                            equipments])))
         logger.debug('Equipment IDs to load: {}'.format(equipment_ids))
         logger.debug('Current equipment IDs: {}'.format(current_equipment_ids))
-        if equipment_ids == target_ship.equipment_ids:
-            logger.info('No change in eqiupments.')
+        if (target_ship.equipment_ids ==
+                [e_id if e_id > 0 else -1 for e_id in equipment_ids]):
+            logger.info('No change in equipments.')
             return
-        if all([equipment_id == -1 for equipment_id in equipment_ids]):
+        if all([equipment_id <= 0 for equipment_id in equipment_ids]):
             yield self.do_manipulator(ClearEquipments, ship_id=ship_id)
             return
         yield self.do_manipulator(SelectShip, ship_id=target_ship.id)
