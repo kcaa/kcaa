@@ -173,8 +173,8 @@ class HandleAllPractices(base.Manipulator):
 # AutoCheckPracticeOpponents and probably QuestList checker.
 class AutoHandleAllPractices(base.AutoManipulator):
 
-    schedules = [datetime.time(2, 30),
-                 datetime.time(14, 30)]
+    schedules = [datetime.time(2, 0),
+                 datetime.time(14, 0)]
 
     next_update = None
 
