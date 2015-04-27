@@ -497,19 +497,23 @@ class ReplaceEquipmentsByIds(base.Manipulator):
             yield self.do_manipulator(ClearEquipments, ship_id=ship_id)
             return
         yield self.do_manipulator(SelectShip, ship_id=target_ship.id)
+        # For each slot, clear preceding equipments than the targeted
+        # equipment.
         # TODO: this logic needs to be tested when the list is just a
         # reordered one of the original (e.g. [1, 2, 3] from [3, 1, 2]).
         # Maybe abstract the scheduler and write tests for them.
-        num_cleared_items = 0
         for i, e_id in enumerate(equipment_ids[:-1]):
             if e_id <= 0:
                 break
-            for j, c_id in enumerate(current_equipment_ids[i + 1:]):
+            for j in xrange(i + 1, len(current_equipment_ids)):
+                c_id = current_equipment_ids[j]
                 if e_id == c_id:
-                    yield self.screen.clear_item_slot(j - num_cleared_items)
-                    del current_equipment_ids[j]
-                    current_equipment_ids.append(-1)
-                    num_cleared_items += 1
+                    logger.debug('Removing {} at slot {}'.format(c_id, j))
+                    for _ in xrange(j - i):
+                        yield self.screen.clear_item_slot(i)
+                    del current_equipment_ids[i:j]
+                    current_equipment_ids.extend([-1] * (j - i))
+        logger.debug('Current after reorder: {}'.format(current_equipment_ids))
         num_cleared_items = 0
         for slot_index, equipment_id in enumerate(equipment_ids):
             # ID of -1 is considered empty.
