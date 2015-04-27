@@ -375,7 +375,7 @@ class WarmUp(base.Manipulator):
                     for s, equipment_ids in (
                             organizing.LoadFleet.compute_others_equipments(
                                 [(target_ship, equipments)], ship_list,
-                                equipment_list)):
+                                equipment_list)).iteritems():
                         yield self.do_manipulator(
                             rebuilding.ReplaceEquipmentsByIds,
                             ship_id=s.id,
