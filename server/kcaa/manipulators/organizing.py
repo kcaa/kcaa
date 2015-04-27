@@ -96,7 +96,10 @@ class LoadFleet(base.Manipulator):
                 continue
             for equipment in equipments:
                 equipping_ship = equipment_id_to_ships.get(equipment.id)
-                if equipping_ship and equipping_ship is not ship:
+                # Compare IDs, not object references, because an update to
+                # ShipList can recreate a new instances of ships. Such an
+                # update will happen if there is change in the fleet members.
+                if equipping_ship and equipping_ship.id != ship.id:
                     ship_to_cleared.setdefault(equipping_ship, set()).add(
                         equipment.id)
                     logger.debug(
