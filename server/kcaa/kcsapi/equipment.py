@@ -359,6 +359,18 @@ class EquipmentList(model.KCAAObject):
             # For the record, here is a good place to output equipment item ID
             # to check how equipment items are sorted.
             # logger.debug(request.api_slotitem_id)
+        elif api_name == '/api_req_kaisou/powerup':
+            # Equipments set to material ships will be destroyed.
+            ship_list = objects.get('ShipList')
+            if not ship_list:
+                logger.error('ShipList not found when rebuilding.')
+                return
+            for deleted_ship_id in request.api_id_items.split(','):
+                ship = ship_list.ships[deleted_ship_id]
+                for equipment_id in ship.equipment_ids:
+                    if equipment_id != -1:
+                        self.remove_item(equipment_id)
+            # No in_type_index is reassigned.
         elif api_name == '/api_req_kaisou/slotset':
             # This handles both setting and unsetting an equipment.
             # In either case in type indices are reassigned.

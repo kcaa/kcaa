@@ -108,8 +108,11 @@ class KCSAPIHandler(object):
             '/api_req_kaisou/slotset': [kcsapi.EquipmentList],
             '/api_req_kaisou/unsetslot_all': [kcsapi.EquipmentList],
             # Rebuilding.
+            # powerup must handle EquipmentList before ShipList to get the list
+            # of equipments to be disposed.
             '/api_req_kaisou/remodeling': [kcsapi.ShipList],
-            '/api_req_kaisou/powerup': [kcsapi.ShipList],
+            '/api_req_kaisou/powerup': [kcsapi.EquipmentList,
+                                        kcsapi.ShipList],
             # Repair docks.
             '/api_get_member/ndock': [kcsapi.RepairDock,
                                       kcsapi.ShipList],

@@ -529,6 +529,7 @@ class ReplaceEquipmentsByIds(base.Manipulator):
             unequipped_items = ReplaceEquipments.filter_out_unloadable(
                 equipment_list.get_unequipped_items(ship_list), target_ship,
                 ship_def_list)
+            logger.debug('Trying to set {}'.format(equipment_id))
             page, in_page_index = equipment_list.compute_page_position(
                 equipment_id, unequipped_items)
             max_page = equipment_list.get_max_page(unequipped_items)
