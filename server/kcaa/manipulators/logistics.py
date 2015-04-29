@@ -67,6 +67,10 @@ class AutoChargeFleet(base.AutoManipulator):
                 ship = ship_list.ships[str(ship_id)]
                 loaded = ship.loaded_resource
                 capacity = ship.resource_capacity
+                if loaded is None or capacity is None:
+                    logger.debug(u'Ship {} ({}) looks incomplete.'.format(
+                        ship.name, ship.id))
+                    logger.debug(str(ship))
                 if loaded.fuel < capacity.fuel or loaded.ammo < capacity.ammo:
                     fleet_ids_to_charge.append(fleet.id)
                     break
