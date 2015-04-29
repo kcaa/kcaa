@@ -532,6 +532,13 @@ class ReplaceEquipmentsByIds(base.Manipulator):
             page, in_page_index = equipment_list.compute_page_position(
                 equipment_id, unequipped_items)
             max_page = equipment_list.get_max_page(unequipped_items)
+            if page is None or in_page_index is None:
+                for i, equipment in enumerate(unequipped_items):
+                    definition = equipment.definition(equipment_def_list)
+                    logger.debug(u'{}-{}: {:7d} {} ({}:{})'.format(
+                        i / 10, i % 10, equipment.id, definition.name,
+                        definition.type, definition.type_name))
+                raise Exception('Invalid unequipped items.')
             # TODO: Remove this debug logging after the issue is resolved.
             # Write tests instead.
             logger.debug('position: {}-{}, max page: {}'.format(
@@ -539,9 +546,23 @@ class ReplaceEquipmentsByIds(base.Manipulator):
             for i in xrange(10 * (page - 1), min(10 * page,
                                                  len(unequipped_items))):
                 definition = unequipped_items[i].definition(equipment_def_list)
-                logger.debug('{}-{}: {} ({})'.format(
-                    page, i - 10 * (page - 1), definition.name.encode('utf8'),
-                    definition.type_name.encode('utf8')))
+                logger.debug(u'{}-{}: {:7d} {} ({}:{})'.format(
+                    page, i - 10 * (page - 1), unequipped_items[i].id,
+                    definition.name, definition.type, definition.type_name))
             yield self.screen.select_item_page(page, max_page)
             yield self.screen.select_item(in_page_index)
             yield self.screen.confirm_item_replacement()
+            # TODO: Remove this debug logging after the issue is resolved.
+            # Re-fetch the updated ship info.
+            target_ship = ship_list.ships[str(target_ship.id)]
+            actual_id = target_ship.equipment_ids[
+                slot_index - num_cleared_items]
+            if equipment_id != actual_id:
+                for i, equipment in enumerate(unequipped_items):
+                    definition = equipment.definition(equipment_def_list)
+                    logger.debug(u'{}-{}: {:7d} {} ({}:{})'.format(
+                        i / 10, i % 10, equipment.id, definition.name,
+                        definition.type, definition.type_name))
+                raise Exception(
+                    u'Replacement failed. Expected {}, got {}.'.format(
+                        equipment_id, actual_id))
