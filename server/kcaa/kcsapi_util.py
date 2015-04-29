@@ -78,7 +78,8 @@ class KCSAPIHandler(object):
             '/api_get_member/picture_book': [kcsapi.NullHandler()],
             # Ships.
             '/api_get_member/ship2': [kcsapi.ShipList],
-            '/api_get_member/ship3': [kcsapi.ShipList,
+            '/api_get_member/ship3': [kcsapi.EquipmentList,
+                                      kcsapi.ShipList,
                                       kcsapi.FleetList],
             '/api_req_hensei/lock': [kcsapi.ShipList],
             '/api_req_hokyu/charge': [kcsapi.ShipList],

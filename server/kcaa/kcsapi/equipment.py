@@ -321,7 +321,10 @@ class EquipmentList(model.KCAAObject):
         super(EquipmentList, self).update(api_name, request, response, objects,
                                           debug)
         equipment_def_list = objects['EquipmentDefinitionList']
-        if api_name == '/api_get_member/slot_item':
+        if api_name == '/api_get_member/ship3':
+            self.update_unsetslot(equipment_def_list,
+                                  response.api_data.api_slot_data)
+        elif api_name == '/api_get_member/slot_item':
             self.items.clear()
             self.item_instances.clear()
             for data in response.api_data:
@@ -338,21 +341,7 @@ class EquipmentList(model.KCAAObject):
                 # in_type_index will soon be overwritten by upcoming unsetslot
                 # call.
         elif api_name == '/api_get_member/unsetslot':
-            # TODO: /api_get_member/ship3 also contains this kind of info?
-            for equipment_type in equipment_def_list.types:
-                equipment_ids = getattr(
-                    response.api_data,
-                    'api_slottype{}'.format(equipment_type.id))
-                if equipment_ids == -1:
-                    continue
-                # Usually unsetslot happens after slot_item, however, when a
-                # new item of an unseen type has arrived, unsetslot might
-                # precede slot_item. Ignore the key error as another unsetslot
-                # would follow slot_item KCSAPI.
-                for i, equipment_id in enumerate(equipment_ids):
-                    item = self.items.get(str(equipment_id))
-                    if item:
-                        item.in_type_index = i
+            self.update_unsetslot(equipment_def_list, response.api_data)
         elif api_name == '/api_req_kaisou/lock':
             self.items[request.api_slotitem_id].locked = (
                 response.api_data.api_locked == 1)
@@ -422,6 +411,22 @@ class EquipmentList(model.KCAAObject):
                         sort_order=definition.sort_order,
                         powerup_score=definition.powerup_score))
                 # No in_type_index is reassigned.
+
+    def update_unsetslot(self, equipment_def_list, data):
+        for equipment_type in equipment_def_list.types:
+            equipment_ids = getattr(
+                data,
+                'api_slottype{}'.format(equipment_type.id))
+            if equipment_ids == -1:
+                continue
+            # Usually unsetslot happens after slot_item, however, when a
+            # new item of an unseen type has arrived, unsetslot might
+            # precede slot_item. Ignore the key error as another unsetslot
+            # would follow slot_item KCSAPI.
+            for i, equipment_id in enumerate(equipment_ids):
+                item = self.items.get(str(equipment_id))
+                if item:
+                    item.in_type_index = i
 
     def add_item(self, item):
         self.items[str(item.id)] = item
