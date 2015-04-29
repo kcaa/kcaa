@@ -404,11 +404,15 @@ class CombinedFleetDeploymentShipIdList(model.KCAARequestableObject):
         return ['ShipDefinitionList', 'ShipList', 'FleetList',
                 'EquipmentDefinitionList', 'EquipmentList', 'Preferences']
 
+    @property
+    def required_states(self):
+        return ['RecentlyUsedEquipments']
+
     def request(self, combined_fleet_deployment, ship_definition_list,
                 ship_list, fleet_list, equipment_definition_list,
-                equipment_list, preferences):
+                equipment_list, preferences, recently_used_equipments):
         combined_fleet_deployment = CombinedFleetDeployment.parse_text(
             combined_fleet_deployment)
         return combined_fleet_deployment.get_ships(
             ship_list, fleet_list, ship_definition_list, equipment_list,
-            equipment_definition_list, preferences)
+            equipment_definition_list, preferences, recently_used_equipments)
