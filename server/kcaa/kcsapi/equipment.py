@@ -338,6 +338,7 @@ class EquipmentList(model.KCAAObject):
                 # in_type_index will soon be overwritten by upcoming unsetslot
                 # call.
         elif api_name == '/api_get_member/unsetslot':
+            # TODO: /api_get_member/ship3 also contains this kind of info?
             for equipment_type in equipment_def_list.types:
                 equipment_ids = getattr(
                     response.api_data,
