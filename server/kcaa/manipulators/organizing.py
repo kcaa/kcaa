@@ -86,14 +86,14 @@ class LoadFleet(base.Manipulator):
         ship_to_cleared = {}
         for entry in equipment_entries:
             ship, equipments = entry
+            if not ship or not equipments:
+                continue
             logger.debug(u'Ship {} ({}) equipment change:'.format(
                 ship.name, ship.id))
             logger.debug('  Current: [{}]'.format(', '.join(
                 [str(e_id) for e_id in ship.equipment_ids])))
             logger.debug('  Next:    [{}]'.format(', '.join(
                 [str(e.id) for e in equipments])))
-            if not equipments:
-                continue
             for equipment in equipments:
                 equipping_ship = equipment_id_to_ships.get(equipment.id)
                 # Compare IDs, not object references, because an update to
