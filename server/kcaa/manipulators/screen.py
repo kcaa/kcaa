@@ -786,7 +786,7 @@ class PortRebuildingScreen(PortOperationsScreen):
     def select_ship(self, index):
         def select_ship_task(task):
             self.click(210, 150 + 29 * index)
-            yield 2.0
+            yield 1.0
         return self.do_task(select_ship_task)
 
     def click_page(self, position):
