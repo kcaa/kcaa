@@ -1003,7 +1003,9 @@ class PortRepairScreen(PortOperationsScreen):
     def confirm_boost(self):
         def confirm_boost_task(task):
             self.click(505, 405)
-            yield 5.0
+            # Oftentimes AutoRepairShips will schedule itself right after
+            # boosting repair. This wait ensures it will not overlap.
+            yield 12.0
         return self.do_task(confirm_boost_task)
 
     def click_page(self, position):

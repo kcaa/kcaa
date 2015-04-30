@@ -99,9 +99,6 @@ class AutoRepairShips(base.AutoManipulator):
     def run(self):
         ship_ids = [s.id for s in
                     AutoRepairShips.get_ships_to_repair(self.objects)]
-        # To avoid collision with repair boosts, wait a bit before running.
-        if ship_ids and self.screen_id == screens.PORT_REPAIR:
-            yield 7.0
         yield self.do_manipulator(RepairShips, ship_ids)
 
 
