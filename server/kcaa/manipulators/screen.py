@@ -541,33 +541,33 @@ class PortOrganizingScreen(PortOperationsScreen):
         def select_page_task(task):
             if page == max_page:
                 self.click_page_last()
-                yield 1.0
+                yield 0.5
                 return
             self.click_page_reset()
-            yield 1.0
+            yield 0.5
             if page <= 5:
                 self.click_page(page - 1)
-                yield 1.0
+                yield 0.5
                 return
             current_page = 1
             while page - current_page >= 5:
                 self.click_page_skip_5()
                 current_page += 5
-                yield 1.0
+                yield 0.5
             while page - current_page >= 2:
                 self.click_page_next_2()
                 current_page += 2
-                yield 1.0
+                yield 0.5
             while page > current_page:
                 self.click_page_next()
                 current_page += 1
-                yield 1.0
+                yield 0.5
         return self.do_task(select_page_task)
 
     def select_ship(self, index):
         def select_ship_task(task):
             self.click(500, 168 + 28 * index)
-            yield 2.0
+            yield 1.0
         return self.do_task(select_ship_task)
 
     def toggle_lock(self, index):
@@ -579,7 +579,8 @@ class PortOrganizingScreen(PortOperationsScreen):
     def confirm(self):
         def confirm_task(task):
             self.click(695, 445)
-            yield 3.0
+            # TODO: Maybe best to detect change KCSAPI.
+            yield 2.0
         return self.do_task(confirm_task)
 
     def unfocus_ship_selection(self):
@@ -769,17 +770,17 @@ class PortRebuildingScreen(PortOperationsScreen):
         def select_page_task(task):
             if page <= 3:
                 self.click_page(page - 1)
-                yield 1.0
+                yield 0.5
                 return
             current_page = 1
             while page - current_page >= 3:
                 self.click_page_skip_3()
                 current_page += 3
-                yield 1.0
+                yield 0.5
             while page > current_page:
                 self.click_page_next()
                 current_page += 1
-                yield 1.0
+                yield 0.5
         return self.do_task(select_page_task)
 
     def select_ship(self, index):
@@ -802,27 +803,27 @@ class PortRebuildingScreen(PortOperationsScreen):
         def select_material_page_task(task):
             if page == max_page:
                 self.click_material_page_last()
-                yield 1.0
+                yield 0.5
                 return
             self.click_material_page_reset()
-            yield 1.0
+            yield 0.5
             if page <= 5:
                 self.click_material_page(page - 1)
-                yield 1.0
+                yield 0.5
                 return
             current_page = 1
             while page - current_page >= 5:
                 self.click_material_page_skip_5()
                 current_page += 5
-                yield 1.0
+                yield 0.5
             while page - current_page >= 2:
                 self.click_material_page_next_2()
                 current_page += 2
-                yield 1.0
+                yield 0.5
             while page > current_page:
                 self.click_material_page_next()
                 current_page += 1
-                yield 1.0
+                yield 0.5
         return self.do_task(select_material_page_task)
 
     def select_material_ship(self, index):
@@ -867,46 +868,47 @@ class PortRebuildingScreen(PortOperationsScreen):
     def select_item_slot(self, slot_index):
         def select_item_slot_task(task):
             self.click(450, 177 + 32 * slot_index)
-            yield 2.0
+            yield 1.0
         return self.do_task(select_item_slot_task)
 
     def select_item_page(self, page, max_page):
         def select_item_page_task(task):
             if page == max_page:
                 self.click_item_page_last()
-                yield 1.0
+                yield 0.5
                 return
             self.click_item_page_reset()
-            yield 1.0
+            yield 0.5
             if page <= 5:
                 self.click_item_page(page - 1)
-                yield 1.0
+                yield 0.5
                 return
             current_page = 1
             while page - current_page >= 5:
                 self.click_item_page_skip_5()
                 current_page += 5
-                yield 1.0
+                yield 0.5
             while page - current_page >= 2:
                 self.click_item_page_next_2()
                 current_page += 2
-                yield 1.0
+                yield 0.5
             while page > current_page:
                 self.click_item_page_next()
                 current_page += 1
-                yield 1.0
+                yield 0.5
         return self.do_task(select_item_page_task)
 
     def select_item(self, index):
         def select_item_task(task):
             self.click(450, 145 + 30 * index)
-            yield 2.0
+            yield 1.0
         return self.do_task(select_item_task)
 
     def confirm_item_replacement(self):
         def confirm_item_replacement_task(task):
             self.click(700, 440)
-            yield 3.0
+            # TODO: Maybe best to detect ship3 KCSAPI.
+            yield 2.0
         return self.do_task(confirm_item_replacement_task)
 
     def click_item_page(self, position):
@@ -953,24 +955,24 @@ class PortRepairScreen(PortOperationsScreen):
     def select_page(self, page):
         def select_page_task(task):
             self.click_page_reset()
-            yield 1.0
+            yield 0.5
             if page <= 5:
                 self.click_page(page - 1)
-                yield 1.0
+                yield 0.5
                 return
             current_page = 1
             while page - current_page >= 5:
                 self.click_page_skip_5()
                 current_page += 5
-                yield 1.0
+                yield 0.5
             while page - current_page >= 2:
                 self.click_page_next_2()
                 current_page += 2
-                yield 1.0
+                yield 0.5
             while page > current_page:
                 self.click_page_next()
                 current_page += 1
-                yield 1.0
+                yield 0.5
         return self.do_task(select_page_task)
 
     def select_ship(self, index):
@@ -1161,27 +1163,27 @@ class PortShipyardScreen(PortOperationsScreen):
         def select_page_task(task):
             if page == max_page:
                 self.click_page_last()
-                yield 1.0
+                yield 0.5
                 return
             self.click_page_reset()
-            yield 1.0
+            yield 0.5
             if page <= 5:
                 self.click_page(page - 1)
-                yield 1.0
+                yield 0.5
                 return
             current_page = 1
             while page - current_page >= 5:
                 self.click_page_skip_5()
                 current_page += 5
-                yield 1.0
+                yield 0.5
             while page - current_page >= 2:
                 self.click_page_next_2()
                 current_page += 2
-                yield 1.0
+                yield 0.5
             while page > current_page:
                 self.click_page_next()
                 current_page += 1
-                yield 1.0
+                yield 0.5
         return self.do_task(select_page_task)
 
     def select_ship(self, index):
