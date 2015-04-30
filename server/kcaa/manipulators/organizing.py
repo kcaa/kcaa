@@ -76,7 +76,7 @@ class LoadShips(base.Manipulator):
                 yield self.screen.select_ship(-1)
 
 
-class LoadFleet(base.Manipulator):
+class LoadFleetByEntries(base.Manipulator):
 
     @staticmethod
     def compute_others_equipments(equipment_entries, ship_list,
@@ -113,13 +113,36 @@ class LoadFleet(base.Manipulator):
                 s.equipment_ids]
         return ship_to_equipment_ids
 
+    def run(self, fleet_id, entries):
+        ship_list = self.objects['ShipList']
+        equipment_list = self.objects['EquipmentList']
+        yield self.do_manipulator(LoadShips,
+                                  fleet_id=fleet_id,
+                                  ship_ids=[e[0].id for e in entries])
+        # Clear equipments currently equipped by other ships.
+        for s, equipment_ids in LoadFleetByEntries.compute_others_equipments(
+                entries, ship_list, equipment_list).iteritems():
+            yield self.do_manipulator(rebuilding.ReplaceEquipmentsByIds,
+                                      ship_id=s.id,
+                                      equipment_ids=equipment_ids)
+        # Load the equipments.
+        for entry in entries:
+            if not entry[1]:
+                continue
+            equipment_ids = [e.id for e in entry[1]]
+            yield self.do_manipulator(rebuilding.ReplaceEquipmentsByIds,
+                                      ship_id=entry[0].id,
+                                      equipment_ids=equipment_ids)
+
+
+class LoadFleet(base.Manipulator):
+
     def run(self, fleet_id, saved_fleet_name):
         fleet_id = int(fleet_id)
         unicode_fleet_name = saved_fleet_name.decode('utf8')
         logger.info('Loading saved fleet {} to fleet {}'.format(
             saved_fleet_name, fleet_id))
         ship_list = self.objects['ShipList']
-        fleet_list = self.objects['FleetList']
         ship_def_list = self.objects['ShipDefinitionList']
         equipment_list = self.objects['EquipmentList']
         equipment_def_list = self.objects['EquipmentDefinitionList']
@@ -147,30 +170,19 @@ class LoadFleet(base.Manipulator):
             logger.error('Saved fleet {} has a ship away for mission.'.format(
                 saved_fleet_name))
             return
-        ship_ids = [s.id for s in ships]
-        if fleet_list.combined:
-            yield self.screen.dissolve_combined_fleet()
-        yield self.do_manipulator(LoadShips, fleet_id, ship_ids)
-        # Clear equipments currently equipped by other ships.
-        for s, equipment_ids in LoadFleet.compute_others_equipments(
-                entries, ship_list, equipment_list).iteritems():
-            yield self.do_manipulator(rebuilding.ReplaceEquipmentsByIds,
-                                      ship_id=s.id,
-                                      equipment_ids=equipment_ids)
-        # Load the equipments.
-        for entry in entries:
-            if entry[1]:
-                equipment_ids = [e.id for e in entry[1]]
-                yield self.do_manipulator(rebuilding.ReplaceEquipmentsByIds,
-                                          ship_id=entry[0].id,
-                                          equipment_ids=equipment_ids)
+        yield self.do_manipulator(DissolveCombinedFleet)
+        yield self.do_manipulator(LoadFleetByEntries,
+                                  fleet_id=fleet_id,
+                                  entries=entries)
 
 
 class DissolveCombinedFleet(base.Manipulator):
 
     def run(self):
-        yield self.screen.change_screen(screens.PORT_ORGANIZING)
-        yield self.screen.dissolve_combined_fleet()
+        fleet_list = self.objects['FleetList']
+        if fleet_list.combined:
+            yield self.screen.change_screen(screens.PORT_ORGANIZING)
+            yield self.screen.dissolve_combined_fleet()
 
 
 class LockShips(base.Manipulator):

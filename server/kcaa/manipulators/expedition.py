@@ -113,57 +113,55 @@ class HandleExpeditionCombinedFleet(base.Manipulator):
             assert formation >= 1 and formation <= 4
         else:
             assert formation >= 11 and formation <= 14
-        id_list = combined_fleet_deployment.get_ships(
+        entry = combined_fleet_deployment.get_ships(
             ship_list, fleet_list, ship_def_list, equipment_list,
             equipment_def_list, self.manager.preferences,
             recently_used_equipments)
-        if not id_list.loadable:
+        if not entry.loadable:
             raise Exception(u'Combined fleet {} is not loadable.'.format(
                 saved_combined_fleet_name))
         # Reverse the fleet IDs for easier popping.
-        fleet_ids = list(reversed(id_list.available_fleet_ids))
-        # TODO: Use LoadFleet instead of LoadShips. LoadFleet takes care of
-        # equipment deployment.
+        fleet_ids = list(reversed(entry.available_fleet_ids))
         # Primary fleet.
-        self.add_manipulator(organizing.LoadShips, fleet_id=fleet_ids.pop(),
-                             ship_ids=id_list.primary_ship_ids)
+        yield self.do_manipulator(organizing.LoadFleetByEntries,
+                                  fleet_id=fleet_ids.pop(),
+                                  entries=entry.primary_fleet_entries)
         # Secondary fleet.
-        if id_list.secondary_ship_ids:
-            self.add_manipulator(organizing.LoadShips,
-                                 fleet_id=fleet_ids.pop(),
-                                 ship_ids=id_list.secondary_ship_ids)
-            self.add_manipulator(
+        if entry.secondary_fleet_entries:
+            yield self.do_manipulator(organizing.LoadFleetByEntries,
+                                      fleet_id=fleet_ids.pop(),
+                                      entries=entry.secondary_fleet_entries)
+            yield self.do_manipulator(
                 organizing.FormCombinedFleet,
                 fleet_type=combined_fleet_deployment.combined_fleet_type)
         else:
-            self.add_manipulator(organizing.DissolveCombinedFleet)
+            yield self.do_manipulator(organizing.DissolveCombinedFleet)
         # Escoting fleet.
-        if id_list.escoting_ship_ids:
+        if entry.escoting_fleet_entries:
             escoting_fleet_id = fleet_ids.pop()
-            self.add_manipulator(organizing.LoadShips,
-                                 fleet_id=escoting_fleet_id,
-                                 ship_ids=id_list.escoting_ship_ids)
+            yield self.do_manipulator(organizing.LoadFleetByEntries,
+                                      fleet_id=escoting_fleet_id,
+                                      entries=entry.escoting_fleet_entries)
         # Supporting fleet.
-        if id_list.supporting_ship_ids:
+        if entry.supporting_fleet_entries:
             supporting_fleet_id = fleet_ids.pop()
-            self.add_manipulator(organizing.LoadShips,
-                                 fleet_id=supporting_fleet_id,
-                                 ship_ids=id_list.supporting_ship_ids)
+            yield self.do_manipulator(organizing.LoadFleetByEntries,
+                                      fleet_id=supporting_fleet_id,
+                                      entries=entry.supporting_fleet_entries)
         # Escoting and/or supporting fleet missions.
-        if id_list.escoting_ship_ids:
-            self.add_manipulator(
+        if entry.escoting_fleet_entries:
+            yield self.do_manipulator(
                 mission.GoOnMission,
                 fleet_id=escoting_fleet_id,
                 mission_id=get_supporting_fleet_mission_id(maparea_id, False))
-        if id_list.supporting_ship_ids:
-            self.add_manipulator(
+        if entry.supporting_fleet_entries:
+            yield self.do_manipulator(
                 mission.GoOnMission,
                 fleet_id=supporting_fleet_id,
                 mission_id=get_supporting_fleet_mission_id(maparea_id, True))
         # Finally, go on the mission!
         self.add_manipulator(GoOnExpedition, fleet_id=1, maparea_id=maparea_id,
                              map_id=map_id, formation=formation)
-        yield 0.0
 
 
 class SailOnExpeditionMap(base.Manipulator):
@@ -382,10 +380,12 @@ class WarmUp(base.Manipulator):
                     target_ship, current_equipments + other_equipments,
                     ship_def_list, equipment_def_list)
                 if possible:
-                    for s, equipment_ids in (
-                            organizing.LoadFleet.compute_others_equipments(
-                                [(target_ship, equipments)], ship_list,
-                                equipment_list)).iteritems():
+                    ship_to_equipment_ids = (
+                        organizing.LoadFleetByEntries
+                        .compute_others_equipments(
+                            [(target_ship, equipments)], ship_list,
+                            equipment_list))
+                    for s, equipment_ids in ship_to_equipment_ids.iteritems():
                         yield self.do_manipulator(
                             rebuilding.ReplaceEquipmentsByIds,
                             ship_id=s.id,
