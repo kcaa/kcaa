@@ -18,14 +18,9 @@ class LoadShips(base.Manipulator):
         fleet_id = int(fleet_id)
         if not isinstance(ship_ids, list):
             ship_ids = [int(ship_id) for ship_id in ship_ids.split(',')]
-        ship_list = self.objects.get('ShipList')
-        if not ship_list:
-            logger.error('No ship list was found. Giving up.')
-            return
-        fleet_list = self.objects.get('FleetList')
-        if not fleet_list:
-            logger.error('No fleet list was found. Giving up.')
-            return
+        ship_ids = [ship_id for ship_id in ship_ids if ship_id > 0]
+        ship_list = self.objects['ShipList']
+        fleet_list = self.objects['FleetList']
         fleet = fleet_list.fleets[fleet_id - 1]
         if fleet.mission_id:
             logger.error('Fleet is away for mission.')
@@ -36,11 +31,9 @@ class LoadShips(base.Manipulator):
         # TODO: Ensure the sort mode is Lv in the Kancolle player?
         ships = [ship_list.ships.get(str(ship_id)) for ship_id in ship_ids]
         if any([s is None for s in ships]):
-            logger.error('Some ships are missing.')
-            return
+            raise Exception('Some ships are missing.')
         if any([s.away_for_mission for s in ships]):
-            logger.error('Some ships are away for mission.')
-            return
+            raise Exception('Some ships are away for mission.')
         yield self.screen.change_screen(screens.PORT_ORGANIZING)
         yield self.screen.select_fleet(fleet_id)
         # Be sure to get the fleet again here, because the Fleet object is
@@ -61,11 +54,10 @@ class LoadShips(base.Manipulator):
             yield self.screen.select_ship(index)
             yield self.screen.confirm()
             if fleet.ship_ids[pos] != ship_id:
-                logger.error(
+                logger.debug(repr(fleet.ship_ids))
+                raise Exception(
                     'Failed to change the ship to {}. Currently you have {}.'
                     .format(ship_id, fleet.ship_ids[pos]))
-                logger.debug(repr(fleet.ship_ids))
-                return
         num_ships = len(ship_ids)
         # Remove unnecessary ships.
         if num_ships == 1:
@@ -161,15 +153,6 @@ class LoadFleet(base.Manipulator):
         entries = fleet_deployment.get_ships(
             ship_pool, equipment_pool, ship_def_list, equipment_list,
             equipment_def_list, preferences.equipment_prefs)
-        ships = [e[0] for e in entries if e[0].id != 0]
-        if any([s.id < 0 for s in ships]):
-            logger.error('Saved fleet {} has missing ships.'.format(
-                saved_fleet_name))
-            return
-        if any([s.away_for_mission for s in ships]):
-            logger.error('Saved fleet {} has a ship away for mission.'.format(
-                saved_fleet_name))
-            return
         yield self.do_manipulator(DissolveCombinedFleet)
         yield self.do_manipulator(LoadFleetByEntries,
                                   fleet_id=fleet_id,
