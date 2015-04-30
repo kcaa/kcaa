@@ -342,8 +342,10 @@ class ClearEquipments(base.Manipulator):
         self.require_objects(['ShipList'])
         ship_list = self.objects['ShipList']
         target_ship = ship_list.ships[str(ship_id)]
-        logger.info('Clearing equipments of {}'.format(
-            target_ship.name.encode('utf8')))
+        logger.info(u'Clearing equipments of {}'.format(target_ship.name))
+        if all([e_id == -1 for e_id in target_ship.equipment_ids]):
+            logger.info('The ship does not equip anything.')
+            return
         if target_ship.is_under_repair or target_ship.away_for_mission:
             raise Exception(
                 'Target ship is not ready for equipment replacement.')
