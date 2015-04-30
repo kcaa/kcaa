@@ -308,12 +308,15 @@ class PortExpeditionScreen(PortScreen):
             # TODO: Generalize?
             # TODO: Abort when the difficulty has not been selected?
             if maparea_id == 'E':
-                if map_id <= 3:
-                    self.click(650, 85 + 100 * map_id)
+                # 2015 Spring
+                if map_id <= 4:
+                    self.click(560, 98 + 72 * map_id)
                     yield 2.0
                     if map_id == 1:
                         yield self.dismiss_event_notification()
                 else:
+                    # 2015 Winter
+                    # TODO: Update for 2015 Spring.
                     self.click(440, 280)
                     yield 1.0
                     self.click(440, 215 + 145 * (map_id - 4))
