@@ -25,7 +25,7 @@ logger = logging.getLogger('kcaa.manipulators.expedition')
 # PlayerInfo.
 def is_valid_destination_map(maparea_id, map_id):
     # TODO: Check if the event is running.
-    if maparea_id == 'E' and map_id >= 1 and map_id <= 5:
+    if maparea_id == 'E' and map_id >= 1 and map_id <= 6:
         return True
     maparea_id = int(maparea_id)
     return (maparea_id >= 1 and maparea_id <= 6 and
