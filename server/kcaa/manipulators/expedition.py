@@ -492,8 +492,6 @@ class AutoWarmUpIdleShips(base.AutoManipulator):
 
 # TODO: Handle the case where there is the headquarter equipped by the flagship
 # and there is a healthy destroyer in the secondary fleet.
-# TODO: Should not trigger even if the flagship of the secondary fleet is
-# fatal.
 class AutoReturnWithFatalShip(base.AutoManipulator):
 
     @classmethod
@@ -520,7 +518,7 @@ class AutoReturnWithFatalShip(base.AutoManipulator):
         if fleet_list.combined:
             secondary_fleet = fleet_list.fleets[1]
             secondary_ships = [ship_list.ships[str(ship_id)] for ship_id in
-                               secondary_fleet.ship_ids]
+                               secondary_fleet.ship_ids[1:]]
             ships.extend(secondary_ships)
         if any([ship.fatal for ship in ships]):
             return {'combined': fleet_list.combined}
@@ -529,6 +527,7 @@ class AutoReturnWithFatalShip(base.AutoManipulator):
         yield self.screen.dismiss_result_overview()
         yield self.screen.dismiss_result_details()
         if combined:
+            yield 5.0
             yield self.screen.dismiss_result_details()
         while self.screen_id != screens.PORT_MAIN:
             yield 3.0
