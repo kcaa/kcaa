@@ -166,6 +166,13 @@ class LoadFleet(base.Manipulator):
                                           equipment_ids=equipment_ids)
 
 
+class DissolveCombinedFleet(base.Manipulator):
+
+    def run(self):
+        yield self.screen.change_screen(screens.PORT_ORGANIZING)
+        yield self.screen.dissolve_combined_fleet()
+
+
 class LockShips(base.Manipulator):
 
     def run(self, ship_ids, locked):

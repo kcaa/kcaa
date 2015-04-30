@@ -92,11 +92,15 @@ class HandleExpeditionCombinedFleet(base.Manipulator):
             u'Making the combined fleet {} go on the expedition {}-{} with '
             u'the formation {}'.format(
                 saved_combined_fleet_name, maparea_id, map_id, formation))
-        assert formation >= 11 and formation <= 14
         if not is_valid_destination_map(maparea_id, map_id):
             raise Exception('Maparea {} is not supported.'.format(maparea_id))
         ship_list = self.objects['ShipList']
         fleet_list = self.objects['FleetList']
+        ship_def_list = self.objects['ShipDefinitionList']
+        equipment_list = self.objects['EquipmentList']
+        equipment_def_list = self.objects['EquipmentDefinitionList']
+        recently_used_equipments = (
+            self.manager.states['RecentlyUsedEquipments'])
         matching_fleets = [
             sf for sf in (
                 self.manager.preferences.fleet_prefs.saved_combined_fleets) if
@@ -104,8 +108,15 @@ class HandleExpeditionCombinedFleet(base.Manipulator):
         if not matching_fleets:
             return
         combined_fleet_deployment = matching_fleets[0]
+        if (combined_fleet_deployment.combined_fleet_type ==
+                kcsapi.FleetList.COMBINED_FLEET_TYPE_SINGLE):
+            assert formation >= 1 and formation <= 4
+        else:
+            assert formation >= 11 and formation <= 14
         id_list = combined_fleet_deployment.get_ships(
-            ship_list, fleet_list, self.manager.preferences)
+            ship_list, fleet_list, ship_def_list, equipment_list,
+            equipment_def_list, self.manager.preferences,
+            recently_used_equipments)
         if not id_list.loadable:
             raise Exception(u'Combined fleet {} is not loadable.'.format(
                 saved_combined_fleet_name))
@@ -125,8 +136,7 @@ class HandleExpeditionCombinedFleet(base.Manipulator):
                 organizing.FormCombinedFleet,
                 fleet_type=combined_fleet_deployment.combined_fleet_type)
         else:
-            self.screen.change_screen(screens.PORT_ORGANIZING)
-            self.screen.dissolve_combined_fleet()
+            self.add_manipulator(organizing.DissolveCombinedFleet)
         # Escoting fleet.
         if id_list.escoting_ship_ids:
             escoting_fleet_id = fleet_ids.pop()

@@ -51,6 +51,9 @@ class FleetList(model.KCAAObject):
     # Mobile fleet, with plenty of aircraft carriers.
     COMBINED_FLEET_TYPE_SURFACE = 2
     # Surface ship fleet, a usual fleet with battleships or cruisers.
+    combined_fleet_formable = jsonobject.JSONProperty(
+        'combined_fleet_formable', value_type=bool)
+    """Whether the combined fleet can be formed."""
 
     def find_fleet_for_ship(self, ship_id):
         for fleet in self.fleets:
@@ -68,9 +71,11 @@ class FleetList(model.KCAAObject):
                 combined_flag = response.api_data.api_combined_flag
                 self.combined = combined_flag != 0
                 self.combined_fleet_type = combined_flag
+                self.combined_fleet_formable = True
             else:
                 self.combined = False
                 self.combined_fleet_type = FleetList.COMBINED_FLEET_TYPE_SINGLE
+                self.combined_fleet_formable = False
         elif api_name == '/api_get_member/deck':
             self.update_fleets(response.api_data, ship_list)
         elif api_name == '/api_get_member/ship3':
@@ -314,7 +319,8 @@ class CombinedFleetDeployment(jsonobject.JSONSerializableObject):
                 id_list.loadable and
                 2 in id_list.available_fleet_ids and
                 CombinedFleetDeployment.fleet_loadable(
-                    id_list.secondary_ship_ids))
+                    id_list.secondary_ship_ids) and
+                fleet_list.combined_fleet_formable)
             num_fleets += 1
         # Supporting fleet.
         if self.supporting_fleet_name:
