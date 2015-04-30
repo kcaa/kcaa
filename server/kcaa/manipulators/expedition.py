@@ -31,6 +31,7 @@ PREFERRED_FORMATION = {
 PREFERRED_NEXT_SELECTION = {
     # 2015 Spring E-2
     (30, 2, 2): 4,  # 4 (battleships) or 5 (aircraft carriers)
+    (30, 2, 6): 5,  # 5 (aircraft carriers) or 8 (wrong way)
 }
 
 
