@@ -978,7 +978,7 @@ class PortRepairScreen(PortOperationsScreen):
     def select_ship(self, index):
         def select_ship_task(task):
             self.click(500, 140 + 31 * index)
-            yield 2.0
+            yield 1.0
         return self.do_task(select_ship_task)
 
     def try_repair(self):
@@ -1189,7 +1189,7 @@ class PortShipyardScreen(PortOperationsScreen):
     def select_ship(self, index):
         def select_ship_task(task):
             self.click(300, 140 + 31 * index)
-            yield 2.0
+            yield 1.0
         return self.do_task(select_ship_task)
 
     def confirm_dissolution(self):
