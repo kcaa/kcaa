@@ -389,8 +389,8 @@ class EngageExpedition(base.Manipulator):
 
     def should_go_next(self, expedition, battle, ships, secondary_ships):
         # Should go next even if the flagship of the secondary fleet is fatal.
-        return (any([s.fatal for s in ships]) or
-                any([s.fatal for i, s in enumerate(secondary_ships) if
+        return (all([not s.fatal for s in ships]) and
+                all([not s.fatal for i, s in enumerate(secondary_ships) if
                      i != 0]))
 
 
