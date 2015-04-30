@@ -35,7 +35,7 @@ def is_valid_destination_map(maparea_id, map_id):
 # TODO: Generalize?
 def get_supporting_fleet_mission_id(maparea_id, to_boss):
     if maparea_id == 'E':
-        return 142 if to_boss else 141
+        return 150 if to_boss else 149
     maparea_id = int(maparea_id)
     if maparea_id == 5:
         return 34 if to_boss else 33
