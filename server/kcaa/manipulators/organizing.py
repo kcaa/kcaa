@@ -153,7 +153,8 @@ class LoadFleet(base.Manipulator):
         entries = fleet_deployment.get_ships(
             ship_pool, equipment_pool, ship_def_list, equipment_list,
             equipment_def_list, preferences.equipment_prefs)
-        yield self.do_manipulator(DissolveCombinedFleet)
+        if fleet_id in (1, 2):
+            yield self.do_manipulator(DissolveCombinedFleet)
         yield self.do_manipulator(LoadFleetByEntries,
                                   fleet_id=fleet_id,
                                   entries=entries)
