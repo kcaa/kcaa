@@ -329,9 +329,10 @@ class CombinedFleetDeployment(jsonobject.JSONSerializableObject):
             ships = frozenset([e[0] for e in entries])
             ship_pool_rest = [s for s in ship_pool if s not in ships]
             equipment_ids = set()
-            for entry in entries:
-                if entry[1]:
-                    equipment_ids.union([e.id for e in entry[1]])
+            for _, equipments in entries:
+                if equipments:
+                    for equipment in equipments:
+                        equipment_ids.add(equipment.id)
             equipment_pool_rest = [e for e in equipment_pool if
                                    e.id not in equipment_ids]
             return ship_pool_rest, equipment_pool_rest
