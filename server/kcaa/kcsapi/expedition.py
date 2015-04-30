@@ -97,7 +97,7 @@ class Expedition(model.KCAAObject):
             # - api_event_kind: additional info on the event?
             # - api_production_kind: probably the category of the found item
             # - api_enemy: enemy info (useful if submarines)
-            logger.debug('cell_next: {}'.format(data.api_cell_next))
+            logger.debug('next: {}'.format(data.api_next))
             logger.debug('rashin_flg (id): {} ({})'.format(
                 data.api_rashin_flg, data.api_rashin_id))
             if hasattr(data, 'api_enemy'):
