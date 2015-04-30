@@ -18,6 +18,30 @@ from kcaa import screens
 WARMUP_VITALITY = 75
 
 
+# Preferred formation.
+# Format is: (maparea ID, map ID, cell ID) -> formation ID
+# This will override the default formation passed to GoOnExpedition.
+PREFERRED_FORMATION = {
+    # 2015 Spring E-2
+}
+
+
+# Preferred next selection.
+# Format is: (maparea ID, map ID, cell ID) -> next cell ID
+PREFERRED_NEXT_SELECTION = {
+    # 2015 Spring E-2
+    (30, 2, 2): 4,  # 4 (battleships) or 5 (aircraft carriers)
+}
+
+
+# Click position for the next selection.
+# Format is: (maparea ID, map ID, cell ID) -> (x, y)
+NEXT_SELECTION_CLICK_POSITION = {
+    # 2015 Spring E-2
+    (30, 2, 4): (0, 0),
+}
+
+
 logger = logging.getLogger('kcaa.manipulators.expedition')
 
 
@@ -170,20 +194,20 @@ class SailOnExpeditionMap(base.Manipulator):
         yield self.screen.wait_transition(screens.EXPEDITION, timeout=10.0)
         expedition = self.objects['Expedition']
         fleet_list = self.objects['FleetList']
-        if expedition.needs_compass:
-            self.screen.update_screen_id(screens.EXPEDITION_COMPASS)
-            yield self.screen.roll_compass()
         # Save the current info early not to be overwritten.
         event = expedition.event
         is_terminal = expedition.is_terminal
-        preferred_formation = expedition.get_preferred_formation(formation)
-        logger.debug('Current: {}-{}-{}'.format(
-            expedition.maparea_id, expedition.map_id, expedition.cell_id))
-        logger.debug('Next:    {}-{}-{}'.format(
-            expedition.maparea_id, expedition.map_id, expedition.cell_next))
-        logger.debug('Boss:    {}-{}-{}'.format(
-            expedition.maparea_id, expedition.map_id, expedition.cell_boss))
-        logger.debug('Event: {}'.format(expedition.event))
+        preferred_formation = PREFERRED_FORMATION.get(
+            expedition.location_id, formation)
+        logger.info('Preferred formation: {} (default: {})'.format(
+            preferred_formation, formation))
+        if expedition.needs_compass:
+            self.screen.update_screen_id(screens.EXPEDITION_COMPASS)
+            yield self.screen.roll_compass()
+        elif expedition.needs_active_selection:
+            click_position = NEXT_SELECTION_CLICK_POSITION[
+                expedition.location_id]
+            self.screen.select_next_location(click_position)
         self.screen.update_screen_id(screens.EXPEDITION_SAILING)
         yield 6.0
         if event in (kcsapi.Expedition.EVENT_BATTLE,

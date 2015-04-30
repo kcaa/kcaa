@@ -1295,6 +1295,13 @@ class ExpeditionScreen(EngageScreen):
             yield 4.0
         return self.do_task(roll_compass_task)
 
+    def select_next_location(self, click_position):
+        def select_next_location_task(task):
+            yield 2.0
+            self.click(*click_position)
+            yield 2.0
+        return self.do_task(select_next_location_task)
+
     def proceed_terminal_screen(self):
         def proceed_terminal_screen_task(task):
             yield 7.0
