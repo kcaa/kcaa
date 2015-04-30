@@ -328,7 +328,9 @@ class RemodelShip(base.Manipulator):
                     resources.fuel, resources.ammo))
         yield self.screen.change_screen(screens.PORT_REBUILDING)
         yield self.do_manipulator(ClearEquipments, ship_id=target_ship.id)
-        # The target ship is still selected after ClearEquipments.
+        # ClearEquipments might not select the target ship if the ship does not
+        # equip anything.
+        yield self.do_manipulator(SelectShip, ship_id=target_ship.id)
         yield self.screen.try_remodeling()
         yield self.screen.finalize_remodeling()
         yield self.screen.confirm_remodeling()
