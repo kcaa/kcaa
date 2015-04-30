@@ -83,7 +83,7 @@ class GoOnExpedition(base.Manipulator):
         formation = int(formation)
         logger.info(
             'Making the fleet {} go on the expedition {}-{} with the '
-            'formation {}'.format(
+            'default formation {}'.format(
                 fleet_id, maparea_id, map_id, formation))
         # TODO: Move maparea definition to a separate module like kcsapic.
         if not is_valid_destination_map(maparea_id, map_id):
@@ -99,7 +99,8 @@ class GoOnExpedition(base.Manipulator):
         yield self.screen.try_expedition()
         yield self.screen.select_fleet(fleet_id)
         yield self.screen.confirm_expedition()
-        yield self.do_manipulator(SailOnExpeditionMap, formation=formation)
+        yield self.do_manipulator(SailOnExpeditionMap,
+                                  default_formation=formation)
 
 
 class HandleExpeditionCombinedFleet(base.Manipulator):
@@ -190,7 +191,7 @@ class HandleExpeditionCombinedFleet(base.Manipulator):
 
 class SailOnExpeditionMap(base.Manipulator):
 
-    def run(self, formation):
+    def run(self, default_formation):
         yield self.screen.wait_transition(screens.EXPEDITION, timeout=10.0)
         expedition = self.objects['Expedition']
         fleet_list = self.objects['FleetList']
@@ -198,9 +199,9 @@ class SailOnExpeditionMap(base.Manipulator):
         event = expedition.event
         is_terminal = expedition.is_terminal
         preferred_formation = PREFERRED_FORMATION.get(
-            expedition.location_id, formation)
+            expedition.location_id, default_formation)
         logger.info('Preferred formation: {} (default: {})'.format(
-            preferred_formation, formation))
+            preferred_formation, default_formation))
         if expedition.needs_compass:
             self.screen.update_screen_id(screens.EXPEDITION_COMPASS)
             yield self.screen.roll_compass()
@@ -218,7 +219,8 @@ class SailOnExpeditionMap(base.Manipulator):
                         fallback_selection, expedition.next_cell_selections))
             click_position = NEXT_SELECTION_CLICK_POSITION[next_selection]
             self.screen.select_next_location(click_position)
-            yield self.do_manipulator(SailOnExpeditionMap, formation=formation)
+            yield self.do_manipulator(SailOnExpeditionMap,
+                                      default_formation=default_formation)
             return
         self.screen.update_screen_id(screens.EXPEDITION_SAILING)
         yield 6.0
@@ -242,7 +244,9 @@ class SailOnExpeditionMap(base.Manipulator):
             else:
                 logger.error('Cannot transitioned to the combat. Giving up.')
                 return
-            yield self.do_manipulator(EngageExpedition, formation=formation)
+            yield self.do_manipulator(EngageExpedition,
+                                      formation=preferred_formation,
+                                      default_formation=default_formation)
             return
         if is_terminal:
             self.screen.update_screen_id(screens.EXPEDITION_TERMINAL)
@@ -250,12 +254,13 @@ class SailOnExpeditionMap(base.Manipulator):
             return
         # This cell is a nonterminal cell without a battle. The next KCSAPI
         # /api_req_map/next should be received. Iterate on.
-        yield self.do_manipulator(SailOnExpeditionMap, formation=formation)
+        yield self.do_manipulator(SailOnExpeditionMap,
+                                  default_formation=default_formation)
 
 
 class EngageExpedition(base.Manipulator):
 
-    def run(self, formation):
+    def run(self, formation, default_formation):
         # The screen must be EXPEDITION_COMBAT or EXPEDITION_NIGHTCOMBAT at
         # this moment. The caller must ensure this assumption is always true.
         # TODO: Handle the event boss battle properly.
@@ -336,7 +341,8 @@ class EngageExpedition(base.Manipulator):
         # flagship and there is a healthy destroyer in the secondary fleet.
         if self.should_go_next(expedition, battle, ships + secondary_ships):
             yield self.screen.go_for_next_battle()
-            yield self.do_manipulator(SailOnExpeditionMap, formation=formation)
+            yield self.do_manipulator(SailOnExpeditionMap,
+                                      default_formation=default_formation)
         else:
             yield self.screen.drop_out()
             self.add_manipulator(logistics.ChargeFleet,
@@ -345,7 +351,7 @@ class EngageExpedition(base.Manipulator):
     def should_go_night_combat(self, expedition, battle, ships, formation):
         expected_result = kcsapi.battle.expect_result(
             ships, battle.enemy_ships)
-        if expected_result == kcsapi.Battle.RESULT_S:
+        if expected_result in (kcsapi.Battle.RESULT_S, kcsapi.Battle.RESULT_A):
             return False
         # TODO: Do not gor for night combat if rest of the enemy ships are
         # submarines.
