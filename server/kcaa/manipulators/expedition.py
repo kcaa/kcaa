@@ -352,7 +352,7 @@ class EngageExpedition(base.Manipulator):
             return
         # TODO: Handle the case where there is the headquarter equipped by the
         # flagship and there is a healthy destroyer in the secondary fleet.
-        if self.should_go_next(expedition, battle, ships + secondary_ships):
+        if self.should_go_next(expedition, battle, ships, secondary_ships):
             yield self.screen.go_for_next_battle()
             yield self.do_manipulator(SailOnExpeditionMap,
                                       default_formation=default_formation)
@@ -387,11 +387,11 @@ class EngageExpedition(base.Manipulator):
             return True
         return False
 
-    def should_go_next(self, expedition, battle, ships):
-        # TODO: Should go next even if the flagship of the secondary fleet is
-        # fatal.
-        fatal_ships = [s for s in ships if s.fatal]
-        return not fatal_ships
+    def should_go_next(self, expedition, battle, ships, secondary_ships):
+        # Should go next even if the flagship of the secondary fleet is fatal.
+        return (any([s.fatal for s in ships]) or
+                any([s.fatal for i, s in enumerate(secondary_ships) if
+                     i != 0]))
 
 
 class WarmUp(base.Manipulator):
