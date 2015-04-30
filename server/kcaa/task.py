@@ -2,6 +2,7 @@
 
 import abc
 import sys
+import traceback
 import types
 
 import event
@@ -29,7 +30,7 @@ class Task(object):
         self._success = False
         self._exception = None
         self._traceback = None
-        self._last_blocking = False
+        self._last_blocking = None
         self._blocked = []
         self._exception_in_blocking = None
         self._running = True
@@ -91,6 +92,24 @@ class Task(object):
         """Traceback information for the :attr:`exception`."""
         # TODO: Test this.
         return self._traceback
+
+    def format_exception_traceback(self):
+        """
+        Format the exception traceback recursively and return it as string.
+
+        This is especially useful to trace where the exact exception was
+        thrown.
+        """
+        result = ''
+        task_to_trace = self
+        while task_to_trace:
+            if result:
+                result += '\n'
+            result += ''.join(traceback.format_exception(
+                type(task_to_trace.exception), task_to_trace.exception,
+                task_to_trace.traceback))
+            task_to_trace = task_to_trace.last_blocking
+        return result
 
     @property
     def epoch(self):

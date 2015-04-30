@@ -504,8 +504,8 @@ class ManipulatorManager(object):
                 self._logger.error(
                     'Some exception of type {} happened.'.format(
                         type(exception).__name__))
-            self._logger.debug(''.join(traceback.format_exception(
-                type(exception), exception, self.current_task.traceback)))
+            self._logger.debug('Exception traceback: ' +
+                               self.current_task.format_exception_traceback())
         self.last_task = self.current_task
         self.current_task = None
         # This removes the entry when the first instance of the
