@@ -34,11 +34,13 @@ PREFERRED_NEXT_SELECTION = {
 }
 
 
-# Click position for the next selection.
+# Click position for the active selection.
 # Format is: (maparea ID, map ID, cell ID) -> (x, y)
-NEXT_SELECTION_CLICK_POSITION = {
+ACTIVE_SELECTION_CLICK_POSITION = {
     # 2015 Spring E-2
-    (30, 2, 4): (0, 0),
+    (30, 2, 4): (450, 120),
+    (30, 2, 5): (400, 250),
+    (30, 2, 8): (265, 345),
 }
 
 
@@ -217,7 +219,8 @@ class SailOnExpeditionMap(base.Manipulator):
                     'Fallback next selection: {}-{}-{} (out of {})'.format(
                         expedition.maparea_id, expedition.map_id,
                         fallback_selection, expedition.next_cell_selections))
-            click_position = NEXT_SELECTION_CLICK_POSITION[next_selection]
+            click_position = ACTIVE_SELECTION_CLICK_POSITION[
+                (expedition.maparea_id, expedition.map_id,  next_selection)]
             self.screen.select_next_location(click_position)
             yield self.do_manipulator(SailOnExpeditionMap,
                                       default_formation=default_formation)
