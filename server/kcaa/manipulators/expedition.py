@@ -168,20 +168,22 @@ class SailOnExpeditionMap(base.Manipulator):
 
     def run(self, formation):
         yield self.screen.wait_transition(screens.EXPEDITION, timeout=10.0)
-        expedition = self.objects.get('Expedition')
-        if not expedition:
-            logger.error('No expedition info was found. Giving up.')
-            return
-        fleet_list = self.objects.get('FleetList')
-        if not fleet_list:
-            logger.error('No fleet list was found. Giving up.')
-            return
+        expedition = self.objects['Expedition']
+        fleet_list = self.objects['FleetList']
         if expedition.needs_compass:
             self.screen.update_screen_id(screens.EXPEDITION_COMPASS)
             yield self.screen.roll_compass()
         # Save the current info early not to be overwritten.
         event = expedition.event
         is_terminal = expedition.is_terminal
+        preferred_formation = expedition.get_preferred_formation(formation)
+        logger.debug('Current: {}-{}-{}'.format(
+            expedition.maparea_id, expedition.map_id, expedition.cell_id))
+        logger.debug('Next:    {}-{}-{}'.format(
+            expedition.maparea_id, expedition.map_id, expedition.cell_next))
+        logger.debug('Boss:    {}-{}-{}'.format(
+            expedition.maparea_id, expedition.map_id, expedition.cell_boss))
+        logger.debug('Event: {}'.format(expedition.event))
         self.screen.update_screen_id(screens.EXPEDITION_SAILING)
         yield 6.0
         if event in (kcsapi.Expedition.EVENT_BATTLE,
@@ -194,7 +196,7 @@ class SailOnExpeditionMap(base.Manipulator):
             # screen transition has not succeeded.
             for _ in xrange(5):
                 if len(fleet.ship_ids) >= 4:
-                    yield self.screen.select_formation(formation)
+                    yield self.screen.select_formation(preferred_formation)
                 yield self.screen.wait_transition(
                     screens.EXPEDITION_COMBAT, timeout=3.0,
                     raise_on_timeout=False)
