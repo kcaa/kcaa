@@ -747,7 +747,13 @@ class PortRebuildingScreen(PortOperationsScreen):
             yield self.wait_transition(screens.PORT_REBUILDING_REMODELRESULT)
         return self.do_task(confirm_remodeling_task)
 
-    check_remodeling_result = check_rebuilding_result
+    def check_remodeling_result(self):
+        def check_remodeling_result_task(task):
+            yield 6.0
+            self.click_somewhere()
+            self.update_screen_id(screens.PORT_REBUILDING)
+            yield 2.0
+        return self.do_task(check_remodeling_result_task)
 
     def cancel(self):
         def cancel_task(task):
