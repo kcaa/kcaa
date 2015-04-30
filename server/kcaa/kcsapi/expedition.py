@@ -21,9 +21,7 @@ class Expedition(model.KCAAObject):
     cell_boss = jsonobject.JSONProperty('cell_boss', value_type=int)
     """ID of the cell where a boss lives."""
     cell_id = jsonobject.JSONProperty('cell_id', value_type=int)
-    """ID of the current cell."""
-    cell_next = jsonobject.JSONProperty('cell_next', value_type=int)
-    """ID of the next cell when the compass is determined.
+    """ID of the cell on the next move.
 
     Cell ID is assigned from 0 (the start cell).
     Note that this is deterministically available when a compass is presented.
@@ -69,7 +67,6 @@ class Expedition(model.KCAAObject):
             # api_rashin_id might represent the animation pattern of the
             # compass. Not useful here anyways.
             self.cell_id = data.api_no
-            self.cell_next = data.api_next
             self.is_terminal = data.api_next == 0
             self.needs_compass = data.api_rashin_flg == 1
             self.event = data.api_event_id
@@ -83,8 +80,6 @@ class Expedition(model.KCAAObject):
 
             logger.debug('Current: {}-{}-{}'.format(
                 self.maparea_id, self.map_id, self.cell_id))
-            logger.debug('Next:    {}-{}-{}'.format(
-                self.maparea_id, self.map_id, self.cell_next))
             logger.debug('Boss:    {}-{}-{}'.format(
                 self.maparea_id, self.map_id, self.cell_boss))
             logger.debug('Event: {} (kind: {}, color: {})'.format(
@@ -97,10 +92,12 @@ class Expedition(model.KCAAObject):
                 logger.debug('  Selections: {}'.format(
                     self.next_cell_selections))
             # Other potentially interesting data:
-            # - api_color_no: probably identical to api_event_id
+            # - api_color_no: probably the color of the next cell after the
+            #                 exact event is revealed
             # - api_event_kind: additional info on the event?
             # - api_production_kind: probably the category of the found item
             # - api_enemy: enemy info (useful if submarines)
+            logger.debug('cell_next: {}'.format(data.api_cell_next))
             logger.debug('rashin_flg (id): {} ({})'.format(
                 data.api_rashin_flg, data.api_rashin_id))
             if hasattr(data, 'api_enemy'):
