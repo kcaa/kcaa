@@ -209,6 +209,7 @@ class SailOnExpeditionMap(base.Manipulator):
             self.screen.update_screen_id(screens.EXPEDITION_COMPASS)
             yield self.screen.roll_compass()
         elif expedition.needs_active_selection:
+            yield 6.0
             if expedition.location_id in PREFERRED_NEXT_SELECTION:
                 next_selection = PREFERRED_NEXT_SELECTION[
                     expedition.location_id]
