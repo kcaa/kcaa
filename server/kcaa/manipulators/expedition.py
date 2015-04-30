@@ -22,7 +22,7 @@ WARMUP_VITALITY = 75
 # Format is: (maparea ID, map ID, cell ID) -> formation ID
 # This will override the default formation passed to GoOnExpedition.
 PREFERRED_FORMATION = {
-    # 2015 Spring E-2
+    # 2015 Spring E-2: Combined fleet map. Everything should fall back to 14.
 }
 
 
@@ -205,9 +205,21 @@ class SailOnExpeditionMap(base.Manipulator):
             self.screen.update_screen_id(screens.EXPEDITION_COMPASS)
             yield self.screen.roll_compass()
         elif expedition.needs_active_selection:
-            click_position = NEXT_SELECTION_CLICK_POSITION[
-                expedition.location_id]
+            if expedition.location_id in PREFERRED_NEXT_SELECTION:
+                next_selection = PREFERRED_NEXT_SELECTION[
+                    expedition.location_id]
+                logger.info('Preferred next selection: {}-{}-{}'.format(
+                    expedition.maparea_id, expedition.map_id, next_selection))
+            else:
+                fallback_selection = expedition.next_cell_selections[0]
+                logger.info(
+                    'Fallback next selection: {}-{}-{} (out of {})'.format(
+                        expedition.maparea_id, expedition.map_id,
+                        fallback_selection, expedition.next_cell_selections))
+            click_position = NEXT_SELECTION_CLICK_POSITION[next_selection]
             self.screen.select_next_location(click_position)
+            yield self.do_manipulator(SailOnExpeditionMap, formation=formation)
+            return
         self.screen.update_screen_id(screens.EXPEDITION_SAILING)
         yield 6.0
         if event in (kcsapi.Expedition.EVENT_BATTLE,
