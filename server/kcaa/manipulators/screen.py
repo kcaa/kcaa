@@ -1306,6 +1306,13 @@ class ExpeditionScreen(EngageScreen):
             yield 2.0
         return self.do_task(select_next_location_task)
 
+    def dismiss_boss_conversation(self):
+        def dismiss_boss_conversation_task(task):
+            yield 7.0
+            self.click_somewhere()
+            yield 2.0
+        return self.do_task(dismiss_boss_conversation_task)
+
     def proceed_terminal_screen(self):
         def proceed_terminal_screen_task(task):
             yield 7.0

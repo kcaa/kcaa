@@ -312,6 +312,10 @@ class EngageExpedition(base.Manipulator):
             logger.info('Going for the night combat.')
         else:
             logger.info('Avoiding the night combat.')
+        if expedition.is_terminal:
+            # In some boss battles in an event, the boss sometimes speak before
+            # the battle. Dismiss it.
+            yield self.screen.dismiss_boss_conversation()
         if battle.need_midnight_battle:
             # Clicks every >5 seconds in case a night battle is required for
             # the complete win. Timeout is >5 minutes (5 sec x 60 trials).
