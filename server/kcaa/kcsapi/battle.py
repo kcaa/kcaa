@@ -5,12 +5,14 @@ import model
 import ship
 
 
-def initialize_enemy_ships(data):
+def initialize_enemy_ships(data, ship_def_list):
     enemy_ships = []
     for i in xrange(1, len(data.api_ship_lv)):
         if data.api_ship_lv[i] == -1:
             continue
+        definition = ship_def_list.ships[str(data.api_ship_ke[i])]
         enemy_ships.append(ship.Ship(
+            ship_type=definition.ship_type,
             level=data.api_ship_lv[i],
             hitpoint=ship.Variable(
                 current=data.api_nowhps[i + 6],
@@ -474,8 +476,8 @@ class Battle(model.KCAAObject):
         # api_stage_flag: ?
         # api_support_flag: the presence of support fleet?
 
-    def update_enemy_ships(self, data):
-        self.enemy_ships = initialize_enemy_ships(data)
+    def update_enemy_ships(self, data, ship_def_list):
+        self.enemy_ships = initialize_enemy_ships(data, ship_def_list)
         deal_enemy_damage_in_phase(self.aircraft_phase, self.enemy_ships)
         deal_enemy_damage_in_phase(self.aircraft_phase_combined,
                                    self.enemy_ships)
