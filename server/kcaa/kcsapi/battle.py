@@ -88,6 +88,55 @@ class AircraftPhase(jsonobject.JSONSerializableObject):
     """Aircraft attacks, ordered arbitrarily."""
 
 
+class SupportAttack(jsonobject.JSONSerializableObject):
+    """Details of support attack."""
+
+    attackee_lid = jsonobject.JSONProperty('attackee_lid', value_type=int)
+    """Local ship ID of the attackee.
+
+    Local ID represents the position of a ship. 1-6 represents the friend ships
+    in the fleet, and 7-12 means the enemy ships."""
+    hit_type = jsonobject.JSONProperty('hit_type', value_type=int)
+    """Hit type."""
+    HIT_TYPE_MISS = 0
+    HIT_TYPE_HIT = 1
+    HIT_TYPE_CRITICAL = 2
+    damage = jsonobject.JSONProperty('damage', value_type=int)
+    """Damage dealt."""
+
+    @staticmethod
+    def create_list_from_hourai(hourai):
+        attacks = []
+        for i in xrange(1, len(hourai.api_damage)):
+            if hourai.api_damage[i] == 0:
+                continue
+            attacks.append(SupportAttack(
+                attackee_lid=i + 6,
+                hit_type=hourai.api_cl_list[i],
+                damage=int(hourai.api_damage[i])))
+        return attacks
+
+
+class SupportPhase(jsonobject.JSONSerializableObject):
+    """Details of support fleet attack phase."""
+    # NOTE: Currently only the gunfire support is supported.
+    # TODO: Support the aircraft support and thunderstroke support as well.
+
+    type = jsonobject.JSONProperty('type', value_type=int)
+    TYPE_GUNFIRE = 2
+    attacks = jsonobject.JSONProperty('attacks', value_type=list,
+                                      element_type=SupportAttack)
+    """Support attacks, ordered arbitrarily."""
+
+    @staticmethod
+    def create_from_data(flag, data):
+        if flag == SupportPhase.TYPE_GUNFIRE:
+            return SupportPhase(
+                type=SupportPhase.TYPE_GUNFIRE,
+                attacks=SupportAttack.create_list_from_hourai(
+                    data.api_support_hourai))
+
+
 class GunfireHit(jsonobject.JSONSerializableObject):
     """Details of gunfire attack."""
 
@@ -225,6 +274,9 @@ class Battle(model.KCAAObject):
     aircraft_phase_combined = jsonobject.JSONProperty(
         'aircraft_phase_combined', value_type=AircraftPhase)
     """Aircraft phase for the combined fleet."""
+    support_phase = jsonobject.JSONProperty(
+        'support_phase', value_type=SupportPhase)
+    """Support phase from the supporting fleet."""
     opening_thunderstroke_phase = jsonobject.JSONProperty(
         'opening_thunderstroke_phase', value_type=ThunderstrokePhase)
     """Opening thunderstroke phase."""
@@ -290,6 +342,10 @@ class Battle(model.KCAAObject):
             self.aircraft_phase_combined = AircraftPhase(
                 attacks=AircraftAttack.create_list_from_kouku(
                     data.api_kouku.api_stage3_combined))
+        # Maybe api_support_flag is useful for detection?
+        if hasattr(data, 'api_support_info'):
+            self.support_phase = SupportPhase.create_from_data(
+                data.api_support_flag, data.api_support_info)
         # Opening thunderstroke phase.
         # TODO: Check if the target of enemy's thunderstrokes are really the
         # main fleet.
@@ -420,11 +476,18 @@ class Battle(model.KCAAObject):
     def update_enemy_ships(self, data):
         self.enemy_ships = initialize_enemy_ships(data)
         deal_enemy_damage_in_phase(self.aircraft_phase, self.enemy_ships)
+        deal_enemy_damage_in_phase(self.aircraft_phase_combined,
+                                   self.enemy_ships)
+        deal_enemy_damage_in_phase(self.support_phase, self.enemy_ships)
         deal_enemy_damage_in_phase(self.opening_thunderstroke_phase,
                                    self.enemy_ships)
         for gunfire_phase in self.gunfire_phases:
             deal_enemy_damage_in_phase(gunfire_phase, self.enemy_ships)
+        deal_enemy_damage_in_phase(self.gunfire_phase_combined,
+                                   self.enemy_ships)
         deal_enemy_damage_in_phase(self.thunderstroke_phase, self.enemy_ships)
+        deal_enemy_damage_in_phase(self.thunderstroke_phase_combined,
+                                   self.enemy_ships)
 
 
 class MidnightBattle(model.KCAAObject):
