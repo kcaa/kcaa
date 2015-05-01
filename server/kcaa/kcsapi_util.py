@@ -67,7 +67,8 @@ class KCSAPIHandler(object):
             # invariant data required for modelling, rendering and everything.
             '/api_auth_member/logincheck': [kcsapi.NullHandler()],
             '/api_req_member/get_incentive': [kcsapi.NullHandler()],
-            '/api_start2': [kcsapi.MissionList,
+            '/api_start2': [kcsapi.MapInfoList,
+                            kcsapi.MissionList,
                             kcsapi.ShipDefinitionList,
                             kcsapi.EquipmentDefinitionList],
             # Player info.
@@ -142,7 +143,7 @@ class KCSAPIHandler(object):
             '/api_req_quest/stop': [kcsapi.NullHandler()],
             # Expedition.
             '/api_get_member/mapcell': [kcsapi.NullHandler()],
-            '/api_get_member/mapinfo': [kcsapi.NullHandler()],
+            '/api_get_member/mapinfo': [kcsapi.MapInfoList],
             '/api_req_combined_battle/battle': [kcsapi.Battle,
                                                 kcsapi.ShipList],
             '/api_req_combined_battle/battleresult': [kcsapi.ExpeditionResult],

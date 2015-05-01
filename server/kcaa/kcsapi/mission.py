@@ -74,14 +74,6 @@ class Mission(jsonobject.JSONSerializableObject):
     DIFFICULTY_SSS = 8
     maparea = jsonobject.ReadonlyJSONProperty('maparea', value_type=int)
     """Map area."""
-    MAPAREA_BASE = 1
-    MAPAREA_SOUTHWESTERN_ISLANDS = 2
-    MAPAREA_NORTH = 3
-    MAPAREA_WEST = 4
-    MAPAREA_SOUTH = 5
-    MAPAREA_MIDDLE = 6
-    MAPAREA_2014_SPRING = 26
-    MAPAREA_2014_SUMMER = 27
     state = jsonobject.JSONProperty('state', value_type=int)
     """State."""
     STATE_NEW = 0

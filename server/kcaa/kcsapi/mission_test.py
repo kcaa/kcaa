@@ -2,6 +2,7 @@
 
 import pytest
 
+import mapinfo
 import mission
 
 
@@ -13,23 +14,23 @@ class TestMissionList(object):
             mission.Mission(
                 id=1,
                 name=u'Mission1',
-                maparea=mission.Mission.MAPAREA_BASE),
+                maparea=mapinfo.MapInfo.MAPAREA_BASE),
             mission.Mission(
                 id=2,
                 name=u'Mission2',
-                maparea=mission.Mission.MAPAREA_BASE),
+                maparea=mapinfo.MapInfo.MAPAREA_BASE),
             mission.Mission(
                 id=3,
                 name=u'Mission3',
-                maparea=mission.Mission.MAPAREA_SOUTHWESTERN_ISLANDS),
+                maparea=mapinfo.MapInfo.MAPAREA_SOUTHWESTERN_ISLANDS),
             mission.Mission(
                 id=4,
                 name=u'Mission4',
-                maparea=mission.Mission.MAPAREA_SOUTHWESTERN_ISLANDS),
+                maparea=mapinfo.MapInfo.MAPAREA_SOUTHWESTERN_ISLANDS),
             mission.Mission(
                 id=5,
                 name=u'Mission5',
-                maparea=mission.Mission.MAPAREA_SOUTHWESTERN_ISLANDS)])
+                maparea=mapinfo.MapInfo.MAPAREA_SOUTHWESTERN_ISLANDS)])
         return mission_list
 
     def test_get_mission(self, mission_list):

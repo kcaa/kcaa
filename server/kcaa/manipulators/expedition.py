@@ -21,9 +21,10 @@ WARMUP_VITALITY = 75
 # Preferred formation.
 # Format is: (maparea ID, map ID, cell ID) -> formation ID
 # This will override the default formation passed to GoOnExpedition.
+E = kcsapi.MapInfo.MAPAREA_2015_SPRING
 PREFERRED_FORMATION = {
     # 2015 Spring E-2
-    (30, 2, 5): kcsapi.Fleet.FORMATION_COMBINED_CIRCLE,
+    (E, 2, 5): kcsapi.Fleet.FORMATION_COMBINED_CIRCLE,
 }
 
 
@@ -31,8 +32,8 @@ PREFERRED_FORMATION = {
 # Format is: (maparea ID, map ID, cell ID) -> next cell ID
 PREFERRED_NEXT_SELECTION = {
     # 2015 Spring E-2
-    (30, 2, 2): 4,  # 4 (battleships) or 5 (aircraft carriers)
-    (30, 2, 6): 5,  # 5 (aircraft carriers) or 8 (wrong way)
+    (E, 2, 2): 4,  # 4 (battleships) or 5 (aircraft carriers)
+    (E, 2, 6): 5,  # 5 (aircraft carriers) or 8 (wrong way)
 }
 
 
@@ -40,24 +41,13 @@ PREFERRED_NEXT_SELECTION = {
 # Format is: (maparea ID, map ID, cell ID) -> (x, y)
 ACTIVE_SELECTION_CLICK_POSITION = {
     # 2015 Spring E-2
-    (30, 2, 4): (450, 120),
-    (30, 2, 5): (400, 250),
-    (30, 2, 8): (265, 345),
+    (E, 2, 4): (450, 120),
+    (E, 2, 5): (400, 250),
+    (E, 2, 8): (265, 345),
 }
 
 
 logger = logging.getLogger('kcaa.manipulators.expedition')
-
-
-# TODO: Check if the admiral can go to the destination. That should be in
-# PlayerInfo.
-def is_valid_destination_map(maparea_id, map_id):
-    # TODO: Check if the event is running.
-    if maparea_id == 'E' and map_id >= 1 and map_id <= 6:
-        return True
-    maparea_id = int(maparea_id)
-    return (maparea_id >= 1 and maparea_id <= 6 and
-            map_id >= 1 and map_id <= 5)
 
 
 # TODO: Generalize?
@@ -79,25 +69,39 @@ def can_warm_up(ship_):
 
 class GoOnExpedition(base.Manipulator):
 
+    @staticmethod
+    def validate_map(mapinfo_list, maparea_id, map_id):
+        mapinfo = mapinfo_list.get_map_by_id(maparea_id, map_id)
+        if not mapinfo:
+            raise Exception('Map {}-{} is invalid.'.format(maparea_id, map_id))
+        if not mapinfo.available:
+            raise Exception('Map {}-{} is not available yet.'.format(
+                maparea_id, map_id))
+        if (mapinfo.event_info and mapinfo.event_info.difficulty ==
+                kcsapi.EventMapInfo.DIFFICULTY_UNSELECTED):
+            raise Exception(
+                'You have not selected the difficulty rank for {}-{}. '
+                'First select it manually.'.format(
+                    maparea_id, map_id))
+
     def run(self, fleet_id, maparea_id, map_id, formation):
         fleet_id = int(fleet_id)
         if maparea_id != 'E':
             maparea_id = int(maparea_id)
         map_id = int(map_id)
         formation = int(formation)
+        mapinfo_list = self.objects['MapInfoList']
         logger.info(
             'Making the fleet {} go on the expedition {}-{} with the '
             'default formation {}'.format(
                 fleet_id, maparea_id, map_id, formation))
-        # TODO: Move maparea definition to a separate module like kcsapic.
-        if not is_valid_destination_map(maparea_id, map_id):
-            raise Exception('Maparea {} is not supported.'.format(maparea_id))
         if not fleet.are_all_ships_available(self, fleet_id):
             raise Exception(
                 'Not all ships in the fleet {} is not ready.'.format(
                     fleet_id))
         # Check ship slot and equipment slot requiement.
         yield self.screen.change_screen(screens.PORT_EXPEDITION)
+        GoOnExpedition.validate_map(mapinfo_list, maparea_id, map_id)
         yield self.screen.select_maparea(maparea_id)
         yield self.screen.select_map(maparea_id, map_id)
         yield self.screen.try_expedition()
@@ -121,8 +125,6 @@ class HandleExpeditionCombinedFleet(base.Manipulator):
             u'Making the combined fleet {} go on the expedition {}-{} with '
             u'the formation {}'.format(
                 saved_combined_fleet_name, maparea_id, map_id, formation))
-        if not is_valid_destination_map(maparea_id, map_id):
-            raise Exception('Maparea {} is not supported.'.format(maparea_id))
         ship_list = self.objects['ShipList']
         fleet_list = self.objects['FleetList']
         ship_def_list = self.objects['ShipDefinitionList']

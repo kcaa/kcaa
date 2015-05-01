@@ -6,6 +6,7 @@ import equipment
 import expedition
 import fleet
 import jsonobject
+import mapinfo
 import mission
 import model
 import player
@@ -119,6 +120,7 @@ def main():
     doctest.testmod(expedition)
     doctest.testmod(fleet)
     doctest.testmod(jsonobject)
+    doctest.testmod(mapinfo)
     doctest.testmod(mission)
     doctest.testmod(model)
     doctest.testmod(player)
