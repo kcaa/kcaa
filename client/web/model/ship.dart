@@ -87,6 +87,7 @@ class Ship extends Observable {
   @observable int shipTypeId;
   @observable String shipType;
   @observable int level, upgradeLevel;
+  @observable int upgradeBlueprints;
   @observable String levelClass;
   @observable int experienceGaugeValue;
   @observable String experienceGauge;
@@ -126,6 +127,7 @@ class Ship extends Observable {
     shipType = shipTypeDefinitionMap[data["ship_type"]].name;
     level = data["level"];
     upgradeLevel = data["upgrade_level"];
+    upgradeBlueprints = data["upgrade_blueprints"];
     fuel = data["loaded_resource"]["fuel"];
     fuelCapacity = data["resource_capacity"]["fuel"];
     ammo = data["loaded_resource"]["ammo"];

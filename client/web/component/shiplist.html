@@ -64,7 +64,10 @@
                 class="subordinate">.{{ship.experienceGauge}}</span>
                 </template></div>
               <template if="{{ship.upgradeLevel != 0}}">
-                <div>改: {{ship.upgradeLevel}}</div>
+                <div>
+                  改: {{ship.upgradeLevel}}<template
+                      if="{{ship.upgradeBlueprints != 0}}">+B</template>
+                </div>
               </template>
             </div>
             <div class="numberColumn">

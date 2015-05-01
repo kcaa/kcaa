@@ -133,6 +133,9 @@ class ShipDefinition(jsonobject.JSONSerializableObject):
     upgrade_resource = jsonobject.ReadonlyJSONProperty(
         'upgrade_resource', value_type=resource.Resource)
     """Resource required to upgrade."""
+    upgrade_blueprints = jsonobject.ReadonlyJSONProperty(
+        'upgrade_blueprints', value_type=int)
+    """Blueprints required to upgrade."""
     rebuilding_material = jsonobject.ReadonlyJSONProperty(
         'rebuilding_material', value_type=AbilityEnhancement)
     """Rebuilding material."""
@@ -227,6 +230,9 @@ class ShipDefinitionList(model.KCAAObject):
     def update(self, api_name, request, response, objects, debug):
         super(ShipDefinitionList, self).update(api_name, request, response,
                                                objects, debug)
+        required_blueprints = {}
+        for data in response.api_data.api_mst_shipupgrade:
+            required_blueprints[data.api_id] = data.api_drawing_count
         for data in response.api_data.api_mst_ship:
             # /api_get_master/ship KCSAPI returns empty results for unknown
             # ships. Those entries have a fuel capacity of 0.
@@ -269,6 +275,8 @@ class ShipDefinitionList(model.KCAAObject):
                 upgrade_resource=resource.Resource(
                     fuel=data.api_afterfuel,
                     ammo=data.api_afterbull),
+                upgrade_blueprints=required_blueprints.get(
+                    int(data.api_aftershipid), 0),
                 rebuilding_material=AbilityEnhancement(
                     firepower=data.api_powup[0],
                     thunderstroke=data.api_powup[1],
