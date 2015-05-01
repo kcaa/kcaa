@@ -179,8 +179,7 @@ class ShipDefinition(jsonobject.JSONSerializableObject):
     def is_submarine(ship):
         return ship.ship_type in (
             ShipDefinition.SHIP_TYPE_SUBMARINE,
-            ShipDefinition.SHIP_TYPE_SUBMARINE_AIRCRAFT_CARRIER,
-            ShipDefinition.SHIP_TYPE_SUBMARINE_TENDER)
+            ShipDefinition.SHIP_TYPE_SUBMARINE_AIRCRAFT_CARRIER)
 
     @staticmethod
     def is_anti_submarine(ship):
