@@ -150,6 +150,9 @@ class HandleExpeditionCombinedFleet(base.Manipulator):
                 saved_combined_fleet_name))
         # Reverse the fleet IDs for easier popping.
         fleet_ids = list(reversed(entry.available_fleet_ids))
+        # First dissolve the combined fleet (if any) to avoid unexpected
+        # force-dissolution.
+        yield self.do_manipulator(organizing.DissolveCombinedFleet)
         # Primary fleet.
         yield self.do_manipulator(organizing.LoadFleetByEntries,
                                   fleet_id=fleet_ids.pop(),
@@ -162,8 +165,6 @@ class HandleExpeditionCombinedFleet(base.Manipulator):
             yield self.do_manipulator(
                 organizing.FormCombinedFleet,
                 fleet_type=combined_fleet_deployment.combined_fleet_type)
-        else:
-            yield self.do_manipulator(organizing.DissolveCombinedFleet)
         # Escoting fleet.
         if entry.escoting_fleet_entries:
             escoting_fleet_id = fleet_ids.pop()
@@ -505,6 +506,9 @@ class WarmUpIdleShips(base.Manipulator):
         logger.info('Warming up idle ships: {}'.format(', '.join(
             s.name.encode('utf8') for s in ships_to_warm_up)))
         for ship_to_warm_up in ships_to_warm_up:
+            # First dissolve the combined fleet (if any) to avoid unexpected
+            # force-dissolution.
+            yield self.do_manipulator(organizing.DissolveCombinedFleet)
             self.add_manipulator(organizing.LoadShips,
                                  fleet_id, [ship_to_warm_up.id])
             self.add_manipulator(WarmUp, fleet_id)
