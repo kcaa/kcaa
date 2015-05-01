@@ -26,6 +26,16 @@ class Fleet(jsonobject.JSONSerializableObject):
     """True if the mission is complete. Updated when the screen transitioned to
     PORT_MAIN."""
 
+    FORMATION_SINGLE_LINE = 0
+    FORMATION_DOUBLE_LINES = 1
+    FORMATION_CIRCLE = 2
+    FORMATION_LADDER = 3
+    FORMATION_HORIZONTAL_LINE = 4
+    FORMATION_COMBINED_ANTI_SUBMARINE = 11
+    FORMATION_COMBINED_LOOKOUT = 12
+    FORMATION_COMBINED_CIRCLE = 13
+    FORMATION_COMBINED_COMBAT = 14
+
     @property
     def ready(self):
         return not self.mission_id

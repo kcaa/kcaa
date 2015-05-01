@@ -22,7 +22,8 @@ WARMUP_VITALITY = 75
 # Format is: (maparea ID, map ID, cell ID) -> formation ID
 # This will override the default formation passed to GoOnExpedition.
 PREFERRED_FORMATION = {
-    # 2015 Spring E-2: Combined fleet map. Everything should fall back to 14.
+    # 2015 Spring E-2
+    (30, 2, 5): kcsapi.Fleet.FORMATION_COMBINED_CIRCLE,
 }
 
 

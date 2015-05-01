@@ -80,12 +80,9 @@ class PracticePlan(jsonobject.JSONSerializableObject):
     fleet_name = jsonobject.JSONProperty('fleet_name', value_type=unicode)
     """Name of the fleet to go practice."""
     formation = jsonobject.JSONProperty('formation', value_type=int)
-    """Formation."""
-    FORMATION_SINGLE_LINE = 0
-    FORMATION_DOUBLE_LINES = 1
-    FORMATION_CIRCLE = 2
-    FORMATION_LADDER = 3
-    FORMATION_HORIZONTAL_LINE = 4
+    """Formation.
+
+    See kcsapi.fleet.Fleet class for the list of valid formations."""
 
 
 class PracticePreferences(jsonobject.JSONSerializableObject):
@@ -166,4 +163,4 @@ class Preferences(model.KCAAObject):
                 self.practice_prefs.practice_plans.append(
                     PracticePlan(opponent_fleet_type=opponent_fleet_type,
                                  fleet_name=u'',
-                                 formation=PracticePlan.FORMATION_SINGLE_LINE))
+                                 formation=fleet.Fleet.FORMATION_SINGLE_LINE))
