@@ -4,6 +4,7 @@ import datetime
 import logging
 
 import base
+import expedition
 import fleet
 import logistics
 import organizing
@@ -259,31 +260,10 @@ class EngagePractice(base.Manipulator):
         if expected_result >= kcsapi.Battle.RESULT_B:
             logger.debug('No night battle; will win.')
             return False
-        # TODO: Do not gor for night combat if rest of the enemy ships are
-        # submarines.
-        # If the formation is the horizontal line, the intention is most likely
-        # to avoid the night battle; to avoid damage as much as possible, or to
-        # fight against submarines.
-        if formation == kcsapi.Fleet.FORMATION_HORIZONTAL_LINE:
-            logger.debug('No night battle; engaged with the anti submarine '
-                         'formation.')
-            return False
         available_ships = [s for s in ships if s.can_attack_midnight]
         if not available_ships:
             logger.debug('No night battle; no ship can attack midnight.')
             return False
         # Target for A-class win.
-        num_alive_ship_threshold = len(battle.enemy_ships) / 2
-        if len(battle.enemy_ships) == 6:
-            num_alive_ship_threshold = 2
-        enemy_alive_ships = [s for s in battle.enemy_ships if s.alive]
-        if (len(enemy_alive_ships) - len(available_ships) <=
-                num_alive_ship_threshold):
-            logger.debug(
-                'Night battle; our available ships ({}) may be able to defeat '
-                'enemy ships ({}) to A-class win threshold ({})'.format(
-                    len(available_ships), len(enemy_alive_ships),
-                    num_alive_ship_threshold))
-            return True
-        logger.debug('No night battle; no hope for win.')
-        return False
+        return expedition.EngageExpedition.can_achieve_a_class_victory(
+            battle, ships)

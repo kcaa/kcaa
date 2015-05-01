@@ -374,7 +374,7 @@ class EngageExpedition(base.Manipulator):
         expected_result = kcsapi.battle.expect_result(
             ships, battle.enemy_ships)
         if expected_result == kcsapi.Battle.RESULT_S:
-            logger.debug('No night battle; will achieve S-class win.')
+            logger.debug('No night battle; will achieve S-class victory.')
             return False
         available_ships = [s for s in ships if s.can_attack_midnight]
         if not available_ships:
@@ -386,7 +386,8 @@ class EngageExpedition(base.Manipulator):
         if expected_result >= kcsapi.Battle.RESULT_B:
             # TODO: Maybe support a leveling mode not to be contented with A-
             # or B-class win?
-            logger.debug('No night battle; will achieve A- or B-class win.')
+            logger.debug('No night battle; will achieve A- or B-class '
+                         'victory.')
             return False
         # If the formation is the horizontal line, the intention is most likely
         # to avoid the night battle; to avoid damage as much as possible, or to
@@ -396,7 +397,12 @@ class EngageExpedition(base.Manipulator):
             logger.debug('No night battle; engaged with the anti submarine '
                          'formation.')
             return False
-        # Target for A-class win.
+        # Target for A-class victory.
+        return EngageExpedition.can_achieve_a_class_victory(battle, ships)
+
+    @staticmethod
+    def can_achieve_a_class_victory(battle, ships):
+        available_ships = [s for s in ships if s.can_attack_midnight]
         num_alive_ship_threshold = len(battle.enemy_ships) / 2
         if len(battle.enemy_ships) == 6:
             num_alive_ship_threshold = 2
@@ -411,12 +417,12 @@ class EngageExpedition(base.Manipulator):
             logger.debug(
                 'Night battle; our available ships ({}) may be able to defeat '
                 'enemy ships ({} submarines + {} non submarines) to A-class '
-                'win threshold ({})'.format(
+                'victory threshold ({})'.format(
                     len(available_ships),
                     len(enemy_alive_ships) - len(enemy_alive_non_submarines),
                     len(enemy_alive_non_submarines), num_alive_ship_threshold))
             return True
-        logger.debug('No night battle; no hope for win.')
+        logger.debug('No night battle; no hope for victory.')
         return False
 
     def should_go_next(self, expedition, battle, ships, secondary_ships):
