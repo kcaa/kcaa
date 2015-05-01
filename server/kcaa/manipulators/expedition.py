@@ -376,6 +376,10 @@ class EngageExpedition(base.Manipulator):
         if expected_result == kcsapi.Battle.RESULT_S:
             logger.debug('No night battle; will achieve S-class win.')
             return False
+        available_ships = [s for s in ships if s.can_attack_midnight]
+        if not available_ships:
+            logger.debug('No night battle; no ship can attack midnight.')
+            return False
         if expedition.event == kcsapi.Expedition.EVENT_BATTLE_BOSS:
             logger.debug('Night battle; this is a boss battle.')
             return True
@@ -391,10 +395,6 @@ class EngageExpedition(base.Manipulator):
                          kcsapi.Fleet.FORMATION_COMBINED_ANTI_SUBMARINE):
             logger.debug('No night battle; engaged with the anti submarine '
                          'formation.')
-            return False
-        available_ships = [s for s in ships if s.can_attack_midnight]
-        if not available_ships:
-            logger.debug('No night battle; no ship can attack midnight.')
             return False
         # Target for A-class win.
         num_alive_ship_threshold = len(battle.enemy_ships) / 2
