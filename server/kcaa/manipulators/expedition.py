@@ -9,6 +9,7 @@ import logistics
 import mission
 import organizing
 import rebuilding
+import repair
 from kcaa import kcsapi
 from kcaa import screens
 
@@ -427,8 +428,6 @@ class WarmUp(base.Manipulator):
 
     def run(self, fleet_id):
         fleet_id = int(fleet_id)
-        if not fleet.are_all_ships_available(self, fleet_id):
-            return
         ship_list = self.objects['ShipList']
         ship_def_list = self.objects['ShipDefinitionList']
         equipment_list = self.objects['EquipmentList']
@@ -446,6 +445,13 @@ class WarmUp(base.Manipulator):
         ships = map(lambda ship_id: ship_list.ships[str(ship_id)],
                     fleet_.ship_ids)
         target_ship = ships[0]
+        # TODO: Refactor with tests.
+        if not fleet.are_all_ships_available(self, fleet_id):
+            # Repair a damaged ship after warming up.
+            if target_ship.hitpoint.ratio < 1:
+                self.add_manipulator(repair.RepairShips,
+                                     ship_ids=[target_ship.id])
+            return
         if target_ship.vitality >= WARMUP_VITALITY:
             return
         logger.info('Warming up {}.'.format(ships[0].name.encode('utf8')))

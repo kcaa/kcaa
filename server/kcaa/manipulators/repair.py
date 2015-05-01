@@ -76,9 +76,9 @@ class AutoRepairShips(base.AutoManipulator):
 
     @staticmethod
     def get_ships_to_repair(objects):
-        ship_list = objects.get('ShipList')
-        fleet_list = objects.get('FleetList')
-        repair_dock = objects.get('RepairDock')
+        ship_list = objects['ShipList']
+        fleet_list = objects['FleetList']
+        repair_dock = objects['RepairDock']
         empty_slots = [slot for slot in repair_dock.slots if not slot.in_use]
         if not empty_slots:
             return []

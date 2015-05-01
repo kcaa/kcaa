@@ -278,25 +278,16 @@ class ManipulatorManager(object):
             'AutoCheckRepairResult': -2000,
             # AutoGoOnMission can run anytime, but doesn't take much time. It
             # can precede other manual manipulators.
-            # when idle.
             'AutoGoOnMission': -1000,
-            # AutoRepairShips should have a lower priority than WarmUp.
-            # Priority of -2 ensures that this doesn't bother the current
-            # WarmUp call chain, but precedes consequent WarmUp invocations.
-            # Note that the top-level WarmUp is called from WarmUpFleet or
-            # WarmUpIdleShips, which have priority of -1.
-            # TODO: Consider fixing this; this is too hacky. This can be solved
-            # by separating the 'hard' version and 'soft' version. Hard version
-            # takes higher priority and repairs fatal ships. Soft version has
-            # less lower prirority and repairs slightly damages ships when
-            # idle.
-            'AutoRepairShips': -2,
             # AutoCheckPracticeOpponents runs when idle. It's quick, so it can
             # precede other low priority ones.
             'AutoCheckPracticeOpponents': 1000,
             # AutoHandleAllPractices runs when idle. It may take some time, and
             # thus should precede other time-consuming low priority tasks.
             'AutoHandleAllPractices': 2000,
+            # AutoRepairShips can be anywhere. It repairs slightly damaged
+            # ships when idle.
+            'AutoRepairShips': 7000,
             # AutoBoostShipRepairing runs when idle.
             'AutoBoostShipRepairing': 8000,
             # AutoReceiveShips runs when idle.

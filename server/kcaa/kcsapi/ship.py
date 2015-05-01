@@ -415,7 +415,7 @@ class Ship(ShipDefinition):
         return (self.locked and
                 not self.is_under_repair and
                 not self.away_for_mission and
-                self.hitpoint.ratio > 0.5 and
+                not self.dangerous > 0.5 and
                 self.vitality >= 30)
 
     @property
@@ -428,8 +428,12 @@ class Ship(ShipDefinition):
         return self.hitpoint.current > 0
 
     @property
+    def dangerous(self):
+        return self.hitpoint.ratio <= 0.5
+
+    @property
     def fatal(self):
-        return self.hitpoint.current <= 0.25 * self.hitpoint.maximum
+        return self.hitpoint.ratio <= 0.25
 
     @property
     def can_attack_midnight(self):
