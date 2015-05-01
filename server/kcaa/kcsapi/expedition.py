@@ -70,7 +70,9 @@ class Expedition(model.KCAAObject):
             self.is_terminal = data.api_next == 0
             self.needs_compass = data.api_rashin_flg == 1
             self.event = data.api_event_id
-            if self.event == Expedition.EVENT_ACTIVE_SELECTION:
+            # api_event_id does not exactly mean the active selection?
+            if (self.event == Expedition.EVENT_ACTIVE_SELECTION and
+                    not self.needs_compass):
                 self.needs_active_selection = True
                 self.next_cell_selections = (
                     data.api_select_route.api_select_cells)

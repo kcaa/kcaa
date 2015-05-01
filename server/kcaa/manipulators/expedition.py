@@ -23,27 +23,31 @@ WARMUP_VITALITY = 75
 # This will override the default formation passed to GoOnExpedition.
 E = kcsapi.MapInfo.MAPAREA_2015_SPRING
 PREFERRED_FORMATION = {
-    # 2015 Spring E-2
+    # 2015 Spring
     (E, 2, 5): kcsapi.Fleet.FORMATION_COMBINED_CIRCLE,
+    (E, 3, 3): kcsapi.Fleet.FORMATION_DOUBLE_LINES,
 }
 
 
 # Preferred next selection.
 # Format is: (maparea ID, map ID, cell ID) -> next cell ID
 PREFERRED_NEXT_SELECTION = {
-    # 2015 Spring E-2
+    # 2015 Spring
     (E, 2, 2): 4,  # 4 (battleships) or 5 (aircraft carriers)
     (E, 2, 6): 5,  # 5 (aircraft carriers) or 8 (wrong way)
+    (E, 3, 6): 4,  # 4 (north east) or 8 (west)
 }
 
 
 # Click position for the active selection.
 # Format is: (maparea ID, map ID, cell ID) -> (x, y)
 ACTIVE_SELECTION_CLICK_POSITION = {
-    # 2015 Spring E-2
+    # 2015 Spring
     (E, 2, 4): (450, 120),
     (E, 2, 5): (400, 250),
     (E, 2, 8): (265, 345),
+    (E, 3, 4): (480, 155),
+    (E, 3, 8): (385, 310),
 }
 
 
