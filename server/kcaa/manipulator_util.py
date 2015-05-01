@@ -498,13 +498,13 @@ class ManipulatorManager(object):
         if not self.current_task.success:
             exception = self.current_task.exception
             if exception.message:
-                self._logger.error('{}: {}'.format(
+                self._logger.error(u'{}: {}'.format(
                     type(exception).__name__, exception.message))
             else:
                 self._logger.error(
                     'Some exception of type {} happened.'.format(
                         type(exception).__name__))
-            self._logger.debug('Exception traceback: ' +
+            self._logger.debug('Exception traceback: \n' +
                                self.current_task.format_exception_traceback())
         self.last_task = self.current_task
         self.current_task = None
