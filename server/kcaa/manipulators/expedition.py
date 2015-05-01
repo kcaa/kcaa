@@ -336,12 +336,8 @@ class EngageExpedition(base.Manipulator):
             self.screen.update_screen_id(screens.EXPEDITION_REWARDS)
             yield self.screen.dismiss_new_ship()
         if expedition.is_terminal:
-            # TODO: Best to detect how many items are obtained, and repeat
-            # clicking the screen.
-            while self.screen_id != screens.PORT_MAIN:
-                self.screen.click_somewhere()
-                yield self.screen.wait_transition(
-                    screens.PORT_MAIN, timeout=7.0, raise_on_timeout=False)
+            for _ in xrange(expedition_result.num_obtained_items):
+                yield self.screen.dismiss_new_item()
             self.add_manipulator(logistics.ChargeFleet,
                                  fleet_id=expedition.fleet_id)
             if fleet_list.combined:

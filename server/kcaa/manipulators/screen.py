@@ -1326,6 +1326,8 @@ class ExpeditionScreen(EngageScreen):
             yield 2.0
         return self.do_task(dismiss_new_ship_task)
 
+    dismiss_new_item = dismiss_new_ship
+
     def go_for_next_battle(self):
         def go_for_next_battle_task(task):
             self.click(290, 245)

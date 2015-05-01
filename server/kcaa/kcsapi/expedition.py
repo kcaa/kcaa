@@ -113,6 +113,9 @@ class ExpeditionResult(model.KCAAObject):
     """Whether got a ship as a reward."""
     new_ship_id = jsonobject.JSONProperty('new_ship_id', value_type=int)
     """Ship definition ID of the new ship."""
+    num_obtained_items = jsonobject.JSONProperty('num_obtained_items',
+                                                 value_type=int)
+    """Number of items obtained as a reward."""
 
     def update(self, api_name, request, response, objects, debug):
         super(ExpeditionResult, self).update(api_name, request, response,
@@ -126,3 +129,8 @@ class ExpeditionResult(model.KCAAObject):
                 self.new_ship_id = response.api_data.api_get_ship.api_ship_id
             else:
                 self.new_ship_id = None
+            if hasattr(response.api_data, 'foo'):
+                # TODO: Implement.
+                pass
+            else:
+                self.num_obtained_items = 0
