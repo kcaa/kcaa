@@ -234,10 +234,6 @@ class ShipDefinitionList(model.KCAAObject):
         for data in response.api_data.api_mst_shipupgrade:
             required_blueprints[data.api_id] = data.api_drawing_count
         for data in response.api_data.api_mst_ship:
-            # /api_get_master/ship KCSAPI returns empty results for unknown
-            # ships. Those entries have a fuel capacity of 0.
-            if data.api_fuel_max == 0:
-                continue
             # Maps are always keyed by string in JSON, so it's safer to key
             # string here. This is required to make this object usable with
             # KCSAPI handler's serialization/deserialization mechanism.
