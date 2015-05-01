@@ -146,7 +146,7 @@ class HandleExpeditionCombinedFleet(base.Manipulator):
         combined_fleet_deployment = matching_fleets[0]
         if (combined_fleet_deployment.combined_fleet_type ==
                 kcsapi.FleetList.COMBINED_FLEET_TYPE_SINGLE):
-            assert formation >= 1 and formation <= 4
+            assert formation >= 0 and formation <= 4
         else:
             assert formation >= 11 and formation <= 14
         entry = combined_fleet_deployment.get_ships(
