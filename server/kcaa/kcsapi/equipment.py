@@ -325,21 +325,28 @@ class EquipmentList(model.KCAAObject):
             self.update_unsetslot(equipment_def_list,
                                   response.api_data.api_slot_data)
         elif api_name == '/api_get_member/slot_item':
-            self.items.clear()
+            old_items = self.items
+            self.items = {}
             self.item_instances.clear()
             for data in response.api_data:
+                old_item = old_items.get(str(data.api_id))
                 definition = equipment_def_list.items[
                     str(data.api_slotitem_id)]
+                # If this is handled first, in_type_index will soon be
+                # overwritten by upcoming unsetslot call.
+                # In remodeling, this will be called right after ship3 which
+                # sets unsetslot; no unsetslot call will follow. in_type_index
+                # should be preserved that case.
+                # TODO: Test this.
                 self.add_item(Equipment(
                     id=data.api_id,
                     item_id=data.api_slotitem_id,
                     level=data.api_level,
                     locked=data.api_locked != 0,
                     type=definition.type,
+                    in_type_index=old_item.in_type_index if old_item else -1,
                     sort_order=definition.sort_order,
                     powerup_score=definition.powerup_score))
-                # in_type_index will soon be overwritten by upcoming unsetslot
-                # call.
         elif api_name == '/api_get_member/unsetslot':
             self.update_unsetslot(equipment_def_list, response.api_data)
         elif api_name == '/api_req_kaisou/lock':

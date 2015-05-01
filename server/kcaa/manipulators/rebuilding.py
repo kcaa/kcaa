@@ -541,7 +541,7 @@ class ReplaceEquipmentsByIds(base.Manipulator):
                 for i, equipment in enumerate(unequipped_items):
                     definition = equipment.definition(equipment_def_list)
                     logger.debug(u'{}-{}: {:7d} {} ({}:{})'.format(
-                        i / 10, i % 10, equipment.id, definition.name,
+                        i / 10 + 1, i % 10, equipment.id, definition.name,
                         definition.type, definition.type_name))
                 raise Exception('Invalid unequipped items.')
             # TODO: Remove this debug logging after the issue is resolved.
@@ -566,7 +566,7 @@ class ReplaceEquipmentsByIds(base.Manipulator):
                 for i, equipment in enumerate(unequipped_items):
                     definition = equipment.definition(equipment_def_list)
                     logger.debug(u'{}-{}: {:7d} {} ({}:{})'.format(
-                        i / 10, i % 10, equipment.id, definition.name,
+                        i / 10 + 1, i % 10, equipment.id, definition.name,
                         definition.type, definition.type_name))
                 raise Exception(
                     u'Replacement failed. Expected {}, got {}.'.format(
