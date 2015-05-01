@@ -337,7 +337,7 @@ class EngageExpedition(base.Manipulator):
             # TODO: Best to detect how many items are obtained, and repeat
             # clicking the screen.
             while self.screen_id != screens.PORT_MAIN:
-                yield self.screen.click_somewhere()
+                self.screen.click_somewhere()
                 yield self.screen.wait_transition(
                     screens.PORT_MAIN, timeout=7.0, raise_on_timeout=False)
             self.add_manipulator(logistics.ChargeFleet,
