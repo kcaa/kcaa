@@ -401,8 +401,9 @@ class EngageExpedition(base.Manipulator):
         if len(battle.enemy_ships) == 6:
             num_alive_ship_threshold = 2
         enemy_alive_ships = [s for s in battle.enemy_ships if s.alive]
-        enemy_alive_non_submarines = [s for s in enemy_alive_ships if
-                                      kcsapi.ShipDefinition.is_submarine(s)]
+        enemy_alive_non_submarines = [
+            s for s in enemy_alive_ships if
+            not kcsapi.ShipDefinition.is_submarine(s)]
         max_defeatable_ships = min(len(available_ships),
                                    len(enemy_alive_non_submarines))
         if (len(enemy_alive_ships) - max_defeatable_ships <=
