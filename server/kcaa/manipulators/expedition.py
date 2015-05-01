@@ -345,6 +345,8 @@ class EngageExpedition(base.Manipulator):
         if expedition.is_terminal:
             for _ in xrange(expedition_result.num_obtained_items):
                 yield self.screen.dismiss_new_item()
+            if expedition_result.first_cleared:
+                yield self.screen.dismiss_first_clear_screen()
             self.add_manipulator(logistics.ChargeFleet,
                                  fleet_id=expedition.fleet_id)
             if fleet_list.combined:

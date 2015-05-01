@@ -1323,10 +1323,17 @@ class ExpeditionScreen(EngageScreen):
         def dismiss_new_ship_task(task):
             yield 7.0
             self.click(750, 430)
-            yield 2.0
+            yield 3.0
         return self.do_task(dismiss_new_ship_task)
 
     dismiss_new_item = dismiss_new_ship
+
+    def dismiss_first_clear_screen(self):
+        def dismiss_first_clear_screen_task(task):
+            yield 15.0
+            self.click(750, 430)
+            yield 5.0
+        return self.do_task(dismiss_first_clear_screen_task)
 
     def go_for_next_battle(self):
         def go_for_next_battle_task(task):

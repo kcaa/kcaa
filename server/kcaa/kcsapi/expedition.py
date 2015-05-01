@@ -118,6 +118,8 @@ class ExpeditionResult(model.KCAAObject):
     num_obtained_items = jsonobject.JSONProperty('num_obtained_items',
                                                  value_type=int)
     """Number of items obtained as a reward."""
+    first_cleared = jsonobject.JSONProperty('first_cleared', value_type=bool)
+    """Whether first cleared."""
 
     def update(self, api_name, request, response, objects, debug):
         super(ExpeditionResult, self).update(api_name, request, response,
@@ -131,8 +133,13 @@ class ExpeditionResult(model.KCAAObject):
                 self.new_ship_id = response.api_data.api_get_ship.api_ship_id
             else:
                 self.new_ship_id = None
-            if hasattr(response.api_data, 'foo'):
-                # TODO: Implement.
-                pass
+            if hasattr(response.api_data, 'api_get_eventitem'):
+                self.num_obtained_items = len(
+                    response.api_data.api_get_eventitem)
+                # api_get_eventitem
+                # - api_id: item ID (maybe use item, ship, or equipment)
+                # - api_type: 1 (use item), 2 (ship), 3 (equipment)
+                # - api_value: amount
             else:
                 self.num_obtained_items = 0
+            self.first_cleared = response.api_data.api_first_clear == 1
