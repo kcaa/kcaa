@@ -358,11 +358,7 @@ class EngageExpedition(base.Manipulator):
                 yield self.screen.dismiss_new_item()
             if expedition_result.first_cleared:
                 yield self.screen.dismiss_first_clear_screen()
-            self.add_manipulator(logistics.ChargeFleet,
-                                 fleet_id=expedition.fleet_id)
-            if fleet_list.combined:
-                self.add_manipulator(logistics.ChargeFleet,
-                                     fleet_id=2)
+            self.add_manipulator(logistics.ChargeAllFleets)
             return
         if ships[0].fatal:
             yield self.screen.forcedly_drop_out()
@@ -377,11 +373,7 @@ class EngageExpedition(base.Manipulator):
                                       default_formation=default_formation)
         else:
             yield self.screen.drop_out()
-            self.add_manipulator(logistics.ChargeFleet,
-                                 fleet_id=expedition.fleet_id)
-            if fleet_list.combined:
-                self.add_manipulator(logistics.ChargeFleet,
-                                     fleet_id=2)
+            self.add_manipulator(logistics.ChargeAllFleets)
 
     def should_go_night_combat(self, expedition, battle, ships, formation):
         expected_result = kcsapi.battle.expect_result(
