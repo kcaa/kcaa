@@ -376,8 +376,6 @@ class EngageExpedition(base.Manipulator):
         if expected_result == kcsapi.Battle.RESULT_S:
             logger.debug('No night battle; will achieve S-class win.')
             return False
-        # TODO: Do not gor for night combat if rest of the enemy ships are
-        # submarines.
         if expedition.event == kcsapi.Expedition.EVENT_BATTLE_BOSS:
             logger.debug('Night battle; this is a boss battle.')
             return True
@@ -403,13 +401,19 @@ class EngageExpedition(base.Manipulator):
         if len(battle.enemy_ships) == 6:
             num_alive_ship_threshold = 2
         enemy_alive_ships = [s for s in battle.enemy_ships if s.alive]
-        if (len(enemy_alive_ships) - len(available_ships) <=
+        enemy_alive_non_submarines = [s for s in enemy_alive_ships if
+                                      kcsapi.ShipDefinition.is_submarine(s)]
+        max_defeatable_ships = min(len(available_ships),
+                                   len(enemy_alive_non_submarines))
+        if (len(enemy_alive_ships) - max_defeatable_ships <=
                 num_alive_ship_threshold):
             logger.debug(
                 'Night battle; our available ships ({}) may be able to defeat '
-                'enemy ships ({}) to A-class win threshold ({})'.format(
-                    len(available_ships), len(enemy_alive_ships),
-                    num_alive_ship_threshold))
+                'enemy ships ({} submarines + {} non submarines) to A-class '
+                'win threshold ({})'.format(
+                    len(available_ships),
+                    len(enemy_alive_ships) - len(enemy_alive_non_submarines),
+                    len(enemy_alive_non_submarines), num_alive_ship_threshold))
             return True
         logger.debug('No night battle; no hope for win.')
         return False

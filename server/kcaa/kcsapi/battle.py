@@ -319,6 +319,7 @@ class Battle(model.KCAAObject):
 
     def update(self, api_name, request, response, objects, debug):
         super(Battle, self).update(api_name, request, response, objects, debug)
+        ship_def_list = objects['ShipDefinitionList']
         data = response.api_data
         if api_name in ('/api_req_sortie/battle',
                         '/api_req_practice/battle'):
@@ -412,7 +413,7 @@ class Battle(model.KCAAObject):
                 attacks=ThunderstrokeAttack.create_list_from_raigeki(
                     combined_raigeki))
         self.need_midnight_battle = data.api_midnight_flag != 0
-        self.update_enemy_ships(data)
+        self.update_enemy_ships(data, ship_def_list)
 
         # api_dock_id: fleet ID (note: typo on deck)
         # api_eKyouka: enemy enhanced parameters?
@@ -505,6 +506,7 @@ class MidnightBattle(model.KCAAObject):
     def update(self, api_name, request, response, objects, debug):
         super(MidnightBattle, self).update(api_name, request, response,
                                            objects, debug)
+        ship_def_list = objects['ShipDefinitionList']
         data = response.api_data
         if api_name == '/api_req_combined_battle/midnight_battle':
             # The combined fleet will always join the midnight battle.
@@ -513,7 +515,7 @@ class MidnightBattle(model.KCAAObject):
             self.fleet_id = int(data.api_deck_id)
         self.phase = GunfirePhase(
             attacks=GunfireAttack.create_list_from_hougeki(data.api_hougeki))
-        self.update_enemy_ships(data)
+        self.update_enemy_ships(data, ship_def_list)
         # Mostly the same as ExpeditionBattle.
         # api_deck_id: same
         # api_eKyouka: same
@@ -534,6 +536,6 @@ class MidnightBattle(model.KCAAObject):
         # api_ship_lv: same
         # api_touch_plane: clutter?
 
-    def update_enemy_ships(self, data):
-        self.enemy_ships = initialize_enemy_ships(data)
+    def update_enemy_ships(self, data, ship_def_list):
+        self.enemy_ships = initialize_enemy_ships(data, ship_def_list)
         deal_enemy_damage_in_phase(self.phase, self.enemy_ships)
