@@ -98,7 +98,7 @@ class GoOnPractice(base.Manipulator):
         yield self.screen.confirm_practice()
         if len(fleet_.ship_ids) >= 4:
             yield self.screen.select_formation(formation)
-        yield self.do_manipulator(EngagePractice)
+        yield self.do_manipulator(EngagePractice, formation=formation)
 
 
 class HandlePractice(base.Manipulator):
@@ -206,7 +206,7 @@ class AutoHandleAllPractices(base.AutoManipulator):
 
 class EngagePractice(base.Manipulator):
 
-    def run(self):
+    def run(self, formation):
         yield self.screen.wait_transition(screens.PRACTICE_COMBAT,
                                           timeout=10.0)
         logger.info('Engaging an enemy fleet in practice.')
@@ -223,7 +223,7 @@ class EngagePractice(base.Manipulator):
         ships = map(lambda ship_id: ship_list.ships[str(ship_id)],
                     fleet_.ship_ids)
         to_go_for_night_combat = self.should_go_night_combat(
-            battle, ships)
+            battle, ships, formation)
         if battle.need_midnight_battle:
             # Clicks every >5 seconds in case a night battle is required for
             # the complete win. Timeout is >5 minutes (5 sec x 60 trials).
@@ -253,17 +253,37 @@ class EngagePractice(base.Manipulator):
         yield self.screen.dismiss_result_details()
         self.add_manipulator(logistics.ChargeFleet, fleet_id=battle.fleet_id)
 
-    def should_go_night_combat(self, battle, ships):
+    def should_go_night_combat(self, battle, ships, formation):
         expected_result = kcsapi.battle.expect_result(
             ships, battle.enemy_ships)
         if expected_result >= kcsapi.Battle.RESULT_B:
+            logger.debug('No night battle; will win.')
             return False
         # TODO: Do not gor for night combat if rest of the enemy ships are
         # submarines.
+        # If the formation is the horizontal line, the intention is most likely
+        # to avoid the night battle; to avoid damage as much as possible, or to
+        # fight against submarines.
+        if formation == kcsapi.Fleet.FORMATION_HORIZONTAL_LINE:
+            logger.debug('No night battle; engaged with the anti submarine '
+                         'formation.')
+            return False
         available_ships = [s for s in ships if s.can_attack_midnight]
         if not available_ships:
+            logger.debug('No night battle; no ship can attack midnight.')
             return False
+        # Target for A-class win.
+        num_alive_ship_threshold = len(battle.enemy_ships) / 2
+        if len(battle.enemy_ships) == 6:
+            num_alive_ship_threshold = 2
         enemy_alive_ships = [s for s in battle.enemy_ships if s.alive]
-        if len(available_ships) >= len(enemy_alive_ships) - 1:
+        if (len(enemy_alive_ships) - len(available_ships) <=
+                num_alive_ship_threshold):
+            logger.debug(
+                'Night battle; our available sihps ({}) may be able to defeat '
+                'enemy ships ({}) to A-class win threshold ({})'.format(
+                    len(available_ships), len(enemy_alive_ships),
+                    num_alive_ship_threshold))
             return True
+        logger.debug('No night battle; no hope for win.')
         return False

@@ -370,24 +370,45 @@ class EngageExpedition(base.Manipulator):
     def should_go_night_combat(self, expedition, battle, ships, formation):
         expected_result = kcsapi.battle.expect_result(
             ships, battle.enemy_ships)
-        if expected_result in (kcsapi.Battle.RESULT_S, kcsapi.Battle.RESULT_A):
+        if expected_result == kcsapi.Battle.RESULT_S:
+            logger.debug('No night battle; will achieve S-class win.')
             return False
         # TODO: Do not gor for night combat if rest of the enemy ships are
         # submarines.
-        # TODO: Move FORMATION enums from prefs and use here.
+        if expedition.event == kcsapi.Expedition.EVENT_BATTLE_BOSS:
+            logger.debug('Night battle; this is a boss battle.')
+            return True
+        if expected_result >= kcsapi.Battle.RESULT_B:
+            # TODO: Maybe support a leveling mode not to be contented with A-
+            # or B-class win?
+            logger.debug('No night battle; will achieve A- or B-class win.')
+            return False
         # If the formation is the horizontal line, the intention is most likely
         # to avoid the night battle; to avoid damage as much as possible, or to
         # fight against submarines.
-        if formation == 4:
+        if formation in (kcsapi.Fleet.FORMATION_HORIZONTAL_LINE,
+                         kcsapi.Fleet.FORMATION_COMBINED_ANTI_SUBMARINE):
+            logger.debug('No night battle; engaged with the anti submarine '
+                         'formation.')
             return False
         available_ships = [s for s in ships if s.can_attack_midnight]
         if not available_ships:
+            logger.debug('No night battle; no ship can attack midnight.')
             return False
+        # Target for A-class win.
+        num_alive_ship_threshold = len(battle.enemy_ships) / 2
+        if len(battle.enemy_ships) == 6:
+            num_alive_ship_threshold = 2
         enemy_alive_ships = [s for s in battle.enemy_ships if s.alive]
-        if len(available_ships) >= len(enemy_alive_ships) - 1:
+        if (len(enemy_alive_ships) - len(available_ships) <=
+                num_alive_ship_threshold):
+            logger.debug(
+                'Night battle; our available sihps ({}) may be able to defeat '
+                'enemy ships ({}) to A-class win threshold ({})'.format(
+                    len(available_ships), len(enemy_alive_ships),
+                    num_alive_ship_threshold))
             return True
-        if expedition.event == kcsapi.Expedition.EVENT_BATTLE_BOSS:
-            return True
+        logger.debug('No night battle; no hope for win.')
         return False
 
     def should_go_next(self, expedition, battle, ships, secondary_ships):
