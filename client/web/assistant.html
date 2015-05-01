@@ -51,6 +51,9 @@
                 <button on-click="{{showModalDialog}}"
                         data-dialog="kcaaScheduleDialog">設定</button>
               </div>
+              <div>キラキラ化待ち: {{model.numShipsToWarmUp}}隻</div>
+              <div>入渠: {{model.numShipsUnderRepair}}隻 /
+                  {{model.numShipsToRepair}}隻待ち</div>
               <div>任務: {{model.numQuestsUndertaken}}/5</div>
             </div>
             <h4>資源</h4>
@@ -284,7 +287,11 @@
             <button on-click="{{filterShips}}"
                     data-filter-type="fatalState">沈没寸前</button>
             <button on-click="{{filterShips}}"
-                    data-filter-type="canWarmUp">キラキラ化の余地あり</button>
+                    data-filter-type="canWarmUp">キラキラ化待ち</button>
+            <button on-click="{{filterShips}}"
+                    data-filter-type="underRepair">入渠中</button>
+            <button on-click="{{filterShips}}"
+                    data-filter-type="canRepair">入渠待ち</button>
           </div>
           <div>
             近代化改修フィルタ:

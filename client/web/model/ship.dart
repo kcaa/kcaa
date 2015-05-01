@@ -71,6 +71,8 @@ class Ship extends Observable {
     "dangerousState": makeFilterByState("dangerous"),
     "fatalState": makeFilterByState("fatal"),
     "canWarmUp": filterCanWarmUp,
+    "underRepair": filterUnderRepair,
+    "canRepair": filterCanRepair,
     "roomInFirepower": filterRoomInFirepower,
     "roomInThunderstroke": filterRoomInThunderstroke,
     "roomInAntiAir": filterRoomInAntiAir,
@@ -324,6 +326,14 @@ class Ship extends Observable {
   static bool filterCanWarmUp(Ship s) {
     return (s.stateClass == "good" || s.stateClass == "") &&
         s.vitality < Fleet.WARMUP_VITALITY && !s.awayForMission && s.locked;
+  }
+
+  static bool filterUnderRepair(Ship s) {
+    return s.isUnderRepair;
+  }
+
+  static bool filterCanRepair(Ship s) {
+    return s.hp < s.maxHp && !s.isUnderRepair && !s.awayForMission && s.locked;
   }
 
   static bool filterRoomInFirepower(Ship s) {
@@ -689,6 +699,12 @@ void handleShipList(Assistant assistant, AssistantModel model,
   reorderShipList(model);
   model.numFilteredShips =
       model.ships.where((ship) => model.shipList.filter(ship)).length;
+  model.numShipsToWarmUp =
+      model.ships.where((ship) => Ship.filterCanWarmUp(ship)).length;
+  model.numShipsUnderRepair =
+      model.ships.where((ship) => Ship.filterUnderRepair(ship)).length;
+  model.numShipsToRepair =
+      model.ships.where((ship) => Ship.filterCanRepair(ship)).length;
   updateShipTags(model);
 }
 
