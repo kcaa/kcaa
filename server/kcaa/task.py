@@ -102,7 +102,7 @@ class Task(object):
         """
         result = ''
         task_to_trace = self
-        while task_to_trace:
+        while task_to_trace and task_to_trace.exception:
             if result:
                 result += '\n'
             result += ''.join(traceback.format_exception(
