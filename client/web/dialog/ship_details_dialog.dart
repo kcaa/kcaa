@@ -90,6 +90,12 @@ class ShipDetailsDialog extends KcaaDialog {
         loadableEquipmentTypes.add(equipmentType);
       }
     });
+    // Some ships have additional loadable equipment types in addition to the
+    // default types defined by the ship.
+    for (var type in ship.additionalLoadableEquipmentTypes) {
+      loadableEquipmentTypes.add(type);
+    }
+    loadableEquipmentTypes.sort();
   }
 
   void resetEquipmentSelectionMode() {

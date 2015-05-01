@@ -110,6 +110,7 @@ class Ship extends Observable {
   @observable bool locked;
   @observable bool isUnderRepair;
   @observable bool awayForMission;
+  Set additionalLoadableEquipmentTypes;
   @observable final List<String> tags = new ObservableList<String>();
   @observable String lockedClass;
   @observable Fleet belongingFleet;
@@ -166,6 +167,8 @@ class Ship extends Observable {
     locked = data["locked"];
     isUnderRepair = data["is_under_repair"];
     awayForMission = data["away_for_mission"];
+    additionalLoadableEquipmentTypes =
+        new Set.from(data["additional_loadable_equipment_types"]);
     if (data["tags"] == null) {
       tags.clear();
     }

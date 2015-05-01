@@ -7,6 +7,21 @@ import model
 import resource
 
 
+# Loadable equipment types in addition to the default loadable map.
+# There seems no data on this in the master data. Maintained manually.
+# TODO: Revisit later. If there is considerable amount of this kind of data,
+# KCSAPI master should contain them.
+ADDITIONAL_LOADABLE_EQUIPMENT_TYPES = {
+    131: [38],  # Yamato
+    136: [38],  # Yamato Mk2
+    143: [38],  # Musashi
+    148: [38],  # Musashi Mk2
+    178: [5],   # Bismarck drei
+    275: [38],  # Nagato Mk2
+    276: [38],  # Mutsu Mk2
+}
+
+
 logger = logging.getLogger('kcaa.kcsapi.ship')
 
 
@@ -139,6 +154,11 @@ class ShipDefinition(jsonobject.JSONSerializableObject):
     rebuilding_material = jsonobject.ReadonlyJSONProperty(
         'rebuilding_material', value_type=AbilityEnhancement)
     """Rebuilding material."""
+    additional_loadable_equipment_types = jsonobject.ReadonlyJSONProperty(
+        'additional_loadable_equipment_types', [], value_type=list,
+        element_type=int)
+    """Equipment types loadable to this ship in addition to the default
+    loadable equipment types for the belonging ship type."""
     sort_order = jsonobject.ReadonlyJSONProperty('sort_order', value_type=int)
     """Sort order, or the encyclopedia ID."""
     signature = jsonobject.JSONProperty('signature', value_type=int)
@@ -278,6 +298,9 @@ class ShipDefinitionList(model.KCAAObject):
                     thunderstroke=data.api_powup[1],
                     anti_air=data.api_powup[2],
                     armor=data.api_powup[3]),
+                additional_loadable_equipment_types=(
+                    ADDITIONAL_LOADABLE_EQUIPMENT_TYPES.get(
+                        data.api_id, [])),
                 sort_order=data.api_sortno)
             # Unknown fields:
             #   api_houm: Fire hit probability? (HOUgeki Meichu)

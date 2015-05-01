@@ -411,7 +411,8 @@ class ReplaceEquipments(base.Manipulator):
     def filter_out_unloadable(items, target_ship, ship_def_list):
         ship_type_def = ship_def_list.ship_types[str(target_ship.ship_type)]
         return [item for item in items if
-                ship_type_def.loadable_equipment_types[str(item.type)]]
+                (ship_type_def.loadable_equipment_types[str(item.type)] or
+                 item.type in target_ship.additional_loadable_equipment_types)]
 
     def run(self, ship_id, equipment_definition_ids):
         ship_id = int(ship_id)
