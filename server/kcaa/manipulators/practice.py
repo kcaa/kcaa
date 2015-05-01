@@ -280,7 +280,7 @@ class EngagePractice(base.Manipulator):
         if (len(enemy_alive_ships) - len(available_ships) <=
                 num_alive_ship_threshold):
             logger.debug(
-                'Night battle; our available sihps ({}) may be able to defeat '
+                'Night battle; our available ships ({}) may be able to defeat '
                 'enemy ships ({}) to A-class win threshold ({})'.format(
                     len(available_ships), len(enemy_alive_ships),
                     num_alive_ship_threshold))
