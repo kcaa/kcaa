@@ -177,4 +177,6 @@ class AutoCheckRepairResult(base.AutoManipulator):
 
     def run(self):
         yield 1.0
+        if self.screen_id == screens.PORT_REPAIR:
+            yield self.screen.change_screen(screens.PORT_MAIN)
         yield self.screen.change_screen(screens.PORT_REPAIR)
