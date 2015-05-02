@@ -531,7 +531,7 @@ class ShipList(model.KCAAObject):
         This does return ships under repair or away for mission.
         """
         return [ship for ship in self.ships.itervalues() if
-                ship.hitpoint.current < ship.hitpoint.maximum]
+                ship.hitpoint.ratio < 1]
 
     def repairable_ships(self, fleet_list):
         """Gets repairable ships.

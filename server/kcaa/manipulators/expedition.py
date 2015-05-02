@@ -529,28 +529,34 @@ class WarmUpFleet(base.Manipulator):
 
 class WarmUpIdleShips(base.Manipulator):
 
+    @staticmethod
+    def get_ships_to_warm_up(ship_list, num_ships):
+        candidate_ships = sorted(
+            ship_list.ships.itervalues(),
+            kcsapi.ShipSorter.kancolle_level, reverse=True)
+        # First choose damaged ships.
+        ships_to_warm_up = [s for s in candidate_ships if
+                            can_warm_up(s) and s.hitpoint.ratio < 1]
+        # Then include all damaged ships.
+        ships_to_warm_up += [s for s in candidate_ships if
+                             can_warm_up(s) and s not in ships_to_warm_up]
+        if len(ships_to_warm_up) > num_ships:
+            del ships_to_warm_up[num_ships:]
+        return ships_to_warm_up
+
     def run(self, fleet_id, num_ships):
         fleet_id = int(fleet_id)
         num_ships = int(num_ships)
         ok, _, _ = fleet.classify_ships(self, fleet_id)
         if not ok:
             return
-        ship_list = self.objects.get('ShipList')
-        candidate_ships = sorted(
-            ship_list.ships.itervalues(),
-            kcsapi.ship.ShipSorter.kancolle_level, reverse=True)
-        ships_to_warm_up = []
-        for candidate_ship in candidate_ships:
-            if len(ships_to_warm_up) >= num_ships:
-                break
-            if not can_warm_up(candidate_ship):
-                continue
-            ships_to_warm_up.append(candidate_ship)
+        ship_list = self.objects['ShipList']
+        ships_to_warm_up = WarmUpIdleShips.get_ships_to_warm_up(
+            ship_list, num_ships)
         if not ships_to_warm_up:
-            logger.error('No ship is idle or can warm up.')
-            return
-        logger.info('Warming up idle ships: {}'.format(', '.join(
-            s.name.encode('utf8') for s in ships_to_warm_up)))
+            raise Exception('No ship is idle or can warm up.')
+        logger.info(u'Warming up idle ships: {}'.format(u', '.join(
+            s.name for s in ships_to_warm_up)))
         for ship_to_warm_up in ships_to_warm_up:
             # First dissolve the combined fleet (if any) to avoid unexpected
             # force-dissolution.
@@ -564,7 +570,7 @@ class WarmUpIdleShips(base.Manipulator):
 class AutoWarmUpIdleShips(base.AutoManipulator):
 
     # TODO: Move this to the preferences.
-    num_extra_ships_to_warm_up = 4
+    num_extra_ships_to_warm_up = 8
 
     @classmethod
     def monitored_objects(cls):
@@ -579,26 +585,34 @@ class AutoWarmUpIdleShips(base.AutoManipulator):
             return
         if owner.manager.is_manipulator_scheduled('WarmUp'):
             return
-        ship_list = owner.objects.get('ShipList')
-        fleet_list = owner.objects.get('FleetList')
-        repair_dock = owner.objects.get('RepairDock')
+        ship_list = owner.objects['ShipList']
+        fleet_list = owner.objects['FleetList']
+        repair_dock = owner.objects['RepairDock']
         # Do not run when there are too much ships to repair; a ship may be
         # damaged during warming up, and this could pile up damaged ships.
         # Note that ships that are scheduled for repair may not be in the slots
         # yet at this time (right after getting back to port). They will be
         # added by AutoRepairShips.
         empty_slots = [slot for slot in repair_dock.slots if not slot.in_use]
-        ships_to_repair = ship_list.repairable_ships(fleet_list)
+        # Do not count a damaged ship that can warm up as repairable; there's
+        # less harm to warm up a damaged ship. It will be repaired in the end.
+        ships_to_repair = [s for s in ship_list.repairable_ships(fleet_list) if
+                           can_warm_up(s)]
         num_ships_to_warm_up = (
             AutoWarmUpIdleShips.num_extra_ships_to_warm_up +
             len(empty_slots) - len(ships_to_repair))
-        ships_to_warm_up = [s for s in ship_list.ships.itervalues() if
-                            can_warm_up(s)]
-        if num_ships_to_warm_up > 0 and ships_to_warm_up:
+        ships_to_warm_up = WarmUpIdleShips.get_ships_to_warm_up(
+            ship_list, num_ships_to_warm_up)
+        if ships_to_warm_up:
+            logger.info(u'Will warm up idle ships: {}'.format(u', '.join(
+                s.name + (u' (damaged)' if s.hitpoint.ratio < 1 else u'') for
+                s in ships_to_warm_up)))
             return {}
 
     def run(self):
-        yield self.do_manipulator(WarmUpIdleShips, fleet_id=1, num_ships=1)
+        ship_list = self.objects['ShipList']
+        if WarmUpIdleShips.get_ships_to_warm_up(ship_list, 1):
+            yield self.do_manipulator(WarmUpIdleShips, fleet_id=1, num_ships=1)
 
 
 # TODO: Handle the case where there is the headquarter equipped by the flagship
