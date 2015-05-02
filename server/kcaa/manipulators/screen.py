@@ -315,11 +315,10 @@ class PortExpeditionScreen(PortScreen):
                     if map_id == 1:
                         yield self.dismiss_event_notification()
                 else:
-                    # 2015 Winter
-                    # TODO: Update for 2015 Spring.
+                    # 2015 Spring
                     self.click(440, 280)
                     yield 1.0
-                    self.click(440, 215 + 145 * (map_id - 4))
+                    self.click(560, 215 + 145 * (map_id - 5))
                     yield 2.0
                 yield self.dismiss_event_notification()
             else:
