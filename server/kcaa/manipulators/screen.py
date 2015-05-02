@@ -598,13 +598,13 @@ class PortOrganizingScreen(PortOperationsScreen):
     def form_combined_fleet(self, fleet_type):
         def form_combined_fleet_task(task):
             self.click_hold(165, 120)
-            yield 1.0
+            yield 0.5
             # This subtle mouse move is required to be recognized as the drag
             # and drop from the Kancolle player.
             self.move_mouse(155, 120)
-            yield 1.0
+            yield 0.5
             self.move_mouse(145, 120)
-            yield 1.0
+            yield 0.5
             self.click_release(135, 120)
             yield 2.0
             self.click(300 + 200 * fleet_type, 240)
