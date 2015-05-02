@@ -4,6 +4,7 @@ import logging
 import time
 
 import base
+import expedition
 import rebuilding
 from kcaa import screens
 from kcaa import kcsapi
@@ -82,9 +83,16 @@ class AutoRepairShips(base.AutoManipulator):
         empty_slots = [slot for slot in repair_dock.slots if not slot.in_use]
         if not empty_slots:
             return []
-        return sorted(
+        candidate_ships = sorted(
             ship_list.repairable_ships(fleet_list),
-            kcsapi.ship.ShipSorter.hitpoint_ratio)[:len(empty_slots)]
+            kcsapi.ship.ShipSorter.hitpoint_ratio)
+        # First choose ships that cannot warm up anymore.
+        ships_to_repair = [s for s in candidate_ships if
+                           not expedition.can_warm_up(s)]
+        # Then include everything else.
+        ships_to_repair += [s for s in candidate_ships if
+                            s not in ships_to_repair]
+        return ships_to_repair[:len(empty_slots)]
 
     @classmethod
     def can_trigger(cls, owner):

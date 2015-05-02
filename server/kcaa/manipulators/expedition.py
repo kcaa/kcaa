@@ -532,14 +532,14 @@ class WarmUpIdleShips(base.Manipulator):
     @staticmethod
     def get_ships_to_warm_up(ship_list, num_ships):
         candidate_ships = sorted(
-            ship_list.ships.itervalues(),
+            [s for s in ship_list.ships.itervalues() if can_warm_up(s)],
             kcsapi.ShipSorter.kancolle_level, reverse=True)
         # First choose damaged ships.
         ships_to_warm_up = [s for s in candidate_ships if
-                            can_warm_up(s) and s.hitpoint.ratio < 1]
-        # Then include all damaged ships.
+                            s.hitpoint.ratio < 1]
+        # Then include everything else.
         ships_to_warm_up += [s for s in candidate_ships if
-                             can_warm_up(s) and s not in ships_to_warm_up]
+                             s not in ships_to_warm_up]
         if len(ships_to_warm_up) > num_ships:
             del ships_to_warm_up[num_ships:]
         return ships_to_warm_up
