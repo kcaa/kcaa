@@ -358,16 +358,20 @@ class EngageExpedition(base.Manipulator):
             self.screen.update_screen_id(screens.EXPEDITION_REWARDS)
             yield self.screen.dismiss_new_ship()
         if expedition.is_terminal:
+            if expedition_result.num_obtained_items > 0:
+                logger.debug('Got {} items.'.format(
+                    expedition_result.num_obtained_items))
             for _ in xrange(expedition_result.num_obtained_items):
                 yield self.screen.dismiss_new_item()
             if expedition_result.first_cleared:
                 yield self.screen.dismiss_first_clear_screen()
+            yield self.screen.wait_transition(
+                screens.PORT_MAIN, timeout=10.0, raise_on_timeout=False)
             # This rarely happens, but there is a case where the screen doesn't
             # go back to the port main here.
             # The notable exception is the last map of the first event map
             # sequence.
-            while self.screen_id not in (screens.PORT_MAIN,
-                                         screens.MISSION_RESULT):
+            if self.screen_id != screens.PORT_MAIN:
                 yield self.screen.dismiss_new_item()
             self.add_manipulator(logistics.ChargeAllFleets)
             return
@@ -673,7 +677,12 @@ class AutoReturnWithFatalShip(base.AutoManipulator):
         if expedition_result.got_ship:
             self.screen.update_screen_id(screens.EXPEDITION_REWARDS)
             yield self.screen.dismiss_new_ship()
-        while self.screen_id not in (screens.PORT_MAIN,
-                                     screens.MISSION_RESULT):
+        yield self.screen.wait_transition(
+            screens.PORT_MAIN, timeout=10.0, raise_on_timeout=False)
+        # This rarely happens, but there is a case where the screen doesn't
+        # go back to the port main here.
+        # The notable exception is the last map of the first event map
+        # sequence.
+        while self.screen_id != screens.PORT_MAIN:
             yield 5.0
             yield self.screen.drop_out()
