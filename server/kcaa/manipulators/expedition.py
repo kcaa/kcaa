@@ -198,12 +198,12 @@ class HandleExpeditionCombinedFleet(base.Manipulator):
                                       entries=entry.supporting_fleet_entries)
         # Escoting and/or supporting fleet missions.
         if entry.escoting_fleet_entries:
-            yield self.do_manipulator(
+            self.add_manipulator(
                 mission.GoOnMission,
                 fleet_id=escoting_fleet_id,
                 mission_id=get_supporting_fleet_mission_id(maparea_id, False))
         if entry.supporting_fleet_entries:
-            yield self.do_manipulator(
+            self.add_manipulator(
                 mission.GoOnMission,
                 fleet_id=supporting_fleet_id,
                 mission_id=get_supporting_fleet_mission_id(maparea_id, True))
