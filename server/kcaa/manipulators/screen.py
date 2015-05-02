@@ -1091,15 +1091,15 @@ class PortShipyardScreen(PortOperationsScreen):
             while amount - current_amount >= big_skip:
                 self.click_big_skip(base_x + x_skip_offset, base_y)
                 current_amount += big_skip
-                yield 1.0
+                yield 0.5
             while amount - current_amount >= small_skip:
                 self.click_small_skip(base_x + x_skip_offset, base_y)
                 current_amount += small_skip
-                yield 1.0
+                yield 0.5
             while amount - current_amount >= tick:
                 self.click_tick(base_x, base_y)
                 current_amount += tick
-                yield 1.0
+                yield 0.5
         return self.do_task(set_resource_amount_task)
 
     def confirm_building(self):
