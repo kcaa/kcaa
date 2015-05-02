@@ -80,9 +80,9 @@ class Expedition(model.KCAAObject):
                 self.needs_active_selection = False
                 self.next_cell_selections = None
 
-            logger.debug('Current: {}-{}-{}'.format(
+            logger.debug('Next: {}-{}-{}'.format(
                 self.maparea_id, self.map_id, self.cell_id))
-            logger.debug('Boss:    {}-{}-{}'.format(
+            logger.debug('Boss: {}-{}-{}'.format(
                 self.maparea_id, self.map_id, self.cell_boss))
             logger.debug('Event: {} (kind: {}, color: {})'.format(
                 self.event, data.api_event_kind, data.api_color_no))
@@ -99,11 +99,11 @@ class Expedition(model.KCAAObject):
             # - api_event_kind: additional info on the event?
             # - api_production_kind: probably the category of the found item
             # - api_enemy: enemy info (useful if submarines)
-            logger.debug('next: {}'.format(data.api_next))
-            logger.debug('rashin_flg (id): {} ({})'.format(
-                data.api_rashin_flg, data.api_rashin_id))
-            if hasattr(data, 'api_enemy'):
-                logger.debug('enemy : {}'.format(str(data.api_enemy)))
+#            logger.debug('next: {}'.format(data.api_next))
+#            logger.debug('rashin_flg (id): {} ({})'.format(
+#                data.api_rashin_flg, data.api_rashin_id))
+#            if hasattr(data, 'api_enemy'):
+#                logger.debug('enemy : {}'.format(str(data.api_enemy)))
 
 
 class ExpeditionResult(model.KCAAObject):
