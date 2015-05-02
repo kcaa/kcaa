@@ -28,6 +28,7 @@ PREFERRED_FORMATION = {
     (E, 2, 5): kcsapi.Fleet.FORMATION_COMBINED_CIRCLE,
     (E, 3, 3): kcsapi.Fleet.FORMATION_DOUBLE_LINES,
     (E, 4, 9): kcsapi.Fleet.FORMATION_COMBINED_CIRCLE,
+    (E, 5, 6): kcsapi.Fleet.FORMATION_CIRCLE,  # TODO: Needs confirmation
 }
 
 
@@ -40,6 +41,7 @@ PREFERRED_NEXT_SELECTION = {
     (E, 3, 6): 4,  # 4 (north east) or 8 (west)
     (E, 4, 6): 5,  # 5 (north east) or 9 (west)
     (E, 4, 8): 13,  # 11 (north west) or 13 (north east)
+    (E, 5, 17): 18,  # 17 (H): 11 (K) or 18 (I)
 }
 
 
@@ -56,6 +58,8 @@ ACTIVE_SELECTION_CLICK_POSITION = {
     (E, 4, 9): (265, 355),
     (E, 4, 11): (225, 175),
     (E, 4, 13): (355, 200),
+    (E, 5, 11): (185, 210),
+    (E, 5, 18): (260, 360),
 }
 
 
