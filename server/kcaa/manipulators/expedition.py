@@ -598,9 +598,9 @@ class AutoWarmUpIdleShips(base.AutoManipulator):
         # less harm to warm up a damaged ship. It will be repaired in the end.
         ships_to_repair = [s for s in ship_list.repairable_ships(fleet_list) if
                            not can_warm_up(s)]
-        num_ships_to_warm_up = (
+        num_ships_to_warm_up = max(
             AutoWarmUpIdleShips.num_extra_ships_to_warm_up +
-            len(empty_slots) - len(ships_to_repair))
+            len(empty_slots) - len(ships_to_repair), 0)
         ships_to_warm_up = WarmUpIdleShips.get_ships_to_warm_up(
             ship_list, num_ships_to_warm_up)
         if ships_to_warm_up:
