@@ -358,6 +358,13 @@ class EngageExpedition(base.Manipulator):
                 yield self.screen.dismiss_new_item()
             if expedition_result.first_cleared:
                 yield self.screen.dismiss_first_clear_screen()
+            # This rarely happens, but there is a case where the screen doesn't
+            # go back to the port main here.
+            # The notable exception is the last map of the first event map
+            # sequence.
+            while self.screen_id not in (screens.PORT_MAIN,
+                                         screens.MISSION_RESULT):
+                yield self.screen.dismiss_new_item()
             self.add_manipulator(logistics.ChargeAllFleets)
             return
         if ships[0].fatal:
@@ -653,11 +660,16 @@ class AutoReturnWithFatalShip(base.AutoManipulator):
             return {'combined': fleet_list.combined}
 
     def run(self, combined):
+        expedition_result = self.objects['ExpeditionResult']
         yield self.screen.dismiss_result_overview()
         yield self.screen.dismiss_result_details()
         if combined:
             yield 5.0
             yield self.screen.dismiss_result_details()
-        while self.screen_id != screens.PORT_MAIN:
-            yield 3.0
+        if expedition_result.got_ship:
+            self.screen.update_screen_id(screens.EXPEDITION_REWARDS)
+            yield self.screen.dismiss_new_ship()
+        while self.screen_id not in (screens.PORT_MAIN,
+                                     screens.MISSION_RESULT):
+            yield 5.0
             yield self.screen.drop_out()
