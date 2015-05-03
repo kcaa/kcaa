@@ -417,7 +417,8 @@ class ManipulatorManager(object):
         if self.are_auto_manipulator_scheduled():
             if self.resume_auto_manipulators():
                 self._logger.debug('Auto manipulators activated')
-                self.leave_port()
+                if not self.current_task:
+                    self.leave_port()
                 self.rmo.auto_manipulators_active = True
                 self.rmo.generation += 1
         else:
