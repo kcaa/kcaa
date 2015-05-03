@@ -45,8 +45,8 @@ PREFERRED_NEXT_SELECTION = {
     (E, 4, 6): 5,  # 6 (F) -> 5 (E) or 9 (I)
     (E, 4, 8): 13,  # 8 (H) -> 11 (K) or 13 (M)
     (E, 5, 17): 18,  # 17 (H) -> 11 (K) or 18 (I)
-    (E, 6, 6): 7,  # 6 (F) -> 7 (G) or 8 (H)
-    (E, 6, 5): 10,  # 5 (E) -> 8 (H) or 10 (J)
+    (E, 6, 6): 7,  # 6 (F) -> 7 (G) or 17 (H)
+    (E, 6, 5): 10,  # 5 (E) -> 17 (H) or 10 (J)
 }
 
 
@@ -66,8 +66,8 @@ ACTIVE_SELECTION_CLICK_POSITION = {
     (E, 5, 11): (185, 210),
     (E, 5, 18): (260, 360),
     (E, 6, 7): (350, 165),
-    (E, 6, 8): (335, 295),
     (E, 6, 10): (245, 355),
+    (E, 6, 17): (335, 295),
 }
 
 
@@ -236,7 +236,7 @@ class SailOnExpeditionMap(base.Manipulator):
         if expedition.needs_compass:
             self.screen.update_screen_id(screens.EXPEDITION_COMPASS)
             yield self.screen.roll_compass()
-        elif expedition.needs_active_selection:
+        if expedition.needs_active_selection:
             yield 7.0
             if expedition.location_id in PREFERRED_NEXT_SELECTION:
                 next_selection = PREFERRED_NEXT_SELECTION[

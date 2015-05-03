@@ -17,10 +17,11 @@ class Screen(object):
         return self.manager.add_task(t, *args, **kwargs)
 
     def click(self, x, y):
-        callsite_info = traceback.extract_stack()[-2]
-        caller_name = callsite_info[2]
+        caller_names = []
+        for callsite_info in reversed(traceback.extract_stack(limit=3)[:-1]):
+            caller_names.append(callsite_info[2])
         self._logger.debug('Mouse click at {}, {} ({})'.format(
-            x, y, caller_name))
+            x, y, ' <- '.join(caller_names)))
         self.manager.click(x, y)
 
     def click_hold(self, x, y):
