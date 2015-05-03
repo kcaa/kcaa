@@ -28,7 +28,7 @@ PREFERRED_FORMATION = {
     (4, 2, 6): kcsapi.Fleet.FORMATION_DOUBLE_LINES,  # C
     (5, 1, 2): kcsapi.Fleet.FORMATION_DOUBLE_LINES,  # A
     (5, 1, 0): kcsapi.Fleet.FORMATION_HORIZONTAL_LINE,  # TODO: D
-    (5, 1, 9): kcsapi.Fleet.FORMATION_SINGLE_LINE,  # I (Boss)
+    (5, 1, 9): kcsapi.Fleet.FORMATION_DOUBLE_LINES,  # I (Boss)
     # 2015 Spring
     (E, 2, 5): kcsapi.Fleet.FORMATION_COMBINED_CIRCLE,
     (E, 3, 3): kcsapi.Fleet.FORMATION_DOUBLE_LINES,
