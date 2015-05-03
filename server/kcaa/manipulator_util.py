@@ -488,6 +488,8 @@ class ManipulatorManager(object):
 
     def finish_current_task(self):
         if not self.current_task.success:
+            self._logger.debug('Exception traceback: \n' +
+                               self.current_task.format_exception_traceback())
             exception = self.current_task.exception
             if exception.message:
                 self._logger.error(u'{}: {}'.format(
@@ -496,8 +498,6 @@ class ManipulatorManager(object):
                 self._logger.error(
                     'Some exception of type {} happened.'.format(
                         type(exception).__name__))
-            self._logger.debug('Exception traceback: \n' +
-                               self.current_task.format_exception_traceback())
         self.last_task = self.current_task
         self.current_task = None
         # This removes the entry when the first instance of the

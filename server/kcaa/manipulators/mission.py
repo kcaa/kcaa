@@ -99,8 +99,8 @@ class GoOnMission(base.Manipulator):
             ship = ship_list.ships[str(ship_id)]
             if not ship.resource_full:
                 raise Exception(
-                    'Ship {} ({}) is not loading resources to its full '
-                    'capacity.'.format(ship.name.encode('utf8'), ship.id))
+                    u'Ship {} ({}) is not loading resources to its full '
+                    u'capacity.'.format(ship.name, ship.id))
         yield self.screen.change_screen(screens.PORT_MISSION)
         mission = mission_list.get_mission(mission_id)
         if not mission:
