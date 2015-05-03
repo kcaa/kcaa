@@ -28,7 +28,10 @@ PREFERRED_FORMATION = {
     (E, 2, 5): kcsapi.Fleet.FORMATION_COMBINED_CIRCLE,
     (E, 3, 3): kcsapi.Fleet.FORMATION_DOUBLE_LINES,
     (E, 4, 9): kcsapi.Fleet.FORMATION_COMBINED_CIRCLE,
-    (E, 5, 6): kcsapi.Fleet.FORMATION_CIRCLE,  # TODO: Needs confirmation
+    (E, 5, 6): kcsapi.Fleet.FORMATION_CIRCLE,  # F
+    (E, 6, 9): kcsapi.Fleet.FORMATION_SINGLE_LINE,  # I
+    (E, 6, 10): kcsapi.Fleet.FORMATION_SINGLE_LINE,  # J
+    (E, 6, 13): kcsapi.Fleet.FORMATION_COMBINED_CIRCLE,  # M
 }
 
 
@@ -36,12 +39,14 @@ PREFERRED_FORMATION = {
 # Format is: (maparea ID, map ID, cell ID) -> next cell ID
 PREFERRED_NEXT_SELECTION = {
     # 2015 Spring
-    (E, 2, 2): 4,  # 4 (battleships) or 5 (aircraft carriers)
-    (E, 2, 6): 5,  # 5 (aircraft carriers) or 8 (wrong way)
-    (E, 3, 6): 4,  # 4 (north east) or 8 (west)
-    (E, 4, 6): 5,  # 5 (north east) or 9 (west)
-    (E, 4, 8): 13,  # 11 (north west) or 13 (north east)
-    (E, 5, 17): 18,  # 17 (H): 11 (K) or 18 (I)
+    (E, 2, 2): 4,  # 2 (B) -> 4 (D) or 5 (E)
+    (E, 2, 6): 5,  # 6 (F) -> 5 (E) or 8 (H)
+    (E, 3, 6): 4,  # 6 (F) -> 4 (D) or 8 (H)
+    (E, 4, 6): 5,  # 6 (F) -> 5 (E) or 9 (I)
+    (E, 4, 8): 13,  # 8 (H) -> 11 (K) or 13 (M)
+    (E, 5, 17): 18,  # 17 (H) -> 11 (K) or 18 (I)
+    (E, 6, 6): 7,  # 6 (F) -> 7 (G) or 8 (H)
+    (E, 6, 5): 10,  # 5 (E) -> 8 (H) or 10 (J)
 }
 
 
@@ -60,6 +65,9 @@ ACTIVE_SELECTION_CLICK_POSITION = {
     (E, 4, 13): (355, 200),
     (E, 5, 11): (185, 210),
     (E, 5, 18): (260, 360),
+    (E, 6, 7): (350, 165),
+    (E, 6, 8): (335, 295),
+    (E, 6, 10): (245, 355),
 }
 
 
