@@ -685,8 +685,6 @@ class AutoReturnWithFatalShip(base.AutoManipulator):
         if expedition_result.got_ship:
             self.screen.update_screen_id(screens.EXPEDITION_REWARDS)
             yield self.screen.dismiss_new_ship()
-        yield self.screen.wait_transition(
-            screens.PORT_MAIN, timeout=10.0, raise_on_timeout=False)
         # This rarely happens, but there is a case where the screen doesn't
         # go back to the port main here.
         # The notable exception is the last map of the first event map
