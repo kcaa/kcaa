@@ -492,7 +492,7 @@ class ManipulatorManager(object):
                                self.current_task.format_exception_traceback())
             exception = self.current_task.exception
             if exception.message:
-                self._logger.error(u'{}: {}'.format(
+                self._logger.error('{}: {}'.format(
                     type(exception).__name__, exception.message))
             else:
                 self._logger.error(

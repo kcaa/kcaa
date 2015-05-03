@@ -95,12 +95,19 @@ class GoOnMission(base.Manipulator):
             return
         ship_list = self.objects['ShipList']
         fleet_list = self.objects['FleetList']
+        ready = True
         for ship_id in fleet_list.fleets[fleet_id - 1].ship_ids:
             ship = ship_list.ships[str(ship_id)]
             if not ship.resource_full:
-                raise Exception(
+                # Do not use unicode string in the exception message. It does
+                # not work well with traceback.format_exception().
+                logger.error(
                     u'Ship {} ({}) is not loading resources to its full '
                     u'capacity.'.format(ship.name, ship.id))
+                ready = False
+        if not ready:
+            raise Exception('Fleet {} has non-ready ship in it.'.format(
+                fleet_id))
         yield self.screen.change_screen(screens.PORT_MISSION)
         mission = mission_list.get_mission(mission_id)
         if not mission:
