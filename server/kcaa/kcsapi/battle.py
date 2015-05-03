@@ -510,7 +510,8 @@ class MidnightBattle(model.KCAAObject):
                                            objects, debug)
         ship_def_list = objects['ShipDefinitionList']
         data = response.api_data
-        if api_name == '/api_req_combined_battle/midnight_battle':
+        if api_name in ('/api_req_combined_battle/midnight_battle',
+                        '/api_req_combined_battle/sp_midnight'):
             # The combined fleet will always join the midnight battle.
             self.fleet_id = 2
         else:

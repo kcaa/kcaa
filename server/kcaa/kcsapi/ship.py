@@ -634,7 +634,8 @@ class ShipList(model.KCAAObject):
         elif api_name in ('/api_req_battle_midnight/battle',
                           '/api_req_practice/midnight_battle',
                           '/api_req_battle_midnight/sp_midnight',
-                          '/api_req_combined_battle/midnight_battle'):
+                          '/api_req_combined_battle/midnight_battle',
+                          '/api_req_combined_battle/sp_midnight'):
             self.update_midnight_battle(objects['MidnightBattle'],
                                         objects['FleetList'])
         elif api_name == '/api_get_member/deck':

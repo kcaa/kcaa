@@ -151,6 +151,8 @@ class KCSAPIHandler(object):
                                                       kcsapi.ShipList],
             '/api_req_combined_battle/midnight_battle': [kcsapi.MidnightBattle,
                                                          kcsapi.ShipList],
+            '/api_req_combined_battle/sp_midnight': [kcsapi.MidnightBattle,
+                                                     kcsapi.ShipList],
             '/api_req_battle_midnight/battle': [kcsapi.MidnightBattle,
                                                 kcsapi.ShipList],
             '/api_req_battle_midnight/sp_midnight': [kcsapi.MidnightBattle,
