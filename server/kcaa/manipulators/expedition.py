@@ -436,6 +436,15 @@ class EngageExpedition(base.Manipulator):
             logger.debug('No night battle; engaged with the anti submarine '
                          'formation.')
             return False
+        # When requested, be conservative even if there is a chance for
+        # victory. This is mainly to avoid extra damage and resource
+        # consumption.
+        # TODO: Get this from preferences.
+        conservative = (expedition.maparea_id >=
+                        kcsapi.MapInfo.MAPAREA_2014_SPRING or
+                        expedition.map_id >= 5)
+        if conservative:
+            logger.debug('No night battle; to be on the safest side.')
         # Target for A-class victory.
         if EngageExpedition.can_achieve_victory(battle, ships, 'A'):
             return True
