@@ -24,6 +24,8 @@ WARMUP_VITALITY = 75
 # This will override the default formation passed to GoOnExpedition.
 E = kcsapi.MapInfo.MAPAREA_2015_SPRING
 PREFERRED_FORMATION = {
+    (4, 2, 1): kcsapi.Fleet.FORMATION_DOUBLE_LINES,  #F
+    (4, 2, 6): kcsapi.Fleet.FORMATION_DOUBLE_LINES,  #C
     # 2015 Spring
     (E, 2, 5): kcsapi.Fleet.FORMATION_COMBINED_CIRCLE,
     (E, 3, 3): kcsapi.Fleet.FORMATION_DOUBLE_LINES,
