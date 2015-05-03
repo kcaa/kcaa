@@ -31,7 +31,6 @@ PREFERRED_FORMATION = {
     (E, 5, 6): kcsapi.Fleet.FORMATION_CIRCLE,  # F
     (E, 6, 9): kcsapi.Fleet.FORMATION_SINGLE_LINE,  # I
     (E, 6, 10): kcsapi.Fleet.FORMATION_SINGLE_LINE,  # J
-    (E, 6, 13): kcsapi.Fleet.FORMATION_COMBINED_CIRCLE,  # M
 }
 
 
