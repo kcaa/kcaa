@@ -347,7 +347,8 @@ class Battle(model.KCAAObject):
                 attacks=AircraftAttack.create_list_from_kouku(
                     data.api_kouku.api_stage3))
         self.aircraft_phase_combined = None
-        if hasattr(data.api_kouku, 'api_stage3_combined'):
+        if (hasattr(data.api_kouku, 'api_stage3_combined') and
+                data.api_kouku.api_stage3_combined):
             self.aircraft_phase_combined = AircraftPhase(
                 attacks=AircraftAttack.create_list_from_kouku(
                     data.api_kouku.api_stage3_combined))
