@@ -257,13 +257,25 @@ class EngagePractice(base.Manipulator):
     def should_go_night_combat(self, battle, ships, formation):
         expected_result = kcsapi.battle.expect_result(
             ships, battle.enemy_ships)
-        if expected_result >= kcsapi.Battle.RESULT_B:
-            logger.debug('No night battle; will win.')
+        if expected_result == kcsapi.Battle.RESULT_S:
+            logger.debug('No night battle; will achieve S-class victory.')
             return False
         available_ships = [s for s in ships if s.can_attack_midnight]
         if not available_ships:
             logger.debug('No night battle; no ship can attack midnight.')
             return False
-        # Target for A-class win.
-        return expedition.EngageExpedition.can_achieve_a_class_victory(
-            battle, ships)
+        # Target for S-class victory.
+        if expedition.EngageExpedition.can_achieve_victory(
+                battle, ships, 'S'):
+            return True
+        # Compromise with an A- or B-class victory.
+        if expected_result >= kcsapi.Battle.RESULT_B:
+            logger.debug(
+                'No night battle; cannot achieve S-class victory, but '
+                'anyways, will win.')
+            return False
+        # Target for B-class victory.
+        logger.debug(
+            'Night battle; less hope, but possible to achieve B-class '
+            'victory.')
+        return True

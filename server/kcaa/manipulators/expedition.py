@@ -436,31 +436,39 @@ class EngageExpedition(base.Manipulator):
                          'formation.')
             return False
         # Target for A-class victory.
-        return EngageExpedition.can_achieve_a_class_victory(battle, ships)
+        if EngageExpedition.can_achieve_victory(battle, ships, 'A'):
+            return True
+        logger.debug('No night battle; no hope for win, save power instead.')
+        return False
 
     @staticmethod
-    def can_achieve_a_class_victory(battle, ships):
-        available_ships = [s for s in ships if s.can_attack_midnight]
-        num_alive_ship_threshold = len(battle.enemy_ships) / 2
-        if len(battle.enemy_ships) == 6:
-            num_alive_ship_threshold = 2
+    def can_achieve_victory(battle, ships, target_class):
+        if target_class == 'S':
+            num_alive_ship_threshold = 0
+        elif target_class == 'A':
+            num_alive_ship_threshold = len(battle.enemy_ships) / 2
+            if len(battle.enemy_ships) == 6:
+                num_alive_ship_threshold = 2
+        else:
+            raise Exception('Invalid target class: {}'.format(target_class))
         enemy_alive_ships = [s for s in battle.enemy_ships if s.alive]
         enemy_alive_non_submarines = [
             s for s in enemy_alive_ships if
             not kcsapi.ShipDefinition.is_submarine(s)]
+        available_ships = [s for s in ships if s.can_attack_midnight]
         max_defeatable_ships = min(len(available_ships),
                                    len(enemy_alive_non_submarines))
         if (len(enemy_alive_ships) - max_defeatable_ships <=
                 num_alive_ship_threshold):
             logger.debug(
                 'Night battle; our available ships ({}) may be able to defeat '
-                'enemy ships ({} submarines + {} non submarines) to A-class '
+                'enemy ships ({} submarines + {} non submarines) to {}-class '
                 'victory threshold ({})'.format(
                     len(available_ships),
                     len(enemy_alive_ships) - len(enemy_alive_non_submarines),
-                    len(enemy_alive_non_submarines), num_alive_ship_threshold))
+                    len(enemy_alive_non_submarines), target_class,
+                    num_alive_ship_threshold))
             return True
-        logger.debug('No night battle; no hope for victory.')
         return False
 
     def should_go_next(self, expedition, battle, ships, secondary_ships):
