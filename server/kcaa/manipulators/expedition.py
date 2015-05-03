@@ -415,8 +415,8 @@ class EngageExpedition(base.Manipulator):
         # Target for S-class victory if this is a boss battle.
         # The exception is that if this is a warming up (1-1).
         if (expedition.event == kcsapi.Expedition.EVENT_BATTLE_BOSS and
-                expedition.maparea_id != kcsapi.MapInfo.MAPAREA_BASE and
-                expedition.map_id != 1):
+                not (expedition.maparea_id == kcsapi.MapInfo.MAPAREA_BASE and
+                     expedition.map_id == 1)):
             logger.debug('Night battle; this is a boss battle.')
             return True
         if expected_result >= kcsapi.Battle.RESULT_B:
