@@ -144,6 +144,7 @@ class GunfireHit(jsonobject.JSONSerializableObject):
 
     hit_type = jsonobject.JSONProperty('hit_type', value_type=int)
     """Hit type."""
+    HIT_TYPE_NO_ATTACK = -1
     HIT_TYPE_MISS = 0
     HIT_TYPE_HIT = 1
     HIT_TYPE_CRITICAL = 2
@@ -155,8 +156,13 @@ class GunfireHit(jsonobject.JSONSerializableObject):
     @staticmethod
     def create_list_from_hougeki(cl_list, damage, si_list):
         # damage list sometimes contains rounding errors?
-        return [GunfireHit(hit_type=e[0], damage=int(e[1]), equipment=e[2])
-                for e in zip(cl_list, damage, si_list)]
+        hits = []
+        for e in zip(cl_list, damage, si_list):
+            hits.append(GunfireHit(
+                hit_type=e[0],
+                damage=int(e[1]) if e[0] >= GunfireHit.HIT_TYPE_HIT else 0,
+                equipment=e[2]))
+        return hits
 
 
 class GunfireAttack(jsonobject.JSONSerializableObject):
