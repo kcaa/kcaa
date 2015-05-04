@@ -269,6 +269,10 @@ class ManipulatorManager(object):
             # especially AutoEnhanceBestShip or the like that may use a new
             # unique ship.
             'AutoLockUniqueShips': -8000,
+            # AutoUnmarkReservedForUse can be anywhere. It runs only when idle.
+            # But better to run before other auto manipulators running when
+            # idle to better utilize the ship pool.
+            'AutoUnmarkReservedForUse': -7000,
             # AutoEnhanceBestShip should precede AutoDissolveShips and
             # AutoWarmUpIdleShips, and recede AutoLockUniqueShips.
             'AutoEnhanceBestShip': -4000,
@@ -287,8 +291,6 @@ class ManipulatorManager(object):
             # AutoHandleAllPractices runs when idle. It may take some time, and
             # thus should precede other time-consuming low priority tasks.
             'AutoHandleAllPractices': 2000,
-            # AutoUnmarkReservedForUse can be anywhere. It runs only when idle.
-            'AutoUnmarkReservedForUse': 6000,
             # AutoRepairShips can be anywhere. It repairs slightly damaged
             # ships when idle.
             'AutoRepairShips': 7000,
