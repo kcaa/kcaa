@@ -343,6 +343,14 @@ class ManipulatorManager(object):
                 return True
         return False
 
+    @property
+    def idle(self):
+        """Whether the manager is idle.
+
+        This can be used to trigger auto manipulators that runs only when idle.
+        """
+        return not self.current_task and not self.last_task
+
     def add_manipulator(self, manipulator):
         t = self.task_manager.add(manipulator)
         t.suspend()

@@ -107,6 +107,8 @@ class AutoManipulatorTriggerer(Manipulator):
             if (self.manager.is_manipulator_scheduled(manipulator_name) or
                     not self.has_required_objects() or
                     not has_monitored_objects or
+                    (self.manipulator.run_only_when_idle() and
+                     not self.manager.idle) or
                     (screen_generation <= self._last_screen_generation and
                      self.time <= self._last_check_time + self._check_interval
                      and not has_updates)):
@@ -167,6 +169,11 @@ class AutoManipulator(Manipulator):
         This auto manipulator won't run unless any of them is not updated.
         """
         return []
+
+    @classmethod
+    def run_only_when_idle(cls):
+        """Whether to run only when the manipulator manager is idle."""
+        return False
 
     @classmethod
     def can_trigger(cls, owner):
