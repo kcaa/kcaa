@@ -521,6 +521,7 @@ class ReplaceEquipmentsByIds(base.Manipulator):
         logger.debug('Current after reorder: {}'.format(current_equipment_ids))
         num_cleared_items = 0
         for slot_index, equipment_id in enumerate(equipment_ids):
+            ship_list_generation = ship_list.generation
             # ID of -1 is considered empty.
             # ID of 0 is considered omittable, which is empty in this context.
             if equipment_id <= 0:
@@ -558,6 +559,9 @@ class ReplaceEquipmentsByIds(base.Manipulator):
             yield self.screen.select_item_page(page, max_page)
             yield self.screen.select_item(in_page_index)
             yield self.screen.confirm_item_replacement()
+            # Wait until the equpment info is updated.
+            while ship_list.generation == ship_list_generation:
+                yield self.unit
             # TODO: Remove this debug logging after the issue is resolved.
             # Re-fetch the updated ship info.
             target_ship = ship_list.ships[str(target_ship.id)]
