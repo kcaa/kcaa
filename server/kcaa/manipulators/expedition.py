@@ -464,6 +464,7 @@ class EngageExpedition(base.Manipulator):
                         expedition.map_id >= 5)
         if conservative:
             logger.debug('No night battle; to be on the safest side.')
+            return False
         # Target for A-class victory.
         if EngageExpedition.can_achieve_victory(battle, ships, 'A'):
             return True
