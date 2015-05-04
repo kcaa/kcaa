@@ -287,7 +287,7 @@ class PortExpeditionScreen(PortScreen):
             if screen_id == screens.PORT_EXPEDITION:
                 yield 0.0
                 return
-            yield super(PortPracticeScreen, self).change_screen(screen_id)
+            yield super(PortExpeditionScreen, self).change_screen(screen_id)
             # TODO: This is a boilerplate. Consider to extract as a method.
             if self.screen_id == screen_id:
                 return
