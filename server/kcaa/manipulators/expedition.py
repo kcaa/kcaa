@@ -651,14 +651,15 @@ class AutoWarmUpIdleShips(base.AutoManipulator):
         return ['ShipList', 'FleetList', 'RepairDock']
 
     @classmethod
-    def can_trigger(cls, owner):
+    def precondition(cls, owner):
         # This could interefere with ship build result screen or rebuilding
         # result screen, but that should be suppressed by detecting manual
         # operations.
-        if not screens.in_category(owner.screen_id, screens.PORT):
-            return
-        if owner.manager.is_manipulator_scheduled('WarmUp'):
-            return
+        return (screens.in_category(owner.screen_id, screens.PORT) and
+                not owner.manager.is_manipulator_scheduled('WarmUp'))
+
+    @classmethod
+    def can_trigger(cls, owner):
         ship_list = owner.objects['ShipList']
         fleet_list = owner.objects['FleetList']
         repair_dock = owner.objects['RepairDock']
