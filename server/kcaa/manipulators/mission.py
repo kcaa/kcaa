@@ -98,6 +98,7 @@ class GoOnMission(base.Manipulator):
         logger.info('Making the fleet {} go on the mission {}'.format(
             fleet_id, mission_id))
         mission_list = self.objects['MissionList']
+        mission = mission_list.get_mission(mission_id)
         if not mission:
             raise Exception('Mission {} is unknown.')
         if not fleet.are_all_ships_available(self, fleet_id):
@@ -122,7 +123,6 @@ class GoOnMission(base.Manipulator):
                                   ship_ids=ship_ids,
                                   reserved_for_use=True)
         yield self.screen.change_screen(screens.PORT_MISSION)
-        mission = mission_list.get_mission(mission_id)
         yield self.screen.select_maparea(mission.maparea)
         mission_index = mission_list.get_index_in_maparea(mission)
         yield self.screen.select_mission(mission_index)
