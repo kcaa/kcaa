@@ -37,15 +37,7 @@ class AutoCheckMissionResult(base.AutoManipulator):
     last_updated = 0
 
     @classmethod
-    def required_objects(cls):
-        return ['MissionList']
-
-    @classmethod
-    def can_trigger(cls, owner):
-        if not screens.in_category(owner.screen_id, screens.PORT):
-            return
-        mission_list = owner.objects.get('MissionList')
-        now = long(1000 * time.time())
+    def check_missions(cls, mission_list, now):
         count = 0
         wait = 10.0
         precursor_total = cls.precursor_duration + cls.precursor_extra
@@ -71,10 +63,28 @@ class AutoCheckMissionResult(base.AutoManipulator):
                 min_eta = min(etas)
                 logger.debug('Left: {:.0f} seconds'.format(
                     (min_eta - now) / 1000))
-        if count != 0:
-            return {'count': count, 'wait': wait}
+        return count, wait
 
-    def run(self, count, wait):
+    @classmethod
+    def required_objects(cls):
+        return ['MissionList']
+
+    @classmethod
+    def can_trigger(cls, owner):
+        if not screens.in_category(owner.screen_id, screens.PORT):
+            return
+        mission_list = owner.objects['MissionList']
+        now = long(1000 * time.time())
+        count, _ = AutoCheckMissionResult.check_missions(mission_list, now)
+        if count != 0:
+            return {}
+
+    def run(self):
+        mission_list = self.objects['MissionList']
+        now = long(1000 * time.time())
+        count, wait = AutoCheckMissionResult.check_missions(mission_list, now)
+        if count == 0:
+            return
         yield wait
         for _ in xrange(count):
             yield self.do_manipulator(CheckMissionResult)

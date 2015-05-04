@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 
 import logging
+import time
 import traceback
 
+import mission
 from kcaa import screens
 from kcaa import kcsapi
 
@@ -159,9 +161,33 @@ class PortScreen(Screen):
             yield 3.0
             if self.screen_id == screens.PORT:
                 self.update_screen_id(screens.PORT_MAIN)
+            yield self.check_mission_results_if_any()
             yield self.manager.current_screen.change_screen(screen_id)
         self.assert_screen_category(screens.PORT)
         return self.do_task(change_screen_task)
+
+    def check_mission_results_if_any(self):
+        # This is a kind of unauthorized act; but it is really nasty to
+        # encounter a mission result screen when disabling the auto
+        # manipulators.
+        # NOTE: This may be problematic when mission.py starts to import
+        # screen.py. Consider extracting the mission check logic to screen.py
+        # if that happens.
+        def check_mission_results_if_any_task(task):
+            mission_list = self.manager.objects['MissionList']
+            now = long(1000 * time.time())
+            count, wait = mission.AutoCheckMissionResult.check_missions(
+                mission_list, now)
+            if count == 0:
+                return
+            self._logger.debug(
+                'There are {} missions. Checking them first.'.format(count))
+            yield wait
+            for _ in xrange(count):
+                yield self.check_mission_result()
+            # Do not run logistics.ChargeAllFleets. It would complicate things,
+            # and logistics.AutoChargeFleet will take care of it if enabled.
+        return self.do_task(check_mission_results_if_any_task)
 
     def check_mission_result(self):
         def check_mission_result_task(task):
@@ -179,6 +205,10 @@ class PortScreen(Screen):
                            proceed_mission_result_screen())
                     return
                 self._logger.debug('Are we still at the port main screen?')
+            elif self.screen_id == screens.PORT_MAIN:
+                # Do not do anything if already on port main.
+                # This is required if called from check_mission_results_if_any.
+                pass
             else:
                 self._logger.debug('Trying to change screen to port main.')
                 yield self.change_screen(screens.PORT_MAIN)
