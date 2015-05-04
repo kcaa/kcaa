@@ -84,7 +84,8 @@ class AutoRepairShips(base.AutoManipulator):
         if not empty_slots:
             return []
         candidate_ships = sorted(
-            ship_list.repairable_ships(fleet_list),
+            [s for s in ship_list.repairable_ships(fleet_list) if
+             not s.reserved_for_use],
             kcsapi.ship.ShipSorter.hitpoint_ratio)
         # First choose ships that cannot warm up anymore.
         ships_to_repair = [s for s in candidate_ships if

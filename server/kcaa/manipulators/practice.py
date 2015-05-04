@@ -86,12 +86,18 @@ class GoOnPractice(base.Manipulator):
             return
         fleet_list = self.objects.get('FleetList')
         fleet_ = fleet_list.fleets[fleet_id - 1]
+        yield self.do_manipulator(organizing.MarkReservedForUse,
+                                  ship_ids=fleet_.ship_ids,
+                                  reserved_for_use=True)
         yield self.screen.change_screen(screens.PORT_PRACTICE)
         yield self.screen.check_opponent(practice.id)
         # The oppoonent changed the fleet organization. The expected type
         # mismatches -- retry the process from the beginning.
         if practice.fleet_type != expected_fleet_type:
             yield self.screen.cancel()
+            yield self.do_manipulator(organizing.MarkReservedForUse,
+                                      ship_ids=fleet_.ship_ids,
+                                      reserved_for_use=False)
             self.add_manipulator(HandlePractice, fleet_id, practice_id)
             return
         yield self.screen.try_practice()
@@ -100,6 +106,9 @@ class GoOnPractice(base.Manipulator):
         if len(fleet_.ship_ids) >= 4:
             yield self.screen.select_formation(formation)
         yield self.do_manipulator(EngagePractice, formation=formation)
+        yield self.do_manipulator(organizing.MarkReservedForUse,
+                                  ship_ids=fleet_.ship_ids,
+                                  reserved_for_use=False)
 
 
 class HandlePractice(base.Manipulator):

@@ -12,7 +12,9 @@ logger = logging.getLogger('kcaa.manipulators.organization')
 
 
 class LoadShips(base.Manipulator):
-    """Load the given ships to the fleet."""
+    """Load the given ships to the fleet.
+
+    This markes loaded ships as reserved for use."""
 
     def run(self, fleet_id, ship_ids):
         fleet_id = int(fleet_id)
@@ -34,6 +36,9 @@ class LoadShips(base.Manipulator):
             raise Exception('Some ships are missing.')
         if any([s.away_for_mission for s in ships]):
             raise Exception('Some ships are away for mission.')
+        yield self.do_manipulator(MarkReservedForUse,
+                                  ship_ids=ship_ids,
+                                  reserved_for_use=True)
         yield self.screen.change_screen(screens.PORT_ORGANIZING)
         yield self.screen.select_fleet(fleet_id)
         # Be sure to get the fleet again here, because the Fleet object is
@@ -44,6 +49,7 @@ class LoadShips(base.Manipulator):
         num_ships_in_fleet = len(fleet.ship_ids)
         # Replace ships with desired ones.
         for pos, ship_id in enumerate(ship_ids):
+            fleet_list_generation = fleet_list.generation
             # Desired ships is already present; skipping.
             if (pos < num_ships_in_fleet and
                     fleet.ship_ids[pos] == ship_id):
@@ -53,6 +59,8 @@ class LoadShips(base.Manipulator):
             yield self.screen.select_page(page, ship_list.max_page)
             yield self.screen.select_ship(index)
             yield self.screen.confirm()
+            while fleet_list.generation == fleet_list_generation:
+                yield self.unit
             if fleet.ship_ids[pos] != ship_id:
                 logger.debug(repr(fleet.ship_ids))
                 raise Exception(
@@ -147,7 +155,8 @@ class LoadFleet(base.Manipulator):
         if not matching_fleets:
             return
         fleet_deployment = matching_fleets[0]
-        ship_pool = ship_list.ships.values()
+        ship_pool = [s for s in ship_list.ships.values() if
+                     not s.reserved_for_use]
         equipment_pool = equipment_list.get_available_equipments(
             recently_used_equipments, ship_list)
         entries = fleet_deployment.get_ships(
@@ -256,3 +265,19 @@ class FormCombinedFleet(base.Manipulator):
         if fleet_list.combined:
             yield self.screen.dissolve_combined_fleet()
         yield self.screen.form_combined_fleet(fleet_type_index)
+
+
+class MarkReservedForUse(base.Manipulator):
+
+    def run(self, ship_ids, reserved_for_use):
+        ship_list = self.objects['ShipList']
+        for ship_id in ship_ids:
+            ship = ship_list.ships[str(ship_id)]
+            if ship.reserved_for_use == reserved_for_use:
+                continue
+            logger.debug(
+                u'Marking ship {} ({}) reserved for use: {} -> {}'.format(
+                    ship.name, ship.id, ship.reserved_for_use,
+                    reserved_for_use))
+            ship.reserved_for_use = reserved_for_use
+        yield 0.0

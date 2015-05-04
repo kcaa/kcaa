@@ -87,16 +87,16 @@ class GoOnMission(base.Manipulator):
         mission_id = int(mission_id)
         logger.info('Making the fleet {} go on the mission {}'.format(
             fleet_id, mission_id))
-        mission_list = self.objects.get('MissionList')
-        if not mission_list:
-            logger.info('No mission list was found. Giving up.')
-            return
+        mission_list = self.objects['MissionList']
+        if not mission:
+            raise Exception('Mission {} is unknown.')
         if not fleet.are_all_ships_available(self, fleet_id):
             return
         ship_list = self.objects['ShipList']
         fleet_list = self.objects['FleetList']
         ready = True
-        for ship_id in fleet_list.fleets[fleet_id - 1].ship_ids:
+        ship_ids = fleet_list.fleets[fleet_id - 1].ship_ids
+        for ship_id in ship_ids:
             ship = ship_list.ships[str(ship_id)]
             if not ship.resource_full:
                 # Do not use unicode string in the exception message. It does
@@ -108,17 +108,20 @@ class GoOnMission(base.Manipulator):
         if not ready:
             raise Exception('Fleet {} has non-ready ship in it.'.format(
                 fleet_id))
+        yield self.do_manipulator(organizing.MarkReservedForUse,
+                                  ship_ids=ship_ids,
+                                  reserved_for_use=True)
         yield self.screen.change_screen(screens.PORT_MISSION)
         mission = mission_list.get_mission(mission_id)
-        if not mission:
-            logger.error('Mission {} is unknown. Giving up.'.format(
-                mission_id))
         yield self.screen.select_maparea(mission.maparea)
         mission_index = mission_list.get_index_in_maparea(mission)
         yield self.screen.select_mission(mission_index)
         yield self.screen.confirm()
         yield self.screen.select_fleet(fleet_id)
         yield self.screen.finalize()
+        yield self.do_manipulator(organizing.MarkReservedForUse,
+                                  ship_ids=ship_ids,
+                                  reserved_for_use=False)
 
 
 class AutoGoOnMission(base.AutoManipulator):

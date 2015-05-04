@@ -435,6 +435,14 @@ class Ship(ShipDefinition):
     tags = jsonobject.JSONProperty(
         'tags', value_type=list, element_type=unicode)
     """Tags."""
+    reserved_for_use = jsonobject.JSONProperty(
+        'reserved_for_use', False, element_type=bool)
+    """Whether reserved for use.
+
+    A ship is marked as reserved for use when it is going on expedition,
+    practice or mission. A ship reserved for use will not be in the ship pool
+    when choosing another set of ships to use.
+    """
 
     @property
     def ready(self):

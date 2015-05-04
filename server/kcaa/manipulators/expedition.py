@@ -121,6 +121,7 @@ class GoOnExpedition(base.Manipulator):
             maparea_id = int(maparea_id)
         map_id = int(map_id)
         formation = int(formation)
+        fleet_list = self.objects['FleetList']
         mapinfo_list = self.objects['MapInfoList']
         logger.info(
             'Making the fleet {} go on the expedition {}-{} with the '
@@ -130,7 +131,10 @@ class GoOnExpedition(base.Manipulator):
             raise Exception(
                 'Not all ships in the fleet {} is not ready.'.format(
                     fleet_id))
-        # Check ship slot and equipment slot requiement.
+        ship_ids = fleet_list.fleets[fleet_id - 1].ship_ids
+        yield self.do_manipulator(organizing.MarkReservedForUse,
+                                  ship_ids=ship_ids,
+                                  reserved_for_use=True)
         yield self.screen.change_screen(screens.PORT_EXPEDITION)
         GoOnExpedition.validate_map(mapinfo_list, maparea_id, map_id)
         yield self.screen.select_maparea(maparea_id)
@@ -140,6 +144,9 @@ class GoOnExpedition(base.Manipulator):
         yield self.screen.confirm_expedition()
         yield self.do_manipulator(SailOnExpeditionMap,
                                   default_formation=formation)
+        yield self.do_manipulator(organizing.MarkReservedForUse,
+                                  ship_ids=ship_ids,
+                                  reserved_for_use=False)
 
 
 class HandleExpeditionCombinedFleet(base.Manipulator):
@@ -187,10 +194,13 @@ class HandleExpeditionCombinedFleet(base.Manipulator):
         # First dissolve the combined fleet (if any) to avoid unexpected
         # force-dissolution.
         yield self.do_manipulator(organizing.DissolveCombinedFleet)
+        ship_ids_reserved_for_use = []
         # Primary fleet.
         yield self.do_manipulator(organizing.LoadFleetByEntries,
                                   fleet_id=fleet_ids.pop(),
                                   entries=entry.primary_fleet_entries)
+        ship_ids_reserved_for_use += [
+            e[0].id for e in entry.primary_fleet_entries if e[0].id > 0]
         # Secondary fleet.
         if entry.secondary_fleet_entries:
             yield self.do_manipulator(organizing.LoadFleetByEntries,
@@ -199,18 +209,24 @@ class HandleExpeditionCombinedFleet(base.Manipulator):
             yield self.do_manipulator(
                 organizing.FormCombinedFleet,
                 fleet_type=combined_fleet_deployment.combined_fleet_type)
+            ship_ids_reserved_for_use += [
+                e[0].id for e in entry.secondary_fleet_entries if e[0].id > 0]
         # Escoting fleet.
         if entry.escoting_fleet_entries:
             escoting_fleet_id = fleet_ids.pop()
             yield self.do_manipulator(organizing.LoadFleetByEntries,
                                       fleet_id=escoting_fleet_id,
                                       entries=entry.escoting_fleet_entries)
+            ship_ids_reserved_for_use += [
+                e[0].id for e in entry.escoting_fleet_entries if e[0].id > 0]
         # Supporting fleet.
         if entry.supporting_fleet_entries:
             supporting_fleet_id = fleet_ids.pop()
             yield self.do_manipulator(organizing.LoadFleetByEntries,
                                       fleet_id=supporting_fleet_id,
                                       entries=entry.supporting_fleet_entries)
+            ship_ids_reserved_for_use += [
+                e[0].id for e in entry.supporting_fleet_entries if e[0].id > 0]
         # Escoting and/or supporting fleet missions.
         if entry.escoting_fleet_entries:
             self.add_manipulator(
@@ -225,6 +241,10 @@ class HandleExpeditionCombinedFleet(base.Manipulator):
         # Finally, go on the mission!
         self.add_manipulator(GoOnExpedition, fleet_id=1, maparea_id=maparea_id,
                              map_id=map_id, formation=formation)
+        # Clean up.
+        self.add_manipulator(organizing.MarkReservedForUse,
+                             ship_ids=ship_ids_reserved_for_use,
+                             reserved_for_use=False)
 
 
 class SailOnExpeditionMap(base.Manipulator):
@@ -392,8 +412,7 @@ class EngageExpedition(base.Manipulator):
             return
         if ships[0].fatal:
             yield self.screen.forcedly_drop_out()
-            self.add_manipulator(logistics.ChargeFleet,
-                                 fleet_id=expedition.fleet_id)
+            self.add_manipulator(logistics.ChargeAllFleets)
             return
         # TODO: Handle the case where there is the headquarter equipped by the
         # flagship and there is a healthy destroyer in the secondary fleet.
@@ -514,6 +533,9 @@ class WarmUp(base.Manipulator):
         target_ship = ships[0]
         # TODO: Refactor with tests.
         if not fleet.are_all_ships_available(self, fleet_id):
+            yield self.do_manipulator(organizing.MarkReservedForUse,
+                                      ship_ids=[target_ship.id],
+                                      reserved_for_use=False)
             # Repair a damaged ship after warming up.
             if target_ship.hitpoint.ratio < 1:
                 self.add_manipulator(repair.RepairShips,
@@ -583,7 +605,8 @@ class WarmUpIdleShips(base.Manipulator):
     @staticmethod
     def get_ships_to_warm_up(ship_list, num_ships):
         candidate_ships = sorted(
-            [s for s in ship_list.ships.itervalues() if can_warm_up(s)],
+            [s for s in ship_list.ships.itervalues() if
+             not s.reserved_for_use and can_warm_up(s)],
             kcsapi.ShipSorter.kancolle_level, reverse=True)
         # First choose damaged ships.
         ships_to_warm_up = [s for s in candidate_ships if
