@@ -281,3 +281,30 @@ class MarkReservedForUse(base.Manipulator):
                     reserved_for_use))
             ship.reserved_for_use = reserved_for_use
         yield 0.0
+
+
+class AutoUnmarkReservedForUse(base.AutoManipulator):
+
+    @classmethod
+    def monitored_objects(cls):
+        return ['ShipList']
+
+    @classmethod
+    def run_only_when_idle(cls):
+        return True
+
+    @classmethod
+    def can_trigger(cls, owner):
+        if screens.in_category(owner.screen_id, screens.PORT_MAIN):
+            return
+        ship_list = owner.objects['ShipList']
+        if any([s.reserved_for_use for s in ship_list.ships.itervalues()]):
+            return {}
+
+    def run(self):
+        ship_list = self.objects['ShipList']
+        yield self.do_manipulator(
+            MarkReservedForUse,
+            ship_ids=[s.id for s in ship_list.ships.itervalues() if
+                      s.reserved_for_use],
+            reserved_for_use=False)

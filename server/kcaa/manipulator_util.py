@@ -221,6 +221,8 @@ class ManipulatorManager(object):
             manipulators.expedition.AutoReturnWithFatalShip,
             # Organizing
             'AutoLockUniqueShips': manipulators.organizing.AutoLockUniqueShips,
+            'AutoUnmarkReservedForUse':
+            manipulators.organizing.AutoUnmarkReservedForUse,
             # Logistics
             'AutoChargeFleet': manipulators.logistics.AutoChargeFleet,
             # Rebuilding
@@ -285,6 +287,8 @@ class ManipulatorManager(object):
             # AutoHandleAllPractices runs when idle. It may take some time, and
             # thus should precede other time-consuming low priority tasks.
             'AutoHandleAllPractices': 2000,
+            # AutoUnmarkReservedForUse can be anywhere. It runs only when idle.
+            'AutoUnmarkReservedForUse': 6000,
             # AutoRepairShips can be anywhere. It repairs slightly damaged
             # ships when idle.
             'AutoRepairShips': 7000,
