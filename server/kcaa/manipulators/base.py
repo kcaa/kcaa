@@ -109,6 +109,7 @@ class AutoManipulatorTriggerer(Manipulator):
                     not has_monitored_objects or
                     (self.manipulator.run_only_when_idle() and
                      not self.manager.idle) or
+                    not self.manipulator.precondition(self) or
                     (screen_generation <= self._last_screen_generation and
                      self.time <= self._last_check_time + self._check_interval
                      and not has_updates)):
@@ -174,6 +175,15 @@ class AutoManipulator(Manipulator):
     def run_only_when_idle(cls):
         """Whether to run only when the manipulator manager is idle."""
         return False
+
+    @classmethod
+    def precondition(cls, owner):
+        """Generic precondition to run :meth:`can_trigger`.
+
+        If suitable, prefer :meth:`required_objects`, :meth:`monitored_objects`
+        or :meth:`run_only_when_idle` over this for readability.
+        """
+        return True
 
     @classmethod
     def can_trigger(cls, owner):
