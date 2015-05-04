@@ -161,7 +161,6 @@ class PortScreen(Screen):
             yield 3.0
             if self.screen_id == screens.PORT:
                 self.update_screen_id(screens.PORT_MAIN)
-            yield self.check_mission_results_if_any()
             yield self.manager.current_screen.change_screen(screen_id)
         self.assert_screen_category(screens.PORT)
         return self.do_task(change_screen_task)
@@ -256,6 +255,7 @@ class PortMainScreen(PortScreen):
         }
 
         def change_screen_task(task):
+            yield self.check_mission_results_if_any()
             if screen_id == screens.PORT_MAIN:
                 yield 0.0
                 return
