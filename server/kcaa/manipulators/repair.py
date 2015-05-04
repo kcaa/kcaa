@@ -160,14 +160,16 @@ class AutoCheckRepairResult(base.AutoManipulator):
     precursor_duration = 60000
 
     @classmethod
-    def required_objects(cls):
+    def monitored_objects(cls):
         return ['RepairDock']
 
     @classmethod
+    def precondition(cls, owner):
+        return screens.in_category(owner.screen_id, screens.PORT)
+
+    @classmethod
     def can_trigger(cls, owner):
-        if not screens.in_category(owner.screen_id, screens.PORT):
-            return
-        repair_dock = owner.objects.get('RepairDock')
+        repair_dock = owner.objects['RepairDock']
         now = long(1000 * time.time())
         to_check = False
         for slot in repair_dock.slots:
