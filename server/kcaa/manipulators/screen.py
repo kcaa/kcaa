@@ -1333,7 +1333,7 @@ class ExpeditionScreen(EngageScreen):
         def select_next_location_task(task):
             yield 2.0
             self.click(*click_position)
-            yield 2.0
+            # Do not wait, the next KCSAPI will come soon.
         return self.do_task(select_next_location_task)
 
     def dismiss_boss_conversation(self):
