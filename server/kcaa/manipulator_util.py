@@ -153,6 +153,7 @@ class ManipulatorManager(object):
         self.rmo_last_generation = self.rmo.generation
         self.objects['RunningManipulators'] = self.rmo
         self.set_auto_manipulator_preferences(self.preferences.automan_prefs)
+        self.reset_transient_state()
 
     def reset_objects(self, objects, states):
         self.objects = objects
@@ -161,6 +162,12 @@ class ManipulatorManager(object):
         self.rmo_last_generation = self.rmo.generation
         objects['RunningManipulators'] = self.rmo
         self.screen_manager.reset_objects(objects, states)
+
+    def reset_transient_state(self):
+        ship_list = self.objects.get('ShipList')
+        if ship_list:
+            for s in ship_list.ships.itervalues():
+                s.reserved_for_use = False
 
     def define_manipulators(self):
         self.manipulators = {
