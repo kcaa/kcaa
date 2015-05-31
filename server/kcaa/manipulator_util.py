@@ -225,6 +225,8 @@ class ManipulatorManager(object):
         # NOTE: AutoReturnWithFatalShip is a special auto manipulator that
         # should run even when a user is manually operating the client.
         self.auto_manipulators = {
+            # Quest
+            'AutoCheckQuests': manipulators.quest.AutoCheckQuests,
             # Expedition
             'AutoWarmUpIdleShips': manipulators.expedition.AutoWarmUpIdleShips,
             'AutoReturnWithFatalShip':
@@ -300,9 +302,12 @@ class ManipulatorManager(object):
             # AutoCheckPracticeOpponents runs when idle. It's quick, so it can
             # precede other low priority ones.
             'AutoCheckPracticeOpponents': 1000,
+            # AutoCheckQuests runs when idle. It's quick, so it can precede
+            # other low priority ones.
+            'AutoCheckQuests': 2000,
             # AutoHandleAllPractices runs when idle. It may take some time, and
             # thus should precede other time-consuming low priority tasks.
-            'AutoHandleAllPractices': 2000,
+            'AutoHandleAllPractices': 3000,
             # AutoRecoverFromMissionResult can be anywhere. It recovers from
             # the mission result screen when idle. Should not trigger if
             # everything is working well, but there is a case that a click

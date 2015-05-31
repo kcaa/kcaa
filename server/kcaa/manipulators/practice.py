@@ -39,9 +39,11 @@ class AutoCheckPracticeOpponents(base.AutoManipulator):
     next_update = None
 
     @classmethod
+    def precondition(cls, owner):
+        return screens.in_category(owner.screen_id, screens.PORT)
+
+    @classmethod
     def can_trigger(cls, owner):
-        if not screens.in_category(owner.screen_id, screens.PORT):
-            return
         now = datetime.datetime.now()
         initial_run = cls.next_update is None
         if not initial_run and now < cls.next_update:
@@ -189,9 +191,11 @@ class AutoHandleAllPractices(base.AutoManipulator):
     next_update = None
 
     @classmethod
+    def precondition(cls, owner):
+        return screens.in_category(owner.screen_id, screens.PORT)
+
+    @classmethod
     def can_trigger(cls, owner):
-        if not screens.in_category(owner.screen_id, screens.PORT):
-            return
         now = datetime.datetime.now()
         initial_run = cls.next_update is None
         if not initial_run and now < cls.next_update:
