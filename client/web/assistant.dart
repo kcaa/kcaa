@@ -666,4 +666,12 @@ class Assistant extends PolymerElement {
     model.preferences.automanPrefs.enabled = false;
     savePreferences().then((_) => reloadManipulatorModules());
   }
+
+  void checkQuests() {
+     Uri request = serverManipulate.resolveUri(
+         new Uri(queryParameters: {
+           "type": "CheckQuests",
+         }));
+     HttpRequest.getString(request.toString());
+   }
 }

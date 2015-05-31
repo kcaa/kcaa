@@ -61,7 +61,12 @@
               <div>キラキラ化待ち: {{model.numShipsToWarmUp}}隻</div>
               <div>入渠: {{model.numShipsUnderRepair}}隻 /
                   {{model.numShipsToRepair}}隻待ち</div>
-              <div>任務: {{model.numQuestsUndertaken}}/5</div>
+              <div>
+                任務: {{model.numQuestsUndertaken}}/5
+                <button on-click="{{checkQuests}}" class="action">
+                  &#8635;
+                </button>
+              </div>
             </div>
             <h4>資源</h4>
             <!-- TODO: Better representation. -->
@@ -495,6 +500,9 @@
           <h3 data-collapsed="true">
             任務 ({{model.numQuestsUndertaken}}/5個遂行中)
           </h3>
+          <div>
+            <button on-click="{{checkQuests}}">更新</button>
+          </div>
           <div class="table">
             <div class="trow thead">
               <div>種別</div>

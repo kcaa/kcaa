@@ -147,6 +147,44 @@ class PortScreen(Screen):
         # instead in check_mission_result.
         self.click(200, 270)
 
+    def click_record_button(self):
+        def click_record_button_task(task):
+            self.click(165, 50)
+            yield 2.0
+        return self.do_task(click_record_button_task)
+
+    def click_encyclopedia_button(self):
+        def click_encyclopedia_button_task(task):
+            self.click(320, 50)
+            yield 2.0
+        return self.do_task(click_encyclopedia_button_task)
+
+    def click_itemrack_button(self):
+        def click_itemrack_button_task(task):
+            self.click(400, 50)
+            yield 2.0
+        return self.do_task(click_itemrack_button_task)
+
+    def click_furniture_button(self):
+        def click_furniture_button_task(task):
+            self.click(485, 50)
+            yield 2.0
+        return self.do_task(click_furniture_button_task)
+
+    def click_quest_button(self):
+        def click_quest_button_task(task):
+            self.click(560, 50)
+            yield self.wait_transition(screens.PORT_QUESTLIST)
+            self.click_somewhere()
+            yield 2.0
+        return self.do_task(click_quest_button_task)
+
+    def click_item_shop_button(self):
+        def click_item_shop_button_task(task):
+            self.click(615, 50)
+            yield 2.0
+        return self.do_task(click_item_shop_button_task)
+
     def change_screen(self, screen_id):
         # If the current screen is unknown, go first to the port main screen,
         # and then move to the target screen.
@@ -252,6 +290,16 @@ class PortMainScreen(PortScreen):
             screens.PORT_REBUILDING: self.click_rebuilding_button,
             screens.PORT_REPAIR: self.click_repair_button,
             screens.PORT_SHIPYARD: self.click_shipyard_button,
+            # These screens are available from port operation screens, but not
+            # necessarily for others like the encyclopedia. To simplify the
+            # scenario, we always get back to the port main before clicking
+            # those buttons.
+            screens.PORT_RECORD: self.click_record_button,
+            screens.PORT_ENCYCLOPEDIA: self.click_encyclopedia_button,
+            screens.PORT_ITEMRACK: self.click_itemrack_button,
+            screens.PORT_FURNITURE: self.click_furniture_button,
+            screens.PORT_QUESTLIST: self.click_quest_button,
+            screens.PORT_ITEMSHOP: self.click_item_shop_button,
         }
 
         def change_screen_task(task):
@@ -308,6 +356,91 @@ class PortMainScreen(PortScreen):
 
     def click_shipyard_button(self):
         self.click(275, 365)
+
+
+class PortQuestScreen(PortScreen):
+
+    def __init__(self, manager):
+        super(PortQuestScreen, self).__init__(manager)
+        self._current_page = 1
+
+    @property
+    def current_page(self):
+        return self._current_page
+
+    def wait_quest_update(self, last_generation):
+        def wait_quest_update_task(task):
+            while self.screen_generation == last_generation:
+                yield task.unit
+            yield 0.5
+        return self.do_task(wait_quest_update_task)
+
+    def select_page(self, page, max_page):
+        def select_page_task(task):
+            # This select_page() is a bit different from other select_page()
+            # implementations.
+            # - The next button in the bottom just advances one by one instead
+            #   of jumping by 5.
+            # - Each page transition involves networking.
+            if page == self._current_page:
+                return
+            if page == max_page:
+                last_generation = self.screen_generation
+                self.click_page_last()
+                yield self.wait_quest_update(last_generation)
+                self.current_page = page
+                return
+            last_generation = self.screen_generation
+            self.click_page_reset()
+            yield self.wait_quest_update(last_generation)
+            if page == 1:
+                self.current_page = page
+                return
+            if page <= 5:
+                last_generation = self.screen_generation
+                self.click_page(page - 1)
+                yield self.wait_quest_update(last_generation)
+                self.current_page = page
+                return
+            last_generation = self.screen_generation
+            self.click_page(4)
+            yield self.wait_quest_update(last_generation)
+            current_page = 5
+            while page - current_page >= 2:
+                last_generation = self.screen_generation
+                self.click_page_next_2()
+                current_page += 2
+                yield self.wait_quest_update(last_generation)
+            while page > current_page:
+                last_generation = self.screen_generation
+                self.click_page_next()
+                current_page += 1
+                yield self.wait_quest_update(last_generation)
+            self._current_page = page
+        return self.do_task(select_page_task)
+
+    def click_page(self, position):
+        # position ranges from 0 to 4.
+        self.click(355 + 52 * position, 465)
+
+    def click_page_reset(self):
+        self.click(265, 465)
+
+    def click_page_last(self):
+        self.click(655, 450)
+
+    def click_page_next(self):
+        self.click_page(3)
+
+    def click_page_next_2(self):
+        self.click_page(4)
+
+    def click_next_page_button(self):
+        def click_next_page_button_task(task):
+            last_generation = self.screen_generation
+            self.click(620, 465)
+            yield self.wait_quest_update(last_generation)
+        return self.do_task(click_next_page_button_task)
 
 
 class PortExpeditionScreen(PortScreen):
@@ -1429,6 +1562,6 @@ class MissionResultScreen(Screen):
 
     def click_record_button(self):
         def click_record_button_task(task):
-            self.click(0, 0)
+            self.click(165, 50)
             yield 2.0
         return self.do_task(click_record_button_task)

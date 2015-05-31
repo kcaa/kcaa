@@ -60,6 +60,10 @@ class QuestList(model.KCAAObject):
                                      element_type=Quest)
     """Quest instances."""
 
+    @property
+    def max_page(self):
+        return (self.count + 4) / 5
+
     def update(self, api_name, request, response, objects, debug):
         super(QuestList, self).update(api_name, request, response, objects,
                                       debug)

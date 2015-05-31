@@ -7,6 +7,7 @@ import logistics
 import mission
 import organizing
 import practice
+import quest
 import rebuilding
 import repair
 import screen
@@ -55,6 +56,7 @@ def main():
     doctest.testmod(mission)
     doctest.testmod(organizing)
     doctest.testmod(practice)
+    doctest.testmod(quest)
     doctest.testmod(rebuilding)
     doctest.testmod(repair)
     doctest.testmod(screen)

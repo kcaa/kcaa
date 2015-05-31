@@ -43,7 +43,7 @@ class ScreenManager(object):
             screens.PORT_ENCYCLOPEDIA: manipulators.screen.PortScreen,
             screens.PORT_ITEMRACK: manipulators.screen.PortScreen,
             screens.PORT_FURNITURE: manipulators.screen.PortScreen,
-            screens.PORT_QUESTLIST: manipulators.screen.PortScreen,
+            screens.PORT_QUESTLIST: manipulators.screen.PortQuestScreen,
             screens.PORT_ITEMSHOP: manipulators.screen.PortScreen,
             screens.PORT_EXPEDITION: manipulators.screen.PortExpeditionScreen,
             screens.PORT_PRACTICE: manipulators.screen.PortPracticeScreen,
@@ -171,6 +171,8 @@ class ManipulatorManager(object):
 
     def define_manipulators(self):
         self.manipulators = {
+            # Quest
+            'CheckQuests': manipulators.quest.CheckQuests,
             # Expedition
             'GoOnExpedition': manipulators.expedition.GoOnExpedition,
             'HandleExpeditionCombinedFleet':
