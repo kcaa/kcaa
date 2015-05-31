@@ -550,7 +550,7 @@ class Assistant extends PolymerElement {
         new Uri(queryParameters: {
           "type": "WarmUpIdleShips",
           "fleet_id": "1",
-          "num_ships": "6",
+          "num_ships": "1",
         }));
     HttpRequest.getString(request.toString());
   }
