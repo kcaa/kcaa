@@ -4,7 +4,6 @@ import 'package:polymer/polymer.dart';
 
 import 'dialog.dart';
 import '../model/assistant.dart';
-import '../util.dart';
 
 @CustomTag('kcaa-fleet-organization-dialog')
 class FleetOrganizationDialog extends KcaaPaperDialog {
@@ -96,7 +95,6 @@ class FleetOrganizationDialog extends KcaaPaperDialog {
     }
     fleet = new FleetDeployment.fromShips(fleetName, fleetToSave.ships);
     fleetIndexInPrefs = null;
-    var dummy = new DivElement();
     updateExpectationSafe();
   }
 

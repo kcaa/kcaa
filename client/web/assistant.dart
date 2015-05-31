@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'dart:html';
 import 'package:bootjack/bootjack.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
 import 'package:polymer/polymer.dart';
 
 import 'dialog/dialog.dart';
@@ -45,10 +46,11 @@ class Assistant extends PolymerElement {
   @observable String debugInfo;
   final List<String> availableObjects = new ObservableList<String>();
   Set<String> availableObjectSet = new Set<String>();
-  Timer availableObjectsChecker;
   int updateAvailableObjectsIntervalMs;
   bool showScreen = true;
   @observable bool updateScreenPeriodically = false;
+  Timer objectUpdater = null;
+  @observable String lastObjectUpdated;
 
   // Object handlers.
   static final Map<String, Function> OBJECT_HANDLERS = <String, Function>{
@@ -126,7 +128,7 @@ class Assistant extends PolymerElement {
 
     addCollapseButtons();
     updateCollapsedSections();
-    reloadAllObjects().then((_) => updateAvailableObjectsPeriodically());
+    reloadAllObjectsAndUpdatePeriodically();
     // TODO: Ensure this happens after all other dialog elements are
     // initialized.
     runLater(1000, () => passModelToDialogs());
@@ -216,8 +218,13 @@ class Assistant extends PolymerElement {
     });
   }
 
-  Future reloadAllObjects() {
-    return handleObjects(serverGetObjects);
+  void reloadAllObjectsAndUpdatePeriodically() {
+    if (objectUpdater != null) {
+      objectUpdater.cancel();
+      objectUpdater = null;
+    }
+    handleObjects(serverGetObjects).then(
+        (_) => updateAvailableObjectsPeriodically());
   }
 
   void handleObject(String objectType, String data) {
@@ -239,7 +246,6 @@ class Assistant extends PolymerElement {
           }
         }
         // Then handle the rest.
-        var internalHandlerChain = new Future.value(null);
         for (var objectType in objects.keys) {
           if (!REFERENCED_OBJECTS.contains(objectType)) {
             objectTypes.add(objectType);
@@ -260,6 +266,7 @@ class Assistant extends PolymerElement {
 
   Future updateAvailableObjects() {
     // Update the list of available objects in the debug info section.
+    lastObjectUpdated = new DateFormat.Hms("ja_JP").format(new DateTime.now());
     return HttpRequest.getString(serverGetObjectTypes.toString())
       .then((String content) {
         List<String> objectTypes = JSON.decode(content);
@@ -280,11 +287,11 @@ class Assistant extends PolymerElement {
 
   void updateAvailableObjectsPeriodically() {
     updateAvailableObjects().then((_) {
-      runLater(updateAvailableObjectsIntervalMs,
+      objectUpdater = runLater(updateAvailableObjectsIntervalMs,
           updateAvailableObjectsPeriodically);
     },
     onError: (_) {
-      runLater(updateAvailableObjectsIntervalMs,
+      objectUpdater = runLater(updateAvailableObjectsIntervalMs,
           updateAvailableObjectsPeriodically);
     });
   }

@@ -20,6 +20,7 @@
                       on-click="{{reloadAllObjects}}">&#8635;</button>
             </h4>
             <div>
+              <div>最終更新: {{lastObjectUpdated}}</div>
               <div>現在の画面: {{model.screen}}</div>
               <div>自動操作中:
                 <template if="{{model.runningManipulator == null}}">
