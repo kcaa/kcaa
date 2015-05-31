@@ -364,6 +364,19 @@ class PortQuestScreen(PortScreen):
         super(PortQuestScreen, self).__init__(manager)
         self._current_page = 1
 
+    def change_screen(self, screen_id):
+        def change_screen_task(task):
+            if screen_id == screens.PORT_QUESTLIST:
+                yield 0.0
+                return
+            yield super(PortQuestScreen, self).change_screen(screen_id)
+            # TODO: This is a boilerplate. Consider to extract as a method.
+            if self.screen_id == screen_id:
+                return
+            else:
+                self.raise_impossible_transition(screen_id)
+        return self.do_task(change_screen_task)
+
     @property
     def current_page(self):
         return self._current_page
