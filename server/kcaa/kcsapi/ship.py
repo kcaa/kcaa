@@ -449,7 +449,7 @@ class Ship(ShipDefinition):
         return (self.locked and
                 not self.is_under_repair and
                 not self.away_for_mission and
-                not self.dangerous > 0.5 and
+                not self.dangerous and
                 self.vitality >= 30)
 
     @property
