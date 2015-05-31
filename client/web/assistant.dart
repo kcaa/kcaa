@@ -50,7 +50,12 @@ class Assistant extends PolymerElement {
   bool showScreen = true;
   @observable bool updateScreenPeriodically = false;
   Timer objectUpdater = null;
-  @observable String lastObjectUpdated;
+  DateTime lastObjectUpdated = new DateTime.now();
+  @observable String formattedLastObjectUpdated;
+  double objectTransferRate = 0.0;
+  @observable String formattedObjectTransferRate;
+  int objectTransferred = 0;
+  @observable String formattedObjectTransferred;
 
   // Object handlers.
   static final Map<String, Function> OBJECT_HANDLERS = <String, Function>{
@@ -223,7 +228,7 @@ class Assistant extends PolymerElement {
       objectUpdater.cancel();
       objectUpdater = null;
     }
-    handleObjects(serverGetObjects).then(
+    handleObjects(serverGetObjects, 0).then(
         (_) => updateAvailableObjectsPeriodically());
   }
 
@@ -234,9 +239,24 @@ class Assistant extends PolymerElement {
     }
   }
 
-  Future handleObjects(Uri objectsUri) {
+  Future handleObjects(Uri objectsUri, int transferredBytes) {
     return HttpRequest.getString(objectsUri.toString())
       .then((String content) {
+        // Update the last updated time and transfer rate.
+        var now = new DateTime.now();
+        transferredBytes += content.length;
+        objectTransferRate = 0.1 * objectTransferRate +
+            0.9 * (1000.0 * transferredBytes.toDouble() /
+                now.difference(lastObjectUpdated).inMilliseconds);
+        formattedObjectTransferRate =
+            "${(1.0 / 1000 * objectTransferRate).toStringAsFixed(1)} KB/s";
+        objectTransferred += transferredBytes;
+        formattedObjectTransferred =
+            "${(1.0 / 1000 * objectTransferred).toStringAsFixed(1)} KB";
+        lastObjectUpdated = now;
+        formattedLastObjectUpdated =
+            new DateFormat.Hms("ja_JP").format(lastObjectUpdated);
+
         var objects = JSON.decode(content) as Map<String, String>;
         var objectTypes = new List<String>();
         // Handle referenced objects first.
@@ -266,9 +286,9 @@ class Assistant extends PolymerElement {
 
   Future updateAvailableObjects() {
     // Update the list of available objects in the debug info section.
-    lastObjectUpdated = new DateFormat.Hms("ja_JP").format(new DateTime.now());
     return HttpRequest.getString(serverGetObjectTypes.toString())
       .then((String content) {
+        var transferredBytes = content.length;
         List<String> objectTypes = JSON.decode(content);
         var newObjectFound = false;
         for (var objectType in objectTypes) {
@@ -279,9 +299,10 @@ class Assistant extends PolymerElement {
           availableObjects.clear();
           availableObjects.addAll(objectTypes);
         }
-      }).then((_) {
+        return transferredBytes;
+      }).then((var transferredBytes) {
         // Actually handles the new objects.
-        return handleObjects(serverGetNewObjects);
+        return handleObjects(serverGetNewObjects, transferredBytes);
       });
   }
 

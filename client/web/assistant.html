@@ -14,13 +14,17 @@
         <div class="column">
           <div class="board">
             <h3>ステータス</h3>
+            <div>
+              <div>最終更新: {{formattedLastObjectUpdated}}</div>
+              <div>転送レート: {{formattedObjectTransferRate}}</div>
+              <div>総転送量: {{formattedObjectTransferred}}</div>
+            </div>
             <h4>
               クライアントの状態
               <button class="action"
                       on-click="{{reloadAllObjects}}">&#8635;</button>
             </h4>
             <div>
-              <div>最終更新: {{lastObjectUpdated}}</div>
               <div>現在の画面: {{model.screen}}</div>
               <div>自動操作中:
                 <template if="{{model.runningManipulator == null}}">
