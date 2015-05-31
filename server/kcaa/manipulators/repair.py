@@ -191,7 +191,7 @@ class AutoCheckRepairResult(base.AutoManipulator):
         if not slots_to_check:
             return
         logger.debug('Slots {} have completed the repair.'.format(
-            ', '.join(slots_to_check)))
+            ', '.join([str(slot.id) for slot in slots_to_check])))
         yield 1.0
         if self.screen_id == screens.PORT_REPAIR:
             yield self.screen.change_screen(screens.PORT_MAIN)
