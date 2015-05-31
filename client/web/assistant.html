@@ -639,24 +639,23 @@
           </div>
         </div>
       </div>
-      <div id="debugControlsSection" class="row horizontal hidden">
+      <div id="debugSection" class="row horizontal hidden">
         <div class="board">
-          <h3 data-collapsed="true">デバッグコントロール</h3>
+          <h3 data-collapsed="true">デバッグ</h3>
           <h4>モジュールリロード</h4>
           <button on-click="{{reloadKCSAPIModules}}">KCSAPIハンドラ</button>
           <button on-click="{{reloadManipulatorModules}}">マニピュレータ</button>
-          <h4>API出力</h4>
+          <h4>KCSAPIオブジェクト</h4>
           <div>
+            <button on-click="{{clearObjectToDebug}}">リセット</button>
             <template repeat="{{objectType in availableObjects}}">
               <button on-click="{{getObjectFromName}}">{{objectType}}</button>
             </template>
           </div>
-        </div>
-      </div>
-      <div id="debugInfoSection" class="row horizontal hidden">
-        <div class="board">
-          <h3 data-collapsed="true">デバッグ情報</h3>
-          <div class="debugInfo">{{debugInfo}}</div>
+          <template if="{{objectTypeToDebug != null}}">
+            <h4>KCSAPI - {{objectTypeToDebug}}</h4>
+            <div class="debugInfo">{{debugInfo}}</div>
+          </template>
         </div>
       </div>
     </div>

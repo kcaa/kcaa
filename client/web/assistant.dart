@@ -43,6 +43,7 @@ class Assistant extends PolymerElement {
 
   // Debug information.
   bool debug = false;
+  @observable String objectTypeToDebug = null;
   @observable String debugInfo;
   final List<String> availableObjects = new ObservableList<String>();
   Set<String> availableObjectSet = new Set<String>();
@@ -117,8 +118,7 @@ class Assistant extends PolymerElement {
   @override
   void attached() {
     if (debug) {
-      $["debugControlsSection"].classes.remove("hidden");
-      $["debugInfoSection"].classes.remove("hidden");
+      $["debugSection"].classes.remove("hidden");
     }
     if (showScreen) {
       $["screenSection"].classes.remove("hidden");
@@ -333,6 +333,7 @@ class Assistant extends PolymerElement {
         .then((String content) {
           var json = JSON.decode(content);
           if (debug) {
+            objectTypeToDebug = type;
             debugInfo = formatJson(json);
           }
           return json;
@@ -341,6 +342,11 @@ class Assistant extends PolymerElement {
 
   void getObjectFromName(Event e, var detail, Element target) {
     getObject(target.text, true);
+  }
+
+  void clearObjectToDebug() {
+    objectTypeToDebug = null;
+    debugInfo = null;
   }
 
   Future<Map<String, dynamic>> requestObject(
