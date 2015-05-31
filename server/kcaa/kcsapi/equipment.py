@@ -130,6 +130,13 @@ class EquipmentDefinition(jsonobject.JSONSerializableObject):
                 1 * self.firing_range +
                 2 * self.rarity)
 
+    def get_equippable_ships(self, ship_list, ship_def_list):
+        return [s for s in ship_list.ships.itervalues() if
+                not s.is_under_repair and
+                not s.away_for_mission and
+                s.slot_count > 0 and
+                s.can_load(self.type, ship_def_list)]
+
 
 class EquipmentDefinitionList(model.KCAAObject):
     """List of slot item definitions."""

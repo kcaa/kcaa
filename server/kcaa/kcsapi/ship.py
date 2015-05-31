@@ -169,6 +169,13 @@ class ShipDefinition(jsonobject.JSONSerializableObject):
     C, then all of them are guaranteed to have the same ship signature.
     """
 
+    def can_load(self, equipment_type, ship_def_list):
+        if equipment_type in self.additional_loadable_equipment_types:
+            return True
+        ship_type_definition = ship_def_list.ship_types[str(self.ship_type)]
+        return ship_type_definition.loadable_equipment_types[
+            str(equipment_type)]
+
     @staticmethod
     def is_battleship(ship):
         return ship.ship_type in (

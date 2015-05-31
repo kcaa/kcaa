@@ -934,12 +934,24 @@ class PortRebuildingScreen(PortOperationsScreen):
             yield 1.0
         return self.do_task(select_item_task)
 
+    def toggle_item_lock(self, index):
+        def toggle_item_lock_task(task):
+            self.click(785, 145 + 30 * index)
+            yield 2.0
+        return self.do_task(toggle_item_lock_task)
+
     def confirm_item_replacement(self):
         def confirm_item_replacement_task(task):
             self.click(700, 440)
             # TODO: Maybe best to detect ship3 KCSAPI.
             yield 2.0
         return self.do_task(confirm_item_replacement_task)
+
+    def unfocus_selection(self):
+        def unfocus_selection_task(task):
+            self.click(120, 120)
+            yield 2.0
+        return self.do_task(unfocus_selection_task)
 
     def click_item_page(self, position):
         # position ranges from 0 to 4.

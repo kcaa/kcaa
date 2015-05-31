@@ -355,6 +355,59 @@ class ClearEquipments(base.Manipulator):
         yield self.screen.clear_all_item_slots(len(target_ship.equipment_ids))
 
 
+class LockEquipment(base.Manipulator):
+
+    def run(self, equipment_id, locked):
+        equipment_id = int(equipment_id)
+        locked = locked is False or locked != 'false'
+        ship_list = self.objects['ShipList']
+        ship_def_list = self.objects['ShipDefinitionList']
+        equipment_list = self.objects['EquipmentList']
+        equipment_def_list = self.objects['EquipmentDefinitionList']
+        equipment = equipment_list.items[str(equipment_id)]
+        definition = equipment.definition(equipment_def_list)
+        if equipment.locked == locked:
+            return
+        logger.info(u'{} the equipment {} ({}).'.format(
+            u'Locking' if locked else u'Unlocking', definition.name,
+            equipment_id))
+        loadable_ship = None
+        slot_index = 0
+        equipment_id_to_ships = equipment_list.get_equipment_id_to_ships(
+            ship_list)
+        equipping_ship = equipment_id_to_ships.get(equipment_id)
+        if equipping_ship:
+            slot_index = equipping_ship.equipment_ids.index(equipment_id)
+            equipment_ids = list(equipping_ship.equipment_ids)
+            equipment_ids[slot_index] = -1
+            yield self.do_manipulator(ReplaceEquipmentsByIds,
+                                      ship_id=equipping_ship.id,
+                                      equipment_ids=equipment_ids)
+            loadable_ship = equipping_ship
+        else:
+            loadable_ships = sorted(
+                definition.get_equippable_ships(ship_list, ship_def_list),
+                kcsapi.ShipSorter.kancolle_level)
+            if not loadable_ships:
+                raise Exception('No ship can equip the item.')
+            loadable_ship = loadable_ships[0]
+        yield self.do_manipulator(SelectShip, ship_id=loadable_ship.id)
+        yield self.screen.select_item_slot(slot_index)
+        unequipped_items = ReplaceEquipments.filter_out_unloadable(
+            equipment_list.get_unequipped_items(ship_list), loadable_ship,
+            ship_def_list)
+        page, in_page_index = equipment_list.compute_page_position(
+            equipment_id, unequipped_items)
+        max_page = equipment_list.get_max_page(unequipped_items)
+        yield self.screen.select_item_page(page, max_page)
+        yield self.screen.toggle_item_lock(in_page_index)
+        if equipping_ship:
+            yield self.screen.select_item(in_page_index)
+            yield self.screen.confirm_item_replacement()
+        else:
+            yield self.screen.unfocus_selection()
+
+
 class ReplaceEquipments(base.Manipulator):
 
     @staticmethod
