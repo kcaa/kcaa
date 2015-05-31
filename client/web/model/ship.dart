@@ -705,6 +705,9 @@ void handleShipList(Assistant assistant, AssistantModel model,
   reorderShipList(model);
   model.numFilteredShips =
       model.ships.where((ship) => model.shipList.filter(ship)).length;
+  model.numDamagedShipsToWarmUp =
+      model.ships.where((ship) => Ship.filterCanWarmUp(ship))
+      .where((ship) => Ship.filterCanRepair(ship)).length;
   model.numShipsToWarmUp =
       model.ships.where((ship) => Ship.filterCanWarmUp(ship)).length;
   model.numShipsUnderRepair =

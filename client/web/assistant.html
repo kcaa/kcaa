@@ -58,7 +58,8 @@
                 <button on-click="{{showModalDialog}}"
                         data-dialog="kcaaScheduleDialog">設定</button>
               </div>
-              <div>キラキラ化待ち: {{model.numShipsToWarmUp}}隻</div>
+              <div>キラキラ化待ち: {{model.numDamagedShipsToWarmUp}} /
+                  {{model.numShipsToWarmUp}}隻</div>
               <div>入渠: {{model.numShipsUnderRepair}}隻 /
                   {{model.numShipsToRepair}}隻待ち</div>
               <div>

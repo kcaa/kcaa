@@ -41,6 +41,7 @@ class AssistantModel extends Observable {
       new Map<int, ShipTypeDefinition>();
   @observable final List<String> shipTags = new ObservableList<String>();
   ShipListElement shipList;
+  @observable int numDamagedShipsToWarmUp = 0;
   @observable int numShipsToWarmUp = 0;
   @observable int numShipsUnderRepair = 0;
   @observable int numShipsToRepair = 0;
