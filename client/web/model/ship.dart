@@ -330,7 +330,8 @@ class Ship extends Observable {
 
   static bool filterCanWarmUp(Ship s) {
     return (s.stateClass == "good" || s.stateClass == "") &&
-        s.vitality < Fleet.WARMUP_VITALITY && !s.awayForMission && s.locked;
+        s.vitality < Fleet.WARMUP_VITALITY && !s.isUnderRepair &&
+        !s.awayForMission && s.locked;
   }
 
   static bool filterUnderRepair(Ship s) {
