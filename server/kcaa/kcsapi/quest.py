@@ -64,6 +64,11 @@ class QuestList(model.KCAAObject):
     def max_page(self):
         return (self.count + 4) / 5
 
+    def get_quest(self, quest_id):
+        matched_quests = [
+            quest for quest in self.quests if quest.id == quest_id]
+        return matched_quests[0] if matched_quests else None
+
     def update(self, api_name, request, response, objects, debug):
         super(QuestList, self).update(api_name, request, response, objects,
                                       debug)

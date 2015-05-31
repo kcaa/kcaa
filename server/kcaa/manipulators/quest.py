@@ -94,3 +94,53 @@ class AutoCheckQuests(base.AutoManipulator):
 
     def run(self):
         yield self.do_manipulator(CheckQuests)
+
+
+class UndertakeQuest(base.Manipulator):
+
+    @staticmethod
+    def find_quest(quest_id, quests):
+        for index, quest in enumerate(quests):
+            if quest.id == quest_id:
+                return index
+        return -1
+
+    def run(self, quest_id, undertaken):
+        quest_id = int(quest_id)
+        undertaken = undertaken is False or undertaken != 'false'
+        # Check if there is a matching quest and already undertaken.
+        quest_list = self.objects.get('QuestList')
+        if quest_list:
+            quest = quest_list.get_quest(quest_id)
+            if quest:
+                quest_active = quest.state != kcsapi.Quest.STATE_INACTIVE
+                if quest_active == undertaken:
+                    logger.debug(
+                        'Found a matching quest and the state is already '
+                        'fulfilled.')
+                    return
+        # Unlike other objects, there is no guarantee that the QuestList is
+        # complete. Traverse it and find on the fly.
+        # If no user interacts with the quest screen, it's possible to use
+        # select_page() to efficiently spot the quest in question.
+        logger.info('{} the quest {}.'.format(
+            'Undertaking' if undertaken else 'Cancelling', quest_id))
+        yield self.screen.change_screen(screens.PORT_QUESTLIST)
+        quest_list = self.objects['QuestList']
+        max_page = quest_list.max_page
+        yield self.screen.select_page(1, max_page)
+        index = UndertakeQuest.find_quest(
+            quest_id, quest_list.quests[0:min(5, len(quest_list.quests))])
+        if index >= 0:
+            yield self.screen.toggle_quest(index)
+            return
+        for _ in xrange(max_page - 1):
+            yield self.screen.click_next_page_button()
+            offset = 5 * (self.screen.current_page - 1)
+            max_offset = min(offset + 5, len(quest_list.quests))
+            index = UndertakeQuest.find_quest(
+                quest_id, quest_list.quests[offset:max_offset])
+            if index >= 0:
+                yield self.screen.toggle_quest(index)
+                return
+        raise Exception('No quest found with ID {}'.format(quest_id))

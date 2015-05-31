@@ -419,9 +419,16 @@ class PortQuestScreen(PortScreen):
             self._current_page = page
         return self.do_task(select_page_task)
 
+    def toggle_quest(self, index):
+        def toggle_quest_task(task):
+            last_generation = self.screen_generation
+            self.click_quest(index)
+            yield self.wait_quest_update(last_generation)
+        return self.do_task(toggle_quest_task)
+
     def complete_quest(self, index):
         def complete_quest_task(task):
-            self.click(740, 145 + 68 * index)
+            self.click_quest(index)
             yield 3.0
             last_generation = self.screen_generation
             # There may be multiple clear item screens.
@@ -445,6 +452,9 @@ class PortQuestScreen(PortScreen):
 
     def click_page_next_2(self):
         self.click_page(4)
+
+    def click_quest(self, index):
+        self.click(740, 145 + 68 * index)
 
     def click_next_page_button(self):
         def click_next_page_button_task(task):

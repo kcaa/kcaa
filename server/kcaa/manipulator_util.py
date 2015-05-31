@@ -173,6 +173,7 @@ class ManipulatorManager(object):
         self.manipulators = {
             # Quest
             'CheckQuests': manipulators.quest.CheckQuests,
+            'UndertakeQuest': manipulators.quest.UndertakeQuest,
             # Expedition
             'GoOnExpedition': manipulators.expedition.GoOnExpedition,
             'HandleExpeditionCombinedFleet':

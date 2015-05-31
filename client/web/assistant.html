@@ -508,11 +508,8 @@
             <div class="trow thead">
               <div>種別</div>
               <div class="description">説明</div>
-              <div>燃料</div>
-              <div>弾薬</div>
-              <div>鋼材</div>
-              <div>ボーキ</div>
               <div>進捗</div>
+              <div class="wide">操作</div>
             </div>
             <template repeat="{{quest in model.quests}}">
               <div class="trow {{quest.stateClass}}">
@@ -523,17 +520,37 @@
                 <div class="description">
                   <div class="title">{{quest.name}}</div>
                   <div>{{quest.description}}</div>
+                  <div>
+                    燃料: {{quest.fuel}},
+                    弾薬: {{quest.ammo}},
+                    鋼材: {{quest.steel}},
+                    ボーキ: {{quest.bauxite}}
+                  </div>
                 </div>
-                <div>{{quest.fuel}}</div>
-                <div>{{quest.ammo}}</div>
-                <div>{{quest.steel}}</div>
-                <div>{{quest.bauxite}}</div>
-                <div>
+                <div class="numberColumn">
                   <template if="{{quest.state != 3}}">
                     {{quest.progress}}%
                   </template>
                   <template if="{{quest.state == 3}}">
                     達成!
+                  </template>
+                </div>
+                <div class="wide labelColumn">
+                  <template if="{{quest.state == 1}}">
+                    <button on-click="{{undertakeQuest}}"
+                            data-quest-id="{{quest.id}}"
+                            data-undertaken="true"
+                            disabled?="{{model.numQuestsUndertaken == 5}}">
+                      受注
+                    </button>
+                  </template>
+                  <template if="{{quest.state == 2}}">
+                    <button on-click="{{undertakeQuest}}"
+                            data-quest-id="{{quest.id}}"
+                            data-undertaken="false">解除</button>
+                  </template>
+                  <template if="{{quest.state == 3}}">
+                    <button on-click="{{checkQuests}}">完了</button>
                   </template>
                 </div>
               </div>

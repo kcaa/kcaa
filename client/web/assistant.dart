@@ -674,4 +674,16 @@ class Assistant extends PolymerElement {
          }));
      HttpRequest.getString(request.toString());
    }
+
+  void undertakeQuest(MouseEvent e, var detail, Element target) {
+    var questId = target.dataset["questId"];
+    var undertaken = target.dataset["undertaken"];
+    Uri request = serverManipulate.resolveUri(
+        new Uri(queryParameters: {
+          "type": "UndertakeQuest",
+          "quest_id": questId,
+          "undertaken": undertaken,
+        }));
+    HttpRequest.getString(request.toString());
+  }
 }
