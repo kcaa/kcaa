@@ -98,7 +98,6 @@ class QuestList(model.KCAAObject):
                         bauxite=quest_data.api_get_material[3])))
             quests.sort(lambda x, y: x.id - y.id)
             self.quests = model.merge_list(self.quests, quests)
-            assert len(self.quests) == self.count
         elif api_name == '/api_req_quest/clearitemget':
             self.remove_quest(int(request.api_quest_id))
 
