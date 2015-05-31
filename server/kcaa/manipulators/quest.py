@@ -126,6 +126,8 @@ class UndertakeQuest(base.Manipulator):
         logger.info('{} the quest {}.'.format(
             'Undertaking' if undertaken else 'Cancelling', quest_id))
         yield self.screen.change_screen(screens.PORT_QUESTLIST)
+        if quest_list.count_undertaken == 5 and undertaken:
+            raise Exception('Cannot undertake more than 5 quests.')
         quest_list = self.objects['QuestList']
         max_page = quest_list.max_page
         yield self.screen.select_page(1, max_page)
