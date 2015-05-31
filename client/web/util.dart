@@ -13,7 +13,6 @@ Timer runLater(int milliseconds, void callback()) {
 bool iterableEquals(Iterable a, Iterable b) {
   var ai = a.iterator;
   var bi = b.iterator;
-  var different = false;
   while (true) {
     var aHasNext = ai.moveNext();
     var bHasNext = bi.moveNext();
