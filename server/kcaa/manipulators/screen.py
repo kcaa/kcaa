@@ -388,19 +388,19 @@ class PortQuestScreen(PortScreen):
                 last_generation = self.screen_generation
                 self.click_page_last()
                 yield self.wait_quest_update(last_generation)
-                self.current_page = page
+                self._current_page = page
                 return
             last_generation = self.screen_generation
             self.click_page_reset()
             yield self.wait_quest_update(last_generation)
             if page == 1:
-                self.current_page = page
+                self._current_page = page
                 return
             if page <= 5:
                 last_generation = self.screen_generation
                 self.click_page(page - 1)
                 yield self.wait_quest_update(last_generation)
-                self.current_page = page
+                self._current_page = page
                 return
             last_generation = self.screen_generation
             self.click_page(4)
@@ -418,6 +418,17 @@ class PortQuestScreen(PortScreen):
                 yield self.wait_quest_update(last_generation)
             self._current_page = page
         return self.do_task(select_page_task)
+
+    def complete_quest(self, index):
+        def complete_quest_task(task):
+            self.click(740, 145 + 68 * index)
+            yield 3.0
+            last_generation = self.screen_generation
+            # There may be multiple clear item screens.
+            while self.screen_generation == last_generation:
+                self.click(400, 405)
+                yield 3.0
+        return self.do_task(complete_quest_task)
 
     def click_page(self, position):
         # position ranges from 0 to 4.
@@ -439,6 +450,7 @@ class PortQuestScreen(PortScreen):
         def click_next_page_button_task(task):
             last_generation = self.screen_generation
             self.click(620, 465)
+            self._current_page += 1
             yield self.wait_quest_update(last_generation)
         return self.do_task(click_next_page_button_task)
 
