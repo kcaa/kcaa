@@ -131,8 +131,8 @@ class BoostShipRepairing(base.Manipulator):
 class AutoBoostShipRepairing(base.AutoManipulator):
 
     # TODO: Move this to preferences
-    # Boost threshold in milliseconds. (3 hours)
-    boost_threshold = 10800000
+    # Boost threshold in milliseconds. (6 hours)
+    boost_threshold = 21600000
 
     @classmethod
     def monitored_objects(cls):
