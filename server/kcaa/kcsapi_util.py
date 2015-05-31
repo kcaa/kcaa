@@ -137,8 +137,10 @@ class KCSAPIHandler(object):
             '/api_req_kousyou/getship': [kcsapi.ShipList,
                                          kcsapi.BuildDock,
                                          kcsapi.EquipmentList],
-            # Quests.
+            # Quests. Nice to track materials obtained in clearitemget to break
+            # down the source of resource income.
             '/api_get_member/questlist': [kcsapi.QuestList],
+            '/api_req_quest/clearitemget': [kcsapi.QuestList],
             '/api_req_quest/start': [kcsapi.NullHandler()],
             '/api_req_quest/stop': [kcsapi.NullHandler()],
             # Expedition.
