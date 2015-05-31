@@ -176,8 +176,12 @@ def add_game_frame_cover(browser, game_area_width, game_area_height, dx, dy):
             Math.floor(frameRect.top + ''' + str(dy) + ''') + "px";
         gameFrameCover.style.width = ''' + str(game_area_width) + ''' + "px";
         gameFrameCover.style.zIndex = "1";
-        gameFrameCover.textContent = "Being automatically manipulated";
         document.body.appendChild(gameFrameCover);
+        coverText = document.createElement("span");
+        coverText.style.position = "relative";
+        coverText.style.top = "410px";
+        coverText.textContent = "Automatically manipulated";
+        gameFrameCover.appendChild(coverText);
     ''')
 
 
