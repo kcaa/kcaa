@@ -476,8 +476,8 @@ class Assistant extends PolymerElement {
     }
   }
 
-  void savePreferences() {
-    HttpRequest.postFormData(serverSetPreferences.toString(), {
+  Future<HttpRequest> savePreferences() {
+    return HttpRequest.postFormData(serverSetPreferences.toString(), {
       "prefs": model.preferences.toJSON(),
     });
   }
@@ -654,5 +654,10 @@ class Assistant extends PolymerElement {
           "type": "DissolveLeastValuableShips",
         }));
     HttpRequest.getString(request.toString());
+  }
+
+  void stopAllManipulators() {
+    model.preferences.automanPrefs.enabled = false;
+    savePreferences().then((_) => reloadManipulatorModules());
   }
 }
