@@ -90,6 +90,22 @@ class AutoCheckMissionResult(base.AutoManipulator):
             yield self.do_manipulator(CheckMissionResult)
 
 
+class AutoRecoverFromMissionResult(base.AutoManipulator):
+
+    @classmethod
+    def run_only_when_idle(cls):
+        return True
+
+    @classmethod
+    def can_trigger(cls, owner):
+        if owner.screen_id == screens.MISSION_RESULT:
+            return {}
+
+    def run(self):
+        while self.screen_id != screens.PORT_RECORD:
+            yield self.screen.click_record_button()
+
+
 class GoOnMission(base.Manipulator):
 
     def run(self, fleet_id, mission_id):

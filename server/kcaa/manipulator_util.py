@@ -251,6 +251,8 @@ class ManipulatorManager(object):
             # Mission
             'AutoCheckMissionResult':
             manipulators.mission.AutoCheckMissionResult,
+            'AutoRecoverFromMissionResult':
+            manipulators.mission.AutoRecoverFromMissionResult,
             'AutoGoOnMission': manipulators.mission.AutoGoOnMission,
             # Special
             'AutoStartGame': manipulators.special.AutoStartGame,
@@ -299,6 +301,11 @@ class ManipulatorManager(object):
             # AutoHandleAllPractices runs when idle. It may take some time, and
             # thus should precede other time-consuming low priority tasks.
             'AutoHandleAllPractices': 2000,
+            # AutoRecoverFromMissionResult can be anywhere. It recovers from
+            # the mission result screen when idle. Should not trigger if
+            # everything is working well, but there is a case that a click
+            # failed while processing the mission result.
+            'AutoRecoverFromMissionResult': 6000,
             # AutoRepairShips can be anywhere. It repairs slightly damaged
             # ships when idle.
             'AutoRepairShips': 7000,

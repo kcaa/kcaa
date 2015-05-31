@@ -1426,3 +1426,9 @@ class MissionResultScreen(Screen):
             self._logger.debug('And now we are at the port main.')
             yield self.transition_to(screens.PORT_MAIN)
         return self.do_task(proceed_mission_result_screen_task)
+
+    def click_record_button(self):
+        def click_record_button_task(task):
+            self.click(0, 0)
+            yield 2.0
+        return self.do_task(click_record_button_task)
