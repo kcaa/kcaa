@@ -33,6 +33,8 @@ class RepairDock(model.KCAAObject):
         if api_name == '/api_port/port':
             self.slots = []
             for data in response.api_data.api_ndock:
+                if data.api_state == -1:
+                    continue
                 self.slots.append(RepairSlot(
                     id=data.api_id,
                     ship_id=data.api_ship_id,
