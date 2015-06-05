@@ -99,8 +99,7 @@ def get_supporting_fleet_mission_id(maparea_id, to_boss):
 def can_warm_up(ship_):
     return (ship_.vitality < WARMUP_VITALITY and
             ship_.ready and
-            ship_.locked and
-            (ship_.level >= 10 or ship_.firepower.current >= 20))
+            ship_.locked)
 
 
 class GoOnExpedition(base.Manipulator):
