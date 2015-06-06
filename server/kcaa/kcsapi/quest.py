@@ -1,10 +1,14 @@
 #!/usr/bin/env python
 
 import datetime
+import logging
 
 import jsonobject
 import model
 import resource
+
+
+logger = logging.getLogger('kcaa.kcsapi.quest')
 
 
 class Quest(jsonobject.JSONSerializableObject):
@@ -81,7 +85,12 @@ class QuestList(model.KCAAObject):
         now = datetime.datetime.now()
         refresh_datetime = datetime.datetime.combine(
             now.date(), QuestList.REFRESH_TIME)
-        if self.last_update and self.last_update < refresh_datetime:
+        if (self.last_update and self.last_update < refresh_datetime and
+                now >= refresh_datetime):
+            logger.info('Clearing the quest list.')
+            logger.debug('Last quest update: {}'.format(self.last_update))
+            logger.debug('Quest refresh:     {}'.format(refresh_datetime))
+            logger.debug('Now:               {}'.format(now))
             self.quests = []
         self.last_update = now
         if api_name == '/api_get_member/questlist':
