@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+import datetime
+
 import jsonobject
 import model
 import resource
@@ -45,6 +47,10 @@ class Quest(jsonobject.JSONSerializableObject):
 
 
 class QuestList(model.KCAAObject):
+
+    REFRESH_TIME = datetime.time(5, 0)
+    last_update = None
+
     """List of quests.
 
     This object holds a list of all the quests. Note that this object may not
@@ -72,6 +78,12 @@ class QuestList(model.KCAAObject):
     def update(self, api_name, request, response, objects, debug):
         super(QuestList, self).update(api_name, request, response, objects,
                                       debug)
+        now = datetime.datetime.now()
+        refresh_datetime = datetime.datetime.combine(
+            now.date(), QuestList.REFRESH_TIME)
+        if self.last_update and self.last_update < refresh_datetime:
+            self.quests = []
+        self.last_update = now
         if api_name == '/api_get_member/questlist':
             data = response.api_data
             # If the last one quest in the page is compelted, a reponse with an
