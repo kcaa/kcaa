@@ -297,21 +297,30 @@ def setup_kancolle_browser(args, controller_conn, to_exit):
                             covered = is_shown
                     elif command_type == COMMAND_TAKE_SCREENSHOT:
                         format, quality, width, height = command_args
-                        im_buffer = cStringIO.StringIO(
-                            browser.get_screenshot_as_png())
-                        im = Image.open(im_buffer)
-                        im.load()
-                        im_buffer.close()
-                        im = im.crop(game_area_rect)
-                        if width != 0 and height != 0:
-                            im.thumbnail((width, height), Image.NEAREST)
-                        im_buffer = cStringIO.StringIO()
-                        if format == 'jpeg':
-                            im.save(im_buffer, format, quality=quality)
-                        else:
-                            im.save(im_buffer, format)
-                        controller_conn.send(im_buffer.getvalue())
-                        im_buffer.close()
+                        im_buffer = None
+                        response = ''
+                        try:
+                            im_buffer = cStringIO.StringIO(
+                                browser.get_screenshot_as_png())
+                            im = Image.open(im_buffer)
+                            im.load()
+                            im_buffer.close()
+                            im = im.crop(game_area_rect)
+                            if width != 0 and height != 0:
+                                im.thumbnail((width, height), Image.NEAREST)
+                            im_buffer = cStringIO.StringIO()
+                            if format == 'jpeg':
+                                im.save(im_buffer, format, quality=quality)
+                            else:
+                                im.save(im_buffer, format)
+                            response = im_buffer.getvalue()
+                        except exceptions.UnexpectedAlertPresentException as e:
+                            logger.error('Unexpected alert: {}'.format(e.alert_text))
+                            logger.debug(str(e))
+                        finally:
+                            controller_conn.send(response)
+                            if im_buffer:
+                                im_buffer.close()
                     else:
                         raise ValueError(
                             'Unknown browser command: type = {}, args = {}'
