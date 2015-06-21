@@ -85,7 +85,7 @@ class Manipulator(task.Task):
 class AutoManipulatorTriggerer(Manipulator):
 
     def __init__(self, manager, priority, manipulator, interval=-1,
-                 check_interval=60, *args, **kwargs):
+                 check_interval=0, *args, **kwargs):
         super(AutoManipulatorTriggerer, self).__init__(manager, priority,
                                                        *args, **kwargs)
         self._manipulator = manipulator
@@ -107,12 +107,13 @@ class AutoManipulatorTriggerer(Manipulator):
             if (self.manager.is_manipulator_scheduled(manipulator_name) or
                     not self.has_required_objects() or
                     not has_monitored_objects or
+                    not has_updates or
                     (self.manipulator.run_only_when_idle() and
                      not self.manager.idle) or
                     not self.manipulator.precondition(self) or
                     (screen_generation <= self._last_screen_generation and
-                     self.time <= self._last_check_time + self._check_interval
-                     and not has_updates)):
+                     self.time <=
+                     self._last_check_time + self._check_interval)):
                 yield self._interval
                 continue
             self._last_screen_generation = self.screen.screen_generation

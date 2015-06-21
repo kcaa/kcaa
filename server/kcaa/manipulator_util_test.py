@@ -377,8 +377,8 @@ class TestManipulatorManager(object):
             'AutoMockManipulatorA': -10000,
             'AutoMockManipulatorB': 0,
         }
-        # -1 means the unit time.
-        manager.register_auto_manipulators(interval=-1)
+        # Register auto manipulators without any performance optimization.
+        manager.register_auto_manipulators(interval=-1, check_interval=0)
         self.enable_auto_manipulators(manager)
 
         assert not manager.queue
@@ -433,7 +433,8 @@ class TestManipulatorManager(object):
         manager.auto_manipulators = {
             'MockAutoManipulator': c,
         }
-        manager.register_auto_manipulators(interval=-1)
+        # Register auto manipulators without any performance optimization.
+        manager.register_auto_manipulators(interval=-1, check_interval=0)
         self.enable_auto_manipulators(manager)
         some_object = kcsapi.KCAAObject(generation=1)
         manager.objects['SomeObject'] = some_object
@@ -457,7 +458,8 @@ class TestManipulatorManager(object):
             'MockAutoManipulator':
             manipulators.base.MockAutoManipulator.clone(),
         }
-        manager.register_auto_manipulators(interval=-1)
+        # Register auto manipulators without any performance optimization.
+        manager.register_auto_manipulators(interval=-1, check_interval=0)
         assert not manager.is_manipulator_scheduled('MockAutoManipulator')
         manager.update(0.1)
         assert not manager.is_manipulator_scheduled('MockAutoManipulator')
@@ -474,7 +476,8 @@ class TestManipulatorManager(object):
             'MockAutoManipulator':
             manipulators.base.MockAutoManipulator.clone(),
         }
-        manager.register_auto_manipulators(interval=-1)
+        # Register auto manipulators without any performance optimization.
+        manager.register_auto_manipulators(interval=-1, check_interval=0)
         self.enable_auto_manipulators(manager)
         assert not manager.is_manipulator_scheduled('MockAutoManipulator')
         manager.update(0.1)

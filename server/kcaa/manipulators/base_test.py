@@ -208,6 +208,8 @@ class TestAutoManipulatorTriggerer(object):
         triggerer.update(0.2)
         assert manipulator.can_trigger_called
 
+    # TODO: Add tests for screen generation check
+
 
 def main():
     import doctest
