@@ -26,6 +26,13 @@ class Screen(object):
             x, y, ' <- '.join(caller_names)))
         self.manager.click(x, y)
 
+    def click_task(self, x, y, buffer_delay=2.0):
+        self.click(x, y)
+
+        def click_internal_task(task):
+            yield buffer_delay
+        return self.do_task(click_internal_task)
+
     def click_hold(self, x, y):
         callsite_info = traceback.extract_stack()[-2]
         caller_name = callsite_info[2]
@@ -137,66 +144,50 @@ class StartScreen(Screen):
 class PortScreen(Screen):
 
     def click_port_button(self):
-        self.click(50, 50)
+        return self.click_task(50, 50)
 
     def click_back_button(self):
-        self.click(60, 450)
+        return self.click_task(60, 450)
 
     def click_attack_button(self):
         # TODO: Move this to PortMainScreen. Use some other button (record?)
         # instead in check_mission_result.
-        self.click(200, 270)
+        return self.click_task(200, 270)
 
     def click_record_button(self):
-        def click_record_button_task(task):
-            self.click(165, 50)
-            yield 2.0
-        return self.do_task(click_record_button_task)
+        return self.click_task(165, 50)
 
     def click_encyclopedia_button(self):
-        def click_encyclopedia_button_task(task):
-            self.click(320, 50)
-            yield 2.0
-        return self.do_task(click_encyclopedia_button_task)
+        return self.click_task(320, 50)
 
     def click_itemrack_button(self):
-        def click_itemrack_button_task(task):
-            self.click(400, 50)
-            yield 2.0
-        return self.do_task(click_itemrack_button_task)
+        return self.click_task(400, 50)
 
     def click_furniture_button(self):
-        def click_furniture_button_task(task):
-            self.click(485, 50)
-            yield 2.0
-        return self.do_task(click_furniture_button_task)
+        return self.click_task(485, 50)
 
     def click_quest_button(self):
         def click_quest_button_task(task):
             self.click(560, 50)
             yield self.wait_transition(screens.PORT_QUESTLIST)
+            yield 1.0
             self.click_somewhere()
             yield 2.0
         return self.do_task(click_quest_button_task)
 
     def click_item_shop_button(self):
-        def click_item_shop_button_task(task):
-            self.click(615, 50)
-            yield 2.0
-        return self.do_task(click_item_shop_button_task)
+        return self.click_task(615, 50)
 
     def change_screen(self, screen_id):
         # If the current screen is unknown, go first to the port main screen,
         # and then move to the target screen.
         def change_screen_task(task):
             last_generation = self.screen_generation
-            self.click_port_button()
-            yield 2.0
+            yield self.click_port_button()
             if self.screen_generation == last_generation:
                 # If this is the case, we were at the port main screen or at
                 # some undetectable screen missing 'Port' button.
-                self.click_back_button()
-            yield 3.0
+                yield self.click_back_button()
             if self.screen_id == screens.PORT:
                 self.update_screen_id(screens.PORT_MAIN)
             yield self.manager.current_screen.change_screen(screen_id)
@@ -232,10 +223,9 @@ class PortScreen(Screen):
             if self.screen_id == screens.PORT:
                 self._logger.debug(
                     'This is port screen. Clicking port and back buttons.')
-                self.click_port_button()
-                yield 2.0
-                self.click_back_button()
-                yield 5.0
+                yield self.click_port_button()
+                yield self.click_back_button()
+                yield 3.0
                 if self.screen_id == screens.MISSION_RESULT:
                     self._logger.debug('Changed to the mission result screen.')
                     yield (self.manager.current_screen.
@@ -256,8 +246,8 @@ class PortScreen(Screen):
             # - the client has been at the port main screen without knowing
             #   there is a completed mission.
             self._logger.debug('Now at the port main screen, clicking.')
-            self.click_attack_button()
-            yield 5.0
+            yield self.click_attack_button()
+            yield 3.0
             if self.screen_id == screens.MISSION_RESULT:
                 self._logger.debug('Reached mission result screen.')
                 yield (self.manager.current_screen.
@@ -266,8 +256,7 @@ class PortScreen(Screen):
             else:
                 self._logger.debug('Now we should be at attack selection '
                                    'screen. Getting back to the main.')
-                self.click_port_button()
-                yield 2.0
+                yield self.click_port_button()
                 self.click_somewhere()
                 yield 5.0
                 self._logger.debug('Clicked twice...')
@@ -308,25 +297,22 @@ class PortMainScreen(PortScreen):
                 yield 0.0
                 return
             elif screen_id == screens.PORT_EXPEDITION:
-                self.click_attack_button()
-                yield 2.0
-                self.click_expedition_button()
+                yield self.click_attack_button()
+                yield self.click_expedition_button()
                 yield self.wait_transition(screens.PORT_EXPEDITION)
                 return
             elif screen_id == screens.PORT_PRACTICE:
-                self.click_attack_button()
-                yield 2.0
-                self.click_practice_button()
+                yield self.click_attack_button()
+                yield self.click_practice_button()
                 yield self.wait_transition(screens.PORT_PRACTICE)
                 return
             elif screen_id == screens.PORT_MISSION:
-                self.click_attack_button()
-                yield 2.0
-                self.click_mission_button()
+                yield self.click_attack_button()
+                yield self.click_mission_button()
                 yield self.wait_transition(screens.PORT_MISSION)
                 return
             if screen_id in screen_map:
-                screen_map[screen_id]()
+                yield screen_map[screen_id]()
                 yield self.transition_to(screen_id)
             else:
                 self.raise_impossible_transition(screen_id)
@@ -334,28 +320,28 @@ class PortMainScreen(PortScreen):
         return self.do_task(change_screen_task)
 
     def click_expedition_button(self):
-        self.click(230, 230)
+        return self.click_task(230, 230)
 
     def click_practice_button(self):
-        self.click(455, 230)
+        return self.click_task(455, 230)
 
     def click_mission_button(self):
-        self.click(680, 230)
+        return self.click_task(680, 230)
 
     def click_organizing_button(self):
-        self.click(200, 140)
+        return self.click_task(200, 140)
 
     def click_logistics_button(self):
-        self.click(80, 225)
+        return self.click_task(80, 225)
 
     def click_rebuilding_button(self):
-        self.click(320, 225)
+        return self.click_task(320, 225)
 
     def click_repair_button(self):
-        self.click(125, 365)
+        return self.click_task(125, 365)
 
     def click_shipyard_button(self):
-        self.click(275, 365)
+        return self.click_task(275, 365)
 
 
 class PortQuestScreen(PortScreen):
@@ -381,11 +367,17 @@ class PortQuestScreen(PortScreen):
     def current_page(self):
         return self._current_page
 
-    def wait_quest_update(self, last_generation):
+    def wait_quest_update(self, last_generation, timeout=10.0):
         def wait_quest_update_task(task):
+            start_time = task.time
             while self.screen_generation == last_generation:
+                if task.time - start_time > timeout:
+                    self._logger.error(
+                        'Quest update timed out ({:.1f} sec).'.format(
+                            timeout))
+                    break
                 yield task.unit
-            yield 0.5
+            yield 1.0
         return self.do_task(wait_quest_update_task)
 
     def select_page(self, page, max_page):
@@ -671,12 +663,11 @@ class PortOperationsScreen(PortScreen):
                 yield 0.0
                 return
             if screen_id == screens.PORT_MAIN:
-                self.click_port_button()
+                yield self.click_port_button()
                 yield self.wait_transition(screens.PORT_MAIN)
                 return
             if screen_id in screen_map:
-                screen_map[screen_id]()
-                yield 2.0
+                yield screen_map[screen_id]()
                 self.update_screen_id(screen_id)
                 return
             yield super(PortOperationsScreen, self).change_screen(screen_id)
@@ -687,19 +678,19 @@ class PortOperationsScreen(PortScreen):
         return self.do_task(change_screen_task)
 
     def click_organizing_button(self):
-        self.click(20, 155)
+        return self.click_task(20, 155)
 
     def click_logistics_button(self):
-        self.click(20, 210)
+        return self.click_task(20, 210)
 
     def click_rebuilding_button(self):
-        self.click(20, 265)
+        return self.click_task(20, 265)
 
     def click_repair_button(self):
-        self.click(20, 320)
+        return self.click_task(20, 320)
 
     def click_shipyard_button(self):
-        self.click(20, 375)
+        return self.click_task(20, 375)
 
 
 class PortOrganizingScreen(PortOperationsScreen):
