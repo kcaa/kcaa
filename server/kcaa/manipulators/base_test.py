@@ -197,6 +197,17 @@ class TestAutoManipulatorTriggerer(object):
         triggerer.update(0.1)
         assert manipulator.can_trigger_called
 
+    def test_run_precondition(self, manipulator):
+        manipulator.mockable_precondition = False
+        manager = manipulator_util.MockManipulatorManager()
+        triggerer = base.AutoManipulatorTriggerer(manager, None, manipulator)
+        assert not manipulator.can_trigger_called
+        triggerer.update(0.1)
+        assert not manipulator.can_trigger_called
+        manipulator.mockable_precondition = True
+        triggerer.update(0.2)
+        assert manipulator.can_trigger_called
+
 
 def main():
     import doctest
