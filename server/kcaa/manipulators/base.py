@@ -82,7 +82,14 @@ class Manipulator(task.Task):
                     object_name))
 
 
+def _debug_attr(attr, condition):
+    return attr if condition else ' ' * len(attr)
+
+
 class AutoManipulatorTriggerer(Manipulator):
+
+    # If greater than 0, prints a verbose debug message.
+    verbose_debug_freq = 0
 
     def __init__(self, manager, priority, manipulator, interval=-1,
                  check_interval=0, *args, **kwargs):
@@ -99,21 +106,49 @@ class AutoManipulatorTriggerer(Manipulator):
     def run(self, *args, **kwargs):
         manipulator_name = self.manipulator.__name__
         self._last_check_time = self.epoch
+        debug_counter = 0
         while True:
-            screen_generation = self.screen.screen_generation
+            scheduled = (
+                self.manager.is_manipulator_scheduled(manipulator_name))
+            has_required_objects = self.has_required_objects()
             has_monitored_objects, has_updates, updates = (
                 self.get_object_generation_updates())
-            # TODO: Test the screen generation check
-            if (self.manager.is_manipulator_scheduled(manipulator_name) or
-                    not self.has_required_objects() or
-                    not has_monitored_objects or
-                    not has_updates or
-                    (self.manipulator.run_only_when_idle() and
-                     not self.manager.idle) or
-                    not self.manipulator.precondition(self) or
-                    (screen_generation <= self._last_screen_generation and
-                     self.time <=
-                     self._last_check_time + self._check_interval)):
+            manager_busy = (not self.manager.idle and
+                            self.manipulator.run_only_when_idle())
+            precondition = self.manipulator.precondition(self)
+            no_screen_update = (
+                self.screen.screen_generation <= self._last_screen_generation)
+            check_too_often = (
+                self.time <= self._last_check_time + self._check_interval)
+            to_skip = (scheduled or
+                       not has_required_objects or
+                       not has_monitored_objects or
+                       not has_updates or
+                       manager_busy or
+                       not precondition or
+                       (no_screen_update and check_too_often))
+            if AutoManipulatorTriggerer.verbose_debug_freq > 0:
+                debug_counter += 1
+                if (debug_counter ==
+                        AutoManipulatorTriggerer.verbose_debug_freq):
+                    debug_counter = 0
+                debug_message = '{:30}: {}'.format(
+                    manipulator_name, 'CALL' if not to_skip else 'SKIP')
+                if to_skip:
+                    debug_fields = [
+                        _debug_attr('SCH', scheduled),
+                        _debug_attr('REQ', not has_required_objects),
+                        _debug_attr('MON', not has_monitored_objects),
+                        _debug_attr('UPD', not has_updates),
+                        _debug_attr('IDL', manager_busy),
+                        _debug_attr('PRE', not precondition),
+                        _debug_attr('SCR', no_screen_update),
+                        _debug_attr('OFT', check_too_often),
+                    ]
+                    debug_message += ' ({})'.format(' '.join(debug_fields))
+                if not to_skip or debug_counter == 0:
+                    logger.debug(debug_message)
+            if to_skip:
                 yield self._interval
                 continue
             self._last_screen_generation = self.screen.screen_generation
