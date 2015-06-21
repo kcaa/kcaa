@@ -98,10 +98,14 @@ class Ship extends Observable {
   @observable int hp, maxHp, hpPercentage;
   @observable String hpPercentageString;
   @observable Variable firepower, thunderstroke, antiAir, armor;
-  @observable int enhancedFirepower, enhancedThunderstroke, enhancedAntiAir,
-    enhancedArmor;
-  @observable String firepowerClass, thunderstrokeClass, antiAirClass,
-    armorClass;
+  @observable int enhancedFirepower,
+      enhancedThunderstroke,
+      enhancedAntiAir,
+      enhancedArmor;
+  @observable String firepowerClass,
+      thunderstrokeClass,
+      antiAirClass,
+      armorClass;
   @observable Variable antiSubmarine, avoidance, scouting, luck;
   @observable final List<int> aircraftSlotLoaded = new ObservableList<int>();
   @observable final List<int> aircraftSlotCapacity = new ObservableList<int>();
@@ -120,8 +124,8 @@ class Ship extends Observable {
   Ship();
 
   void update(Map<String, dynamic> data,
-              Map<int, ShipTypeDefinition> shipTypeDefinitionMap,
-              List<Fleet> fleets, Map<int, Equipment> equipmentMap) {
+      Map<int, ShipTypeDefinition> shipTypeDefinitionMap, List<Fleet> fleets,
+      Map<int, Equipment> equipmentMap) {
     id = data["id"];
     name = data["name"];
     shipTypeId = data["ship_type"];
@@ -141,7 +145,7 @@ class Ship extends Observable {
         firepower.baseline + data["enhanced_ability"]["firepower"];
     thunderstroke = new Variable.fromJSON(data["thunderstroke"]);
     enhancedThunderstroke =
-      thunderstroke.baseline + data["enhanced_ability"]["thunderstroke"];
+        thunderstroke.baseline + data["enhanced_ability"]["thunderstroke"];
     antiAir = new Variable.fromJSON(data["anti_air"]);
     enhancedAntiAir = antiAir.baseline + data["enhanced_ability"]["anti_air"];
     armor = new Variable.fromJSON(data["armor"]);
@@ -219,7 +223,7 @@ class Ship extends Observable {
   }
 
   void updateBelongingFleet(List<Fleet> fleets) {
-    for (var fleet in fleets){
+    for (var fleet in fleets) {
       if (fleet.ships.any((fleetShip) => fleetShip.id == id)) {
         belongingFleet = fleet;
         return;
@@ -241,7 +245,7 @@ class Ship extends Observable {
   // consistent with "Lv" in Kancolle player.
   static int compareByKancolleLevel(Ship a, Ship b) {
     if (a.level != b.level) {
-     return a.level.compareTo(b.level);
+      return a.level.compareTo(b.level);
     } else if (a.sortOrder != b.sortOrder) {
       return -a.sortOrder.compareTo(b.sortOrder);
     } else {
@@ -330,8 +334,10 @@ class Ship extends Observable {
 
   static bool filterCanWarmUp(Ship s) {
     return (s.stateClass == "good" || s.stateClass == "") &&
-        s.vitality < Fleet.WARMUP_VITALITY && !s.isUnderRepair &&
-        !s.awayForMission && s.locked;
+        s.vitality < Fleet.WARMUP_VITALITY &&
+        !s.isUnderRepair &&
+        !s.awayForMission &&
+        s.locked;
   }
 
   static bool filterUnderRepair(Ship s) {
@@ -376,42 +382,44 @@ class Ship extends Observable {
 }
 
 class ShipPropertyFilter extends Observable {
-  @observable KSelection property = new KSelection.from(
-      [["id", "艦船"],
-       ["ship_id", "艦名"],
-       ["signature", "進化系統"],
-       ["ship_type", "艦種"],
-       ["level", "レベル"],
-       ["resource_capacity.fuel", "燃料積載量"],
-       ["resource_capacity.ammo", "弾薬積載量"],
-       ["hitpoint.percentage", "HP %"],
-       ["hitpoint.maximum", "最大HP"],
-       ["vitality", "戦意"],
-       ["firepower.current", "火力"],
-       ["thunderstroke.current", "雷装"],
-       ["anti_air.current", "対空"],
-       ["armor.current", "装甲"],
-       ["avoidance.current", "回避"],
-       ["anti_submarine.current", "対潜"],
-       ["scouting.current", "索敵"],
-       ["luck.current", "運"],
-       ["speed", "航行速度"],
-       ["firing_range", "射程"],
-       ["slot_count", "装備スロット数"],
-       ["ready", "出撃可能"],
-       ["locked", "ロック"],
-       ["is_under_repair", "修理中"],
-       ["away_for_mission", "遠征中"]]);
+  @observable KSelection property = new KSelection.from([
+    ["id", "艦船"],
+    ["ship_id", "艦名"],
+    ["signature", "進化系統"],
+    ["ship_type", "艦種"],
+    ["level", "レベル"],
+    ["resource_capacity.fuel", "燃料積載量"],
+    ["resource_capacity.ammo", "弾薬積載量"],
+    ["hitpoint.percentage", "HP %"],
+    ["hitpoint.maximum", "最大HP"],
+    ["vitality", "戦意"],
+    ["firepower.current", "火力"],
+    ["thunderstroke.current", "雷装"],
+    ["anti_air.current", "対空"],
+    ["armor.current", "装甲"],
+    ["avoidance.current", "回避"],
+    ["anti_submarine.current", "対潜"],
+    ["scouting.current", "索敵"],
+    ["luck.current", "運"],
+    ["speed", "航行速度"],
+    ["firing_range", "射程"],
+    ["slot_count", "装備スロット数"],
+    ["ready", "出撃可能"],
+    ["locked", "ロック"],
+    ["is_under_repair", "修理中"],
+    ["away_for_mission", "遠征中"]
+  ]);
   @observable String value;
-  @observable KSelection operator = new KSelection.from(
-      [["0", "="],
-       ["1", "!="],
-       ["2", "<"],
-       ["3", "<="],
-       ["4", ">"],
-       ["5", ">="]]);
+  @observable KSelection operator = new KSelection.from([
+    ["0", "="],
+    ["1", "!="],
+    ["2", "<"],
+    ["3", "<="],
+    ["4", ">"],
+    ["5", ">="]
+  ]);
   static bool parseBool(String value) => value == "true";
-  static final Map<String, Function> VALUE_PARSER_MAP = <String, Function> {
+  static final Map<String, Function> VALUE_PARSER_MAP = <String, Function>{
     "id": int.parse,
     "ship_id": int.parse,
     "signature": int.parse,
@@ -462,9 +470,8 @@ class ShipPropertyFilter extends Observable {
 
 class ShipTagFilter extends Observable {
   @observable String tag;
-  @observable KSelection operator = new KSelection.from(
-      [["0", "を含む"],
-       ["1", "を含まない"]]);
+  @observable KSelection operator =
+      new KSelection.from([["0", "を含む"], ["1", "を含まない"]]);
 
   ShipTagFilter.contains(this.tag) {
     operator.value = "0";
@@ -480,16 +487,12 @@ class ShipTagFilter extends Observable {
   }
 
   Map<String, dynamic> toJSONEncodable() {
-    return {
-      "tag": tag,
-      "operator": int.parse(operator.value),
-    };
+    return {"tag": tag, "operator": int.parse(operator.value),};
   }
 }
 
 class ShipFilter extends Observable {
-  ShipFilter.fromJSON(Map<String, dynamic> data) {
-  }
+  ShipFilter.fromJSON(Map<String, dynamic> data) {}
 
   Map<String, dynamic> toJSONEncodable() {
     return null;
@@ -497,15 +500,16 @@ class ShipFilter extends Observable {
 }
 
 class ShipPredicate extends Observable {
-  @observable KSelection type = new KSelection.from(
-      [["true", "TRUE"],
-       ["false", "FALSE"],
-       ["or", "OR"],
-       ["and", "AND"],
-       ["not", "NOT"],
-       ["propertyFilter", "プロパティフィルタ"],
-       ["tagFilter", "タグフィルタ"],
-       ["filter", "定義済みフィルタ"]]);
+  @observable KSelection type = new KSelection.from([
+    ["true", "TRUE"],
+    ["false", "FALSE"],
+    ["or", "OR"],
+    ["and", "AND"],
+    ["not", "NOT"],
+    ["propertyFilter", "プロパティフィルタ"],
+    ["tagFilter", "タグフィルタ"],
+    ["filter", "定義済みフィルタ"]
+  ]);
   @observable bool true_ = false;
   @observable bool false_ = false;
   @observable final List<ShipPredicate> or =
@@ -597,13 +601,15 @@ class ShipPredicate extends Observable {
     if (type.value == "true") {
       return {"true": true};
     } else if (type.value == "false") {
-        return {"false": true};
+      return {"false": true};
     } else if (type.value == "or") {
-      return {"or": or.map((predicate) =>
-          predicate.toJSONEncodable()).toList()};
+      return {
+        "or": or.map((predicate) => predicate.toJSONEncodable()).toList()
+      };
     } else if (type.value == "and") {
-      return {"and": and.map((predicate) =>
-          predicate.toJSONEncodable()).toList()};
+      return {
+        "and": and.map((predicate) => predicate.toJSONEncodable()).toList()
+      };
     } else if (type.value == "not") {
       return {"not": not.toJSONEncodable()};
     } else if (type.value == "propertyFilter") {
@@ -618,13 +624,13 @@ class ShipPredicate extends Observable {
 }
 
 class ShipSorter extends Observable {
-  @observable final KSelection name = new KSelection.from(
-      [["kancolle_level", "レベル"],
-       ["hitpoint_ratio", "HP %"],
-       ["rebuilding_rank", "近代化改修の価値"]]);
-  @observable final KSelection reversed = new KSelection.from(
-      [["true", "一番高い"],
-       ["false", "一番低い"]]);
+  @observable final KSelection name = new KSelection.from([
+    ["kancolle_level", "レベル"],
+    ["hitpoint_ratio", "HP %"],
+    ["rebuilding_rank", "近代化改修の価値"]
+  ]);
+  @observable final KSelection reversed =
+      new KSelection.from([["true", "一番高い"], ["false", "一番低い"]]);
 
   ShipSorter(String name, bool reversed) {
     this.name.value = name;
@@ -642,10 +648,7 @@ class ShipSorter extends Observable {
   }
 
   Map<String, dynamic> toJSONEncodable() {
-    return {
-      "name": name.value,
-      "reversed": reversed.value == "true",
-    };
+    return {"name": name.value, "reversed": reversed.value == "true",};
   }
 }
 
@@ -670,108 +673,9 @@ class ShipRequirement extends Observable {
     return {
       "predicate": predicate.toJSONEncodable(),
       "equipment_deployment":
-        equipmentEnabled ? equipmentDeployment.value : null,
+          equipmentEnabled ? equipmentDeployment.value : null,
       "sorter": sorter.toJSONEncodable(),
       "omittable": omittable,
     };
-  }
-}
-
-void handleShipList(Assistant assistant, AssistantModel model,
-                    Map<String, dynamic> data) {
-  // Reset the equipping ship info.
-  for (var equipment in model.equipmentMap.values) {
-    equipment.ship = null;
-  }
-  Set<int> presentShips = new Set<int>();
-  for (var shipData in (data["ships"] as Map).values) {
-    var id = shipData["id"];
-    var ship = model.shipMap[id];
-    if (ship == null) {
-      ship = new Ship();
-      model.shipMap[id] = ship;
-    }
-    ship.update(shipData, model.shipTypeDefinitionMap, model.fleets,
-        model.equipmentMap);
-    presentShips.add(id);
-  }
-  updateAvailableEquipments(model);
-  // Remove ships that are no longer available.
-  Set<int> removedShips =
-      new Set<int>.from(model.shipMap.keys).difference(presentShips);
-  for (var id in removedShips) {
-    model.shipMap.remove(id);
-  }
-  reorderShipList(model);
-  model.numFilteredShips =
-      model.ships.where((ship) => model.shipList.filter(ship)).length;
-  model.numDamagedShipsToWarmUp =
-      model.ships.where((ship) => Ship.filterCanWarmUp(ship))
-      .where((ship) => Ship.filterCanRepair(ship)).length;
-  model.numShipsToWarmUp =
-      model.ships.where((ship) => Ship.filterCanWarmUp(ship)).length;
-  model.numShipsUnderRepair =
-      model.ships.where((ship) => Ship.filterUnderRepair(ship)).length;
-  model.numShipsToRepair =
-      model.ships.where((ship) => Ship.filterCanRepair(ship)).length;
-  updateShipTags(model);
-}
-
-void reorderShipList(AssistantModel model) {
-  var shipsLength = model.shipMap.length;
-  resizeList(model.ships, shipsLength, () => new Ship());
-  var sortedShips = model.shipMap.values.toList(growable: false);
-  var inverter = model.shipList.shipOrderInverter;
-  var comparer = model.shipList.shipComparer;
-  sortedShips.sort((a, b) => inverter(comparer(a, b)));
-  for (var i = 0; i < shipsLength; i++) {
-    var ship = sortedShips[i];
-    // Update the ship list only when the order has changed.
-    // Seems like it requires tremendous amount of load to assign a value to
-    // ObservableList, even if the value being assigned is the same as the
-    // previous value.
-    if (model.ships[i] != ship) {
-      model.ships[i] = ship;
-    }
-  }
-}
-
-void notifyShipList(AssistantModel model) {
-  var shipIdsInFleets = new Set.from(model.fleets.expand(
-      (fleet) => fleet.ships).map((ship) => ship.id));
-  for (var ship in model.ships) {
-    if (shipIdsInFleets.contains(ship.id)) {
-      ship.updateBelongingFleet(model.fleets);
-    } else {
-      ship.belongingFleet = null;
-    }
-  }
-}
-
-void updateShipTags(AssistantModel model) {
-  Set<String> shipTags = new Set<String>();
-  for (var ship in model.ships) {
-    shipTags.addAll(ship.tags);
-  }
-  var sortedShipTags = shipTags.toList();
-  sortedShipTags.sort();
-  resizeList(model.shipTags, sortedShipTags.length, () => "");
-  copyListOnDifference(sortedShipTags, model.shipTags);
-}
-
-void handleShipDefinitionList(Assistant assistant, AssistantModel model,
-                              Map<String, dynamic> data) {
-  model.shipTypeDefinitionMap.clear();
-  for (var shipTypeData in (data["ship_types"] as Map).values) {
-    model.shipTypeDefinitionMap[shipTypeData["id"]] = new ShipTypeDefinition(
-        shipTypeData["id"], shipTypeData["name"],
-        shipTypeData["loadable_equipment_types"], shipTypeData["sort_order"]);
-  }
-  for (var shipData in (data["ships"] as Map).values) {
-    var ship = new Ship();
-    ship.id = shipData["id"];
-    ship.name = shipData["name"];
-    ship.shipType = model.shipTypeDefinitionMap[shipData["ship_type"]].name;
-    model.shipDefinitionMap[ship.id] = ship;
   }
 }

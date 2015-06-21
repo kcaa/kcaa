@@ -1,6 +1,6 @@
 part of kcaa_model;
 
-class Screen {
+class ClientScreen {
   static final Map<int, String> SCREEN_MAP = <int, String>{
     0: "不明",
     101: "スタート画面",
@@ -43,25 +43,4 @@ class Screen {
     5: "遠征",
     500: "遠征結果",
   };
-}
-
-void handleScreen(Assistant assistant, AssistantModel model,
-                  Map<String, dynamic> data) {
-  model.screen = Screen.SCREEN_MAP[data["screen"]];
-}
-
-void handleRunningManipulators(Assistant assistant, AssistantModel model,
-                               Map<String, dynamic> data) {
-  model.runningManipulator = data["running_manipulator"];
-  model.manipulatorsInQueue.clear();
-  model.manipulatorsInQueue.addAll(data["manipulators_in_queue"]);
-  model.autoManipulatorsActive = data["auto_manipulators_active"];
-
-  // Change the document title if there is a running manipulator.
-  var title = querySelector("title") as TitleElement;
-  if (model.runningManipulator != null) {
-    title.text = "${model.runningManipulator} - ${title.title}";
-  } else {
-    title.text = title.title;
-  }
 }

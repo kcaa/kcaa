@@ -4,7 +4,7 @@
 <link rel="import" href="../packages/polymer/polymer.html">
 <meta charset="utf-8">
 <polymer-element name="kcaa-shiplist"
-                 attributes="assistant ships filter fleet disabled">
+                 attributes="popup ships filter fleet disabled">
   <template>
     <link rel="stylesheet" href="../kcaa.css">
     <link rel="stylesheet" href="shiplist.css">
@@ -27,7 +27,7 @@
           <div class="trow {{ship.stateClass}} {{filter(ship) | toFilterClass}}">
             <div class="description">
               <div class="title {{ship.lockedClass}}">
-                <template if="{{assistant != null}}">
+                <template if="{{popup}}">
                   <a href="#" on-click="{{showModalDialog}}"
                      data-dialog="kcaaShipDetailsDialog"
                      data-ship-id="{{ship.id}}"
@@ -35,7 +35,7 @@
                     {{ship.name}}
                   </a>
                 </template>
-                <template if="{{assistant == null}}">
+                <template if="{{!popup}}">
                   <span title="ID: {{ship.id}}">{{ship.name}}</span>
                 </template>
               </div>

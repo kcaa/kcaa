@@ -43,7 +43,7 @@ class EquipmentDefinition extends Observable {
     firingRange = data["firing_range"];
     rarity = data["rarity"];
     sortOrder = data["sort_order"];
-    numAvailable = 0;  // updated by updateAvailableEquipments()
+    numAvailable = 0; // updated by updateAvailableEquipments()
   }
 }
 
@@ -54,8 +54,8 @@ class Equipment extends Observable implements Comparable<Equipment> {
   @observable bool locked;
   @observable Ship ship;
 
-  void update(Map<String, dynamic> data,
-              Map<int, EquipmentDefinition> definitionMap) {
+  void update(
+      Map<String, dynamic> data, Map<int, EquipmentDefinition> definitionMap) {
     id = data["id"];
     definition = definitionMap[data["item_id"]];
     level = data["level"];
@@ -90,34 +90,36 @@ class Equipment extends Observable implements Comparable<Equipment> {
 
 // TODO: Somehow merge with ShipPropertyFilter.
 class EquipmentPropertyFilter extends Observable {
-  @observable KSelection property = new KSelection.from(
-      [["id", "特定装備"],
-       ["item_id", "装備"],
-       ["level", "強化レベル"],
-       ["locked", "ロック"],
-       ["definition.type", "種類"],
-       ["definition.armor", "装甲"],
-       ["definition.firepower", "火力"],
-       ["definition.fire_hit", "命中"],
-       ["definition.fire_flee", "回避"],
-       ["definition.thunderstroke", "雷撃"],
-       ["definition.torpedo_hit", "雷撃命中"],
-       ["definition.anti_air", "対空"],
-       ["definition.anti_submarine", "対潜"],
-       ["definition.bomb_power", "爆装"],
-       ["definition.scouting", "索敵"],
-       ["definition.firing_range", "射程"],
-       ["definition.rarity", "レアリティ"]]);
+  @observable KSelection property = new KSelection.from([
+    ["id", "特定装備"],
+    ["item_id", "装備"],
+    ["level", "強化レベル"],
+    ["locked", "ロック"],
+    ["definition.type", "種類"],
+    ["definition.armor", "装甲"],
+    ["definition.firepower", "火力"],
+    ["definition.fire_hit", "命中"],
+    ["definition.fire_flee", "回避"],
+    ["definition.thunderstroke", "雷撃"],
+    ["definition.torpedo_hit", "雷撃命中"],
+    ["definition.anti_air", "対空"],
+    ["definition.anti_submarine", "対潜"],
+    ["definition.bomb_power", "爆装"],
+    ["definition.scouting", "索敵"],
+    ["definition.firing_range", "射程"],
+    ["definition.rarity", "レアリティ"]
+  ]);
   @observable String value;
-  @observable KSelection operator = new KSelection.from(
-      [["0", "="],
-       ["1", "!="],
-       ["2", "<"],
-       ["3", "<="],
-       ["4", ">"],
-       ["5", ">="]]);
+  @observable KSelection operator = new KSelection.from([
+    ["0", "="],
+    ["1", "!="],
+    ["2", "<"],
+    ["3", "<="],
+    ["4", ">"],
+    ["5", ">="]
+  ]);
   static bool parseBool(String value) => value == "true";
-  static final Map<String, Function> VALUE_PARSER_MAP = <String, Function> {
+  static final Map<String, Function> VALUE_PARSER_MAP = <String, Function>{
     "id": int.parse,
     "item_id": int.parse,
     "level": int.parse,
@@ -161,9 +163,8 @@ class EquipmentPropertyFilter extends Observable {
 // TODO: Merge with ShipTagFilter.
 class EquipmentTagFilter extends Observable {
   @observable String tag;
-  @observable KSelection operator = new KSelection.from(
-      [["0", "を含む"],
-       ["1", "を含まない"]]);
+  @observable KSelection operator =
+      new KSelection.from([["0", "を含む"], ["1", "を含まない"]]);
 
   EquipmentTagFilter.contains(this.tag) {
     operator.value = "0";
@@ -179,16 +180,12 @@ class EquipmentTagFilter extends Observable {
   }
 
   Map<String, dynamic> toJSONEncodable() {
-    return {
-      "tag": tag,
-      "operator": int.parse(operator.value),
-    };
+    return {"tag": tag, "operator": int.parse(operator.value),};
   }
 }
 
 class EquipmentFilter {
-  EquipmentFilter.fromJSON(Map<String, dynamic> data) {
-  }
+  EquipmentFilter.fromJSON(Map<String, dynamic> data) {}
 
   Map<String, dynamic> toJSONEncodable() {
     return null;
@@ -199,15 +196,16 @@ class EquipmentFilter {
 // Probably with generics. This is so ugly, but OK for now to stimulate the
 // development.
 class EquipmentPredicate extends Observable {
-  @observable KSelection type = new KSelection.from(
-      [["true", "TRUE"],
-       ["false", "FALSE"],
-       ["or", "OR"],
-       ["and", "AND"],
-       ["not", "NOT"],
-       ["propertyFilter", "プロパティフィルタ"],
-       ["tagFilter", "タグフィルタ"],
-       ["filter", "定義済みフィルタ"]]);
+  @observable KSelection type = new KSelection.from([
+    ["true", "TRUE"],
+    ["false", "FALSE"],
+    ["or", "OR"],
+    ["and", "AND"],
+    ["not", "NOT"],
+    ["propertyFilter", "プロパティフィルタ"],
+    ["tagFilter", "タグフィルタ"],
+    ["filter", "定義済みフィルタ"]
+  ]);
   @observable bool true_ = false;
   @observable bool false_ = false;
   @observable final List<EquipmentPredicate> or =
@@ -282,7 +280,8 @@ class EquipmentPredicate extends Observable {
       not = new EquipmentPredicate.fromJSON(data["not"]);
     } else if (data["property_filter"] != null) {
       type.value = "propertyFilter";
-      propertyFilter = new EquipmentPropertyFilter.fromJSON(data["property_filter"]);
+      propertyFilter =
+          new EquipmentPropertyFilter.fromJSON(data["property_filter"]);
     } else if (data["tag_filter"] != null) {
       type.value = "tagFilter";
       tagFilter = new ShipTagFilter.fromJSON(data["tag_filter"]);
@@ -299,13 +298,15 @@ class EquipmentPredicate extends Observable {
     if (type.value == "true") {
       return {"true": true};
     } else if (type.value == "false") {
-        return {"false": true};
+      return {"false": true};
     } else if (type.value == "or") {
-      return {"or": or.map((predicate) =>
-          predicate.toJSONEncodable()).toList()};
+      return {
+        "or": or.map((predicate) => predicate.toJSONEncodable()).toList()
+      };
     } else if (type.value == "and") {
-      return {"and": and.map((predicate) =>
-          predicate.toJSONEncodable()).toList()};
+      return {
+        "and": and.map((predicate) => predicate.toJSONEncodable()).toList()
+      };
     } else if (type.value == "not") {
       return {"not": not.toJSONEncodable()};
     } else if (type.value == "propertyFilter") {
@@ -322,11 +323,9 @@ class EquipmentPredicate extends Observable {
 // TODO: Somehow merge with ShipSorter.
 class EquipmentSorter extends Observable {
   @observable final KSelection name = new KSelection.from(
-      [["powerup_score", "強化値スコア"],
-       ["definition", "種類ごとの並び順"]]);
-  @observable final KSelection reversed = new KSelection.from(
-      [["true", "一番高い"],
-       ["false", "一番低い"]]);
+      [["powerup_score", "強化値スコア"], ["definition", "種類ごとの並び順"]]);
+  @observable final KSelection reversed =
+      new KSelection.from([["true", "一番高い"], ["false", "一番低い"]]);
 
   EquipmentSorter(String name, bool reversed) {
     this.name.value = name;
@@ -349,10 +348,7 @@ class EquipmentSorter extends Observable {
   }
 
   Map<String, dynamic> toJSONEncodable() {
-    return {
-      "name": name.value,
-      "reversed": reversed.value == "true",
-    };
+    return {"name": name.value, "reversed": reversed.value == "true",};
   }
 }
 
@@ -360,15 +356,14 @@ class EquipmentRequirement extends Observable {
   static final int TARGET_SLOT_TOPMOST = 0;
   static final int TARGET_SLOT_LARGEST_AIRCRAFT_CAPACITY = 1;
 
-  @observable KSelection targetSlot = new KSelection.from(
-      [["0", "一番上"],
-       ["1", "艦載機最多"]]);
+  @observable KSelection targetSlot =
+      new KSelection.from([["0", "一番上"], ["1", "艦載機最多"]]);
   @observable EquipmentPredicate predicate;
   @observable EquipmentSorter sorter;
   @observable bool omittable;
 
-  EquipmentRequirement(int targetSlot, this.predicate, this.sorter,
-      this.omittable) {
+  EquipmentRequirement(
+      int targetSlot, this.predicate, this.sorter, this.omittable) {
     this.targetSlot.value = targetSlot.toString();
   }
 
@@ -415,8 +410,9 @@ class EquipmentDeployment extends Observable {
   Map<String, dynamic> toJSONEncodable() {
     return {
       "ship_predicate": shipPredicate.toJSONEncodable(),
-      "requirements": requirements.map((requirement) =>
-          requirement.toJSONEncodable()).toList(),
+      "requirements": requirements
+          .map((requirement) => requirement.toJSONEncodable())
+          .toList(),
     };
   }
 }
@@ -438,82 +434,9 @@ class EquipmentGeneralDeployment extends Observable {
   Map<String, dynamic> toJSONEncodable() {
     return {
       "name": name,
-      "deployments": deployments.map((deployment) =>
-          deployment.toJSONEncodable()).toList(),
+      "deployments": deployments
+          .map((deployment) => deployment.toJSONEncodable())
+          .toList(),
     };
-  }
-}
-
-void handleEquipmentDefinitionList(Assistant assistant, AssistantModel model,
-                                   Map<String, dynamic> data) {
-  for (var definitionData in (data["items"] as Map).values) {
-    var id = definitionData["id"];
-    var definition = model.equipmentDefinitionMap[id];
-    if (definition == null) {
-      definition = new EquipmentDefinition();
-      model.equipmentDefinitionMap[id] = definition;
-    }
-    definition.update(definitionData);
-  }
-  var definitionsLength = model.equipmentDefinitionMap.length;
-  resizeList(model.equipmentDefinitions, definitionsLength,
-      () => new EquipmentDefinition());
-  var sortedDefinitions =
-      model.equipmentDefinitionMap.values.toList(growable: false);
-  sortedDefinitions.sort((a, b) {
-    if (a.type != b.type) {
-      return a.type.compareTo(b.type);
-    }
-    return a.id.compareTo(b.id);
-  });
-  for (var i = 0; i < definitionsLength; i++) {
-    var definition = sortedDefinitions[i];
-    if (model.equipmentDefinitions[i] != definition) {
-      model.equipmentDefinitions[i] = definition;
-    }
-  }
-  model.equipmentList.update();
-}
-
-void handleEquipmentList(Assistant assistant, AssistantModel model,
-                         Map<String, dynamic> data) {
-  model.numEquipments = 0;
-  var newMap = new Map<int, Equipment>();
-  for (var definition in model.equipmentDefinitions) {
-    definition.instances.clear();
-  }
-  for (var equipmentData in (data["items"] as Map).values) {
-    Equipment equipment = model.equipmentMap[equipmentData["id"]];
-    if (equipment == null) {
-      equipment = new Equipment();
-    }
-    equipment.update(equipmentData, model.equipmentDefinitionMap);
-    newMap[equipment.id] = equipment;
-    equipment.definition.instances.add(equipment);
-    model.numEquipments += 1;
-    // For debugging, uncomment the following and `sort -n`.
-    // TODO: Consider exposing this info to UI when debugging is enabled.
-    // That may need considerable infra change, which might not be worth it.
-    // print(
-    //     "${equipment.id}) ${equipment.definition.name} " +
-    //     "ship ${equipment.ship != null ? equipment.ship.name : '(None)'}, " +
-    //     "level: ${equipment.level}, locked: ${equipment.locked}");
-  }
-  updateAvailableEquipments(model);
-  model.equipmentMap = newMap;
-  // Virtual entry representing an empty equipment slot.
-  var emptyDefinition = new EquipmentDefinition();
-  emptyDefinition.id = EquipmentDefinition.ID_EMPTY;
-  emptyDefinition.name = "(なし)";
-  emptyDefinition.typeName = "空きスロット";
-  var emptySlot = new Equipment();
-  emptySlot.definition = emptyDefinition;
-  model.equipmentMap[-1] = emptySlot;
-}
-
-void updateAvailableEquipments(AssistantModel model) {
-  for (var definition in model.equipmentDefinitions) {
-    definition.numAvailable =
-        definition.instances.where((e) => e.ship == null).length;
   }
 }

@@ -1,8 +1,11 @@
 library kcaa_util;
 
 import 'dart:async';
+import 'dart:html';
 
 import 'package:polymer/polymer.dart';
+
+import 'model/assistant.dart';
 
 const MILLISECOND = const Duration(milliseconds: 1);
 
@@ -87,6 +90,31 @@ class KSelection extends Observable {
   }
 }
 
+void showModalDialogByName2(String dialogName, Element target) {
+  querySelector("#modalDialogContainer").classes.add("in");
+  var dialog = querySelector("#${dialogName}");
+  dialog.show(target);
+  dialog.classes.remove("hidden");
+}
+
+void showModalDialog2(MouseEvent e, var detail, Element target) {
+  e.preventDefault();
+  var dialogName = target.dataset["dialog"];
+  showModalDialogByName2(dialogName, target);
+}
+
+// Move to ship-specific file.
+void updateShipTags(AssistantModel model) {
+  Set<String> shipTags = new Set<String>();
+  for (var ship in model.ships) {
+    shipTags.addAll(ship.tags);
+  }
+  var sortedShipTags = shipTags.toList();
+  sortedShipTags.sort();
+  resizeList(model.shipTags, sortedShipTags.length, () => "");
+  copyListOnDifference(sortedShipTags, model.shipTags);
+}
+
 void appendIndentedText(String text, int level, StringBuffer buffer) {
   var indentationMark = "  ";
   for (var i = 0; i < level; ++i) {
@@ -96,8 +124,8 @@ void appendIndentedText(String text, int level, StringBuffer buffer) {
 }
 
 String formatJson(json) {
-  void formatJsonInternal(json, int level, bool firstLineIndented,
-                          StringBuffer buffer) {
+  void formatJsonInternal(
+      json, int level, bool firstLineIndented, StringBuffer buffer) {
     if (!firstLineIndented) {
       appendIndentedText("", level, buffer);
     }
@@ -119,8 +147,7 @@ String formatJson(json) {
       appendIndentedText("],\n", level, buffer);
     } else if (json is String) {
       buffer.write('"${json.toString()}",\n');
-    }
-    else {
+    } else {
       buffer.write("${json.toString()},\n");
     }
   }

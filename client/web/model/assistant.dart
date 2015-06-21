@@ -1,13 +1,9 @@
 library kcaa_model;
 
 import 'dart:convert';
-import 'dart:html';
 import 'package:intl/intl.dart';
 import 'package:polymer/polymer.dart';
 
-import '../assistant.dart';
-import '../component/shiplist.dart';
-import '../component/equipmentlist.dart';
 import '../util.dart';
 
 part 'quest.dart';
@@ -40,7 +36,6 @@ class AssistantModel extends Observable {
   Map<int, ShipTypeDefinition> shipTypeDefinitionMap =
       new Map<int, ShipTypeDefinition>();
   @observable final List<String> shipTags = new ObservableList<String>();
-  ShipListElement shipList;
   @observable int numDamagedShipsToWarmUp = 0;
   @observable int numShipsToWarmUp = 0;
   @observable int numShipsUnderRepair = 0;
@@ -51,11 +46,7 @@ class AssistantModel extends Observable {
   @observable bool someFleetChargeable = false;
   // TODO: Move this to somewhere appropriate. (ExpeditionPlan?)
   @observable KSelection formations = new KSelection.from(
-      [["0", "単縦陣"],
-       ["1", "複縦陣"],
-       ["2", "輪形陣"],
-       ["3", "梯形陣"],
-       ["4", "単横陣"]]);
+      [["0", "単縦陣"], ["1", "複縦陣"], ["2", "輪形陣"], ["3", "梯形陣"], ["4", "単横陣"]]);
 
   // Equipments.
   @observable int numEquipments = 0;
@@ -64,7 +55,6 @@ class AssistantModel extends Observable {
   Map<int, EquipmentDefinition> equipmentDefinitionMap =
       new Map<int, EquipmentDefinition>();
   Map<int, Equipment> equipmentMap = new Map<int, Equipment>();
-  EquipmentListElement equipmentList;
 
   // Repair dock.
   @observable int numShipsBeingRepaired = 0;
@@ -79,10 +69,8 @@ class AssistantModel extends Observable {
   @observable String buildAmmo = "30";
   @observable String buildSteel = "30";
   @observable String buildBauxite = "30";
-  @observable KSelection buildMaterial = new KSelection.from(
-      [["1", "1"],
-       ["20", "20"],
-       ["100", "100"]]);
+  @observable KSelection buildMaterial =
+      new KSelection.from([["1", "1"], ["20", "20"], ["100", "100"]]);
   @observable bool grandBuilding = false;
   @observable String developFuel = "10";
   @observable String developAmmo = "10";
@@ -98,7 +86,7 @@ class AssistantModel extends Observable {
 
   // Client status.
   @observable bool debug = false;
-  @observable String screen = Screen.SCREEN_MAP[0];
+  @observable String screen = ClientScreen.SCREEN_MAP[0];
   @observable String runningManipulator;
   @observable final List<String> manipulatorsInQueue =
       new ObservableList<String>();

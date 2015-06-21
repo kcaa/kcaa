@@ -9,7 +9,7 @@ class ShipEntry extends Observable {
   ShipEntry();
 
   ShipEntry.fromData(Map<String, dynamic> data,
-                     Map<int, ShipTypeDefinition> shipTypeDefinitionMap) {
+      Map<int, ShipTypeDefinition> shipTypeDefinitionMap) {
     shipId = data["ship_id"];
     level = data["level"];
     name = data["name"];
@@ -19,7 +19,7 @@ class ShipEntry extends Observable {
 
 class Practice extends Observable {
   static final Map<int, String> RESULT_MESSAGE = <int, String>{
-    0: "",  // Not yet practiced
+    0: "", // Not yet practiced
     1: "E敗北",
     2: "D敗北",
     3: "C敗北",
@@ -28,7 +28,7 @@ class Practice extends Observable {
     6: "S勝利",
   };
   static final Map<int, String> RESULT_CLASS = <int, String>{
-    0: "",  // Not yet practiced
+    0: "", // Not yet practiced
     1: "practiceLost",
     2: "practiceLost",
     3: "practiceLost",
@@ -71,7 +71,7 @@ class Practice extends Observable {
   Practice();
 
   void update(Map<String, dynamic> data,
-              Map<int, ShipTypeDefinition> shipTypeDefinitionMap) {
+      Map<int, ShipTypeDefinition> shipTypeDefinitionMap) {
     id = data["id"];
     enemyName = data["enemy_name"];
     enemyComment = data["enemy_comment"];
@@ -88,16 +88,4 @@ class Practice extends Observable {
       }
     }
   }
-}
-
-void handlePracticeList(Assistant assistant, AssistantModel model,
-                        Map<String, dynamic> data) {
-  var practicesLength = data["practices"].length;
-  resizeList(model.practices, practicesLength, () => new Practice());
-  for (var i = 0; i < practicesLength; i++) {
-    model.practices[i].update(data["practices"][i],
-        model.shipTypeDefinitionMap);
-  }
-  model.numPracticesDone =
-      model.practices.where((p) => p.resultMessage != "").length;
 }

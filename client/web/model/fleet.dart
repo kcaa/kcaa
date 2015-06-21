@@ -15,7 +15,7 @@ class Fleet extends Observable {
   Fleet();
 
   void update(Map<String, dynamic> data, Map<int, Ship> shipMap,
-        List<Mission> missions) {
+      List<Mission> missions) {
     id = data["id"];
     name = data["name"];
 
@@ -101,8 +101,9 @@ class FleetDeployment extends Observable {
     return {
       "name": name,
       "global_predicate": globalPredicate.toJSONEncodable(),
-      "ship_requirements": shipRequirements.map((shipRequirement) =>
-          shipRequirement.toJSONEncodable()).toList(),
+      "ship_requirements": shipRequirements
+          .map((shipRequirement) => shipRequirement.toJSONEncodable())
+          .toList(),
     };
   }
 }
@@ -117,7 +118,7 @@ class CombinedFleetDeployment extends Observable {
 
   CombinedFleetDeployment(this.name, this.primaryFleetName,
       this.secondaryFleetName, this.escotingFleetName,
-          this.supportingFleetName);
+      this.supportingFleetName);
 
   CombinedFleetDeployment.fromJSON(Map<String, dynamic> data) {
     name = data["name"];
@@ -138,20 +139,4 @@ class CombinedFleetDeployment extends Observable {
       "supporting_fleet_name": supportingFleetName,
     };
   }
-}
-
-void handleFleetList(Assistant assistant, AssistantModel model,
-                     Map<String, dynamic> data) {
-  var fleetsLength = data["fleets"].length;
-  if (fleetsLength != model.fleets.length) {
-    // Wait for the DOM to be updated.
-    runLater(0, () =>  assistant.updateCollapsedSections());
-  }
-  resizeList(model.fleets, fleetsLength, () => new Fleet());
-  for (var i = 0; i < fleetsLength; i++) {
-    model.fleets[i].update(data["fleets"][i], model.shipMap, model.missions);
-  }
-  notifyShipList(model);
-  model.someFleetChargeable = model.fleets.any((f) => f.ships.any((s) =>
-      s.fuel < s.fuelCapacity || s.ammo < s.ammoCapacity));
 }

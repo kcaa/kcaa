@@ -3,12 +3,12 @@ library kcaa_shiplist;
 import 'dart:html';
 import 'package:polymer/polymer.dart';
 
-import '../assistant.dart';
 import '../model/assistant.dart';
+import '../util.dart';
 
 @CustomTag('kcaa-shiplist')
 class ShipListElement extends PolymerElement {
-  @published Assistant assistant;
+  @published bool popup = false;
   @published List<Ship> ships;
   @published ShipFilterer filter = Ship.filterNone;
   @published bool fleet = false;
@@ -31,8 +31,8 @@ class ShipListElement extends PolymerElement {
   }
 
   void addShipSortLabels() {
-    for (Element columnHeader in
-        shadowRoot.querySelectorAll("div[data-type]")) {
+    for (Element columnHeader
+        in shadowRoot.querySelectorAll("div[data-type]")) {
       if (columnHeader.dataset.containsKey("label")) {
         continue;
       }
@@ -82,10 +82,6 @@ class ShipListElement extends PolymerElement {
   }
 
   void showModalDialog(MouseEvent e, var detail, Element target) {
-    if (assistant != null) {
-      assistant.showModalDialog(e, detail, target);
-    } else {
-      e.preventDefault();
-    }
+    showModalDialog2(e, detail, target);
   }
 }

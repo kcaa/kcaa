@@ -7,9 +7,9 @@ class Mission extends Observable {
     3: "C",
     4: "B",
     5: "A",
-    6: "S",  // S
-    7: "S",  // SS
-    8: "S",  // SSS
+    6: "S", // S
+    7: "S", // SS
+    8: "S", // SSS
   };
   static final Map<int, String> MAPAREA_MAP = <int, String>{
     1: "鎮守府",
@@ -76,17 +76,8 @@ class Mission extends Observable {
     // ETA.
     if (data["eta"] != null) {
       eta = new DateTime.fromMillisecondsSinceEpoch(data["eta"], isUtc: true)
-        .toLocal();
+          .toLocal();
       etaDatetimeString = formatShortTime(eta);
     }
-  }
-}
-
-void handleMissionList(Assistant assistant, AssistantModel model,
-                       Map<String, dynamic> data) {
-  var missionsLength = data["missions"].where((m) => m["name"] != null).length;
-  resizeList(model.missions, missionsLength, () => new Mission());
-  for (var i = 0; i < missionsLength; i++) {
-    model.missions[i].update(data["missions"][i]);
   }
 }

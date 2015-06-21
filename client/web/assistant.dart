@@ -8,6 +8,9 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:polymer/polymer.dart';
 
+import 'component/equipmentlist.dart';
+import 'component/shiplist.dart';
+import 'controller/controller.dart';
 import 'dialog/dialog.dart';
 import 'model/assistant.dart';
 import 'util.dart';
@@ -25,6 +28,9 @@ class Assistant extends PolymerElement {
   static const int SCREEN_UPDATE_INTERVAL = 1000;
 
   @observable AssistantModel model = new AssistantModel();
+
+  ShipListElement shipList;
+  EquipmentListElement equipmentList;
 
   // Server URIs.
   Uri clientRoot;
@@ -128,8 +134,8 @@ class Assistant extends PolymerElement {
     // Somehow on-transition-end event handler doesn't work.
     $["clickMarker"].onTransitionEnd.listen(endClickVisibleFeedback);
 
-    model.shipList = $["shiplist"];
-    model.equipmentList = $["equipmentlist"];
+    shipList = $["shiplist"];
+    equipmentList = $["equipmentlist"];
 
     addCollapseButtons();
     updateCollapsedSections();
@@ -139,8 +145,8 @@ class Assistant extends PolymerElement {
     runLater(1000, () => passModelToDialogs());
   }
 
-  CollapsedSectionInfo collapseSection(Element header, Element collapseButton,
-                       bool collapsed) {
+  CollapsedSectionInfo collapseSection(
+      Element header, Element collapseButton, bool collapsed) {
     for (var element in header.parent.children) {
       if (element == header) {
         continue;
@@ -163,7 +169,7 @@ class Assistant extends PolymerElement {
     var info = toggleCollapseSection(e);
     // Enable the big ship list element when the section is first expanded.
     if (!info.collapsed) {
-      model.shipList.disabled = false;
+      shipList.disabled = false;
     }
     return info;
   }
@@ -176,8 +182,8 @@ class Assistant extends PolymerElement {
 
   void addCollapseButtons() {
     // shadowRoot provides access to the root of this custom element.
-    for (Element header in
-        shadowRoot.querySelectorAll("div.board *[data-collapsed]")) {
+    for (Element header
+        in shadowRoot.querySelectorAll("div.board *[data-collapsed]")) {
       // Skip if a collapse button is added manually.
       if (header.querySelector("button.collapse") != null) {
         continue;
@@ -190,11 +196,11 @@ class Assistant extends PolymerElement {
   }
 
   void updateCollapsedSections() {
-    for (Element header in
-        shadowRoot.querySelectorAll("div.board *[data-collapsed]")) {
+    for (Element header
+        in shadowRoot.querySelectorAll("div.board *[data-collapsed]")) {
       var collapseButton = header.querySelector("button.collapse");
-      collapseSection(header, collapseButton,
-          header.dataset["collapsed"] == "true");
+      collapseSection(
+          header, collapseButton, header.dataset["collapsed"] == "true");
     }
   }
 
@@ -206,7 +212,7 @@ class Assistant extends PolymerElement {
       var filterType = target.dataset["filterType"];
       var filter = Ship.SHIP_FILTER[filterType];
       model.numFilteredShips = model.ships.where((ship) => filter(ship)).length;
-      model.shipList.filter = filter;
+      shipList.filter = filter;
     });
   }
 
@@ -219,7 +225,7 @@ class Assistant extends PolymerElement {
       var tag = target.dataset["tag"];
       var filter = Ship.makeFilterByTag(tag);
       model.numFilteredShips = model.ships.where((ship) => filter(ship)).length;
-      model.shipList.filter = filter;
+      shipList.filter = filter;
     });
   }
 
@@ -228,8 +234,8 @@ class Assistant extends PolymerElement {
       objectUpdater.cancel();
       objectUpdater = null;
     }
-    handleObjects(serverGetObjects, 0).then(
-        (_) => updateAvailableObjectsPeriodically());
+    handleObjects(serverGetObjects, 0)
+        .then((_) => updateAvailableObjectsPeriodically());
   }
 
   void handleObject(String objectType, String data) {
@@ -240,80 +246,80 @@ class Assistant extends PolymerElement {
   }
 
   Future handleObjects(Uri objectsUri, int transferredBytes) {
-    return HttpRequest.getString(objectsUri.toString())
-      .then((String content) {
-        // Update the last updated time and transfer rate.
-        var now = new DateTime.now();
-        transferredBytes += content.length;
-        objectTransferRate = 0.1 * objectTransferRate +
-            0.9 * (1000.0 * transferredBytes.toDouble() /
-                now.difference(lastObjectUpdated).inMilliseconds);
-        formattedObjectTransferRate =
-            "${(1.0 / 1000 * objectTransferRate).toStringAsFixed(1)} KB/s";
-        objectTransferred += transferredBytes;
-        formattedObjectTransferred =
-            "${(1.0 / 1000 * objectTransferred).toStringAsFixed(1)} KB";
-        lastObjectUpdated = now;
-        formattedLastObjectUpdated =
-            new DateFormat.Hms("ja_JP").format(lastObjectUpdated);
+    return HttpRequest.getString(objectsUri.toString()).then((String content) {
+      // Update the last updated time and transfer rate.
+      var now = new DateTime.now();
+      transferredBytes += content.length;
+      objectTransferRate = 0.1 * objectTransferRate +
+          0.9 *
+              (1000.0 *
+                  transferredBytes.toDouble() /
+                  now.difference(lastObjectUpdated).inMilliseconds);
+      formattedObjectTransferRate =
+          "${(1.0 / 1000 * objectTransferRate).toStringAsFixed(1)} KB/s";
+      objectTransferred += transferredBytes;
+      formattedObjectTransferred =
+          "${(1.0 / 1000 * objectTransferred).toStringAsFixed(1)} KB";
+      lastObjectUpdated = now;
+      formattedLastObjectUpdated =
+          new DateFormat.Hms("ja_JP").format(lastObjectUpdated);
 
-        var objects = JSON.decode(content) as Map<String, String>;
-        var objectTypes = new List<String>();
-        // Handle referenced objects first.
-        for (var referencedObject in REFERENCED_OBJECTS) {
-          if (objects.containsKey(referencedObject)) {
-            objectTypes.add(referencedObject);
-          }
+      var objects = JSON.decode(content) as Map<String, String>;
+      var objectTypes = new List<String>();
+      // Handle referenced objects first.
+      for (var referencedObject in REFERENCED_OBJECTS) {
+        if (objects.containsKey(referencedObject)) {
+          objectTypes.add(referencedObject);
         }
-        // Then handle the rest.
-        for (var objectType in objects.keys) {
-          if (!REFERENCED_OBJECTS.contains(objectType)) {
-            objectTypes.add(objectType);
-          }
+      }
+      // Then handle the rest.
+      for (var objectType in objects.keys) {
+        if (!REFERENCED_OBJECTS.contains(objectType)) {
+          objectTypes.add(objectType);
         }
-        var handlerChain = new Future.value();
-        for (var objectType in objectTypes) {
-          handlerChain = handlerChain.then((_) {
-            handleObject(objectType, objects[objectType]);
-            // Delay the next handling and let the renderer renders the handled
-            // data.
-            return new Future.delayed(const Duration(milliseconds: 0));
-          });
-        }
-        return handlerChain;
-      });
+      }
+      var handlerChain = new Future.value();
+      for (var objectType in objectTypes) {
+        handlerChain = handlerChain.then((_) {
+          handleObject(objectType, objects[objectType]);
+          // Delay the next handling and let the renderer renders the handled
+          // data.
+          return new Future.delayed(const Duration(milliseconds: 0));
+        });
+      }
+      return handlerChain;
+    });
   }
 
   Future updateAvailableObjects() {
     // Update the list of available objects in the debug info section.
-    return HttpRequest.getString(serverGetObjectTypes.toString())
-      .then((String content) {
-        var transferredBytes = content.length;
-        List<String> objectTypes = JSON.decode(content);
-        var newObjectFound = false;
-        for (var objectType in objectTypes) {
-          newObjectFound =
-              availableObjectSet.add(objectType) || newObjectFound;
-        }
-        if (newObjectFound) {
-          availableObjects.clear();
-          availableObjects.addAll(objectTypes);
-        }
-        return transferredBytes;
-      }).then((var transferredBytes) {
-        // Actually handles the new objects.
-        return handleObjects(serverGetNewObjects, transferredBytes);
-      });
+    return HttpRequest
+        .getString(serverGetObjectTypes.toString())
+        .then((String content) {
+      var transferredBytes = content.length;
+      List<String> objectTypes = JSON.decode(content);
+      var newObjectFound = false;
+      for (var objectType in objectTypes) {
+        newObjectFound = availableObjectSet.add(objectType) || newObjectFound;
+      }
+      if (newObjectFound) {
+        availableObjects.clear();
+        availableObjects.addAll(objectTypes);
+      }
+      return transferredBytes;
+    }).then((var transferredBytes) {
+      // Actually handles the new objects.
+      return handleObjects(serverGetNewObjects, transferredBytes);
+    });
   }
 
   void updateAvailableObjectsPeriodically() {
     updateAvailableObjects().then((_) {
-      objectUpdater = runLater(updateAvailableObjectsIntervalMs,
-          updateAvailableObjectsPeriodically);
-    },
-    onError: (_) {
-      objectUpdater = runLater(updateAvailableObjectsIntervalMs,
-          updateAvailableObjectsPeriodically);
+      objectUpdater = runLater(
+          updateAvailableObjectsIntervalMs, updateAvailableObjectsPeriodically);
+    }, onError: (_) {
+      objectUpdater = runLater(
+          updateAvailableObjectsIntervalMs, updateAvailableObjectsPeriodically);
     });
   }
 
@@ -326,18 +332,16 @@ class Assistant extends PolymerElement {
   }
 
   Future<Map<String, dynamic>> getObject(String type, bool debug) {
-    var request = serverGetObject.resolveUri(new Uri(queryParameters: {
-      "type": type,
-    }));
-    return HttpRequest.getString(request.toString())
-        .then((String content) {
-          var json = JSON.decode(content);
-          if (debug) {
-            objectTypeToDebug = type;
-            debugInfo = formatJson(json);
-          }
-          return json;
-        });
+    var request =
+        serverGetObject.resolveUri(new Uri(queryParameters: {"type": type,}));
+    return HttpRequest.getString(request.toString()).then((String content) {
+      var json = JSON.decode(content);
+      if (debug) {
+        objectTypeToDebug = type;
+        debugInfo = formatJson(json);
+      }
+      return json;
+    });
   }
 
   void getObjectFromName(Event e, var detail, Element target) {
@@ -351,16 +355,13 @@ class Assistant extends PolymerElement {
 
   Future<Map<String, dynamic>> requestObject(
       String type, Map<String, String> parameters) {
-    parameters.addAll(<String, String> {
-      "type": type,
+    parameters.addAll(<String, String>{"type": type,});
+    var request =
+        serverRequestObject.resolveUri(new Uri(queryParameters: parameters));
+    return HttpRequest.getString(request.toString()).then((String content) {
+      var json = JSON.decode(content);
+      return json;
     });
-    var request = serverRequestObject.resolveUri(
-        new Uri(queryParameters: parameters));
-    return HttpRequest.getString(request.toString())
-        .then((String content) {
-          var json = JSON.decode(content);
-          return json;
-        });
   }
 
   void passModelToDialogs() {
@@ -379,14 +380,16 @@ class Assistant extends PolymerElement {
   void reloadScreenshot() {
     var screenshot = $["screenshot"] as ImageElement;
     screenshot.classes.add("loading");
-    screenshot.src = serverTakeScreenshot.resolveUri(
-        new Uri(queryParameters: {
-          "format": "jpeg",
-          "quality": "50",
-          "width": "800",
-          "height": "480",
-          "time": new DateTime.now().millisecondsSinceEpoch.toString(),
-        })).toString();
+    screenshot.src = serverTakeScreenshot
+        .resolveUri(new Uri(
+            queryParameters: {
+      "format": "jpeg",
+      "quality": "50",
+      "width": "800",
+      "height": "480",
+      "time": new DateTime.now().millisecondsSinceEpoch.toString(),
+    }))
+        .toString();
   }
 
   void updateScreen() {
@@ -431,7 +434,8 @@ class Assistant extends PolymerElement {
 
     const int GAME_AREA_WIDTH = 800;
     const int GAME_AREA_HEIGHT = 480;
-    var request = serverClick.resolveUri(new Uri(queryParameters: {
+    var request = serverClick.resolveUri(new Uri(
+        queryParameters: {
       "x": (GAME_AREA_WIDTH * (e.offset.x / target.client.width))
           .toStringAsFixed(0),
       "y": (GAME_AREA_HEIGHT * (e.offset.y / target.client.height))
@@ -448,8 +452,8 @@ class Assistant extends PolymerElement {
     reloadScreenshot();
   }
 
-  void setAutoManipulatorSchedules(bool enabled,
-                                   List<ScheduleFragment> schedules) {
+  void setAutoManipulatorSchedules(
+      bool enabled, List<ScheduleFragment> schedules) {
     model.preferences.automanPrefs.enabled = enabled;
     model.preferences.automanPrefs.schedules.clear();
     model.preferences.automanPrefs.schedules.addAll(schedules);
@@ -457,16 +461,11 @@ class Assistant extends PolymerElement {
   }
 
   void showModalDialogByName(String dialogName, Element target) {
-    querySelector("#modalDialogContainer").classes.add("in");
-    var dialog = querySelector("#${dialogName}") as KcaaDialog;
-    dialog.show(target);
-    dialog.classes.remove("hidden");
+    showModalDialogByName2(dialogName, target);
   }
 
   void showModalDialog(MouseEvent e, var detail, Element target) {
-    e.preventDefault();
-    var dialogName = target.dataset["dialog"];
-    showModalDialogByName(dialogName, target);
+    showModalDialog2(e, detail, target);
   }
 
   void showPaperDialog(Event e, var detail, Element target) {
@@ -490,68 +489,58 @@ class Assistant extends PolymerElement {
 
   void loadFleet(MouseEvent e, var detail, Element target) {
     var fleetName = target.dataset["name"];
-    Uri request = serverManipulate.resolveUri(
-        new Uri(queryParameters: {
-          "type": "LoadFleet",
-          "fleet_id": "1",  // Always load to the 1st fleet
-          "saved_fleet_name": fleetName,
-        }));
+    Uri request = serverManipulate.resolveUri(new Uri(queryParameters: {
+      "type": "LoadFleet",
+      "fleet_id": "1", // Always load to the 1st fleet
+      "saved_fleet_name": fleetName,
+    }));
     HttpRequest.getString(request.toString());
   }
 
   void checkPracticeOpponents() {
     Uri request = serverManipulate.resolveUri(
-        new Uri(queryParameters: {
-          "type": "CheckPracticeOpponents",
-        }));
+        new Uri(queryParameters: {"type": "CheckPracticeOpponents",}));
     HttpRequest.getString(request.toString());
   }
 
   void handlePractice(MouseEvent e, var detail, Element target) {
     var practiceId = target.dataset["practiceId"];
-    Uri request = serverManipulate.resolveUri(
-        new Uri(queryParameters: {
-          "type": "HandlePractice",
-          "fleet_id": "1",  // Always use the 1st fleet
-          "practice_id": practiceId,
-        }));
+    Uri request = serverManipulate.resolveUri(new Uri(queryParameters: {
+      "type": "HandlePractice",
+      "fleet_id": "1", // Always use the 1st fleet
+      "practice_id": practiceId,
+    }));
     HttpRequest.getString(request.toString());
   }
 
   void handleAllPractices(MouseEvent e, var detail, Element target) {
-    Uri request = serverManipulate.resolveUri(
-        new Uri(queryParameters: {
-          "type": "HandleAllPractices",
-          "fleet_id": "1",  // Always use the 1st fleet
-        }));
+    Uri request = serverManipulate.resolveUri(new Uri(queryParameters: {
+      "type": "HandleAllPractices",
+      "fleet_id": "1", // Always use the 1st fleet
+    }));
     HttpRequest.getString(request.toString());
   }
 
   void warmUpFleet(MouseEvent e, var detail, Element target) {
     var fleetId = target.dataset["fleetId"];
-    Uri request = serverManipulate.resolveUri(
-        new Uri(queryParameters: {
-          "type": "WarmUpFleet",
-          "fleet_id": fleetId,
-        }));
+    Uri request = serverManipulate.resolveUri(new Uri(
+        queryParameters: {"type": "WarmUpFleet", "fleet_id": fleetId,}));
     HttpRequest.getString(request.toString());
   }
 
   void enhanceBestShip(MouseEvent e, var detail, Element target) {
-    Uri request = serverManipulate.resolveUri(
-        new Uri(queryParameters: {
-          "type": "EnhanceBestShip",
-        }));
+    Uri request = serverManipulate
+        .resolveUri(new Uri(queryParameters: {"type": "EnhanceBestShip",}));
     HttpRequest.getString(request.toString());
   }
 
   void warmUpIdleShips(MouseEvent e, var detail, Element target) {
-    Uri request = serverManipulate.resolveUri(
-        new Uri(queryParameters: {
-          "type": "WarmUpIdleShips",
-          "fleet_id": "1",
-          "num_ships": "1",
-        }));
+    Uri request = serverManipulate.resolveUri(new Uri(
+        queryParameters: {
+      "type": "WarmUpIdleShips",
+      "fleet_id": "1",
+      "num_ships": "1",
+    }));
     HttpRequest.getString(request.toString());
   }
 
@@ -561,70 +550,70 @@ class Assistant extends PolymerElement {
         (target.parent.querySelector(".mapareaId") as InputElement).value;
     var mapId = (target.parent.querySelector(".mapId") as InputElement).value;
     var formation = model.formations.value;
-    Uri request = serverManipulate.resolveUri(
-        new Uri(queryParameters: {
-          "type": "GoOnExpedition",
-          "fleet_id": fleetId,
-          "maparea_id": mapareaId,
-          "map_id": mapId,
-          "formation": formation,
-        }));
+    Uri request = serverManipulate.resolveUri(new Uri(
+        queryParameters: {
+      "type": "GoOnExpedition",
+      "fleet_id": fleetId,
+      "maparea_id": mapareaId,
+      "map_id": mapId,
+      "formation": formation,
+    }));
     HttpRequest.getString(request.toString());
   }
 
   void boostShipRepairing(Event e, var detail, Element target) {
     var slotId = int.parse(target.dataset["slotId"]);
-    Uri request = serverManipulate.resolveUri(
-        new Uri(queryParameters: {
-          "type": "BoostShipRepairing",
-          "slot_id": slotId.toString(),
-        }));
+    Uri request = serverManipulate.resolveUri(new Uri(
+        queryParameters: {
+      "type": "BoostShipRepairing",
+      "slot_id": slotId.toString(),
+    }));
     HttpRequest.getString(request.toString());
   }
 
   void buildShip() {
-    Uri request = serverManipulate.resolveUri(
-        new Uri(queryParameters: {
-          "type": "BuildShip",
-          "fuel": model.buildFuel,
-          "ammo": model.buildAmmo,
-          "steel": model.buildSteel,
-          "bauxite": model.buildBauxite,
-          "grand": model.grandBuilding.toString(),
-          "material": model.buildMaterial.value,
-        }));
+    Uri request = serverManipulate.resolveUri(new Uri(
+        queryParameters: {
+      "type": "BuildShip",
+      "fuel": model.buildFuel,
+      "ammo": model.buildAmmo,
+      "steel": model.buildSteel,
+      "bauxite": model.buildBauxite,
+      "grand": model.grandBuilding.toString(),
+      "material": model.buildMaterial.value,
+    }));
     HttpRequest.getString(request.toString());
   }
 
   void boostShipBuilding(Event e, var detail, Element target) {
     var slotId = int.parse(target.dataset["slotId"]);
-    Uri request = serverManipulate.resolveUri(
-        new Uri(queryParameters: {
-          "type": "BoostShipBuilding",
-          "slot_id": slotId.toString(),
-        }));
+    Uri request = serverManipulate.resolveUri(new Uri(
+        queryParameters: {
+      "type": "BoostShipBuilding",
+      "slot_id": slotId.toString(),
+    }));
     HttpRequest.getString(request.toString());
   }
 
   void receiveShip(Event e, var detail, Element target) {
     var slotId = int.parse(target.dataset["slotId"]);
-    Uri request = serverManipulate.resolveUri(
-        new Uri(queryParameters: {
-          "type": "ReceiveShip",
-          "slot_id": slotId.toString(),
-        }));
+    Uri request = serverManipulate.resolveUri(new Uri(
+        queryParameters: {
+      "type": "ReceiveShip",
+      "slot_id": slotId.toString(),
+    }));
     HttpRequest.getString(request.toString());
   }
 
   void developEquipment() {
-    Uri request = serverManipulate.resolveUri(
-        new Uri(queryParameters: {
-          "type": "DevelopEquipment",
-          "fuel": model.developFuel,
-          "ammo": model.developAmmo,
-          "steel": model.developSteel,
-          "bauxite": model.developBauxite,
-        }));
+    Uri request = serverManipulate.resolveUri(new Uri(
+        queryParameters: {
+      "type": "DevelopEquipment",
+      "fuel": model.developFuel,
+      "ammo": model.developAmmo,
+      "steel": model.developSteel,
+      "bauxite": model.developBauxite,
+    }));
     HttpRequest.getString(request.toString());
   }
 
@@ -647,18 +636,14 @@ class Assistant extends PolymerElement {
   }
 
   void chargeAllFleets() {
-    Uri request = serverManipulate.resolveUri(
-        new Uri(queryParameters: {
-          "type": "ChargeAllFleets",
-        }));
+    Uri request = serverManipulate
+        .resolveUri(new Uri(queryParameters: {"type": "ChargeAllFleets",}));
     HttpRequest.getString(request.toString());
   }
 
   void dissolveLeastValuableShips() {
     Uri request = serverManipulate.resolveUri(
-        new Uri(queryParameters: {
-          "type": "DissolveLeastValuableShips",
-        }));
+        new Uri(queryParameters: {"type": "DissolveLeastValuableShips",}));
     HttpRequest.getString(request.toString());
   }
 
@@ -668,22 +653,20 @@ class Assistant extends PolymerElement {
   }
 
   void checkQuests() {
-     Uri request = serverManipulate.resolveUri(
-         new Uri(queryParameters: {
-           "type": "CheckQuests",
-         }));
-     HttpRequest.getString(request.toString());
-   }
+    Uri request = serverManipulate
+        .resolveUri(new Uri(queryParameters: {"type": "CheckQuests",}));
+    HttpRequest.getString(request.toString());
+  }
 
   void undertakeQuest(MouseEvent e, var detail, Element target) {
     var questId = target.dataset["questId"];
     var undertaken = target.dataset["undertaken"];
-    Uri request = serverManipulate.resolveUri(
-        new Uri(queryParameters: {
-          "type": "UndertakeQuest",
-          "quest_id": questId,
-          "undertaken": undertaken,
-        }));
+    Uri request = serverManipulate.resolveUri(new Uri(
+        queryParameters: {
+      "type": "UndertakeQuest",
+      "quest_id": questId,
+      "undertaken": undertaken,
+    }));
     HttpRequest.getString(request.toString());
   }
 }

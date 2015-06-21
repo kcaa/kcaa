@@ -8,7 +8,6 @@ import '../util.dart';
 
 @CustomTag('kcaa-ship-details-dialog')
 class ShipDetailsDialog extends KcaaDialog {
-
   @observable Ship ship;
   @observable List<String> tags = new ObservableList<String>();
   @observable List<int> loadableEquipmentTypes = new ObservableList<int>();
@@ -48,8 +47,7 @@ class ShipDetailsDialog extends KcaaDialog {
         prefsChanged = true;
       }
     } else {
-      if (shipPrefs.tags[ship.id] == null ||
-          !iterableEquals(ship.tags, tags)) {
+      if (shipPrefs.tags[ship.id] == null || !iterableEquals(ship.tags, tags)) {
         shipPrefs.tags[ship.id] = new ShipTags(tags);
         prefsChanged = true;
       }
@@ -64,28 +62,28 @@ class ShipDetailsDialog extends KcaaDialog {
   }
 
   void placeAsFlagship() {
-    Uri request = assistant.serverManipulate.resolveUri(
-        new Uri(queryParameters: {
-          "type": "LoadShips",
-          "fleet_id": "1",
-          "ship_ids": ship.id.toString(),
-        }));
+    Uri request = assistant.serverManipulate.resolveUri(new Uri(
+        queryParameters: {
+      "type": "LoadShips",
+      "fleet_id": "1",
+      "ship_ids": ship.id.toString(),
+    }));
     HttpRequest.getString(request.toString());
   }
 
   void remodel() {
-    Uri request = assistant.serverManipulate.resolveUri(
-        new Uri(queryParameters: {
-          "type": "RemodelShip",
-          "ship_id": ship.id.toString(),
-        }));
+    Uri request = assistant.serverManipulate.resolveUri(new Uri(
+        queryParameters: {
+      "type": "RemodelShip",
+      "ship_id": ship.id.toString(),
+    }));
     HttpRequest.getString(request.toString());
   }
 
   void resetLoadableEquipmentTypes() {
     loadableEquipmentTypes.clear();
-    model.shipTypeDefinitionMap[ship.shipTypeId].loadableEquipmentTypes.forEach(
-        (equipmentType, loadable) {
+    model.shipTypeDefinitionMap[ship.shipTypeId].loadableEquipmentTypes
+        .forEach((equipmentType, loadable) {
       if (loadable) {
         loadableEquipmentTypes.add(equipmentType);
       }
@@ -110,11 +108,11 @@ class ShipDetailsDialog extends KcaaDialog {
   }
 
   void clearEquipments() {
-    Uri request = assistant.serverManipulate.resolveUri(
-        new Uri(queryParameters: {
-          "type": "ClearEquipments",
-          "ship_id": ship.id.toString(),
-        }));
+    Uri request = assistant.serverManipulate.resolveUri(new Uri(
+        queryParameters: {
+      "type": "ClearEquipments",
+      "ship_id": ship.id.toString(),
+    }));
     HttpRequest.getString(request.toString());
     resetEquipmentSelectionMode();
   }
@@ -153,12 +151,12 @@ class ShipDetailsDialog extends KcaaDialog {
   }
 
   void requestReplaceEquipments(List<int> equipmentDefinitionIds) {
-    Uri request = assistant.serverManipulate.resolveUri(
-        new Uri(queryParameters: {
-          "type": "ReplaceEquipments",
-          "ship_id": ship.id.toString(),
-          "equipment_definition_ids": equipmentDefinitionIds.join(","),
-        }));
+    Uri request = assistant.serverManipulate.resolveUri(new Uri(
+        queryParameters: {
+      "type": "ReplaceEquipments",
+      "ship_id": ship.id.toString(),
+      "equipment_definition_ids": equipmentDefinitionIds.join(","),
+    }));
     HttpRequest.getString(request.toString());
     resetEquipmentSelectionMode();
   }

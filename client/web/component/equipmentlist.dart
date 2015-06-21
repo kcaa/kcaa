@@ -3,8 +3,8 @@ library kcaa_equipmentlist;
 import 'dart:html';
 import 'package:polymer/polymer.dart';
 
-import '../assistant.dart';
 import '../model/assistant.dart';
+import '../util.dart';
 
 class EquipmentGroup extends Observable {
   @observable int id;
@@ -18,7 +18,7 @@ class EquipmentGroup extends Observable {
 
 @CustomTag('kcaa-equipmentlist')
 class EquipmentListElement extends PolymerElement {
-  @published Assistant assistant;
+  @published bool popup = false;
   @published List<EquipmentDefinition> definitions;
   @published List<int> enabledtypes;
   @published List<int> expandedtypes;
@@ -64,8 +64,8 @@ class EquipmentListElement extends PolymerElement {
   }
 
   void clickOnEquipment(MouseEvent e, var detail, Element target) {
-    if (assistant != null) {
-      assistant.showModalDialogByName("kcaaEquipmentDetailsDialog", target);
+    if (popup) {
+      showModalDialogByName2("kcaaEquipmentDetailsDialog", target);
     } else {
       var equipmentDefinitionId =
           int.parse(target.dataset["equipmentDefinitionId"]);

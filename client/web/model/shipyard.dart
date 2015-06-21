@@ -38,7 +38,7 @@ class BuildSlot extends Observable {
     // ETA.
     if (data["eta"] != 0) {
       eta = new DateTime.fromMillisecondsSinceEpoch(data["eta"], isUtc: true)
-        .toLocal();
+          .toLocal();
       etaDatetimeString = formatShortTime(eta);
     } else {
       eta = null;
@@ -46,17 +46,5 @@ class BuildSlot extends Observable {
     }
     completed = state == STATE_COMPLETED ||
         (eta != null && eta.isBefore(new DateTime.now()));
-  }
-}
-
-void handleBuildDock(Assistant assistant, AssistantModel model,
-                     Map<String, dynamic> data) {
-  model.numShipsBeingBuilt =
-      data["slots"].where((s) => s["state"] != 0).length;
-
-  var slotsLength = data["slots"].length;
-  resizeList(model.buildSlots, slotsLength, () => new BuildSlot());
-  for (var i = 0; i < slotsLength; i++) {
-    model.buildSlots[i].update(data["slots"][i], model.shipDefinitionMap);
   }
 }
