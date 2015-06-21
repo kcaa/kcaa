@@ -130,6 +130,29 @@ class Screen(object):
         self.click(790, 10)
 
 
+class MockScreen(object):
+
+    def __init__(self, screen_id):
+        self._screen_id = screen_id
+        self._screen_generation = 0
+
+    @property
+    def screen_id(self):
+        return self._screen_id
+
+    @screen_id.setter
+    def screen_id(self, value):
+        self._screen_id = value
+
+    @property
+    def screen_generation(self):
+        return self._screen_generation
+
+    @screen_generation.setter
+    def screen_generation(self, value):
+        self._screen_generation = value
+
+
 class StartScreen(Screen):
 
     def proceed(self):

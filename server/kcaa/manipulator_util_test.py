@@ -454,7 +454,8 @@ class TestManipulatorManager(object):
 
     def test_update_resume_auto_manipulators(self, manager):
         manager.auto_manipulators = {
-            'MockAutoManipulator': manipulators.base.MockAutoManipulator,
+            'MockAutoManipulator':
+            manipulators.base.MockAutoManipulator.clone(),
         }
         manager.register_auto_manipulators(interval=-1)
         assert not manager.is_manipulator_scheduled('MockAutoManipulator')
@@ -470,7 +471,8 @@ class TestManipulatorManager(object):
 
     def test_update_suspend_auto_manipulators(self, manager):
         manager.auto_manipulators = {
-            'MockAutoManipulator': manipulators.base.MockAutoManipulator,
+            'MockAutoManipulator':
+            manipulators.base.MockAutoManipulator.clone(),
         }
         manager.register_auto_manipulators(interval=-1)
         self.enable_auto_manipulators(manager)

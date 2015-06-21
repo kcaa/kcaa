@@ -122,6 +122,17 @@ class ScreenManager(object):
         self._last_screen_id = screen_id
 
 
+class MockScreenManager(object):
+
+    def __init__(self):
+        self._current_screen = manipulators.screen.MockScreen(
+            screens.PORT_MAIN)
+
+    @property
+    def current_screen(self):
+        return self._current_screen
+
+
 class ManipulatorManager(object):
     """Creates Kancolle manipulator, which assists user interaction by
     manipulating the Kancolle player (Flash) programatically."""
@@ -576,6 +587,20 @@ class ManipulatorManager(object):
                            self.updated_object_types]
         self.updated_object_types.clear()
         return updated_objects
+
+
+class MockManipulatorManager(object):
+
+    def __init__(self):
+        self.objects = {}
+        self.screen_manager = MockScreenManager()
+        self.scheduled_manipulators = {}
+
+    def is_manipulator_scheduled(self, manipulator_name):
+        return manipulator_name in self.scheduled_manipulators
+
+    def add_manipulator(self, manipulator):
+        pass
 
 
 if __name__ == '__main__':

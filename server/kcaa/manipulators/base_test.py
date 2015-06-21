@@ -4,13 +4,7 @@ import pytest
 
 import base
 from kcaa import kcsapi
-
-
-class MockManipulatorManager(object):
-
-    def __init__(self):
-        self.objects = {}
-        self.screen_manager = None
+from kcaa import manipulator_util
 
 
 class TestManipulator(object):
@@ -21,7 +15,7 @@ class TestManipulator(object):
                 self.require_objects(['ShipList', 'FleetList'])
                 yield 0.0
 
-        manager = MockManipulatorManager()
+        manager = manipulator_util.MockManipulatorManager()
         manipulator = Manipulator(manager, priority=0)
         with pytest.raises(Exception):
             manipulator.update(0.1)
@@ -50,12 +44,12 @@ class TestAutoManipulatorTriggerer(object):
 
     def test_has_required_objects_empty(self, manipulator):
         triggerer = base.AutoManipulatorTriggerer(
-            MockManipulatorManager(), None, manipulator)
+            manipulator_util.MockManipulatorManager(), None, manipulator)
         assert triggerer.has_required_objects()
 
     def test_has_required_objects_single(self, manipulator):
         manipulator.mockable_required_objects = ['SomeObject']
-        manager = MockManipulatorManager()
+        manager = manipulator_util.MockManipulatorManager()
         triggerer = base.AutoManipulatorTriggerer(manager, None, manipulator)
         # The manipulator requires SomeObject; nothing is there, thus reject.
         assert not triggerer.has_required_objects()
@@ -66,7 +60,7 @@ class TestAutoManipulatorTriggerer(object):
 
     def test_has_required_objects_double(self, manipulator):
         manipulator.mockable_required_objects = ['SomeObject', 'AnotherObject']
-        manager = MockManipulatorManager()
+        manager = manipulator_util.MockManipulatorManager()
         triggerer = base.AutoManipulatorTriggerer(manager, None, manipulator)
         # No object is available.
         assert not triggerer.has_required_objects()
@@ -81,14 +75,14 @@ class TestAutoManipulatorTriggerer(object):
 
     def test_get_objeect_generation_updates_empty(self, manipulator):
         triggerer = base.AutoManipulatorTriggerer(
-            MockManipulatorManager(), None, manipulator)
+            manipulator_util.MockManipulatorManager(), None, manipulator)
         # If there is no monitored object, monitored objects are considered
         # ready.
         assert triggerer.get_object_generation_updates()[0]
 
     def test_get_object_generation_updates_single(self, manipulator):
         manipulator.mockable_monitored_objects = ['SomeObject']
-        manager = MockManipulatorManager()
+        manager = manipulator_util.MockManipulatorManager()
         triggerer = base.AutoManipulatorTriggerer(manager, None, manipulator)
         # The manipulator requires SomeObject; nothing is there, thus reject.
         assert not triggerer.get_object_generation_updates()[0]
@@ -114,7 +108,7 @@ class TestAutoManipulatorTriggerer(object):
     def test_get_object_generation_updates_double(self, manipulator):
         manipulator.mockable_monitored_objects = ['SomeObject',
                                                   'AnotherObject']
-        manager = MockManipulatorManager()
+        manager = manipulator_util.MockManipulatorManager()
         triggerer = base.AutoManipulatorTriggerer(manager, None, manipulator)
         # No object is available.
         assert not triggerer.get_object_generation_updates()[0]
@@ -143,6 +137,24 @@ class TestAutoManipulatorTriggerer(object):
         triggerer.update_generations({'AnotherObject': 2})
         assert (triggerer.get_object_generation_updates() ==
                 (True, False, {}))
+
+    def test_run_required_objects(self, manipulator):
+        manipulator.mockable_required_objects = ['SomeObject']
+        manager = manipulator_util.MockManipulatorManager()
+        triggerer = base.AutoManipulatorTriggerer(manager, None, manipulator)
+        assert not manipulator.can_trigger_called
+        try:
+            triggerer.update(0.1)
+        except Exception as exception:
+            import traceback
+            print (''.join(traceback.format_exception(
+                type(exception), exception, triggerer.traceback)))
+            raise exception
+        assert not manipulator.can_trigger_called
+        some_object = kcsapi.KCAAObject(generation=1)
+        manager.objects['SomeObject'] = some_object
+        triggerer.update(0.2)
+        assert manipulator.can_trigger_called
 
 
 def main():

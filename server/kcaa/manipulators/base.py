@@ -210,11 +210,13 @@ class MockAutoManipulator(AutoManipulator):
         return cls.mockable_monitored_objects
 
     mockable_can_trigger = True
+    can_trigger_called = False
 
     @classmethod
     def can_trigger(cls, owner):
         logger.debug('MockAutoManipulator.can_trigger: {}'.format(
             cls.mockable_can_trigger))
+        cls.can_trigger_called = True
         return {} if cls.mockable_can_trigger else None
 
     run_called = False
@@ -229,4 +231,5 @@ class MockAutoManipulator(AutoManipulator):
         return type(name, (MockAutoManipulator,),
                     {'mockable_required_objects': [],
                      'mockable_monitored_objects': [],
-                     'mockable_can_trigger': True})
+                     'mockable_can_trigger': True,
+                     'can_trigger_called': False})
