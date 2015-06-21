@@ -161,6 +161,21 @@ class TestAutoManipulatorTriggerer(object):
         triggerer.update(0.2)
         assert manipulator.can_trigger_called
 
+    def test_run_monitored_objects(self, manipulator):
+        manipulator.mockable_monitored_objects = ['SomeObject']
+        manager = manipulator_util.MockManipulatorManager()
+        triggerer = base.AutoManipulatorTriggerer(manager, None, manipulator)
+        assert not manipulator.can_trigger_called
+        triggerer.update(0.1)
+        assert not manipulator.can_trigger_called
+        some_object = kcsapi.KCAAObject(generation=0)
+        manager.objects['SomeObject'] = some_object
+        triggerer.update(0.2)
+        assert not manipulator.can_trigger_called
+        some_object.generation += 1
+        triggerer.update(0.3)
+        assert manipulator.can_trigger_called
+
 
 def main():
     import doctest
