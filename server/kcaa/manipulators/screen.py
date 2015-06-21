@@ -77,6 +77,8 @@ class Screen(object):
         :class:`kcaa.kcsapi.client.Screen`. This is not required if the screen
         transition can be detected by it (like port to quest list screen), but
         necessary if the client doesn't send any requests.
+
+        In general, prefer :meth:`transition_to` to properly insert a wait.
         """
         self.manager.update_screen(screen_id)
 
@@ -93,7 +95,14 @@ class Screen(object):
                 'Current: {}'.format(screen_id, self.screen_id))
 
     def transition_to(self, screen_id, delay=3.0):
+        """Transition the screen ID to the specified one with delay.
+
+        If the screen ID is already the same as the specified one, this returns
+        immediately.
+        """
         def transition_to_task(task):
+            if self.screen_id == screen_id:
+                return
             yield delay
             self.update_screen_id(screen_id)
             # Allow auto manipulators to trigger when its precondition is that
