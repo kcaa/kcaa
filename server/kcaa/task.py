@@ -34,9 +34,8 @@ class Task(object):
         self._blocked = []
         self._exception_in_blocking = None
         self._running = True
-        self._last_running = True
-        self._last_call = 0.0
         self._next_call = 0.0
+        self._suspend_time_diff = 0.0
         self._unit_delayed = False
         self._iterator = self.run(*args, **kwargs)
         self._args = args
@@ -253,10 +252,10 @@ class Task(object):
         A call of :meth:`suspend` is considered to be done right after the
         previous call of :meth:`update`.
         """
-        self._last_running = self._running
+        last_running = self._running
         self._running = False
-        if self._last_running:
-            self._last_call = self._time
+        if last_running:
+            self._suspend_time_diff = self._next_call - self._time
 
     def resume(self):
         """
@@ -269,10 +268,10 @@ class Task(object):
         """
         if self._finalized:
             raise StopIteration()
-        self._last_running = self._running
+        last_running = self._running
         self._running = True
-        if not self._last_running:
-            self._next_call = self._time + (self._next_call - self._last_call)
+        if not last_running:
+            self._next_call = self._time + self._suspend_time_diff
 
     def update(self, current):
         """
@@ -284,14 +283,14 @@ class Task(object):
         """
         if self._finalized:
             raise StopIteration()
+        last_call = self._time
         self._time = current - self.epoch
         if not self._running:
             return
         while self._time >= self._next_call:
             try:
                 self._count += 1
-                self._dtime = self._time - self._last_call
-                self._last_call = self._time
+                self._dtime = self._time - last_call
                 if self._unit_delayed:
                     self._next_call += self._dtime
                     self._unit_delayed = False

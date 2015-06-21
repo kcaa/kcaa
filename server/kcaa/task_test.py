@@ -145,9 +145,13 @@ class TestTask(object):
     def test_update_unit(self):
         class Task(task.Task):
             def run(self):
+                assert self.time >= 0.0 and self.time < 0.01
                 yield self.unit
+                assert self.time >= 0.1 and self.time < 0.11
                 yield self.unit
+                assert self.time >= 0.2 and self.time < 0.21
                 yield self.unit
+                assert self.time >= 0.3 and self.time < 0.31
                 yield 1.0
                 assert self.time >= 1.3 and self.time < 1.31
 
@@ -187,6 +191,29 @@ class TestTask(object):
         t.update(0.2)
         with pytest.raises(StopIteration):
             t.update(0.3)
+
+    def test_update_unit_delayed_suspended(self):
+        class Task(task.Task):
+            def run(self):
+                yield self.unit
+                yield self.unit
+                yield self.unit
+
+        t = Task()
+        assert t.count == 0
+        t.update(0.0)
+        assert t.count == 1
+        t.update(1.0)
+        assert t.count == 2
+        t.suspend()
+        t.update(100.0)
+        assert t.count == 2
+        t.resume()
+        t.update(101.0)
+        assert t.count == 3
+        with pytest.raises(StopIteration):
+            t.update(102.0)
+        assert t.count == 4
 
     def test_finalize(self):
         class Task(task.Task):
@@ -348,7 +375,6 @@ class TestTask(object):
                 yield 0.1
                 self.custom_value = 123
 
-        manager = task.TaskManager(0.0)
         t = Task()
         assert not(hasattr(t, 'custom_value'))
         with pytest.raises(StopIteration):
