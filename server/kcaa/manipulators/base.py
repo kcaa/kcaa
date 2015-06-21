@@ -209,6 +209,12 @@ class MockAutoManipulator(AutoManipulator):
     def monitored_objects(cls):
         return cls.mockable_monitored_objects
 
+    mockable_run_only_when_idle = False
+
+    @classmethod
+    def run_only_when_idle(cls):
+        return cls.mockable_run_only_when_idle
+
     mockable_can_trigger = True
     can_trigger_called = False
 
@@ -231,5 +237,6 @@ class MockAutoManipulator(AutoManipulator):
         return type(name, (MockAutoManipulator,),
                     {'mockable_required_objects': [],
                      'mockable_monitored_objects': [],
+                     'mocakable_run_only_when_idle': False,
                      'mockable_can_trigger': True,
                      'can_trigger_called': False})

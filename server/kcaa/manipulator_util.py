@@ -594,9 +594,18 @@ class MockManipulatorManager(object):
         self.objects = {}
         self.screen_manager = MockScreenManager()
         self.scheduled_manipulators = {}
+        self._idle = True
 
     def is_manipulator_scheduled(self, manipulator_name):
         return manipulator_name in self.scheduled_manipulators
+
+    @property
+    def idle(self):
+        return self._idle
+
+    @idle.setter
+    def idle(self, value):
+        self._idle = value
 
     def add_manipulator(self, manipulator):
         pass
