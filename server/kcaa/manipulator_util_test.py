@@ -426,6 +426,32 @@ class TestManipulatorManager(object):
         assert isinstance(manager.manipulator_queue[0][2],
                           AutoMockManipulatorB)
 
+    def test_update_trigger_auto_manipulator_with_monitored_objects(
+            self, manager):
+        c = manipulators.base.MockAutoManipulator.clone()
+        c.mockable_monitored_objects = ['SomeObject']
+        manager.auto_manipulators = {
+            'MockAutoManipulator': c,
+        }
+        manager.register_auto_manipulators(interval=-1)
+        self.enable_auto_manipulators(manager)
+        some_object = kcsapi.KCAAObject(generation=1)
+        manager.objects['SomeObject'] = some_object
+        assert not manager.is_manipulator_scheduled('MockAutoManipulator')
+        manager.update(0.1)
+        assert manager.is_manipulator_scheduled('MockAutoManipulator')
+        manager.update(0.2)
+        assert manager.is_manipulator_scheduled('MockAutoManipulator')
+        manager.update(0.3)
+        # Now the manipulator is done.
+        assert not manager.is_manipulator_scheduled('MockAutoManipulator')
+        manager.update(0.4)
+        assert not manager.is_manipulator_scheduled('MockAutoManipulator')
+        # With an update, the manipulator should be run.
+        some_object.generation += 1
+        manager.update(0.5)
+        assert manager.is_manipulator_scheduled('MockAutoManipulator')
+
     def test_update_resume_auto_manipulators(self, manager):
         manager.auto_manipulators = {
             'MockAutoManipulator': manipulators.base.MockAutoManipulator,
