@@ -46,3 +46,16 @@ def setup_logger(debug, log_file, log_level):
         logger.addHandler(handler)
     _logger = logger
     return logger
+
+
+# Set up a logger for test.
+# Call this from a specific test case you want to see messages, or call at the
+# top level of the test file. Otherwise logging messages are not caught at all.
+def setup_logger_for_test():
+    logger = logging.getLogger('kcaa')
+    logger.setLevel(logging.DEBUG)
+    handler = logging.StreamHandler(sys.stderr)
+    handler.setLevel(logging.DEBUG)
+    handler.setFormatter(ShortLogFormatter())
+    logger.addHandler(handler)
+    return logger
