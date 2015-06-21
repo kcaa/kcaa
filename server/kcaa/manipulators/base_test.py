@@ -138,6 +138,17 @@ class TestAutoManipulatorTriggerer(object):
         assert (triggerer.get_object_generation_updates() ==
                 (True, False, {}))
 
+    def test_run_already_scheduled(self, manipulator):
+        manager = manipulator_util.MockManipulatorManager()
+        triggerer = base.AutoManipulatorTriggerer(manager, None, manipulator)
+        manager.scheduled_manipulators['MockAutoManipulator'] = manipulator
+        assert not manipulator.can_trigger_called
+        triggerer.update(0.1)
+        assert not manipulator.can_trigger_called
+        del manager.scheduled_manipulators['MockAutoManipulator']
+        triggerer.update(0.2)
+        assert manipulator.can_trigger_called
+
     def test_run_required_objects(self, manipulator):
         manipulator.mockable_required_objects = ['SomeObject']
         manager = manipulator_util.MockManipulatorManager()
