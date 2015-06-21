@@ -43,26 +43,10 @@ class TestManipulator(object):
         assert manipulator.success
 
 
-class MockAutoManipulator(base.AutoManipulator):
-
-    mockable_required_objects = []
-
-    @classmethod
-    def required_objects(cls):
-        return cls.mockable_required_objects
-
-    mockable_monitored_objects = []
-
-    @classmethod
-    def monitored_objects(cls):
-        return cls.mockable_monitored_objects
-
-
 class TestAutoManipulatorTriggerer(object):
 
     def pytest_funcarg__manipulator(self):
-        return type('ClonedMockAutoManipulator', (MockAutoManipulator,),
-                    {'mockable_monitored_objects': []})
+        return base.MockAutoManipulator.clone()
 
     def test_has_required_objects_empty(self, manipulator):
         triggerer = base.AutoManipulatorTriggerer(

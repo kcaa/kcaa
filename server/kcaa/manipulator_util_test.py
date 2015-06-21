@@ -27,21 +27,6 @@ class MockManipulator(manipulators.base.Manipulator):
         yield self.unit
 
 
-class MockAutoManipulator(manipulators.base.AutoManipulator):
-
-    run_called = False
-
-    @classmethod
-    def can_trigger(cls, owner):
-        logger.debug('MockAutoManipulator.can_trigger called.')
-        return {}
-
-    def run(self):
-        logger.debug('MockAutoManipulator.run called.')
-        self.run_called = True
-        yield 0.0
-
-
 class TestScreenManager(object):
 
     def pytest_funcarg__manager(self, request):
@@ -443,7 +428,7 @@ class TestManipulatorManager(object):
 
     def test_update_resume_auto_manipulators(self, manager):
         manager.auto_manipulators = {
-            'MockAutoManipulator': MockAutoManipulator,
+            'MockAutoManipulator': manipulators.base.MockAutoManipulator,
         }
         manager.register_auto_manipulators(interval=-1)
         assert not manager.is_manipulator_scheduled('MockAutoManipulator')
@@ -454,12 +439,12 @@ class TestManipulatorManager(object):
         assert manager.is_manipulator_scheduled('MockAutoManipulator')
         manager.update(0.3)
         m = manager.current_task
-        assert isinstance(m, MockAutoManipulator)
+        assert isinstance(m, manipulators.base.MockAutoManipulator)
         assert m.run_called
 
     def test_update_suspend_auto_manipulators(self, manager):
         manager.auto_manipulators = {
-            'MockAutoManipulator': MockAutoManipulator,
+            'MockAutoManipulator': manipulators.base.MockAutoManipulator,
         }
         manager.register_auto_manipulators(interval=-1)
         self.enable_auto_manipulators(manager)

@@ -188,3 +188,45 @@ class AutoManipulator(Manipulator):
     @classmethod
     def can_trigger(cls, owner):
         return None
+
+
+class MockAutoManipulator(AutoManipulator):
+    """Mockable AutoManipulator.
+
+    Always use :meth:`clone` so that mockable fields are local to the specific
+    test case.
+    """
+
+    mockable_required_objects = []
+
+    @classmethod
+    def required_objects(cls):
+        return cls.mockable_required_objects
+
+    mockable_monitored_objects = []
+
+    @classmethod
+    def monitored_objects(cls):
+        return cls.mockable_monitored_objects
+
+    mockable_can_trigger = True
+
+    @classmethod
+    def can_trigger(cls, owner):
+        logger.debug('MockAutoManipulator.can_trigger: {}'.format(
+            cls.mockable_can_trigger))
+        return {} if cls.mockable_can_trigger else None
+
+    run_called = False
+
+    def run(self):
+        logger.debug('MockAutoManipulator.run called.')
+        self.run_called = True
+        yield 0.0
+
+    @staticmethod
+    def clone(name='MockAutoManipulator'):
+        return type(name, (MockAutoManipulator,),
+                    {'mockable_required_objects': [],
+                     'mockable_monitored_objects': [],
+                     'mockable_can_trigger': True})
