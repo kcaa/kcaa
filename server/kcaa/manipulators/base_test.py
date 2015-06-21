@@ -143,13 +143,7 @@ class TestAutoManipulatorTriggerer(object):
         manager = manipulator_util.MockManipulatorManager()
         triggerer = base.AutoManipulatorTriggerer(manager, None, manipulator)
         assert not manipulator.can_trigger_called
-        try:
-            triggerer.update(0.1)
-        except Exception as exception:
-            import traceback
-            print (''.join(traceback.format_exception(
-                type(exception), exception, triggerer.traceback)))
-            raise exception
+        triggerer.update(0.1)
         assert not manipulator.can_trigger_called
         some_object = kcsapi.KCAAObject(generation=1)
         manager.objects['SomeObject'] = some_object

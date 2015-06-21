@@ -446,8 +446,7 @@ class ManipulatorManager(object):
                     self._logger.error(
                         'Some exception of type {} happened.'.format(
                             type(exception).__name__))
-                self._logger.debug(''.join(traceback.format_exception(
-                    type(exception), exception, t.traceback)))
+                self._logger.debug(t.format_exception_traceback())
             elif not t.running:
                 self._logger.debug('Resuming auto triggerer {}'.format(
                     t.manipulator.__name__))
