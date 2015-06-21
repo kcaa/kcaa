@@ -133,8 +133,7 @@ class GoOnMission(base.Manipulator):
                     u'capacity.'.format(ship.name, ship.id))
                 ready = False
         if not ready:
-            raise Exception('Fleet {} has non-ready ship in it.'.format(
-                fleet_id))
+            yield self.do_manipulator(logistics.ChargeFleet(fleet_id=fleet_id))
         yield self.do_manipulator(organizing.MarkReservedForUse,
                                   ship_ids=ship_ids,
                                   reserved_for_use=True)
