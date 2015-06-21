@@ -422,7 +422,9 @@ class ManipulatorManager(object):
         previously_run = True
         for t in self.running_auto_triggerer:
             if not t.alive:
-                self._logger.debug('Resuming auto triggerer {}'.format(
+                # When there is some bug in auto triggerer, or one in
+                # AutoManipulator.can_trigger.
+                self._logger.error('Finishing auto triggerer {}'.format(
                     t.manipulator.__name__))
                 self.running_auto_triggerer.remove(t)
                 exception = t.exception
@@ -446,6 +448,8 @@ class ManipulatorManager(object):
         previously_run = False
         for t in self.running_auto_triggerer:
             if t.running:
+                self._logger.debug('Suspending auto triggerer {}'.format(
+                    t.manipulator.__name__))
                 t.suspend()
                 previously_run = True
         return previously_run

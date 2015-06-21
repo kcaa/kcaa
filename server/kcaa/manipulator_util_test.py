@@ -3,12 +3,14 @@
 import pytest
 
 import kcsapi
+import logenv
 import manipulator_util
 import manipulators
 import screens
 
-
 SF = kcsapi.prefs.ScheduleFragment
+
+logger = logenv.setup_logger_for_test()
 
 
 class MockConnection(object):
@@ -23,6 +25,21 @@ class MockManipulator(manipulators.base.Manipulator):
     def run(self, arg):
         self.arg = arg
         yield self.unit
+
+
+class MockAutoManipulator(manipulators.base.AutoManipulator):
+
+    run_called = False
+
+    @classmethod
+    def can_trigger(cls, owner):
+        logger.debug('MockAutoManipulator.can_trigger called.')
+        return {}
+
+    def run(self):
+        logger.debug('MockAutoManipulator.run called.')
+        self.run_called = True
+        yield 0.0
 
 
 class TestScreenManager(object):
@@ -75,9 +92,20 @@ class TestManipulatorManager(object):
         manager.manipulators = {
             'MockManipulator': MockManipulator,
         }
-        for manipulator in manager.auto_manipulators.itervalues():
-            manager.task_manager.remove(manipulator)
+        # Clear default auto manipulators.
+        # TODO: Inject auto manipulators more cleanly.
+        manager.auto_manipulators = {}
+        for triggerer in manager.running_auto_triggerer:
+            manager.task_manager.remove(triggerer)
+        del manager.running_auto_triggerer[:]
+        self.enable_auto_manipulators(manager, enabled=False)
         return manager
+
+    def enable_auto_manipulators(self, manager, enabled=True):
+        manager.set_auto_manipulator_preferences(
+            kcsapi.prefs.AutoManipulatorPreferences(
+                enabled=enabled,
+                schedules=[SF(start=0, end=86400)]))
 
     def test_in_schedule_fragment(self):
         in_schedule_fragment = (
@@ -365,11 +393,8 @@ class TestManipulatorManager(object):
             'AutoMockManipulatorB': 0,
         }
         # -1 means the unit time.
-        manager.register_auto_manipulators(-1)
-        manager.set_auto_manipulator_preferences(
-            kcsapi.prefs.AutoManipulatorPreferences(
-                enabled=True,
-                schedules=[SF(start=0, end=86400)]))
+        manager.register_auto_manipulators(interval=-1)
+        self.enable_auto_manipulators(manager)
 
         assert not manager.queue
         assert manager.current_task is None
@@ -415,6 +440,42 @@ class TestManipulatorManager(object):
         assert len(manager.queue) == 1
         assert isinstance(manager.manipulator_queue[0][2],
                           AutoMockManipulatorB)
+
+    def test_update_resume_auto_manipulators(self, manager):
+        manager.auto_manipulators = {
+            'MockAutoManipulator': MockAutoManipulator,
+        }
+        manager.register_auto_manipulators(interval=-1)
+        assert not manager.is_manipulator_scheduled('MockAutoManipulator')
+        manager.update(0.1)
+        assert not manager.is_manipulator_scheduled('MockAutoManipulator')
+        self.enable_auto_manipulators(manager)
+        manager.update(0.2)
+        assert manager.is_manipulator_scheduled('MockAutoManipulator')
+        manager.update(0.3)
+        m = manager.current_task
+        assert isinstance(m, MockAutoManipulator)
+        assert m.run_called
+
+    def test_update_suspend_auto_manipulators(self, manager):
+        manager.auto_manipulators = {
+            'MockAutoManipulator': MockAutoManipulator,
+        }
+        manager.register_auto_manipulators(interval=-1)
+        self.enable_auto_manipulators(manager)
+        assert not manager.is_manipulator_scheduled('MockAutoManipulator')
+        manager.update(0.1)
+        assert manager.is_manipulator_scheduled('MockAutoManipulator')
+        self.enable_auto_manipulators(manager, enabled=False)
+        manager.update(0.2)
+        assert manager.is_manipulator_scheduled('MockAutoManipulator')
+        manager.update(0.3)
+        assert not manager.is_manipulator_scheduled('MockAutoManipulator')
+        manager.update(0.4)
+        assert not manager.is_manipulator_scheduled('MockAutoManipulator')
+        self.enable_auto_manipulators(manager)
+        manager.update(0.5)
+        assert manager.is_manipulator_scheduled('MockAutoManipulator')
 
 
 def main():
