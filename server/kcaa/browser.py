@@ -217,10 +217,26 @@ def add_digitizer(browser):
 
 def show_game_frame_cover(browser, is_shown):
     display = 'block' if is_shown else 'none'
-    browser.execute_script('''
-        var gameFrameCover = document.querySelector("#game_frame_cover");
-        gameFrameCover.style.display = "''' + display + '''";
-    ''')
+    try:
+        browser.execute_script('''
+            var gameFrameCover = document.querySelector("#game_frame_cover");
+            gameFrameCover.style.display = "''' + display + '''";
+        ''')
+        return True
+    except exceptions.UnexpectedAlertPresentException as e:
+        logger.error('Unexpected alert: {}'.format(e.alert_text))
+        logger.debug(str(e))
+    return False
+
+
+def perform_actions(actions):
+    try:
+        actions.perform()
+        return True
+    except exceptions.UnexpectedAlertPresentException as e:
+        logger.error('Unexpected alert: {}'.format(e.alert_text))
+        logger.debug(str(e))
+    return False
 
 
 def setup_kancolle_browser(args, controller_conn, to_exit):
@@ -254,7 +270,7 @@ def setup_kancolle_browser(args, controller_conn, to_exit):
                         if covered:
                             show_game_frame_cover(browser, False)
                             time.sleep(0.1)
-                        actions.perform()
+                        perform_actions(actions)
                         if covered:
                             time.sleep(0.1)
                             show_game_frame_cover(browser, True)
@@ -269,7 +285,7 @@ def setup_kancolle_browser(args, controller_conn, to_exit):
                         if covered:
                             show_game_frame_cover(browser, False)
                             time.sleep(0.1)
-                        actions.perform()
+                        perform_actions(actions)
                     elif command_type == COMMAND_CLICK_RELEASE:
                         logger.debug('click release!')
                         x, y = command_args
@@ -278,7 +294,7 @@ def setup_kancolle_browser(args, controller_conn, to_exit):
                         actions = action_chains.ActionChains(browser)
                         actions.move_to_element_with_offset(game_frame, x, y)
                         actions.release(None)
-                        actions.perform()
+                        perform_actions(actions)
                         if covered:
                             time.sleep(0.1)
                             show_game_frame_cover(browser, True)
@@ -289,7 +305,7 @@ def setup_kancolle_browser(args, controller_conn, to_exit):
                         y += dy
                         actions = action_chains.ActionChains(browser)
                         actions.move_to_element_with_offset(game_frame, x, y)
-                        actions.perform()
+                        perform_actions(actions)
                     elif command_type == COMMAND_COVER:
                         is_shown = command_args[0]
                         if is_shown != covered:
@@ -315,7 +331,8 @@ def setup_kancolle_browser(args, controller_conn, to_exit):
                                 im.save(im_buffer, format)
                             response = im_buffer.getvalue()
                         except exceptions.UnexpectedAlertPresentException as e:
-                            logger.error('Unexpected alert: {}'.format(e.alert_text))
+                            logger.error('Unexpected alert: {}'.format(
+                                e.alert_text))
                             logger.debug(str(e))
                         finally:
                             controller_conn.send(response)
