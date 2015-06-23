@@ -43,8 +43,6 @@ def setup_chrome(name, args, desired_capabilities, is_chromium):
     if args.chrome_user_data_basedir:
         options.add_argument('--user-data-dir={}'.format(
             os.path.join(args.chrome_user_data_basedir, name)))
-    options.add_argument('--verbose')
-    options.add_argument('--log-path=/tmp/chrome.log')
     # Do not ignore SSL certificate errors.
     # See also other Chrome-specific capabilities at
     # https://sites.google.com/a/chromium.org/chromedriver/capabilities
@@ -105,34 +103,40 @@ def open_kancolle_browser(args, logger):
         logger.info('Trying to sign in with the given credentials...')
         with open(args.credentials, 'r') as credentials_file:
             user, passwd = credentials_file.read().strip().split(':')
-            login_id = browser.find_element_by_id('login_id')
-            login_id.send_keys(user)
-            password = browser.find_element_by_id('password')
-            password.send_keys(passwd)
-            last_exception = None
-            for _ in xrange(5):
-                logger.info('Login trial...')
-                time.sleep(1.0)
-                try:
-                    login_button = browser.find_element_by_xpath(
-                        '//div[@class="box-btn-login"]//input[@type="submit"]')
-                    login_button.click()
-                    break
-                except exceptions.NoSuchElementException:
-                    logger.info('The page must have transitioned. Continuing.')
-                    break
-                except exceptions.WebDriverException as e:
-                    last_exception = e
-                    logger.info(
-                        'Seems like page loading failed. This may be just a '
-                        'transient error in a browser like phantomjs. '
-                        'Retrying.')
-            else:
+            try:
+                login_id = browser.find_element_by_id('login_id')
+                login_id.send_keys(user)
+                password = browser.find_element_by_id('password')
+                password.send_keys(passwd)
+                last_exception = None
+                for _ in xrange(5):
+                    logger.info('Login trial...')
+                    time.sleep(1.0)
+                    try:
+                        login_button = browser.find_element_by_xpath(
+                            '//div[@class="box-btn-login"]'
+                            '//input[@type="submit"]')
+                        login_button.click()
+                        break
+                    except exceptions.NoSuchElementException:
+                        logger.info('The page must have transitioned..')
+                        break
+                    except exceptions.WebDriverException as e:
+                        last_exception = e
+                        logger.info(
+                            'Seems like page loading failed. This may be just'
+                            'a transient error in a browser like phantomjs. '
+                            'Retrying.')
+                else:
+                    raise last_exception
+            except Exception as e:
                 browser.get_screenshot_as_file('screen.png')
+                logger.error(str(e))
                 logger.fatal(
                     'Login failed. Check the generated screenshot '
                     '(screen.png) to see if there is any visible error.')
-                raise last_exception
+                raise e
+    logger.info('Kancolle browser is ready.')
     return browser
 
 
