@@ -43,6 +43,8 @@ def setup_chrome(name, args, desired_capabilities, is_chromium):
     if args.chrome_user_data_basedir:
         options.add_argument('--user-data-dir={}'.format(
             os.path.join(args.chrome_user_data_basedir, name)))
+    options.add_argument('--verbose')
+    options.add_argument('--log-path=/tmp/chrome.log')
     # Do not ignore SSL certificate errors.
     # See also other Chrome-specific capabilities at
     # https://sites.google.com/a/chromium.org/chromedriver/capabilities
@@ -93,11 +95,14 @@ def open_browser(name, browser_type, args):
 
 
 def open_kancolle_browser(args, logger):
+    logger.info('Opening Kancolle browser...')
     browser = open_browser('kancolle', args.kancolle_browser, args)
     browser.set_window_size(980, 750)
     browser.set_window_position(0, 0)
+    logger.info('Opening the Kancolle game URL...')
     browser.get(KANCOLLE_URL)
     if args.credentials and os.path.isfile(args.credentials):
+        logger.info('Trying to sign in with the given credentials...')
         with open(args.credentials, 'r') as credentials_file:
             user, passwd = credentials_file.read().strip().split(':')
             login_id = browser.find_element_by_id('login_id')
@@ -106,6 +111,7 @@ def open_kancolle_browser(args, logger):
             password.send_keys(passwd)
             last_exception = None
             for _ in xrange(5):
+                logger.info('Login trial...')
                 time.sleep(1.0)
                 try:
                     login_button = browser.find_element_by_xpath(
@@ -360,14 +366,17 @@ def setup_kancolle_browser(args, controller_conn, to_exit):
 
 def open_kcaa_browser(args, root_url, logger):
     if not args.kcaa_browser:
-        logger.info('Flag --kcaa_browser is set to be empty. Do not start up '
-                    'one for KCAA. You can still open a KCAA Web UI with {}.'
+        logger.info('Flag --kcaa_browser is set to be empty. No browser will '
+                    'be up locally. You can still open a KCAA Web UI with {}.'
                     .format(root_url))
         return None
+    logger.info('Opening a KCAA browser.')
     browser = open_browser('kcaa', args.kcaa_browser, args)
     browser.set_window_size(700, 1050)
     browser.set_window_position(980, 0)
+    logger.info('Opening the KCAA Web UI...')
     browser.get(root_url)
+    logger.info('KCAA browser is ready.')
     return browser
 
 
