@@ -68,7 +68,7 @@ function install_python_server_prerequisites() {
   echo "Installing KCAA Python server prerequisites..."
   for package in "${python_server_prerequisites[@]}"
   do
-    sudo pip install ${package}
+    sudo pip install --upgrade ${package}
   done
 }
 
