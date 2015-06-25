@@ -228,6 +228,9 @@ def add_digitizer(browser):
 def show_game_frame_cover(browser, is_shown):
     display = 'block' if is_shown else 'none'
     try:
+        # Currently this doesn't work for some long-running environment.
+        # It often dies with NoSichWindowExction.
+        return True
         browser.execute_script('''
             var gameFrameCover = document.querySelector("#game_frame_cover");
             gameFrameCover.style.display = "''' + display + '''";
