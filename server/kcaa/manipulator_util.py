@@ -240,6 +240,7 @@ class ManipulatorManager(object):
             # Quest
             'AutoCheckQuests': manipulators.quest.AutoCheckQuests,
             # Expedition
+            'AutoGoOnExpedition': manipulators.expedition.AutoGoOnExpedition,
             'AutoWarmUpIdleShips': manipulators.expedition.AutoWarmUpIdleShips,
             'AutoReturnWithFatalShip':
             manipulators.expedition.AutoReturnWithFatalShip,
@@ -337,6 +338,9 @@ class ManipulatorManager(object):
             # tasks should usually precede as this would take considerable
             # time.
             'AutoWarmUpIdleShips': 10000,
+            # AutoGoOnExpedition can run only when idle, even after
+            # AutoWarmUpIdleShips.
+            'AutoGoOnExpedition': 11000,
         }
 
     def set_auto_manipulator_preferences(self, automan_prefs):

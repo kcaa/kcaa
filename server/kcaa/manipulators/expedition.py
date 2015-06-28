@@ -512,6 +512,95 @@ class EngageExpedition(base.Manipulator):
                      i != 0]))
 
 
+class AutoGoOnExpedition(base.AutoManipulator):
+
+    # TODO: Move to the preferences.
+    fleet_name = u'育成艦隊'
+    maparea_id = 2
+    map_id = 3
+    # If there are more ships than this waiting for repair or warming up, don't
+    # trigger auto go on expedition.
+    max_busy_ships_in_queue = 8
+    # Minimum resource ammount to trigger.
+    min_fuel = 5000
+    min_ammo = 5000
+    min_steel = 5000
+    min_bauxite = 5000
+
+    @classmethod
+    def monitored_objects(cls):
+        return ['ShipList', 'ShipDefinitionList', 'FleetList', 'EquipmentList',
+                'EquipmentDefinitionList', 'RepairDock', 'PlayerResources']
+
+    @classmethod
+    def run_only_when_idle(cls):
+        return True
+
+    @classmethod
+    def precondition(cls, owner):
+        return screens.in_category(owner.screen_id, screens.PORT)
+
+    @classmethod
+    def can_trigger(cls, owner):
+        ship_list = owner.objects['ShipList']
+        ship_def_list = owner.objects['ShipDefinitionList']
+        fleet_list = owner.objects['FleetList']
+        equipment_list = owner.objects['EquipmentList']
+        equipment_def_list = owner.objects['EquipmentDefinitionList']
+        repair_dock = owner.objects['RepairDock']
+        resources = owner.objects['PlayerResources']
+        preferences = owner.manager.preferences
+        recently_used_equipments = (
+            owner.manager.states['RecentlyUsedEquipments'])
+        # Runs only when there are small enough amount of ships to repair or
+        # warm up.
+        empty_slots = [slot for slot in repair_dock.slots if not slot.in_use]
+        ships_to_repair = [s for s in ship_list.repairable_ships(fleet_list) if
+                           not can_warm_up(s)]
+        ships_to_warm_up = [s for s in ship_list.ships.itervalues() if
+                            can_warm_up(s) and s not in ships_to_repair]
+        if (len(ships_to_repair) + len(ships_to_warm_up) >
+                AutoGoOnExpedition.max_busy_ships_in_queue):
+            return None
+        # Check the player resources.
+        if (resources.fuel < AutoGoOnExpedition.min_fuel or
+                resources.ammo < AutoGoOnExpedition.min_ammo or
+                resources.steel < AutoGoOnExpedition.min_steel or
+                resources.bauxite < AutoGoOnExpedition.min_bauxite):
+            return None
+        # Check if the target fleet is ready.
+        matching_fleets = [
+            sf for sf in preferences.fleet_prefs.saved_fleets
+            if sf.name == AutoGoOnExpedition.fleet_name]
+        if not matching_fleets:
+            return None
+        fleet_deployment = matching_fleets[0]
+        if not fleet_deployment.are_all_ships_ready(
+                ship_list, ship_def_list, equipment_list,
+                equipment_def_list, preferences.equipment_prefs,
+                recently_used_equipments):
+            return None
+        logger.info(u'Will go on expedition {}-{} with {}'.format(
+            AutoGoOnExpedition.maparea_id, AutoGoOnExpedition.map_id,
+            AutoGoOnExpedition.fleet_name))
+        return {}
+
+    def run(self):
+        logger.info(u'Going on expedition {}-{} with {}'.format(
+            AutoGoOnExpedition.maparea_id, AutoGoOnExpedition.map_id,
+            AutoGoOnExpedition.fleet_name))
+        yield self.do_manipulator(
+            organizing.LoadFleet,
+            fleet_id=1,
+            saved_fleet_name=AutoGoOnExpedition.fleet_name.encode('utf8'))
+        yield self.do_manipulator(
+            GoOnExpedition,
+            fleet_id=1,
+            maparea_id=AutoGoOnExpedition.maparea_id,
+            map_id=AutoGoOnExpedition.map_id,
+            formation=0)
+
+
 class WarmUp(base.Manipulator):
 
     # TODO: Move to the preferences.
@@ -654,6 +743,10 @@ class AutoWarmUpIdleShips(base.AutoManipulator):
     @classmethod
     def monitored_objects(cls):
         return ['ShipList', 'FleetList', 'RepairDock']
+
+    @classmethod
+    def run_only_when_idle(cls):
+        return True
 
     @classmethod
     def precondition(cls, owner):
