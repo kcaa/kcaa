@@ -43,10 +43,21 @@ function create_user_data_directory() {
 
 function install_kancolle_player_prerequisites() {
   local kancolle_player_prerequisites=(
-    flashplugin-installer
     fonts-ipafont-gothic
     xorg
   )
+  local flashplugin_candidates=(
+    flashplugin-installer
+    adobe-flashplugin
+  )
+  for package in "${flashplugin_candidates[@]}"
+  do
+    apt-cache search "${package}" --names-only | grep "${package}" &> /dev/null
+    if [ $? -eq 0 ]; then
+      kancolle_player_prerequisites+=("${package}")
+      break
+    fi
+  done
   echo "Installing Kancolle player prerequisites..."
   sudo apt-get install ${kancolle_player_prerequisites[@]}
 }
