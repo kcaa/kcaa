@@ -19,12 +19,15 @@ function confirm_install_prerequisites() {
   fi
   for command in ${!prerequisites[@]}
   do
+    local package="${prerequisites[${command}]}"
     which ${command} &> /dev/null
     if [ $? -ne 0 ]; then
-      echo "Cannot find '${command}'."
-      echo "Possibly you can install it by 'sudo apt-get install" \
-        "${prerequisites[${command}]}'."
-      exit 1
+      sudo apt-get install "${package}"
+      if [ $? -ne 0 ]; then
+        echo "Cannot find '${command}' and install '${package}'."
+        echo "Can you install it by 'sudo apt-get install ${package}'?"
+        exit 1
+      fi
     fi
   done
 }
