@@ -3,9 +3,26 @@
 # You need to run './run_proxy.sh' as a separate job if you set
 # PROXY_CONTROLLER_DAEMON=1.
 #
-# You need to run 'sudo xinit' in a separate job, and 'export DISPLAY=:0.0'
-# before running './start_game.sh' in the same session if you running this
-# script from non-GUI environment.
+# If you run this on the server environment, you would need to install X11
+# server.
+#
+# Option 1: xorg
+#
+# Install and run:
+#   $ sudo apt-get install xorg
+#   $ sudo xinit
+# Then open another terminal and run KCAA:
+#   $ export DISPLAY=:0
+#   $ ./start_game.sh
+#
+# Option 2: VNC server
+#
+# If xinit complains about 'no screens available', VNC server might help.
+#   $ sudo apt-get install vnc4server
+#   $ sudo vncserver
+# Then run KCAA:
+#   $ export DISPLAY=:1
+#   $ ./start_game.sh
 
 SCRIPT_DIR=$(dirname $0)
 CONFIG_FILE=${1-${SCRIPT_DIR}/config}
