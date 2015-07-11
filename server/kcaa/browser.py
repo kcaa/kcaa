@@ -24,6 +24,9 @@ COMMAND_COVER = 'cover'
 COMMAND_TAKE_SCREENSHOT = 'take_screenshot'
 
 
+logger = logging.getLogger('kcaa.browser')
+
+
 def get_desired_capabilities(args):
     capabilities = {}
     capabilities['proxy'] = {'httpProxy': args.proxy,
@@ -92,7 +95,7 @@ def open_browser(name, browser_type, args):
     return browser
 
 
-def open_kancolle_browser(args, logger):
+def open_kancolle_browser(args):
     logger.info('Opening Kancolle browser...')
     browser = open_browser('kancolle', args.kancolle_browser, args)
     browser.set_window_size(980, 750)
@@ -255,9 +258,8 @@ def perform_actions(actions):
 def setup_kancolle_browser(args, controller_conn, to_exit):
     try:
         logenv.setup_logger(args.debug, args.log_file, args.log_level)
-        logger = logging.getLogger('kcaa.browser')
         monitor = BrowserMonitor(
-            'Kancolle', open_kancolle_browser(args, logger), 3)
+            'Kancolle', open_kancolle_browser(args), 3)
         game_frame, dx, dy, game_area_rect = None, None, None, None
         covered = False
         while True:
@@ -371,7 +373,7 @@ def setup_kancolle_browser(args, controller_conn, to_exit):
         pass
 
 
-def open_kcaa_browser(args, root_url, logger):
+def open_kcaa_browser(args, root_url):
     if not args.kcaa_browser:
         logger.info('Flag --kcaa_browser is set to be empty. No browser will '
                     'be up locally. You can still open a KCAA Web UI with {}.'
@@ -390,8 +392,7 @@ def open_kcaa_browser(args, root_url, logger):
 def setup_kcaa_browser(args, root_url, to_exit):
     try:
         logenv.setup_logger(args.debug, args.log_file, args.log_level)
-        logger = logging.getLogger('kcaa.browser')
-        kcaa_browser = open_kcaa_browser(args, root_url, logger)
+        kcaa_browser = open_kcaa_browser(args, root_url)
         if not kcaa_browser:
             return
         monitor = BrowserMonitor('KCAA', kcaa_browser, 3)
@@ -405,7 +406,7 @@ def setup_kcaa_browser(args, root_url, to_exit):
                 # necessarily a signal for exiting. Rather, I would restart it
                 # again, assuming that was an accident.
                 monitor = BrowserMonitor(
-                    'KCAA', open_kcaa_browser(args, root_url, logger), 3)
+                    'KCAA', open_kcaa_browser(args, root_url), 3)
     except (KeyboardInterrupt, SystemExit):
         logger.info('SIGINT received in the KCAA browser process. Exiting...')
     except:
@@ -424,7 +425,6 @@ class BrowserMonitor(object):
         self.browser = browser
         self.max_credit = max_credit
         self.credit = max_credit
-        self._logger = logging.getLogger('kcaa.browser')
 
     def close(self):
         try:
@@ -444,10 +444,10 @@ class BrowserMonitor(object):
                 raise RuntimeError()
         except Exception:
             # Browser exited, or didn't respond.
-            self._logger.debug('Browser {} not responding.'.format(self.name))
+            logger.debug('Browser {} not responding.'.format(self.name))
             self.credit -= 1
             alive = False
         if alive and self.credit < self.max_credit:
-            self._logger.info('Browser recovered.')
+            logger.info('Browser recovered.')
             self.credit = self.max_credit
         return self.credit > 0
