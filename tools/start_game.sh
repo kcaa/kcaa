@@ -19,7 +19,9 @@
 #
 # If xinit complains about 'no screens available', VNC server might help.
 #   $ sudo apt-get install vnc4server
-#   $ sudo vncserver
+#   $ vncserver
+# When asked, enter your login password (otherwise a connection trial will be
+# rejected).
 # Then run KCAA:
 #   $ export DISPLAY=:1
 #   $ ./start_game.sh
