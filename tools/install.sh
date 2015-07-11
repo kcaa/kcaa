@@ -63,7 +63,7 @@ function install_python_server_prerequisites() {
     python-dateutil
     requests
     selenium
-    "--find-links https://code.google.com/p/google-visualization-python/ gviz-api-py"
+    "https://github.com/google/google-visualization-python/archive/master.zip"
   )
   echo "Installing KCAA Python server prerequisites..."
   for package in "${python_server_prerequisites[@]}"
