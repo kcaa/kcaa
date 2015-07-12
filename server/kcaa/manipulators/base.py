@@ -229,6 +229,10 @@ class AutoManipulator(Manipulator):
 
 class ScheduledManipulator(AutoManipulator):
 
+    # Function to get the current datetime.
+    # Inject some lambda to test this class.
+    _now = datetime.datetime.now
+
     next_update = None
 
     @classmethod
@@ -251,7 +255,9 @@ class ScheduledManipulator(AutoManipulator):
 
     @classmethod
     def can_trigger(cls, owner):
-        now = datetime.datetime.now()
+        if not cls.schedules():
+            return
+        now = cls._now()
         initial_run = cls.next_update is None
         if not initial_run and now < cls.next_update:
             return

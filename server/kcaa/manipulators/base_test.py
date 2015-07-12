@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+import datetime
+
 import pytest
 
 import base
@@ -209,6 +211,102 @@ class TestAutoManipulatorTriggerer(object):
         assert manipulator.can_trigger_called
 
     # TODO: Add tests for screen generation check
+
+
+class TestScheduledManipulator(object):
+
+    def datetime(self, *args, **kwargs):
+        return classmethod(lambda cls: datetime.datetime(*args, **kwargs))
+
+    def pytest_funcarg__owner(self):
+        return manipulator_util.MockManipulatorManager()
+
+    def test_don_trigger_with_no_schedule(self, owner):
+        class NoScheduleManipulator(base.ScheduledManipulator):
+            run = lambda: None
+        NoScheduleManipulator._now = self.datetime(2015, 1, 1, 0, 0)
+        assert NoScheduleManipulator.can_trigger(owner) is None
+        assert NoScheduleManipulator.can_trigger(owner) is None
+        NoScheduleManipulator._now = self.datetime(2015, 1, 2, 0, 0)
+        assert NoScheduleManipulator.can_trigger(owner) is None
+
+    def test_dont_trigger_for_initial_run(self, owner):
+        class SingleScheduleManipulator(base.ScheduledManipulator):
+            schedules = classmethod(lambda cls: [datetime.time(9, 0)])
+            run = lambda: None
+        SingleScheduleManipulator._now = self.datetime(2015, 1, 1, 9, 1)
+        assert SingleScheduleManipulator.can_trigger(owner) is None
+
+    def test_trigger_for_first_schedule(self, owner):
+        class SingleScheduleManipulator(base.ScheduledManipulator):
+            schedules = classmethod(lambda cls: [datetime.time(9, 0)])
+            run = lambda: None
+        SingleScheduleManipulator._now = self.datetime(2015, 1, 1, 8, 58)
+        assert SingleScheduleManipulator.can_trigger(owner) is None
+        SingleScheduleManipulator._now = self.datetime(2015, 1, 1, 8, 59)
+        assert SingleScheduleManipulator.can_trigger(owner) is None
+        SingleScheduleManipulator._now = self.datetime(2015, 1, 1, 9, 0)
+        assert SingleScheduleManipulator.can_trigger(owner) is not None
+
+    def test_trigger_next_day(self, owner):
+        class SingleScheduleManipulator(base.ScheduledManipulator):
+            schedules = classmethod(lambda cls: [datetime.time(9, 0)])
+            run = lambda: None
+        SingleScheduleManipulator._now = self.datetime(2015, 1, 1, 9, 1)
+        assert SingleScheduleManipulator.can_trigger(owner) is None
+        SingleScheduleManipulator._now = self.datetime(2015, 1, 2, 8, 59)
+        assert SingleScheduleManipulator.can_trigger(owner) is None
+        SingleScheduleManipulator._now = self.datetime(2015, 1, 2, 9, 0)
+        assert SingleScheduleManipulator.can_trigger(owner) is not None
+
+    def test_trigger_two_schedules(self, owner):
+        class DoubleScheduleManipulator(base.ScheduledManipulator):
+            schedules = classmethod(lambda cls: [datetime.time(9, 0),
+                                                 datetime.time(21, 0)])
+            run = lambda: None
+        DoubleScheduleManipulator._now = self.datetime(2015, 1, 1, 8, 59)
+        assert DoubleScheduleManipulator.can_trigger(owner) is None
+        DoubleScheduleManipulator._now = self.datetime(2015, 1, 1, 9, 0)
+        assert DoubleScheduleManipulator.can_trigger(owner) is not None
+        DoubleScheduleManipulator._now = self.datetime(2015, 1, 1, 9, 1)
+        assert DoubleScheduleManipulator.can_trigger(owner) is None
+        DoubleScheduleManipulator._now = self.datetime(2015, 1, 1, 20, 59)
+        assert DoubleScheduleManipulator.can_trigger(owner) is None
+        DoubleScheduleManipulator._now = self.datetime(2015, 1, 1, 21, 0)
+        assert DoubleScheduleManipulator.can_trigger(owner) is not None
+        DoubleScheduleManipulator._now = self.datetime(2015, 1, 1, 21, 1)
+        assert DoubleScheduleManipulator.can_trigger(owner) is None
+        DoubleScheduleManipulator._now = self.datetime(2015, 1, 2, 8, 59)
+        assert DoubleScheduleManipulator.can_trigger(owner) is None
+        DoubleScheduleManipulator._now = self.datetime(2015, 1, 2, 9, 0)
+        assert DoubleScheduleManipulator.can_trigger(owner) is not None
+
+    def test_trigger_for_wanted_object(self, owner):
+        class WantingScheduleManipulator(base.ScheduledManipulator):
+            schedules = classmethod(lambda cls: [datetime.time(9, 0)])
+            wanted_objects = classmethod(lambda cls: ['Foo', 'Bar'])
+            run = lambda: None
+        WantingScheduleManipulator._now = self.datetime(2015, 1, 1, 0, 0)
+        assert WantingScheduleManipulator.can_trigger(owner) is not None
+
+    def test_trigger_for_partially_wanted_object(self, owner):
+        class WantingScheduleManipulator(base.ScheduledManipulator):
+            schedules = classmethod(lambda cls: [datetime.time(9, 0)])
+            wanted_objects = classmethod(lambda cls: ['Foo', 'Bar'])
+            run = lambda: None
+        WantingScheduleManipulator._now = self.datetime(2015, 1, 1, 0, 0)
+        owner.objects = {'Foo': None}
+        # Bar is still missing.
+        assert WantingScheduleManipulator.can_trigger(owner) is not None
+
+    def test_dont_trigger_for_satisfied_wanted_object(self, owner):
+        class WantingScheduleManipulator(base.ScheduledManipulator):
+            schedules = classmethod(lambda cls: [datetime.time(9, 0)])
+            wanted_objects = classmethod(lambda cls: ['Foo', 'Bar'])
+            run = lambda: None
+        WantingScheduleManipulator._now = self.datetime(2015, 1, 1, 0, 0)
+        owner.objects = {'Foo': None, 'Bar': None}
+        assert WantingScheduleManipulator.can_trigger(owner) is None
 
 
 def main():
