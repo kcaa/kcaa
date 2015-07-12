@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import datetime
 import logging
 
 from kcaa import task
@@ -224,6 +225,50 @@ class AutoManipulator(Manipulator):
     @classmethod
     def can_trigger(cls, owner):
         return None
+
+
+class ScheduledManipulator(AutoManipulator):
+
+    next_update = None
+
+    @classmethod
+    def schedules(cls):
+        """Schedules of triggers of this manipulator.
+
+        This should return a list of :class:`datetime.time` of a day to be
+        scheduled.
+        """
+        return []
+
+    @classmethod
+    def wanted_objects(cls):
+        """Wanted object names.
+
+        If the owner doesn't have those objects, the manipulator will run
+        regardless of the schedule.
+        """
+        return []
+
+    @classmethod
+    def can_trigger(cls, owner):
+        now = datetime.datetime.now()
+        initial_run = cls.next_update is None
+        if not initial_run and now < cls.next_update:
+            return
+        t = now.time()
+        for next_schedule in cls.schedules():
+            if t < next_schedule:
+                cls.next_update = datetime.datetime.combine(
+                    now.date(), next_schedule)
+                break
+        else:
+            cls.next_update = datetime.datetime.combine(
+                now.date() + datetime.timedelta(days=1), cls.schedules()[0])
+        logger.debug(
+            'Next {} is scheduled at {}'.format(cls.__name__, cls.next_update))
+        if not initial_run or any([obj not in owner.objects for obj in
+                                   cls.wanted_objects()]):
+            return {}
 
 
 class MockAutoManipulator(AutoManipulator):

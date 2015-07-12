@@ -31,36 +31,20 @@ class CheckPracticeOpponents(base.Manipulator):
             yield self.screen.cancel()
 
 
-class AutoCheckPracticeOpponents(base.AutoManipulator):
+class AutoCheckPracticeOpponents(base.ScheduledManipulator):
 
-    schedules = [datetime.time(3, 5),
-                 datetime.time(15, 5)]
+    @classmethod
+    def schedules(cls):
+        return [datetime.time(3, 5),
+                datetime.time(15, 5)]
 
-    next_update = None
+    @classmethod
+    def wanted_objects(cls):
+        return ['PracticeList']
 
     @classmethod
     def precondition(cls, owner):
         return screens.in_category(owner.screen_id, screens.PORT)
-
-    @classmethod
-    def can_trigger(cls, owner):
-        now = datetime.datetime.now()
-        initial_run = cls.next_update is None
-        if not initial_run and now < cls.next_update:
-            return
-        t = now.time()
-        for next_schedule in cls.schedules:
-            if t < next_schedule:
-                cls.next_update = datetime.datetime.combine(
-                    now.date(), next_schedule)
-                break
-        else:
-            cls.next_update = datetime.datetime.combine(
-                now.date() + datetime.timedelta(days=1), cls.schedules[0])
-        logger.debug(
-            'Next practice update is scheduled at {}'.format(cls.next_update))
-        if not initial_run or 'PracticeList' not in owner.objects:
-            return {}
 
     def run(self):
         yield self.do_manipulator(CheckPracticeOpponents)
@@ -180,39 +164,16 @@ class HandleAllPractices(base.Manipulator):
             self.add_manipulator(HandlePractice, fleet_id, i + 1)
 
 
-# TODO: Add a new subclass of AutoManipulator, named ScheduledManipulator. The
-# most of infrastructural code of this can be shared with
-# AutoCheckPracticeOpponents and probably QuestList checker.
-class AutoHandleAllPractices(base.AutoManipulator):
+class AutoHandleAllPractices(base.ScheduledManipulator):
 
-    schedules = [datetime.time(2, 0),
-                 datetime.time(14, 0)]
-
-    next_update = None
+    @classmethod
+    def schedules(cls):
+        return [datetime.time(2, 0),
+                datetime.time(14, 0)]
 
     @classmethod
     def precondition(cls, owner):
         return screens.in_category(owner.screen_id, screens.PORT)
-
-    @classmethod
-    def can_trigger(cls, owner):
-        now = datetime.datetime.now()
-        initial_run = cls.next_update is None
-        if not initial_run and now < cls.next_update:
-            return
-        t = now.time()
-        for next_schedule in cls.schedules:
-            if t < next_schedule:
-                cls.next_update = datetime.datetime.combine(
-                    now.date(), next_schedule)
-                break
-        else:
-            cls.next_update = datetime.datetime.combine(
-                now.date() + datetime.timedelta(days=1), cls.schedules[0])
-        logger.debug(
-            'Next auto practice is scheduled at {}'.format(cls.next_update))
-        if not initial_run:
-            return {}
 
     def run(self):
         yield self.do_manipulator(HandleAllPractices, 1)
