@@ -29,8 +29,10 @@ class BuildShip(base.Manipulator):
             return
         empty_slots = build_dock.empty_slots
         if not empty_slots:
-            logger.error('No empty build slot was found.')
-            return
+            logger.info(
+                'No empty slot found. Boosting the first slot and reusing it.')
+            yield self.do_manipulator(BoostShipBuilding, slot_id=1)
+            empty_slots = [build_dock.slots[0]]
         slot_index = empty_slots[0].id - 1
         if grand:
             if (fuel < 1500 or fuel > 7000 or fuel % 10 != 0 or
