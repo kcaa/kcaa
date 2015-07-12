@@ -332,7 +332,14 @@ class KCSAPIHandler(object):
                      entry['request']['postData']['params']},
                     readonly=True, omittable=False)
                 content = entry['response']['content']
-                text = content['text']
+                try:
+                    text = content['text']
+                except Exception as e:
+                    self._logger.error(
+                        'Failed to extract text from KCSAPI response.')
+                    self._logger.debug('Content: {}'.format(str(content)))
+                    self._logger.debug('Full HAR entry: {}'.format(str(entry)))
+                    raise e
                 # Highly likely the KCSAPI response is Base64 encoded, because
                 # the API server doesn't attach charset information.
                 encoding = content.get('encoding')
