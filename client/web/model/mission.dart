@@ -21,6 +21,7 @@ class Mission extends Observable {
     27: "AL/MI",
   };
   static final Map<int, String> STATE_CLASS_MAP = <int, String>{
+    -1: "disabled",
     0: "new",
     1: "new",
     2: "",

@@ -36,19 +36,20 @@ class FleetMissionDialog extends KcaaDialog {
     var fleetId = int.parse(target.dataset["fleetId"]);
     fleet = model.fleets[fleetId - 1];
     evaled_missions = new ObservableList<EvaluatedMission>.from(model.missions
-        .where((mission) => mission.undertakingFleetId == -1)
+        .where((mission) =>
+            mission.undertakingFleetId == -1 && mission.state != -1)
         .map((mission) => new EvaluatedMission(mission, fleet)));
   }
 
   void goOnMission(MouseEvent e, var detail, Element target) {
     var fleetId = fleet.id.toString();
     var missionId = target.dataset["missionId"];
-    Uri request = assistant.serverManipulate.resolveUri(
-        new Uri(queryParameters: {
-          "type": "GoOnMission",
-          "fleet_id": fleetId,
-          "mission_id": missionId,
-        }));
+    Uri request = assistant.serverManipulate.resolveUri(new Uri(
+        queryParameters: {
+      "type": "GoOnMission",
+      "fleet_id": fleetId,
+      "mission_id": missionId,
+    }));
     HttpRequest.getString(request.toString());
     e.preventDefault();
     close();

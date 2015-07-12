@@ -1,5 +1,14 @@
 #assistant {
 }
+div.trow.disabled {
+  background-color: hsla(0, 0%, 90%, 0.3);
+  color: hsl(0, 0%, 50%);
+  font-weight: bold;
+  text-shadow: 1px 1px 1px hsla(0, 0%, 20%, 0.2);
+}
+div.trow.disabled > div {
+  box-shadow: 2px 2px 3px hsla(0, 0%, 20%, 0.3) inset;
+}
 div.trow.new {
   background-color: hsla(270, 60%, 90%, 0.3);
   color: hsl(270, 40%, 20%);

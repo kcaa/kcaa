@@ -76,6 +76,7 @@ class Mission(jsonobject.JSONSerializableObject):
     """Map area."""
     state = jsonobject.JSONProperty('state', value_type=int)
     """State."""
+    STATE_DISABLED = -1
     STATE_NEW = 0
     STATE_ACTIVE = 1
     STATE_COMPLETE = 2
@@ -178,7 +179,7 @@ class MissionList(model.KCAAObject):
             mission_to_state[data.api_mission_id] = data.api_state
         for mission in self.missions:
             mission.state = mission_to_state.get(
-                mission.id, Mission.STATE_COMPLETE)
+                mission.id, Mission.STATE_DISABLED)
 
     def update_mission_fleets(self, fleet_data):
         # TODO: Refactor this method. As the master information is now shipped
