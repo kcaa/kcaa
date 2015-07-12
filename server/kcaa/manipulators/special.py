@@ -42,12 +42,14 @@ class AutoTimeKiller(base.AutoManipulator):
 
     @classmethod
     def can_trigger(cls, owner):
+        to_wait = cls.next_wait is not None
         interval_sec = random.gammavariate(AutoTimeKiller.interval_alpha,
                                            AutoTimeKiller.interval_beta)
         cls.next_wait = (datetime.datetime.now() +
                          datetime.timedelta(seconds=interval_sec))
         logger.info('Next AutoTimeKiller trigger: {}'.format(cls.next_wait))
-        return {}
+        if to_wait:
+            return {}
 
     def run(self):
         wait_sec = random.gammavariate(AutoTimeKiller.duration_alpha,
@@ -70,13 +72,17 @@ class AutoIdleTimeKiller(base.AutoManipulator):
     # Maximum seconds to wait.
     max_wait_sec = 300.0
 
+    to_wait = False
+
     @classmethod
     def run_only_when_idle(cls):
         return True
 
     @classmethod
     def can_trigger(cls, owner):
-        return {}
+        if cls.to_wait:
+            return {}
+        cls.to_wait = True
 
     def run(self):
         wait_sec = random.gammavariate(AutoIdleTimeKiller.alpha,
