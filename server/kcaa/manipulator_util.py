@@ -273,6 +273,7 @@ class ManipulatorManager(object):
             'AutoGoOnMission': manipulators.mission.AutoGoOnMission,
             # Special
             'AutoStartGame': manipulators.special.AutoStartGame,
+            'AutoTimeKiller': manipulators.special.AutoTimeKiller,
             'AutoIdleTimeKiller': manipulators.special.AutoIdleTimeKiller,
         }
 
@@ -287,6 +288,10 @@ class ManipulatorManager(object):
         # Each manipulator gets a priority less than the parent when invoked
         # with Manipulator.add_manipulator().
         self.manipulator_priorities = {
+            # AutoTimeKiller precedes everything, blocking all other
+            # manipulators. This can even run when not idle, but returns
+            # control relatively quickly.
+            'AutoTimeKiller': -12000,
             # AutoIdleTimeKiller precedes everything, blocking all other
             # manipulators. But runs only when idle.
             'AutoIdleTimeKiller': -11000,
