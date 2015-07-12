@@ -273,6 +273,7 @@ class ManipulatorManager(object):
             'AutoGoOnMission': manipulators.mission.AutoGoOnMission,
             # Special
             'AutoStartGame': manipulators.special.AutoStartGame,
+            'AutoIdleTimeKiller': manipulators.special.AutoIdleTimeKiller,
         }
 
     def register_auto_manipulators(self, interval=-1, check_interval=60):
@@ -286,6 +287,9 @@ class ManipulatorManager(object):
         # Each manipulator gets a priority less than the parent when invoked
         # with Manipulator.add_manipulator().
         self.manipulator_priorities = {
+            # AutoIdleTimeKiller precedes everything, blocking all other
+            # manipulators. But runs only when idle.
+            'AutoIdleTimeKiller': -11000,
             # AutoCheckMissionResult has the highest priority because it
             # blocks all other manipulations when coming back to the port main
             # screen.
