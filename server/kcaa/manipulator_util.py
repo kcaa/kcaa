@@ -289,8 +289,8 @@ class ManipulatorManager(object):
         # with Manipulator.add_manipulator().
         self.manipulator_priorities = {
             # AutoTimeKiller precedes everything, blocking all other
-            # manipulators. This can even run when not idle, but returns
-            # control relatively quickly.
+            # manipulators. This can even run when not idle, but runs
+            # relatively rarely.
             'AutoTimeKiller': -12000,
             # AutoIdleTimeKiller precedes everything, blocking all other
             # manipulators. But runs only when idle.
