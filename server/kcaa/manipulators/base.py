@@ -245,6 +245,15 @@ class ScheduledManipulator(AutoManipulator):
         return []
 
     @classmethod
+    def acceptable_delay(cls):
+        """Acceptable delay to be scheduled.
+
+        If the current time exceeds this delay from each scheduled time, this
+        manipulator will not be scheduled.
+        """
+        return datetime.timedelta(days=1)
+
+    @classmethod
     def wanted_objects(cls):
         """Wanted object names.
 
@@ -261,6 +270,9 @@ class ScheduledManipulator(AutoManipulator):
         initial_run = cls.next_update is None
         if not initial_run and now < cls.next_update:
             return
+        within_acceptable_range = (
+            not cls.next_update or
+            now < cls.next_update + cls.acceptable_delay())
         t = now.time()
         for next_schedule in cls.schedules():
             if t < next_schedule:
@@ -272,8 +284,9 @@ class ScheduledManipulator(AutoManipulator):
                 now.date() + datetime.timedelta(days=1), cls.schedules()[0])
         logger.debug(
             'Next {} is scheduled at {}'.format(cls.__name__, cls.next_update))
-        if not initial_run or any([obj not in owner.objects for obj in
-                                   cls.wanted_objects()]):
+        if ((not initial_run and within_acceptable_range) or
+                any([obj not in owner.objects for obj in
+                     cls.wanted_objects()])):
             return {}
 
 

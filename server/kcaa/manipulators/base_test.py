@@ -281,6 +281,28 @@ class TestScheduledManipulator(object):
         DoubleScheduleManipulator._now = self.datetime(2015, 1, 2, 9, 0)
         assert DoubleScheduleManipulator.can_trigger(owner) is not None
 
+    def test_trigger_within_acceptable_range(self, owner):
+        class SingleScheduleManipulator(base.ScheduledManipulator):
+            schedules = classmethod(lambda cls: [datetime.time(9, 0)])
+            acceptable_delay = classmethod(
+                lambda cls: datetime.timedelta(hours=1))
+            run = lambda: None
+        SingleScheduleManipulator._now = self.datetime(2015, 1, 1, 8, 59)
+        assert SingleScheduleManipulator.can_trigger(owner) is None
+        SingleScheduleManipulator._now = self.datetime(2015, 1, 1, 9, 59)
+        assert SingleScheduleManipulator.can_trigger(owner) is not None
+
+    def test_dont_trigger_exceeding_acceptable_range(self, owner):
+        class SingleScheduleManipulator(base.ScheduledManipulator):
+            schedules = classmethod(lambda cls: [datetime.time(9, 0)])
+            acceptable_delay = classmethod(
+                lambda cls: datetime.timedelta(hours=1))
+            run = lambda: None
+        SingleScheduleManipulator._now = self.datetime(2015, 1, 1, 8, 59)
+        assert SingleScheduleManipulator.can_trigger(owner) is None
+        SingleScheduleManipulator._now = self.datetime(2015, 1, 1, 10, 0)
+        assert SingleScheduleManipulator.can_trigger(owner) is None
+
     def test_trigger_for_wanted_object(self, owner):
         class WantingScheduleManipulator(base.ScheduledManipulator):
             schedules = classmethod(lambda cls: [datetime.time(9, 0)])

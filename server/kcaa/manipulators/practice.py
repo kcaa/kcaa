@@ -172,6 +172,10 @@ class AutoHandleAllPractices(base.ScheduledManipulator):
                 datetime.time(14, 0)]
 
     @classmethod
+    def acceptable_delay(cls):
+        return datetime.timedelta(hours=1)
+
+    @classmethod
     def precondition(cls, owner):
         return screens.in_category(owner.screen_id, screens.PORT)
 
