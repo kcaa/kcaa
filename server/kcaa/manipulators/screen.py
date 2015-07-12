@@ -469,9 +469,13 @@ class PortQuestScreen(PortScreen):
             yield 3.0
             last_generation = self.screen_generation
             # There may be multiple clear item screens.
-            while self.screen_generation == last_generation:
+            for i in xrange(20):
+                if self.screen_generation > last_generation:
+                    break
                 self.click(400, 405)
                 yield 3.0
+            else:
+                raise Exception('Too many clear items for a usual quest.')
         return self.do_task(complete_quest_task)
 
     def click_page(self, position):
