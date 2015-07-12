@@ -2,6 +2,7 @@
 
 import datetime
 import logging
+import random
 import time
 
 import base
@@ -29,6 +30,12 @@ class AutoCheckMissionResult(base.AutoManipulator):
     # seconds earlier than that and takes 10 seconds of buffer.
     precursor_duration = 60000
     precursor_extra = 5000
+
+    # Parameters to the gamma distribution that decides the wait duration.
+    alpha = 5.0
+    beta = 120.0
+    max_wait_sec = 1800.0
+    next_update = None
 
     # Verbose logging.
     verbose = False
@@ -70,14 +77,30 @@ class AutoCheckMissionResult(base.AutoManipulator):
         return ['MissionList']
 
     @classmethod
+    def precondition(cls, owner):
+        return screens.in_category(owner.screen_id, screens.PORT)
+
+    @classmethod
     def can_trigger(cls, owner):
-        if not screens.in_category(owner.screen_id, screens.PORT):
+        now = long(1000 * time.time())
+        if cls.next_update and now < cls.next_update:
             return
         mission_list = owner.objects['MissionList']
-        now = long(1000 * time.time())
         count, _ = AutoCheckMissionResult.check_missions(mission_list, now)
-        if count != 0:
-            return {}
+        if count == 0:
+            cls.next_update = None
+            return
+        if not cls.next_update:
+            wait_sec = random.gammavariate(AutoCheckMissionResult.alpha,
+                                           AutoCheckMissionResult.beta)
+            wait_sec = min(wait_sec, AutoCheckMissionResult.max_wait_sec)
+            cls.next_update = now + long(1000 * wait_sec)
+            logger.debug(
+                'Completed mission detected. Will check after the random '
+                'delay {}.'.format(datetime.timedelta(seconds=wait_sec)))
+            return
+        cls.next_update = None
+        return {}
 
     def run(self):
         mission_list = self.objects['MissionList']
