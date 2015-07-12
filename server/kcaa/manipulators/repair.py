@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
+import datetime
 import logging
+import random
 import time
 
 import base
@@ -159,6 +161,12 @@ class AutoCheckRepairResult(base.AutoManipulator):
     # of repair does not block anything.
     precursor_duration = 60000
 
+    # Parameters to the gamma distribution that decides the wait duration.
+    alpha = 5.0
+    beta = 120.0
+    max_wait_sec = 1800.0
+    next_update = None
+
     @classmethod
     def required_objects(cls):
         return ['RepairDock']
@@ -177,11 +185,25 @@ class AutoCheckRepairResult(base.AutoManipulator):
 
     @classmethod
     def can_trigger(cls, owner):
-        repair_dock = owner.objects['RepairDock']
         now = long(1000 * time.time())
-        if AutoCheckRepairResult.get_slots_to_check(
+        if cls.next_update and now < cls.next_update:
+            return
+        repair_dock = owner.objects['RepairDock']
+        if not AutoCheckRepairResult.get_slots_to_check(
                 repair_dock, cls.precursor_duration, now):
-            return {}
+            cls.next_update = None
+            return
+        if not cls.next_update:
+            wait_sec = random.gammavariate(AutoCheckRepairResult.alpha,
+                                           AutoCheckRepairResult.beta)
+            wait_sec = min(wait_sec, AutoCheckRepairResult.max_wait_sec)
+            cls.next_update = now + long(1000 * wait_sec)
+            logger.debug(
+                'Completed repair detected. Will check after the random '
+                'delay {}.'.format(datetime.timedelta(seconds=wait_sec)))
+            return
+        cls.next_update = None
+        return {}
 
     def run(self):
         repair_dock = self.objects['RepairDock']
