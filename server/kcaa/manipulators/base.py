@@ -2,6 +2,7 @@
 
 import datetime
 import logging
+import random
 
 from kcaa import task
 
@@ -227,13 +228,37 @@ class AutoManipulator(Manipulator):
         return None
 
 
+class GammaDistributedRandomDelayParams(object):
+    """Parameters for a random delay governed by the gamma distribution.
+
+    See the details of the gamma distribution at
+    https://en.wikipedia.org/wiki/Gamma_distribution
+
+    :param float alpha: Alpha (or k) parameter of the gamma distribution.
+    :param float beta: Beta (or theta) parameter of the gamma distribution.
+    :param float max_wait_sec: Maximum seconds to wait.
+    """
+
+    def __init__(self, alpha, beta, max_wait_sec):
+        assert alpha > 0.0
+        assert beta > 0.0
+        assert max_wait_sec >= 0.0
+        self.alpha = alpha
+        self.beta = beta
+        self.max_wait_sec = max_wait_sec
+
+
 class ScheduledManipulator(AutoManipulator):
 
     # Function to get the current datetime.
     # Inject some lambda to test this class.
     _now = datetime.datetime.now
+    # Random object to get the gammavariate.
+    # Inject some mock to test this class.
+    _rand = random
 
     next_update = None
+    random_delay = None
 
     @classmethod
     def schedules(cls):
@@ -254,6 +279,15 @@ class ScheduledManipulator(AutoManipulator):
         return datetime.timedelta(days=1)
 
     @classmethod
+    def random_delay_params(cls):
+        """Parameters for random delays.
+
+        If not None, this should return a
+        :class:`GammaDistributedRandomDelayParams`.
+        """
+        return None
+
+    @classmethod
     def wanted_objects(cls):
         """Wanted object names.
 
@@ -272,7 +306,7 @@ class ScheduledManipulator(AutoManipulator):
             return
         within_acceptable_range = (
             not cls.next_update or
-            now < cls.next_update + cls.acceptable_delay())
+            now < cls.next_update - cls.random_delay + cls.acceptable_delay())
         t = now.time()
         for next_schedule in cls.schedules():
             if t < next_schedule:
@@ -282,8 +316,18 @@ class ScheduledManipulator(AutoManipulator):
         else:
             cls.next_update = datetime.datetime.combine(
                 now.date() + datetime.timedelta(days=1), cls.schedules()[0])
+        if cls.random_delay_params():
+            delay_params = cls.random_delay_params()
+            wait_sec = cls._rand.gammavariate(delay_params.alpha,
+                                              delay_params.beta)
+            cls.random_delay = datetime.timedelta(
+                seconds=int(min(wait_sec, delay_params.max_wait_sec)))
+        else:
+            cls.random_delay = datetime.timedelta()
+        cls.next_update += cls.random_delay
         logger.debug(
-            'Next {} is scheduled at {}'.format(cls.__name__, cls.next_update))
+            'Next {} is scheduled at {} (including random delay {})'.format(
+                cls.__name__, cls.next_update, cls.random_delay))
         if ((not initial_run and within_acceptable_range) or
                 any([obj not in owner.objects for obj in
                      cls.wanted_objects()])):

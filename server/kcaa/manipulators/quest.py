@@ -63,7 +63,11 @@ class AutoCheckQuests(base.ScheduledManipulator):
 
     @classmethod
     def schedules(cls):
-        return [datetime.time(5, 5)]
+        return [datetime.time(5, 0)]
+
+    @classmethod
+    def random_delay_params(cls):
+        return base.GammaDistributedRandomDelayParams(10.0, 30.0, 1800)
 
     @classmethod
     def wanted_objects(cls):

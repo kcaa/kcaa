@@ -302,6 +302,105 @@ class TestScheduledManipulator(object):
         assert SingleScheduleManipulator.can_trigger(owner) is None
         SingleScheduleManipulator._now = self.datetime(2015, 1, 1, 10, 0)
         assert SingleScheduleManipulator.can_trigger(owner) is None
+        # Try for the next schedule.
+        SingleScheduleManipulator._now = self.datetime(2015, 1, 2, 8, 59)
+        assert SingleScheduleManipulator.can_trigger(owner) is None
+        SingleScheduleManipulator._now = self.datetime(2015, 1, 2, 9, 0)
+        assert SingleScheduleManipulator.can_trigger(owner) is not None
+
+    def test_trigger_random_delay(self, owner):
+        class SingleScheduleManipulator(base.ScheduledManipulator):
+            schedules = classmethod(lambda cls: [datetime.time(9, 0)])
+            random_delay_params = classmethod(
+                lambda cls: base.GammaDistributedRandomDelayParams(
+                    1.0, 2.0, 60))
+            run = lambda: None
+
+        class MockRandom(object):
+            def gammavariate(self, alpha, beta):
+                assert alpha == 1.0
+                assert beta == 2.0
+                return 3
+
+        SingleScheduleManipulator._now = self.datetime(2015, 1, 1, 8, 59, 0)
+        SingleScheduleManipulator._rand = MockRandom()
+        assert SingleScheduleManipulator.can_trigger(owner) is None
+        SingleScheduleManipulator._now = self.datetime(2015, 1, 1, 9, 0, 0)
+        assert SingleScheduleManipulator.can_trigger(owner) is None
+        SingleScheduleManipulator._now = self.datetime(2015, 1, 1, 9, 0, 2)
+        assert SingleScheduleManipulator.can_trigger(owner) is None
+        SingleScheduleManipulator._now = self.datetime(2015, 1, 1, 9, 0, 3)
+        assert SingleScheduleManipulator.can_trigger(owner) is not None
+
+    def test_trigger_random_delay_max_delay_capped(self, owner):
+        class SingleScheduleManipulator(base.ScheduledManipulator):
+            schedules = classmethod(lambda cls: [datetime.time(9, 0)])
+            random_delay_params = classmethod(
+                lambda cls: base.GammaDistributedRandomDelayParams(
+                    10.0, 20.0, 60))
+            run = lambda: None
+
+        class MockRandom(object):
+            def gammavariate(self, alpha, beta):
+                assert alpha == 10.0
+                assert beta == 20.0
+                return 200
+
+        SingleScheduleManipulator._now = self.datetime(2015, 1, 1, 8, 59, 0)
+        SingleScheduleManipulator._rand = MockRandom()
+        assert SingleScheduleManipulator.can_trigger(owner) is None
+        SingleScheduleManipulator._now = self.datetime(2015, 1, 1, 9, 0, 0)
+        assert SingleScheduleManipulator.can_trigger(owner) is None
+        SingleScheduleManipulator._now = self.datetime(2015, 1, 1, 9, 0, 59)
+        assert SingleScheduleManipulator.can_trigger(owner) is None
+        SingleScheduleManipulator._now = self.datetime(2015, 1, 1, 9, 1, 0)
+        assert SingleScheduleManipulator.can_trigger(owner) is not None
+
+    def test_trigger_random_delay_but_within_acceptable_range(self, owner):
+        class SingleScheduleManipulator(base.ScheduledManipulator):
+            schedules = classmethod(lambda cls: [datetime.time(9, 0)])
+            acceptable_delay = classmethod(
+                lambda cls: datetime.timedelta(seconds=60))
+            random_delay_params = classmethod(
+                lambda cls: base.GammaDistributedRandomDelayParams(
+                    10.0, 20.0, 120))
+            run = lambda: None
+
+        class MockRandom(object):
+            def gammavariate(self, alpha, beta):
+                return 59
+
+        SingleScheduleManipulator._now = self.datetime(2015, 1, 1, 8, 59, 0)
+        SingleScheduleManipulator._rand = MockRandom()
+        assert SingleScheduleManipulator.can_trigger(owner) is None
+        SingleScheduleManipulator._now = self.datetime(2015, 1, 1, 9, 0, 0)
+        assert SingleScheduleManipulator.can_trigger(owner) is None
+        SingleScheduleManipulator._now = self.datetime(2015, 1, 1, 9, 0, 59)
+        assert SingleScheduleManipulator.can_trigger(owner) is not None
+
+    def test_dont_trigger_random_delay_exceeding_acceptable_range(self, owner):
+        class SingleScheduleManipulator(base.ScheduledManipulator):
+            schedules = classmethod(lambda cls: [datetime.time(9, 0)])
+            acceptable_delay = classmethod(
+                lambda cls: datetime.timedelta(seconds=60))
+            random_delay_params = classmethod(
+                lambda cls: base.GammaDistributedRandomDelayParams(
+                    10.0, 20.0, 120))
+            run = lambda: None
+
+        class MockRandom(object):
+            def gammavariate(self, alpha, beta):
+                return 60
+
+        SingleScheduleManipulator._now = self.datetime(2015, 1, 1, 8, 59, 0)
+        SingleScheduleManipulator._rand = MockRandom()
+        assert SingleScheduleManipulator.can_trigger(owner) is None
+        SingleScheduleManipulator._now = self.datetime(2015, 1, 1, 9, 0, 0)
+        assert SingleScheduleManipulator.can_trigger(owner) is None
+        SingleScheduleManipulator._now = self.datetime(2015, 1, 1, 9, 0, 59)
+        assert SingleScheduleManipulator.can_trigger(owner) is None
+        SingleScheduleManipulator._now = self.datetime(2015, 1, 1, 9, 1, 0)
+        assert SingleScheduleManipulator.can_trigger(owner) is None
 
     def test_trigger_for_wanted_object(self, owner):
         class WantingScheduleManipulator(base.ScheduledManipulator):

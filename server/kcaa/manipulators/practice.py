@@ -35,8 +35,12 @@ class AutoCheckPracticeOpponents(base.ScheduledManipulator):
 
     @classmethod
     def schedules(cls):
-        return [datetime.time(3, 5),
-                datetime.time(15, 5)]
+        return [datetime.time(3, 0),
+                datetime.time(15, 0)]
+
+    @classmethod
+    def random_delay_params(cls):
+        return base.GammaDistributedRandomDelayParams(10.0, 30.0, 1800)
 
     @classmethod
     def wanted_objects(cls):
@@ -168,12 +172,16 @@ class AutoHandleAllPractices(base.ScheduledManipulator):
 
     @classmethod
     def schedules(cls):
-        return [datetime.time(2, 0),
-                datetime.time(14, 0)]
+        return [datetime.time(1, 0),
+                datetime.time(13, 0)]
+
+    @classmethod
+    def random_delay_params(cls):
+        return base.GammaDistributedRandomDelayParams(30.0, 60.0, 3600)
 
     @classmethod
     def acceptable_delay(cls):
-        return datetime.timedelta(hours=1)
+        return datetime.timedelta(minutes=90)
 
     @classmethod
     def precondition(cls, owner):
