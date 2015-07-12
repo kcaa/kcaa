@@ -533,10 +533,6 @@ class AutoGoOnExpedition(base.AutoManipulator):
                 'EquipmentDefinitionList', 'RepairDock', 'PlayerResources']
 
     @classmethod
-    def run_only_when_idle(cls):
-        return True
-
-    @classmethod
     def precondition(cls, owner):
         return screens.in_category(owner.screen_id, screens.PORT)
 
@@ -547,14 +543,12 @@ class AutoGoOnExpedition(base.AutoManipulator):
         fleet_list = owner.objects['FleetList']
         equipment_list = owner.objects['EquipmentList']
         equipment_def_list = owner.objects['EquipmentDefinitionList']
-        repair_dock = owner.objects['RepairDock']
         resources = owner.objects['PlayerResources']
         preferences = owner.manager.preferences
         recently_used_equipments = (
             owner.manager.states['RecentlyUsedEquipments'])
         # Runs only when there are small enough amount of ships to repair or
         # warm up.
-        empty_slots = [slot for slot in repair_dock.slots if not slot.in_use]
         ships_to_repair = [s for s in ship_list.repairable_ships(fleet_list) if
                            not can_warm_up(s)]
         ships_to_warm_up = [s for s in ship_list.ships.itervalues() if
@@ -743,10 +737,6 @@ class AutoWarmUpIdleShips(base.AutoManipulator):
     @classmethod
     def monitored_objects(cls):
         return ['ShipList', 'FleetList', 'RepairDock']
-
-    @classmethod
-    def run_only_when_idle(cls):
-        return True
 
     @classmethod
     def precondition(cls, owner):
