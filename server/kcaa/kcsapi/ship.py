@@ -264,51 +264,61 @@ class ShipDefinitionList(model.KCAAObject):
             # Maps are always keyed by string in JSON, so it's safer to key
             # string here. This is required to make this object usable with
             # KCSAPI handler's serialization/deserialization mechanism.
-            self.ships[str(data.api_id)] = ShipDefinition(
-                id=data.api_id,
-                name=data.api_name,
-                ship_type=data.api_stype,
-                rarity=data.api_backs,
-                resource_capacity=resource.Resource(
-                    fuel=data.api_fuel_max,
-                    ammo=data.api_bull_max),
-                armor=Variable(
-                    baseline=data.api_souk[0],
-                    maximum=data.api_souk[1]),
-                firepower=Variable(
-                    baseline=data.api_houg[0],
-                    maximum=data.api_houg[1]),
-                thunderstroke=Variable(
-                    baseline=data.api_raig[0],
-                    maximum=data.api_raig[1]),
-                anti_air=Variable(
-                    baseline=data.api_tyku[0],
-                    maximum=data.api_tyku[1]),
-                luck=Variable(
-                    baseline=data.api_luck[0],
-                    maximum=data.api_luck[1]),
-                aircraft_capacity=sum(data.api_maxeq),
-                aircraft_slot_capacity=data.api_maxeq,
-                speed=data.api_soku,
-                firing_range=data.api_leng,
-                slot_count=data.api_slot_num,
-                build_time=data.api_buildtime,
-                upgrade_to=int(data.api_aftershipid),
-                upgrade_level=data.api_afterlv,
-                upgrade_resource=resource.Resource(
-                    fuel=data.api_afterfuel,
-                    ammo=data.api_afterbull),
-                upgrade_blueprints=required_blueprints.get(
-                    int(data.api_aftershipid), 0),
-                rebuilding_material=AbilityEnhancement(
-                    firepower=data.api_powup[0],
-                    thunderstroke=data.api_powup[1],
-                    anti_air=data.api_powup[2],
-                    armor=data.api_powup[3]),
-                additional_loadable_equipment_types=(
-                    ADDITIONAL_LOADABLE_EQUIPMENT_TYPES.get(
-                        data.api_id, [])),
-                sort_order=data.api_sortno)
+            if data.api_id <= 500:
+                # Player ships.
+                self.ships[str(data.api_id)] = ShipDefinition(
+                    id=data.api_id,
+                    name=data.api_name,
+                    ship_type=data.api_stype,
+                    rarity=data.api_backs,
+                    resource_capacity=resource.Resource(
+                        fuel=data.api_fuel_max,
+                        ammo=data.api_bull_max),
+                    armor=Variable(
+                        baseline=data.api_souk[0],
+                        maximum=data.api_souk[1]),
+                    firepower=Variable(
+                        baseline=data.api_houg[0],
+                        maximum=data.api_houg[1]),
+                    thunderstroke=Variable(
+                        baseline=data.api_raig[0],
+                        maximum=data.api_raig[1]),
+                    anti_air=Variable(
+                        baseline=data.api_tyku[0],
+                        maximum=data.api_tyku[1]),
+                    luck=Variable(
+                        baseline=data.api_luck[0],
+                        maximum=data.api_luck[1]),
+                    aircraft_capacity=sum(data.api_maxeq),
+                    aircraft_slot_capacity=data.api_maxeq,
+                    speed=data.api_soku,
+                    firing_range=data.api_leng,
+                    slot_count=data.api_slot_num,
+                    build_time=data.api_buildtime,
+                    upgrade_to=int(data.api_aftershipid),
+                    upgrade_level=data.api_afterlv,
+                    upgrade_resource=resource.Resource(
+                        fuel=data.api_afterfuel,
+                        ammo=data.api_afterbull),
+                    upgrade_blueprints=required_blueprints.get(
+                        int(data.api_aftershipid), 0),
+                    rebuilding_material=AbilityEnhancement(
+                        firepower=data.api_powup[0],
+                        thunderstroke=data.api_powup[1],
+                        anti_air=data.api_powup[2],
+                        armor=data.api_powup[3]),
+                    additional_loadable_equipment_types=(
+                        ADDITIONAL_LOADABLE_EQUIPMENT_TYPES.get(
+                            data.api_id, [])),
+                    sort_order=data.api_sortno)
+            else:
+                # Enemy ships.
+                self.ships[str(data.api_id)] = ShipDefinition(
+                    id=data.api_id,
+                    name=data.api_name,
+                    ship_type=data.api_stype,
+                    speed=data.api_soku,
+                    slot_count=data.api_slot_num)
             # Unknown fields:
             #   api_houm: Fire hit probability? (HOUgeki Meichu)
             #   api_houk: Fire avoiding probability? (HOUgeki Kaihi)
