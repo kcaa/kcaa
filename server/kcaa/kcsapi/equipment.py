@@ -428,9 +428,10 @@ class EquipmentList(model.KCAAObject):
 
     def update_unsetslot(self, equipment_def_list, data):
         for equipment_type in equipment_def_list.types:
-            equipment_ids = getattr(
-                data,
-                'api_slottype{}'.format(equipment_type.id))
+            name = 'api_slottype{}'.format(equipment_type.id)
+            if not hasattr(data, name):
+                continue
+            equipment_ids = getattr(data, name)
             if equipment_ids == -1:
                 continue
             # Usually unsetslot happens after slot_item, however, when a
