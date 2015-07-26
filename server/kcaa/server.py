@@ -1,3 +1,4 @@
+import Queue
 import SimpleHTTPServer
 import SocketServer
 import json
@@ -8,6 +9,9 @@ import urlparse
 
 import controller
 import logenv
+
+
+CONTROLLER_QUEUE_TIMEOUT_SEC = 10
 
 
 class KCAAHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
@@ -141,11 +145,13 @@ class KCAAHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                 command_args[key] = values[0]
             else:
                 command_args[key] = values
-        self.server.controller_conn.send((controller.COMMAND_REQUEST_OBJECT,
-                                          (command_type, command_args)))
+        self.server.controller_queue_out.put(
+            (controller.COMMAND_REQUEST_OBJECT,
+             (command_type, command_args)))
         try:
-            obj = self.server.controller_conn.recv()
-        except EOFError:
+            obj = self.server.controller_queue_in.get(
+                timeout=CONTROLLER_QUEUE_TIMEOUT_SEC)
+        except Queue.Empty:
             self.send_error(500, 'Controller process does not respond')
             return
         if obj:
@@ -167,14 +173,15 @@ class KCAAHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         except KeyError:
             self.send_error(400, 'Missing parameter: x or y')
             return
-        self.server.controller_conn.send((controller.COMMAND_CLICK, (x, y)))
+        self.server.controller_queue_out.put(
+            (controller.COMMAND_CLICK, (x, y)))
         self.send_response(200)
         self.send_header('Content-Type', 'text/plain')
         self.end_headers()
         self.wfile.write('success')
 
     def handle_reload_kcsapi(self, o):
-        self.server.controller_conn.send(
+        self.server.controller_queue_out.put(
             (controller.COMMAND_RELOAD_KCSAPI, None))
         self.send_response(200)
         self.send_header('Content-Type', 'text/plain')
@@ -182,7 +189,7 @@ class KCAAHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         self.wfile.write('success')
 
     def handle_reload_manipulators(self, o):
-        self.server.controller_conn.send(
+        self.server.controller_queue_out.put(
             (controller.COMMAND_RELOAD_MANIPULATORS, None))
         self.send_response(200)
         self.send_header('Content-Type', 'text/plain')
@@ -206,8 +213,8 @@ class KCAAHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                 command_args[key] = values[0]
             else:
                 command_args[key] = values
-        self.server.controller_conn.send((controller.COMMAND_MANIPULATE,
-                                          (command_type, command_args)))
+        self.server.controller_queue_out.put((controller.COMMAND_MANIPULATE,
+                                              (command_type, command_args)))
         self.send_response(200)
         self.send_header('Content-Type', 'text/plain')
         self.end_headers()
@@ -224,7 +231,7 @@ class KCAAHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         except KeyError:
             self.send_error(400, 'Missing parameter: prefs')
             return
-        self.server.controller_conn.send(
+        self.server.controller_queue_out.put(
             (controller.COMMAND_SET_PREFERENCES, (preferences_string,)))
         self.send_response(200)
         self.send_header('Content-Type', 'text/plain')
@@ -240,12 +247,13 @@ class KCAAHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         quality = int(queries.get('quality', [50])[0])
         width = int(queries.get('width', [0])[0])
         height = int(queries.get('height', [0])[0])
-        self.server.controller_conn.send(
+        self.server.controller_queue_out.put(
             (controller.COMMAND_TAKE_SCREENSHOT,
              (format, quality, width, height)))
         try:
-            screenshot = self.server.controller_conn.recv()
-        except EOFError:
+            screenshot = self.server.controller_queue_in.get(
+                timeout=CONTROLLER_QUEUE_TIMEOUT_SEC)
+        except Queue.Empty:
             self.send_error(500, 'Controller process does not respond')
             return
         self.send_response(200)
@@ -304,11 +312,12 @@ def setup(args, logger):
                 format(port, args.frontend_update_interval,
                        'true' if args.show_kancolle_screen else 'false',
                        'true' if args.debug else 'false'))
-    logger.info('KCAA client ready at {}'.format(root_url))
+    logger.info('KCAA server ready at {}'.format(root_url))
     return httpd, root_url
 
 
-def handle_server(args, to_exit, controller_conn, object_queue):
+def handle_server(args, controller_queue_in, controller_queue_out,
+                  object_queue, to_exit):
     httpd = None
     try:
         logenv.setup_logger(args.debug, args.log_file, args.log_level,
@@ -320,9 +329,14 @@ def handle_server(args, to_exit, controller_conn, object_queue):
         httpd, root_url = setup(args, logger)
         httpd.new_objects = set()
         httpd.objects = {}
-        httpd.controller_conn = controller_conn
-        controller_conn.send(root_url)
+        httpd.controller_queue_in = controller_queue_in
+        httpd.controller_queue_out = controller_queue_out
         httpd.timeout = args.backend_update_interval
+        controller_queue_out.put(root_url)
+        try:
+            assert controller_queue_in.get(timeout=300.0)
+        except Queue.Empty:
+            raise Exception('Controller did not initialize in 5 minutes.')
         while True:
             httpd.handle_request()
             if to_exit.wait(0.0):
@@ -337,6 +351,9 @@ def handle_server(args, to_exit, controller_conn, object_queue):
         logger.info('SIGINT received in the server process. Exiting...')
     except:
         logger.error(traceback.format_exc())
+    finally:
+        controller_queue_in.close()
+        controller_queue_out.close()
+        if httpd:
+            httpd.server_close()
     to_exit.set()
-    if httpd:
-        httpd.server_close()

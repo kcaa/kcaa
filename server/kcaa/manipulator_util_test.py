@@ -13,9 +13,9 @@ SF = kcsapi.prefs.ScheduleFragment
 logger = logenv.setup_logger_for_test()
 
 
-class MockConnection(object):
+class MockQueue(object):
 
-    def send(self, value):
+    def put(self, value):
         pass
 
 
@@ -35,7 +35,7 @@ class TestScreenManager(object):
         }
         states = {}
         manipulator_manager = manipulator_util.ManipulatorManager(
-            MockConnection(), objects, states, kcsapi.prefs.Preferences(), 0)
+            MockQueue(), objects, states, kcsapi.prefs.Preferences(), 0)
         return manipulator_util.ScreenManager(manipulator_manager)
 
     def test_current_screen_id(self, manager):
@@ -73,7 +73,7 @@ class TestManipulatorManager(object):
         }
         states = {}
         manager = manipulator_util.ManipulatorManager(
-            MockConnection(), objects, states, kcsapi.prefs.Preferences(), 0)
+            MockQueue(), objects, states, kcsapi.prefs.Preferences(), 0)
         manager.manipulators = {
             'MockManipulator': MockManipulator,
         }

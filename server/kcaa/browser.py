@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import Queue
 import cStringIO
 import logging
 import os.path
@@ -255,12 +256,16 @@ def perform_actions(actions):
     return False
 
 
-def setup_kancolle_browser(args, controller_conn, to_exit, browser_broken):
+def setup_kancolle_browser(args, controller_queue_in, controller_queue_out,
+                           to_exit, browser_broken):
+    monitor = None
     try:
         logenv.setup_logger(args.debug, args.log_file, args.log_level,
                             args.keep_timestamped_logs)
         monitor = BrowserMonitor(
             'Kancolle', open_kancolle_browser(args), 3)
+        # Signals the browser is ready.
+        controller_queue_out.put(True)
         game_frame, dx, dy, game_area_rect = None, None, None, None
         covered = False
         while True:
@@ -274,8 +279,8 @@ def setup_kancolle_browser(args, controller_conn, to_exit, browser_broken):
                 # that the user wants to exit the game.
                 break
             if game_frame:
-                while controller_conn.poll(1.0):
-                    command_type, command_args = controller_conn.recv()
+                try:
+                    command_type, command_args = controller_queue_in.get(timeout=1.0)
                     if command_type == COMMAND_CLICK:
                         x, y = command_args
                         x += dx
@@ -351,13 +356,15 @@ def setup_kancolle_browser(args, controller_conn, to_exit, browser_broken):
                                 e.alert_text))
                             logger.debug(str(e))
                         finally:
-                            controller_conn.send(response)
+                            controller_queue_out.put(response)
                             if im_buffer:
                                 im_buffer.close()
                     else:
                         raise ValueError(
                             'Unknown browser command: type = {}, args = {}'
                             .format(command_type, command_args))
+                except Queue.Empty:
+                    pass
             else:
                 game_frame, dx, dy, game_area_rect = get_game_frame(
                     browser, args.debug)
@@ -368,12 +375,15 @@ def setup_kancolle_browser(args, controller_conn, to_exit, browser_broken):
     except exceptions.NoSuchWindowException:
         logger.error('Kancolle window seems to have been killed.')
         browser_broken.set()
-        monitor.close()
         return
     except:
         logger.error(traceback.format_exc())
+    finally:
+        controller_queue_in.close()
+        controller_queue_out.close()
+        if monitor:
+            monitor.close()
     to_exit.set()
-    monitor.close()
 
 
 def open_kcaa_browser(args, root_url):
@@ -393,6 +403,7 @@ def open_kcaa_browser(args, root_url):
 
 
 def setup_kcaa_browser(args, root_url, to_exit):
+    monitor = None
     try:
         logenv.setup_logger(args.debug, args.log_file, args.log_level,
                             args.keep_timestamped_logs)
@@ -416,7 +427,8 @@ def setup_kcaa_browser(args, root_url, to_exit):
     except:
         logger.error(traceback.format_exc())
     to_exit.set()
-    monitor.close()
+    if monitor:
+        monitor.close()
 
 
 class BrowserMonitor(object):

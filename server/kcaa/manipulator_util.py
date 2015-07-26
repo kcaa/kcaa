@@ -24,7 +24,7 @@ class ScreenManager(object):
         self.objects = manipulator_manager.objects
         self.states = manipulator_manager.states
         self.updated_object_types = manipulator_manager.updated_object_types
-        self.browser_conn = manipulator_manager.browser_conn
+        self.browser_queue = manipulator_manager.browser_queue
         self.task_manager = manipulator_manager.task_manager
         self._last_screen_id = screens.UNKNOWN
         self._current_screen = manipulators.screen.Screen(self)
@@ -82,16 +82,16 @@ class ScreenManager(object):
         }
 
     def click(self, x, y):
-        self.browser_conn.send((browser.COMMAND_CLICK, (x, y)))
+        self.browser_queue.put((browser.COMMAND_CLICK, (x, y)))
 
     def click_hold(self, x, y):
-        self.browser_conn.send((browser.COMMAND_CLICK_HOLD, (x, y)))
+        self.browser_queue.put((browser.COMMAND_CLICK_HOLD, (x, y)))
 
     def click_release(self, x, y):
-        self.browser_conn.send((browser.COMMAND_CLICK_RELEASE, (x, y)))
+        self.browser_queue.put((browser.COMMAND_CLICK_RELEASE, (x, y)))
 
     def move_mouse(self, x, y):
-        self.browser_conn.send((browser.COMMAND_MOVE_MOUSE, (x, y)))
+        self.browser_queue.put((browser.COMMAND_MOVE_MOUSE, (x, y)))
 
     def add_task(self, t):
         return self.task_manager.add(t)
@@ -137,9 +137,9 @@ class ManipulatorManager(object):
     """Creates Kancolle manipulator, which assists user interaction by
     manipulating the Kancolle player (Flash) programatically."""
 
-    def __init__(self, browser_conn, objects, states, preferences, epoch):
+    def __init__(self, browser_queue, objects, states, preferences, epoch):
         self._logger = logging.getLogger('kcaa.manipulator_util')
-        self.browser_conn = browser_conn
+        self.browser_queue = browser_queue
         self.preferences = preferences
         self.objects = objects
         self.states = states
@@ -541,12 +541,12 @@ class ManipulatorManager(object):
             self.current_task = t
             t.resume()
             if not self.last_task:
-                self.browser_conn.send((browser.COMMAND_COVER, (True,)))
+                self.browser_queue.put((browser.COMMAND_COVER, (True,)))
                 self.leave_port()
             self.update_running_manipulators()
         else:
             if self.last_task:
-                self.browser_conn.send((browser.COMMAND_COVER, (False,)))
+                self.browser_queue.put((browser.COMMAND_COVER, (False,)))
                 self.rmo.running_manipulator = None
                 self.rmo.manipulators_in_queue = []
                 self.rmo.generation += 1

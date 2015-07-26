@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import Queue
 import logging
 import multiprocessing
 import os.path
@@ -25,10 +26,12 @@ COMMAND_SET_PREFERENCES = 'set_preferences'
 
 # Default wait in seconds before starting in case of network errors.
 # If a restart failed, this will be doubled each time.
-DEFAULT_RESTART_WAIT_SEC = 6
+DEFAULT_RESTART_WAIT_SEC = 60
 # If this duration in seconds passed after a restart, the last restart is
 # considered as a success.
 HEALTHY_DURATION_FOR_RESTART_SUCCESS_SEC = 600
+
+BROWSER_QUEUE_TIMEOUT_SEC = 10
 
 
 class DummyProcess(object):
@@ -83,48 +86,56 @@ class ControllerState(object):
         self.to_exit.clear()
         self.preferences = load_preferences(self.args, self.logger)
         har_manager = proxy_util.HarManager(self.args, 3.0)
-        self.controller_conn_for_server, self.server_conn = (
-            multiprocessing.Pipe())
+        self.server_queue_in = multiprocessing.Queue()
+        self.server_queue_out = multiprocessing.Queue()
         self.object_queue = multiprocessing.Queue()
         self.server_process = multiprocessing.Process(
             target=server.handle_server,
-            args=(self.args, self.to_exit, self.controller_conn_for_server,
-                  self.object_queue))
+            args=(self.args, self.server_queue_out, self.server_queue_in,
+                  self.object_queue, self.to_exit))
         self.server_process.start()
         self.object_queue.put(
             (True, self.preferences.object_type, self.preferences.json()))
-        if not self.server_conn.poll(3.0):
-            raise Exception('Server is not responding. Shutting down.')
-        root_url = self.server_conn.recv()
-        self.controller_conn_for_browser, self.browser_conn = (
-            multiprocessing.Pipe())
+        try:
+            root_url = self.server_queue_in.get(timeout=60.0)
+        except Queue.Empty:
+            raise Exception('Server did not initilize in 60 seconds.')
+        self.browser_queue_in = multiprocessing.Queue()
+        self.browser_queue_out = multiprocessing.Queue()
         self.browser_broken = multiprocessing.Event()
         self.kancolle_browser_process = multiprocessing.Process(
             target=browser.setup_kancolle_browser,
-            args=(self.args, self.controller_conn_for_browser, self.to_exit,
-                  self.browser_broken))
+            args=(self.args, self.browser_queue_out, self.browser_queue_in,
+                  self.to_exit, self.browser_broken))
+        self.kancolle_browser_process.start()
         self.kcaa_browser_process = multiprocessing.Process(
             target=browser.setup_kcaa_browser,
             args=(self.args, root_url, self.to_exit))
-        self.kancolle_browser_process.start()
         self.kcaa_browser_process.start()
         self.kcsapi_handler = kcsapi_util.KCSAPIHandler(
             har_manager, self.args.journal_basedir, self.args.state_basedir,
             self.args.debug)
         self.kcsapi_handler.update_preferences(self.preferences)
         self.manipulator_manager = manipulator_util.ManipulatorManager(
-            self.browser_conn, self.kcsapi_handler.objects,
+            self.browser_queue_out, self.kcsapi_handler.objects,
             self.kcsapi_handler.loaded_states, self.preferences, time.time())
+        try:
+            assert self.browser_queue_in.get(timeout=60.0)
+        except Queue.Empty:
+            raise Exception('Browser did not initialize in 60 seconds.')
+        # Signals the server to start handling requests.
+        self.server_queue_out.put(True)
         self.initialized = True
 
     def teardown(self):
         self.to_exit.set()
         if not self.initialized:
             return
-        self.server_conn.close()
-        self.controller_conn_for_server.close()
-        self.browser_conn.close()
-        self.controller_conn_for_browser.close()
+        self.server_queue_in.close()
+        self.server_queue_out.close()
+        self.object_queue.close()
+        self.browser_queue_in.close()
+        self.browser_queue_out.close()
         self.server_process.join()
         self.kancolle_browser_process.join()
         self.kcaa_browser_process.join()
@@ -151,82 +162,101 @@ def control(args, to_exit):
             if to_exit.wait(0.0):
                 logger.info('Controller got an exit signal. Shutting down.')
                 break
-            while state.server_conn.poll():
-                command_type, command_args = state.server_conn.recv()
-                if command_type == COMMAND_REQUEST_OBJECT:
-                    try:
-                        requestable = kcsapi_handler.request(command_args)
-                        if requestable:
-                            if isinstance(requestable, str):
-                                state.server_conn.send(requestable)
+            try:
+                while True:
+                    command_type, command_args = state.server_queue_in.get(
+                        block=False)
+                    # TODO: Refactor this block out to a function.
+                    # Too much nested.
+                    if command_type == COMMAND_REQUEST_OBJECT:
+                        try:
+                            requestable = kcsapi_handler.request(command_args)
+                            if requestable:
+                                if isinstance(requestable, str):
+                                    state.server_queue_out.put(requestable)
+                                else:
+                                    state.server_queue_out.put(
+                                        requestable.json())
                             else:
-                                state.server_conn.send(requestable.json())
-                        else:
-                            state.server_conn.send(None)
-                    except:
-                        logger.error(traceback.format_exc())
-                        state.server_conn.send(None)
-                elif command_type == COMMAND_CLICK:
-                    # This command is currently dead. If there is a reasonable
-                    # means to get the clicked position in the client, this is
-                    # supposed to feed that information to the fake client
-                    # owned by the controller to better guess the current
-                    # screen.
-                    state.browser_conn.send((browser.COMMAND_CLICK, command_args))
-                elif command_type == COMMAND_RELOAD_KCSAPI:
-                    kcsapi_handler.save_journals(args.journal_basedir)
-                    kcsapi_handler.save_states(args.state_basedir)
-                    serialized_objects = kcsapi_handler.serialize_objects()
-                    reload(kcsapi_util)
-                    kcsapi_util.reload_modules()
-                    kcsapi_handler = kcsapi_util.KCSAPIHandler(
-                        har_manager, args.journal_basedir, args.state_basedir,
-                        args.debug)
-                    kcsapi_handler.deserialize_objects(serialized_objects)
-                    manipulator_manager.reset_objects(
-                        kcsapi_handler.objects, kcsapi_handler.loaded_states)
-                    # TODO: Refactor!
-                    preferences = kcsapi_handler.objects['Preferences']
-                    manipulator_manager.preferences = preferences
-                elif command_type == COMMAND_RELOAD_MANIPULATORS:
-                    reload(manipulator_util)
-                    manipulator_util.reload_modules()
-                    manipulator_manager = manipulator_util.ManipulatorManager(
-                        state.browser_conn, kcsapi_handler.objects,
-                        kcsapi_handler.loaded_states, preferences, time.time())
-                elif command_type == COMMAND_MANIPULATE:
-                    try:
-                        manipulator_manager.dispatch(command_args)
-                    except:
-                        logger.error(traceback.format_exc())
-                elif command_type == COMMAND_SET_PREFERENCES:
-                    preferences = kcsapi.prefs.Preferences.parse_text(
-                        command_args[0])
-                    save_preferences(args, logger, preferences)
-                    # TODO: Refactor this part. Generalize the framework to
-                    # update objects.
-                    kcsapi_handler.update_preferences(preferences)
-                    state.object_queue.put(
-                        (False, 'Preferences', preferences.json()))
-                    manipulator_manager.set_auto_manipulator_preferences(
-                        kcsapi.prefs.AutoManipulatorPreferences(
-                            enabled=preferences.automan_prefs.enabled,
-                            schedules=[kcsapi.prefs.ScheduleFragment(
-                                start=sf.start, end=sf.end) for sf
-                                in preferences.automan_prefs.schedules]))
-                    # TODO: Refactor this as well. Setting Preferences object
-                    # should be a single operation on ManipulatorManager.
-                    manipulator_manager.preferences = preferences
-                elif command_type == COMMAND_TAKE_SCREENSHOT:
-                    format, quality, width, height = command_args
-                    state.browser_conn.send((browser.COMMAND_TAKE_SCREENSHOT,
-                                             (format, quality, width, height)))
-                    screenshot = state.browser_conn.recv()
-                    state.server_conn.send(screenshot)
-                else:
-                    raise ValueError(
-                        'Unknown controller command: type = {}, args = {}'
-                        .format(command_type, command_args))
+                                state.server_queue_out.put(None)
+                        except:
+                            logger.error(traceback.format_exc())
+                            state.server_queue_out.put(None)
+                    elif command_type == COMMAND_CLICK:
+                        # This command is currently dead. If there is a
+                        # reasonable means to get the clicked position in the
+                        # client, this is supposed to feed that information to
+                        # the fake client owned by the controller to better
+                        # guess the current screen.
+                        state.browser_queue_out.put(
+                            (browser.COMMAND_CLICK, command_args))
+                    elif command_type == COMMAND_RELOAD_KCSAPI:
+                        kcsapi_handler.save_journals(args.journal_basedir)
+                        kcsapi_handler.save_states(args.state_basedir)
+                        serialized_objects = kcsapi_handler.serialize_objects()
+                        reload(kcsapi_util)
+                        kcsapi_util.reload_modules()
+                        kcsapi_handler = kcsapi_util.KCSAPIHandler(
+                            har_manager, args.journal_basedir,
+                            args.state_basedir, args.debug)
+                        kcsapi_handler.deserialize_objects(serialized_objects)
+                        manipulator_manager.reset_objects(
+                            kcsapi_handler.objects,
+                            kcsapi_handler.loaded_states)
+                        # TODO: Refactor!
+                        preferences = kcsapi_handler.objects['Preferences']
+                        manipulator_manager.preferences = preferences
+                    elif command_type == COMMAND_RELOAD_MANIPULATORS:
+                        reload(manipulator_util)
+                        manipulator_util.reload_modules()
+                        manipulator_manager = (
+                            manipulator_util.ManipulatorManager(
+                                state.browser_queue_out,
+                                kcsapi_handler.objects,
+                                kcsapi_handler.loaded_states, preferences,
+                                time.time()))
+                    elif command_type == COMMAND_MANIPULATE:
+                        try:
+                            manipulator_manager.dispatch(command_args)
+                        except:
+                            logger.error(traceback.format_exc())
+                    elif command_type == COMMAND_SET_PREFERENCES:
+                        preferences = kcsapi.prefs.Preferences.parse_text(
+                            command_args[0])
+                        save_preferences(args, logger, preferences)
+                        # TODO: Refactor this part. Generalize the framework to
+                        # update objects.
+                        kcsapi_handler.update_preferences(preferences)
+                        state.object_queue.put(
+                            (False, 'Preferences', preferences.json()))
+                        manipulator_manager.set_auto_manipulator_preferences(
+                            kcsapi.prefs.AutoManipulatorPreferences(
+                                enabled=preferences.automan_prefs.enabled,
+                                schedules=[kcsapi.prefs.ScheduleFragment(
+                                    start=sf.start, end=sf.end) for sf
+                                    in preferences.automan_prefs.schedules]))
+                        # TODO: Refactor this as well. Setting Preferences
+                        # object should be a single operation on
+                        # ManipulatorManager.
+                        manipulator_manager.preferences = preferences
+                    elif command_type == COMMAND_TAKE_SCREENSHOT:
+                        format, quality, width, height = command_args
+                        try:
+                            state.browser_queue_out.put(
+                                (browser.COMMAND_TAKE_SCREENSHOT,
+                                 (format, quality, width, height)))
+                            screenshot = state.browser_queue_in.get(
+                                timeout=BROWSER_QUEUE_TIMEOUT_SEC)
+                            state.server_queue_out.put(screenshot)
+                        except Queue.Empty:
+                            to_restart = True
+                            break
+                    else:
+                        raise ValueError(
+                            'Unknown controller command: type = {}, args = {}'
+                            .format(command_type, command_args))
+            except Queue.Empty:
+                pass
             try:
                 for obj in kcsapi_handler.get_updated_objects():
                     state.object_queue.put((True, obj.object_type, obj.json()))
