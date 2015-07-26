@@ -39,6 +39,8 @@ class TestKCSAPIHandler(object):
                     },
                 },
                 'response': {
+                    'status': 200,
+                    'statusText': 'OK',
                     'content': {
                         'text': 'svdata={"foo": "bar"}',
                     },

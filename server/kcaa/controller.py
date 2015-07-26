@@ -23,6 +23,13 @@ COMMAND_MANIPULATE = 'manipulate'
 COMMAND_TAKE_SCREENSHOT = 'take_screenshot'
 COMMAND_SET_PREFERENCES = 'set_preferences'
 
+# Default wait in seconds before starting in case of network errors.
+# If a restart failed, this will be doubled each time.
+DEFAULT_RESTART_WAIT_SEC = 6
+# If this duration in seconds passed after a restart, the last restart is
+# considered as a success.
+HEALTHY_DURATION_FOR_RESTART_SUCCESS_SEC = 600
+
 
 class DummyProcess(object):
 
@@ -64,6 +71,48 @@ def save_preferences(args, logger, preferences):
         preferences_file.write(preferences_string)
 
 
+def setup(logger, args, to_exit):
+    to_exit.clear()
+    preferences = load_preferences(args, logger)
+    har_manager = proxy_util.HarManager(args, 3.0)
+    controller_conn, server_conn = multiprocessing.Pipe()
+    object_queue = multiprocessing.Queue()
+    ps = multiprocessing.Process(target=server.handle_server,
+                                 args=(args, to_exit, controller_conn,
+                                       object_queue))
+    ps.start()
+    object_queue.put((True, preferences.object_type, preferences.json()))
+    if not server_conn.poll(3.0):
+        raise Exception('Server is not responding. Shutting down.')
+    root_url = server_conn.recv()
+    controller_conn_for_browser, browser_conn = multiprocessing.Pipe()
+    pk = multiprocessing.Process(target=browser.setup_kancolle_browser,
+                                 args=(args, controller_conn_for_browser,
+                                       to_exit))
+    pc = multiprocessing.Process(target=browser.setup_kcaa_browser,
+                                 args=(args, root_url, to_exit))
+    pk.start()
+    pc.start()
+    kcsapi_handler = kcsapi_util.KCSAPIHandler(
+        har_manager, args.journal_basedir, args.state_basedir, args.debug)
+    kcsapi_handler.update_preferences(preferences)
+    manipulator_manager = manipulator_util.ManipulatorManager(
+        browser_conn, kcsapi_handler.objects, kcsapi_handler.loaded_states,
+        preferences, time.time())
+    return (preferences, kcsapi_handler, manipulator_manager, server_conn,
+            browser_conn, object_queue, ps, pk, pc)
+
+
+def teardown(kcsapi_handler, args, to_exit, ps, pk, pc):
+    to_exit.set()
+    ps.join()
+    pk.join()
+    pc.join()
+    if kcsapi_handler:
+        kcsapi_handler.save_journals(args.journal_basedir)
+        kcsapi_handler.save_states(args.state_basedir)
+
+
 def control(args, to_exit):
     # It seems that uncaught exceptions are silently buffered after creating
     # another multiprocessing.Process.
@@ -75,34 +124,11 @@ def control(args, to_exit):
         logenv.setup_logger(args.debug, args.log_file, args.log_level,
                             args.keep_timestamped_logs)
         logger = logging.getLogger('kcaa.controller')
-        preferences = load_preferences(args, logger)
-        har_manager = proxy_util.HarManager(args, 3.0)
-        controller_conn, server_conn = multiprocessing.Pipe()
-        object_queue = multiprocessing.Queue()
-        ps = multiprocessing.Process(target=server.handle_server,
-                                     args=(args, to_exit, controller_conn,
-                                           object_queue))
-        ps.start()
-        object_queue.put((True, preferences.object_type, preferences.json()))
-        if not server_conn.poll(3.0):
-            logger.error('Server is not responding. Shutting down.')
-            to_exit.set()
-            return
-        root_url = server_conn.recv()
-        controller_conn_for_browser, browser_conn = multiprocessing.Pipe()
-        pk = multiprocessing.Process(target=browser.setup_kancolle_browser,
-                                     args=(args, controller_conn_for_browser,
-                                           to_exit))
-        pc = multiprocessing.Process(target=browser.setup_kcaa_browser,
-                                     args=(args, root_url, to_exit))
-        pk.start()
-        pc.start()
-        kcsapi_handler = kcsapi_util.KCSAPIHandler(
-            har_manager, args.journal_basedir, args.state_basedir, args.debug)
-        kcsapi_handler.update_preferences(preferences)
-        manipulator_manager = manipulator_util.ManipulatorManager(
-            browser_conn, kcsapi_handler.objects, kcsapi_handler.loaded_states,
-            preferences, time.time())
+        (preferences, kcsapi_handler, manipulator_manager, server_conn,
+            browser_conn, object_queue, ps, pk, pc) = setup(
+                logger, args, to_exit)
+        last_restart = 0
+        restart_wait_sec = DEFAULT_RESTART_WAIT_SEC
         while True:
             time.sleep(args.backend_update_interval)
             if to_exit.wait(0.0):
@@ -189,6 +215,29 @@ def control(args, to_exit):
                     object_queue.put((True, obj.object_type, obj.json()))
                 for obj in manipulator_manager.update(time.time()):
                     object_queue.put((True, obj.object_type, obj.json()))
+            except kcsapi_util.NoResponseError:
+                # Some unrecoverable error happened. Retry after some wait.
+                logger.error(traceback.format_exc())
+                # TODO: Maybe restore the currently scheduled manipulators as
+                # much as possible, but it should not be critical.
+                teardown(kcsapi_handler, args, to_exit, ps, pk, pc)
+                now = time.time()
+                if (now - last_restart <
+                        HEALTHY_DURATION_FOR_RESTART_SUCCESS_SEC):
+                    logger.error('Last restart seems to have failed.')
+                    restart_wait_sec *= 2
+                else:
+                    logger.info('Last restart seems to have succeeded.')
+                    restart_wait_sec = DEFAULT_RESTART_WAIT_SEC
+                logger.info(
+                    'Waiting for {} seconds before restarting...'.format(
+                        restart_wait_sec))
+                time.sleep(restart_wait_sec)
+                logger.info('Restarting the browsers.')
+                (preferences, kcsapi_handler, manipulator_manager, server_conn,
+                    browser_conn, object_queue, ps, pk, pc) = setup(
+                        logger, args, to_exit)
+                last_restart = time.time()
             except:
                 # Permit an exception in KCSAPI handler or manipulators -- it's
                 # very likely a bug in how a raw response is read, or how they
@@ -201,10 +250,4 @@ def control(args, to_exit):
         logger.info('SIGINT received in the controller process. Exiting...')
     except:
         logger.error(traceback.format_exc())
-    to_exit.set()
-    ps.join()
-    pk.join()
-    pc.join()
-    if kcsapi_handler:
-        kcsapi_handler.save_journals(args.journal_basedir)
-        kcsapi_handler.save_states(args.state_basedir)
+    teardown(kcsapi_handler, args, to_exit, ps, pk, pc)

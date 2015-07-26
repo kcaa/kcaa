@@ -22,6 +22,12 @@ KCSAPI_PREFIX = 'svdata='
 BOM = '\xEF\xBB\xBF'
 
 
+class NoResponseError(IOError):
+
+    def __init__(self, *args, **kwargs):
+        super(NoResponseError, self).__init__(*args, **kwargs)
+
+
 class KCSAPIHandler(object):
 
     def __init__(self, har_manager, journal_basedir, state_basedir, debug):
@@ -332,14 +338,14 @@ class KCSAPIHandler(object):
                      entry['request']['postData']['params']},
                     readonly=True, omittable=False)
                 content = entry['response']['content']
-                try:
-                    text = content['text']
-                except Exception as e:
+                if (entry['response']['statusText'] == 'NO_RESPONSE' or
+                        'text' not in content):
                     self._logger.error(
                         'Failed to extract text from KCSAPI response.')
-                    self._logger.debug('Content: {}'.format(str(content)))
                     self._logger.debug('Full HAR entry: {}'.format(str(entry)))
-                    raise e
+                    raise NoResponseError(
+                        'No KCSAPI response found; probably a network error.')
+                text = content['text']
                 # Highly likely the KCSAPI response is Base64 encoded, because
                 # the API server doesn't attach charset information.
                 encoding = content.get('encoding')
