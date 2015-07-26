@@ -72,7 +72,8 @@ def control(args, to_exit):
     pc = DummyProcess()
     kcsapi_handler = None
     try:
-        logenv.setup_logger(args.debug, args.log_file, args.log_level)
+        logenv.setup_logger(args.debug, args.log_file, args.log_level,
+                            args.keep_timestamped_logs)
         logger = logging.getLogger('kcaa.controller')
         preferences = load_preferences(args, logger)
         har_manager = proxy_util.HarManager(args, 3.0)

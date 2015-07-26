@@ -49,4 +49,5 @@ ${SERVER_BIN} \
   --credentials=${CREDENTIALS} \
   --debug=${DEBUG} \
   --log_file=${LOG_FILE} \
-  --log_level=${LOG_LEVEL}
+  --log_level=${LOG_LEVEL} \
+  --keep_timestamped_logs=${KEEP_TIMESTAMPED_LOGS}

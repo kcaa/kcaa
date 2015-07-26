@@ -30,6 +30,7 @@ set SERVERBIN=%cd%\..\server\server_main.py
   --credentials=%CREDENTIALS% ^
   --debug=%DEBUG% ^
   --log_file=%LOGFILE% ^
-  --log_level=%LOGLEVEL%
+  --log_level=%LOGLEVEL% ^
+  --keep_timestamped_logs=%KEEPTIMESTAMPEDLOGS%
 
 echo Server exited. Close this window!

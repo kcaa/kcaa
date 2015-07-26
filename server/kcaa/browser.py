@@ -257,7 +257,8 @@ def perform_actions(actions):
 
 def setup_kancolle_browser(args, controller_conn, to_exit):
     try:
-        logenv.setup_logger(args.debug, args.log_file, args.log_level)
+        logenv.setup_logger(args.debug, args.log_file, args.log_level,
+                            args.keep_timestamped_logs)
         monitor = BrowserMonitor(
             'Kancolle', open_kancolle_browser(args), 3)
         game_frame, dx, dy, game_area_rect = None, None, None, None
@@ -392,7 +393,8 @@ def open_kcaa_browser(args, root_url):
 
 def setup_kcaa_browser(args, root_url, to_exit):
     try:
-        logenv.setup_logger(args.debug, args.log_file, args.log_level)
+        logenv.setup_logger(args.debug, args.log_file, args.log_level,
+                            args.keep_timestamped_logs)
         kcaa_browser = open_kcaa_browser(args, root_url)
         if not kcaa_browser:
             return

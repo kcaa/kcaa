@@ -85,4 +85,9 @@ def parse_args(argv):
     parser.add_argument('--log_level', default='DEBUG',
                         help='Log level. Usually this should be DEBUG to '
                              'help debugging an issue later.')
+    parser.add_argument('--keep_timestamped_logs', default=False,
+                        type=string_bool,
+                        help='Keep the timestamped logs instead of '
+                        'overwriting the log file. The output log file will '
+                        'be <--log_file>.<YYMMDDhhmmss>.')
     return parser.parse_args(argv)

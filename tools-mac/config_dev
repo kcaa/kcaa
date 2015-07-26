@@ -33,3 +33,4 @@ CREDENTIALS=${USER_DATA_DIR}/credentials
 # ============================================================================
 
 DEBUG=true
+KEEP_TIMESTAMPED_LOGS=true

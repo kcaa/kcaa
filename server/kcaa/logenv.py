@@ -23,7 +23,7 @@ class ShortLogFormatter(logging.Formatter):
 # Set up a logger.
 # On Linux it seems it's enough to call this from the main process. Windows
 # seems not comfortable with that -- needs to be called from each subprocess.
-def setup_logger(debug, log_file, log_level):
+def setup_logger(debug, log_file, log_level, keep_timestamped_logs):
     global _logger
     if _logger:
         return _logger
@@ -36,6 +36,9 @@ def setup_logger(debug, log_file, log_level):
     logger.addHandler(handler)
     # Set up file logger.
     if log_file:
+        if keep_timestamped_logs:
+            log_file = '{}.{}'.format(
+                log_file, datetime.datetime.now().strftime('%Y%m%d%H%M%S'))
         handler = logging.FileHandler(log_file, mode='w')
         log_level_num = getattr(logging, log_level, None)
         if not isinstance(log_level_num, int):

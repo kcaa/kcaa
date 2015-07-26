@@ -81,3 +81,4 @@ rem ==========================================================================
 set DEBUG=false
 set LOGFILE=log.txt
 set LOGLEVEL=DEBUG
+set KEEPTIMESTAMPEDLOGS=false

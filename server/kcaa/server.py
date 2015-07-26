@@ -302,7 +302,8 @@ def setup(args, logger):
 def handle_server(args, to_exit, controller_conn, object_queue):
     httpd = None
     try:
-        logenv.setup_logger(args.debug, args.log_file, args.log_level)
+        logenv.setup_logger(args.debug, args.log_file, args.log_level,
+                            args.keep_timestamped_logs)
         logger = logging.getLogger('kcaa.server')
         KCAAHTTPRequestHandler.extensions_map.update({
             '.dart': 'application/dart',
