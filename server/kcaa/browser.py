@@ -255,7 +255,7 @@ def perform_actions(actions):
     return False
 
 
-def setup_kancolle_browser(args, controller_conn, to_exit):
+def setup_kancolle_browser(args, controller_conn, to_exit, browser_broken):
     try:
         logenv.setup_logger(args.debug, args.log_file, args.log_level,
                             args.keep_timestamped_logs)
@@ -268,7 +268,6 @@ def setup_kancolle_browser(args, controller_conn, to_exit):
             if to_exit.wait(0.0):
                 logger.info('Browser Kancolle got an exit signal. Shutting '
                             'down.')
-                monitor.close()
                 break
             if not monitor.is_alive():
                 # If a user closes the Kancolle browser, it should be a signal
@@ -366,13 +365,15 @@ def setup_kancolle_browser(args, controller_conn, to_exit):
     except (KeyboardInterrupt, SystemExit):
         logger.info('SIGINT received in the Kancolle browser process. '
                     'Exiting...')
+    except exceptions.NoSuchWindowException:
+        logger.error('Kancolle window seems to have been killed.')
+        browser_broken.set()
+        monitor.close()
+        return
     except:
         logger.error(traceback.format_exc())
     to_exit.set()
-    try:
-        monitor.close()
-    except:
-        pass
+    monitor.close()
 
 
 def open_kcaa_browser(args, root_url):
@@ -403,7 +404,6 @@ def setup_kcaa_browser(args, root_url, to_exit):
             time.sleep(1.0)
             if to_exit.wait(0.0):
                 logger.info('Browser KCAA got an exit signal. Shutting down.')
-                monitor.close()
                 break
             if not monitor.is_alive():
                 # KCAA window is not vital for playing the game -- it is not
@@ -416,10 +416,7 @@ def setup_kcaa_browser(args, root_url, to_exit):
     except:
         logger.error(traceback.format_exc())
     to_exit.set()
-    try:
-        monitor.close()
-    except:
-        pass
+    monitor.close()
 
 
 class BrowserMonitor(object):

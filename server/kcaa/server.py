@@ -143,10 +143,11 @@ class KCAAHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
                 command_args[key] = values
         self.server.controller_conn.send((controller.COMMAND_REQUEST_OBJECT,
                                           (command_type, command_args)))
-        if not self.server.controller_conn.poll(10):
+        try:
+            obj = self.server.controller_conn.recv()
+        except EOFError:
             self.send_error(500, 'Controller process does not respond')
             return
-        obj = self.server.controller_conn.recv()
         if obj:
             self.send_response(200)
             self.send_header('Content-Type', 'text/plain')
@@ -242,13 +243,15 @@ class KCAAHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         self.server.controller_conn.send(
             (controller.COMMAND_TAKE_SCREENSHOT,
              (format, quality, width, height)))
+        try:
+            screenshot = self.server.controller_conn.recv()
+        except EOFError:
+            self.send_error(500, 'Controller process does not respond')
+            return
         self.send_response(200)
         self.send_header('Content-Type', 'image/{}'.format(format))
         self.end_headers()
-        if not self.server.controller_conn.poll(10):
-            self.send_error(500, 'Controller process does not respond')
-            return
-        self.wfile.write(self.server.controller_conn.recv())
+        self.wfile.write(screenshot)
 
     def handle_client(self, o):
         self.path = '/' + o.path[len(KCAAHTTPRequestHandler.CLIENT_PREFIX):]
