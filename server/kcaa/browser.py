@@ -382,7 +382,7 @@ def setup_kancolle_browser(args, controller_queue_in, controller_queue_out,
         controller_queue_in.close()
         controller_queue_out.close()
         if monitor:
-            monitor.close()
+            monitor.quit()
     to_exit.set()
 
 
@@ -428,7 +428,7 @@ def setup_kcaa_browser(args, root_url, to_exit):
         logger.error(traceback.format_exc())
     to_exit.set()
     if monitor:
-        monitor.close()
+        monitor.quit()
 
 
 class BrowserMonitor(object):
@@ -439,11 +439,11 @@ class BrowserMonitor(object):
         self.max_credit = max_credit
         self.credit = max_credit
 
-    def close(self):
+    def quit(self):
         try:
-            self.browser.close()
-        except Exception:
-            pass
+            self.browser.quit()
+        except:
+            logger.error(traceback.format_exc())
 
     def is_alive(self):
         alive = True
