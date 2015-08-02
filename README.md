@@ -1,5 +1,8 @@
 # KCAA: KanColle Automated Assistant
 
+**NOTE: This project has been frozen. Feel free to fork if you are
+interested.**
+
 KCAA (pronounced as *K-car*) is an assistant tool for playing
 [Kancolle](http://www.dmm.com/netgame/feature/kancolle.html) (Kantai
 Collection), aimed to do simple tasks for you so that you can focus on what you
